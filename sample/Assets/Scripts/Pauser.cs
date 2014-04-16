@@ -6,14 +6,16 @@ public class Pauser : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyUp(KeyCode.P))
-		{
-			paused = !paused;
-		}
-
 		if(paused)
 			Time.timeScale = 0;
 		else
 			Time.timeScale = 1;
+	}
+
+	void OnGUI () 
+	{
+		if (GUI.Button (new Rect (0, Screen.height - 25, 55, 25), "Pause")) {
+			paused = !paused;
+		}
 	}
 }
