@@ -119,4 +119,24 @@ public class Airship : MonoBehaviour {
 		// ... and then reload the level.
 		Application.LoadLevel(Application.loadedLevel);
 	}
+	void Awake() {
+		UAUnityPlugin.enablePush ();
+		UAUnityPlugin.launchdefaultLandingPage ();
+		UAUnityPlugin.setAlias ("neel");
+		UAUnityPlugin.addTag ("ua-unity-plugin-enabled");
+		string tags = UAUnityPlugin.getTags ();
+		Debug.Log ("Tags: " + tags);
+		
+		string pushIDs = UAUnityPlugin.getPushIDs ();
+		Debug.Log ("Push IDs: " + pushIDs);
+		
+		string alias = UAUnityPlugin.getAlias ();
+		Debug.Log ("alias: " + alias);
+		
+		UAUnityPlugin.disablePush ();
+		UAUnityPlugin.enablePush ();
+		
+		
+		
+	}
 }
