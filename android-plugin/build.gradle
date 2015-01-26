@@ -1,0 +1,140 @@
+import java.util.regex.Pattern
+
+apply plugin: 'android-library'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.1'
+    }
+}
+
+repositories {
+    mavenCentral()
+
+    flatDir {
+        dirs 'aars'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+}
+
+dependencies {
+    compile files('libs/classes.jar')
+    provided 'com.urbanairship:urbanairship-lib:+@aar'
+}
+
+
+def getAndroidSDKDir() {
+    // From gradle.properties
+    if (project.hasProperty('androidSDKDir')) {
+        return androidSDKDir;
+    }
+
+    // Try to get the Android SDK directory from local.properties file
+    File localPropertiesFile = new File(project.rootDir, "local.properties")
+    if (localPropertiesFile.exists()) {
+        def localProperties = new Properties()
+        localProperties.load(localPropertiesFile.newDataInputStream())
+
+        def sdkDir = localProperties.getProperty("sdk.dir");
+        if (sdkDir != null) {
+            return sdkDir;
+        }
+    }
+
+    return System.getenv("ANDROID_HOME")
+}
+
+task cleanPlugin(type: Delete) {
+    delete "$buildDir/unity-plugin"
+}
+
+task packagePlugin <<  {
+
+    // Get the Android SDK directory.
+    def sdkDir = getAndroidSDKDir()
+    if (sdkDir == null) {
+        throw new StopExecutionException("Unable to locate Android SDK directory.");
+    }
+
+    // Convert the Urban Airship the aar file into a Eclipse style library project
+    copy {
+        from zipTree(file("aars/urbanairship-lib-5.1.4.aar"))
+        into file("$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-lib")
+        rename "classes.jar", "libs/urbanairship-lib-5.1.4.jar"
+        exclude "R.txt", "assets", "aidl"
+    }
+
+    // Project.properties file for Urban Airship Library
+    def propertiesFile = file("$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-lib/project.properties")
+    propertiesFile.text = "target=android-${android.defaultConfig.targetSdkVersion.mApiLevel}\n"
+    propertiesFile.text += "android.library=true"
+
+    // Convert the Unity Plugin output aar file into a Eclipse style library project
+    copy {
+        from zipTree(file("${buildDir}/outputs/aar/android-plugin-release.aar"))
+        into file("$buildDir/unity-plugin/Assets/Plugins/Android/ua-unity-plugin-lib")
+        rename "classes.jar", "libs/ua-unity-plugin.jar"
+        exclude "R.txt", "assets", "aidl", "libs/classes.jar"
+    }
+
+    // Project.properties file for Unity Plugin
+    propertiesFile = file("$buildDir/unity-plugin/Assets/Plugins/Android/ua-unity-plugin-lib/project.properties")
+    propertiesFile.text = "target=android-${android.defaultConfig.targetSdkVersion.mApiLevel}\n"
+    propertiesFile.text += "android.library=true"
+
+    // Copy the Google Play Services library project from the Android SDK dir
+    copy {
+        from file("$sdkDir/extras/google/google_play_services/libproject/google-play-services_lib")
+        into file("$buildDir/unity-plugin/Assets/Plugins/Android/google-play-services-lib")
+    }
+
+    // Copy support library v4 jar from the Android SDK dir
+    copy {
+        from file("$sdkDir/extras/android/support/v4/android-support-v4.jar")
+        into file("$buildDir/unity-plugin/Assets/Plugins/Android")
+    }
+
+    // Copy the AndroidManifest.xml
+    copy {
+        from file("AndroidManifest-template.xml")
+        into file("$buildDir/unity-plugin/Assets/Plugins/Android")
+        rename "AndroidManifest-template.xml", "AndroidManifest.xml"
+        filter {
+            String line -> line.replaceAll(Pattern.quote("\${applicationId}"), androidApplicationId)
+        }
+    }
+
+     // Copy the airshipconfig.properties
+    copy {
+        from file("airshipconfig-template.properties")
+        into file("$buildDir/unity-plugin/Assets/Plugins/Android/assets")
+        rename "airshipconfig-template.properties", "airshipconfig.properties"
+        filter { String line ->
+            line.replaceAll(Pattern.quote("GCM_SENDER"), gcmSender)
+                .replaceAll(Pattern.quote("APP_KEY"), appKey)
+                .replaceAll(Pattern.quote("APP_SECRET"), appSecret)
+        }
+    }
+}
+
+packagePlugin.dependsOn('cleanPlugin')
+
+assemble.dependsOn packagePlugin
+

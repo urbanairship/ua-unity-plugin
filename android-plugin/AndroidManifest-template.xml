@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:amazon="http://schemas.amazon.com/apk/res/android"
+    package="${applicationId}"
+    android:installLocation="preferExternal"
+    android:theme="@android:style/Theme.NoTitleBar"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+
+    <!-- Urban Airship -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission android:name="${applicationId}.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
+
+    <permission android:name="${applicationId}.permission.RECEIVE_ADM_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="${applicationId}.permission.RECEIVE_ADM_MESSAGE" />
+
+    <permission android:name="${applicationId}.permission.UA_DATA" android:protectionLevel="signature" />
+    <uses-permission android:name="${applicationId}.permission.UA_DATA" />
+
+    <!-- OPTIONAL for location -->
+    <!-- uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- End of Urban Airship -->
+
+
+    <supports-screens android:anyDensity="true" android:largeScreens="true"
+        android:normalScreens="true" android:smallScreens="true" android:xlargeScreens="true" />
+
+    <!-- Required to use UrbanAirshipApplication -->
+    <application
+        android:name="com.urbanairship.unityplugin.UrbanAirshipApplication"
+        android:debuggable="false"
+        android:icon="@drawable/app_icon"
+        android:label="@string/app_name">
+
+        <activity android:name="com.unity3d.player.UnityPlayerNativeActivity"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:label="@string/app_name" android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+            <meta-data android:name="unityplayer.ForwardNativeEventsToDalvik"
+                android:value="false" />
+        </activity>
+
+        <!-- Urban Airship -->
+        <activity android:name="com.urbanairship.actions.ActionActivity" />
+        <activity android:name="com.urbanairship.CoreActivity" />
+        <activity android:name="com.urbanairship.actions.LandingPageActivity" android:exported="false">
+            <intent-filter>
+                <action android:name="com.urbanairship.actions.SHOW_LANDING_PAGE_INTENT_ACTION" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <receiver android:name="com.urbanairship.unityplugin.IntentReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="com.urbanairship.push.CHANNEL_UPDATED" />
+                <action android:name="com.urbanairship.push.OPENED" />
+                <action android:name="com.urbanairship.push.DISMISSED" />
+                <action android:name="com.urbanairship.push.RECEIVED" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.urbanairship.CoreReceiver" android:exported="false">
+            <intent-filter android:priority="-999">
+                <action android:name="com.urbanairship.push.OPENED" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ADM -->
+        <amazon:enable-feature android:name="com.amazon.device.messaging" android:required="false" />
+        <receiver android:name="com.urbanairship.push.ADMPushReceiver"
+            android:permission="com.amazon.device.messaging.permission.SEND">
+            <intent-filter>
+                <action android:name="com.amazon.device.messaging.intent.REGISTRATION" />
+                <action android:name="com.amazon.device.messaging.intent.RECEIVE" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+
+        <!-- GCM -->
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
+        <receiver android:name="com.urbanairship.push.GCMPushReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.urbanairship.location.LocationService" android:label="Segments Service" />
+        <service android:name="com.urbanairship.push.PushService" android:label="Push Notification Service" />
+        <service android:name="com.urbanairship.analytics.EventService" android:label="Event Service" />
+        <service android:name="com.urbanairship.actions.ActionService" />
+
+        <provider android:name="com.urbanairship.UrbanAirshipProvider"
+            android:authorities="${applicationId}.urbanairship.provider"
+            android:exported="true" android:multiprocess="true"
+            android:permission="${applicationId}.permission.UA_DATA" />
+
+        <!-- End of Urban Airship -->
+
+
+    </application>
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="21" />
+    <uses-feature android:glEsVersion="0x00020000" />
+    <uses-feature android:name="android.hardware.touchscreen" />
+    <uses-feature android:name="android.hardware.touchscreen.multitouch" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen.multitouch.distinct"
+        android:required="false" />
+</manifest>

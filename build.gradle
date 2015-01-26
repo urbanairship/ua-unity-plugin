@@ -1,0 +1,25 @@
+task clean(type: Delete) {
+    delete "$buildDir/unity-plugin"
+}
+
+task build << {
+    // Copy the plugin src
+    copy {
+        from file("src")
+        into file("$buildDir/unity-plugin/Assets/Plugins")
+    }
+
+    // Android Plugin
+    copy {
+        from file("${project.findProject(":android-plugin").buildDir}/unity-plugin")
+        into file("$buildDir/unity-plugin")
+    }
+
+    // iOS Plugin
+    copy {
+        from file("${project.findProject(":ios-plugin").buildDir}/unity-plugin")
+        into file("$buildDir/unity-plugin")
+    }
+}
+
+build.dependsOn("clean", "ios-plugin:build", "android-plugin:build")
