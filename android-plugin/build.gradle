@@ -75,9 +75,9 @@ task packagePlugin <<  {
 
     // Convert the Urban Airship the aar file into a Eclipse style library project
     copy {
-        from zipTree(file("aars/urbanairship-lib-5.1.4.aar"))
+        from zipTree(file("aars/urbanairship-lib-5.1.5.aar"))
         into file("$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-lib")
-        rename "classes.jar", "libs/urbanairship-lib-5.1.4.jar"
+        rename "classes.jar", "libs/urbanairship-lib-5.1.5.jar"
         exclude "R.txt", "assets", "aidl"
     }
 
