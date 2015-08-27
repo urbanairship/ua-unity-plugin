@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.1'
+        classpath 'com.android.tools.build:gradle:1.3.1'
     }
 }
 
@@ -29,14 +29,14 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+
+        manifestPlaceholders = [unityPackageName:androidApplicationId]
     }
 }
 
 dependencies {
     compile files('libs/classes.jar')
-    provided 'com.urbanairship:urbanairship-lib:+@aar'
+    compile 'com.urbanairship:urbanairship-lib:+@aar'
 }
 
 
@@ -65,6 +65,41 @@ task cleanPlugin(type: Delete) {
     delete "$buildDir/unity-plugin"
 }
 
+def convertAar(String aarPath, String destinationPath) {
+    // Unpack the resources and classes.jar
+    copy {
+        from zipTree(file(aarPath))
+        into file(destinationPath)
+        include "res/**", "classes.jar"
+    }
+
+    // Unpack the manifest and do applicationId placeholders
+    copy {
+        from zipTree(file(aarPath))
+        into file(destinationPath)
+        include "AndroidManifest.xml"
+        filter { String line ->
+            line.replaceAll(Pattern.quote("\${applicationId}"), androidApplicationId)
+        }
+    }
+
+    // Move the classes.jar file into the libs directory. Exclude Manifest*.class files.
+    task(destinationPath, type: Jar) {
+        from zipTree(file("$destinationPath/classes.jar"))
+        destinationDir file("$destinationPath/libs")
+        archiveName "${file(destinationPath).name}.jar"
+        exclude '**/Manifest.class', '**/Manifest$*.class'
+    }.execute()
+
+    // Generate a Project.properties file
+    def propertiesFile = file("$destinationPath/project.properties")
+    propertiesFile.text = "target=android-21\n"
+    propertiesFile.text += "android.library=true"
+
+    // Delete the classes.jar
+    delete "$destinationPath/classes.jar"
+}
+
 task packagePlugin <<  {
 
     // Get the Android SDK directory.
@@ -73,31 +108,11 @@ task packagePlugin <<  {
         throw new StopExecutionException("Unable to locate Android SDK directory.");
     }
 
-    // Convert the Urban Airship the aar file into a Eclipse style library project
-    copy {
-        from zipTree(file("aars/urbanairship-lib-5.1.5.aar"))
-        into file("$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-lib")
-        rename "classes.jar", "libs/urbanairship-lib-5.1.5.jar"
-        exclude "R.txt", "assets", "aidl"
-    }
+    // Convert the SDK
+    convertAar("aars/urbanairship-lib-6.2.2.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-lib")
 
-    // Project.properties file for Urban Airship Library
-    def propertiesFile = file("$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-lib/project.properties")
-    propertiesFile.text = "target=android-${android.defaultConfig.targetSdkVersion.mApiLevel}\n"
-    propertiesFile.text += "android.library=true"
-
-    // Convert the Unity Plugin output aar file into a Eclipse style library project
-    copy {
-        from zipTree(file("${buildDir}/outputs/aar/android-plugin-release.aar"))
-        into file("$buildDir/unity-plugin/Assets/Plugins/Android/ua-unity-plugin-lib")
-        rename "classes.jar", "libs/ua-unity-plugin.jar"
-        exclude "R.txt", "assets", "aidl", "libs/classes.jar"
-    }
-
-    // Project.properties file for Unity Plugin
-    propertiesFile = file("$buildDir/unity-plugin/Assets/Plugins/Android/ua-unity-plugin-lib/project.properties")
-    propertiesFile.text = "target=android-${android.defaultConfig.targetSdkVersion.mApiLevel}\n"
-    propertiesFile.text += "android.library=true"
+    // Convert the plugin
+    convertAar("$buildDir/outputs/aar/android-plugin-release.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/ua-unity-plugin-lib")
 
     // Copy the Google Play Services library project from the Android SDK dir
     copy {
@@ -111,30 +126,28 @@ task packagePlugin <<  {
         into file("$buildDir/unity-plugin/Assets/Plugins/Android")
     }
 
-    // Copy the AndroidManifest.xml
+    // Copy the airshipconfig.properties
     copy {
-        from file("AndroidManifest-template.xml")
-        into file("$buildDir/unity-plugin/Assets/Plugins/Android")
-        rename "AndroidManifest-template.xml", "AndroidManifest.xml"
-        filter {
-            String line -> line.replaceAll(Pattern.quote("\${applicationId}"), androidApplicationId)
-        }
-    }
-
-     // Copy the airshipconfig.properties
-    copy {
-        from file("airshipconfig-template.properties")
+        from file("airshipconfig.properties")
         into file("$buildDir/unity-plugin/Assets/Plugins/Android/assets")
-        rename "airshipconfig-template.properties", "airshipconfig.properties"
         filter { String line ->
             line.replaceAll(Pattern.quote("GCM_SENDER"), gcmSender)
                 .replaceAll(Pattern.quote("APP_KEY"), appKey)
                 .replaceAll(Pattern.quote("APP_SECRET"), appSecret)
         }
     }
+
+    // Copy the main AndroidManifest.xml
+    copy {
+        from file("AndroidManifest.xml")
+        into file("$buildDir/unity-plugin/Assets/Plugins/Android")
+        filter { String line ->
+            // Unity does not support applicationId placeholders
+            line.replaceAll(Pattern.quote("\${applicationId}"), androidApplicationId)
+        }
+    }
 }
 
 packagePlugin.dependsOn('cleanPlugin')
-
 assemble.dependsOn packagePlugin
 
