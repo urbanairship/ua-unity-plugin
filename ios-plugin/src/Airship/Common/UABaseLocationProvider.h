@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,11 +7,11 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
  
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
  
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -22,10 +22,13 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #import <CoreLocation/CoreLocation.h>
 #import "UALocationProviderDelegate.h"
 #import "UALocationProviderProtocol.h"
 #import "UALocationCommonValues.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This is the base class for location providers. You should not
@@ -91,7 +94,7 @@
  * programatically.
  * @return An NSString with the current purpose
  */
-- (NSString *)purpose;
+- (nullable NSString *)purpose;
 
 /**
  * The most recently received location available from the CLLocationManager object. This may be more accurate than
@@ -99,7 +102,7 @@
  * @return The most recent location, if one is available
  * @return nil if no recent location is available
  */
-- (CLLocation *)location;
+- (nullable CLLocation *)location;
 
 ///---------------------------------------------------------------------------------------
 /// @name Location Service methods
@@ -107,7 +110,7 @@
 
 
 /// Delegate that receives location updates 
-@property (nonatomic, weak) id<UALocationProviderDelegate> delegate;
+@property (nonatomic, weak, nullable) id<UALocationProviderDelegate> delegate;
 
 /** 
  * Status of the location service.
@@ -134,7 +137,7 @@
  * Initializes the object with a delegate
  * @param delegate Delegate object that implements the UALocationProviderDelegate protocol
  */
-- (instancetype)initWithDelegate:(id<UALocationProviderDelegate>)delegate;
+- (instancetype)initWithDelegate:(nullable id<UALocationProviderDelegate>)delegate;
 
 ///---------------------------------------------------------------------------------------
 /// @name Location Accuracy
@@ -156,7 +159,7 @@
 /**
  * Abstract method for starting the location service.
  * @warning This method only controls the service status on this object. A call to
- * [super startReportingLocation] is required when overriding this method.
+ * `[super startReportingLocation]` is required when overriding this method.
  */
 - (void)startReportingLocation;
 
@@ -168,3 +171,5 @@
 - (void)stopReportingLocation;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,9 +7,9 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
  
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
  
  THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -26,6 +26,8 @@
 #import <Foundation/Foundation.h>
 
 #define kUAKeychainDeviceIDKey @"com.urbanairship.deviceID"
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The UAKeychainUtils object provides an interface for keychain related methods.
@@ -63,16 +65,16 @@
 /**
  * Get the key chain's password.
  * @param identifier The identifier for the key chain.
- * @return The password as an NSString or an empty string if an error occurred.
+ * @return The password as an NSString or nil if an error occurred.
  */
-+ (NSString *)getPassword:(NSString *)identifier;
++ (nullable NSString *)getPassword:(NSString *)identifier;
 
 /**
  * Get the key chain's username.
  * @param identifier The identifier for the key chain.
- * @return The username as an NSString or an empty string if an error occurred.
+ * @return The username as an NSString or nil if an error occurred.
  */
-+ (NSString *)getUsername:(NSString *)identifier;
++ (nullable NSString *)getUsername:(NSString *)identifier;
 
 /**
  * Gets the device ID, creating or refreshing if necessary. Device IDs will be regenerated if a
@@ -83,3 +85,5 @@
 + (NSString *)getDeviceID;
 
 @end
+
+NS_ASSUME_NONNULL_END

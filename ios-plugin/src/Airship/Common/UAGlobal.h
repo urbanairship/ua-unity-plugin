@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,9 +7,9 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
 
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -81,6 +81,17 @@ typedef NS_ENUM(NSInteger, UALogLevel) {
         } \
     } while(0)
 
+#define UA_LEVEL_LOG_IMPLEMENTATION(fmt, ...) \
+    do { \
+        if (uaLoggingEnabled && uaLogLevel >= UALogLevelError) { \
+            if (uaLoudImpErrorLoggingEnabled) { \
+                NSLog((@"🚨Urban Airship Implementation Error🚨 - " fmt), ##__VA_ARGS__); \
+            } else { \
+                NSLog((@"Urban Airship Implementation Error - " fmt), ##__VA_ARGS__); \
+            } \
+        } \
+    } while(0)
+
 //only log thread if #UA_LOG_THREAD is defined
 #ifdef UA_LOG_THREAD
 #define UA_LEVEL_LOG UA_LEVEL_LOG_THREAD
@@ -88,20 +99,22 @@ typedef NS_ENUM(NSInteger, UALogLevel) {
 #define UA_LEVEL_LOG UA_LEVEL_LOG_NO_THREAD
 #endif
 
-extern BOOL uaLoggingEnabled; // Default is true
+extern BOOL uaLoggingEnabled; // Default is YES
 extern UALogLevel uaLogLevel; // Default is UALogLevelError
+extern BOOL uaLoudImpErrorLoggingEnabled; // Default is YES
 
 #define UA_LTRACE(fmt, ...) UA_LEVEL_LOG(UALogLevelTrace, @"T", fmt, ##__VA_ARGS__)
 #define UA_LDEBUG(fmt, ...) UA_LEVEL_LOG(UALogLevelDebug, @"D", fmt, ##__VA_ARGS__)
 #define UA_LINFO(fmt, ...) UA_LEVEL_LOG(UALogLevelInfo, @"I", fmt, ##__VA_ARGS__)
 #define UA_LWARN(fmt, ...) UA_LEVEL_LOG(UALogLevelWarn, @"W", fmt, ##__VA_ARGS__)
 #define UA_LERR(fmt, ...) UA_LEVEL_LOG(UALogLevelError, @"E", fmt, ##__VA_ARGS__)
+#define UA_LIMPERR(fmt, ...) UA_LEVEL_LOG_IMPLEMENTATION(fmt, ##__VA_ARGS__)
 
 #define UALOG UA_LDEBUG
 
 // constants
-#define kAirshipProductionServer @"https://device-api.urbanairship.com"
-#define kAnalyticsProductionServer @"https://combine.urbanairship.com"
+#define kUAAirshipProductionServer @"https://device-api.urbanairship.com"
+#define kUAAnalyticsProductionServer @"https://combine.urbanairship.com"
 #define kUAProductionLandingPageContentURL @"https://dl.urbanairship.com/aaa"
 
 #ifdef _UA_VERSION
@@ -112,7 +125,7 @@ extern UALogLevel uaLogLevel; // Default is UALogLevelError
 
 #define UA_VERSION_INTERFACE(CLASSNAME) \
 @interface CLASSNAME : NSObject         \
-+ (NSString *)get;                      \
++ (nonnull NSString *)get;                      \
 @end
 
 
@@ -123,48 +136,14 @@ return VERSION_STR;                                         \
 }                                                           \
 @end
 
-
-#define SINGLETON_INTERFACE(CLASSNAME)                                                      \
-+ (CLASSNAME*)shared;                                                                       \
-
-#define SINGLETON_IMPLEMENTATION(CLASSNAME)                                                 \
-                                                                                            \
-static CLASSNAME* g_shared##CLASSNAME = nil;                                                \
-static dispatch_once_t sharedOncePredicate##CLASSNAME;                                      \
-static dispatch_once_t allocOncePredicate##CLASSNAME;                                                  \
-\
-+ (CLASSNAME*)shared                                                                        \
-{                                                                                           \
-\
-dispatch_once(&sharedOncePredicate##CLASSNAME, ^{                                                      \
-g_shared##CLASSNAME = [[self alloc] init];                                                  \
-});                                                                                         \
-return g_shared##CLASSNAME;                                                                 \
-}                                                                                           \
-\
-+ (id)allocWithZone:(NSZone*)zone                                                           \
-{                                                                                           \
-dispatch_once(&allocOncePredicate##CLASSNAME, ^{                                                       \
-if (g_shared##CLASSNAME == nil) {                                                           \
-g_shared##CLASSNAME = [super allocWithZone:zone];                                           \
-}                                                                                           \
-});                                                                                         \
-return g_shared##CLASSNAME;                                                                 \
-}                                                                                           \
-\
-- (id)copyWithZone:(NSZone*)zone                                                            \
-{                                                                                           \
-return self;                                                                                \
-}                                                                                           \
-
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-#define IF_IOS7_OR_GREATER(...) \
+#define UA_IF_IOS7_OR_GREATER(...) \
     if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0) \
     { \
         __VA_ARGS__ \
     }
 #else
-#define IF_IOS_7_OR_GREATER(...)
+#define UA_IF_IOS7_OR_GREATER(...)
 #endif
 
 #define UA_SUPPRESS_PERFORM_SELECTOR_LEAK_WARNING(THE_CODE) \

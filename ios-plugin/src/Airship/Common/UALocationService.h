@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  this list of conditions and the following disclaimer in the documentation
  and/or other materials provided with the distribution.
  
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -28,12 +28,11 @@
 #import "UALocationProviderDelegate.h"
 #import "UALocationEvent.h"
 
-
 @class UALocationService;
-
 @class UAStandardLocationProvider;
 @class UASignificantChangeProvider;
 
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The best location received by the loction service if the desiredAccuracy is not available. Sent
@@ -185,24 +184,24 @@ extern NSString * const UALocationServiceBestAvailableSingleLocationKey;
 /**
  * The most recently received location available from the CLLocationManager object. This may be more accurate than
  * the last reported location, and it may also be nil. See CLLocationManager documentation for more details.
- * @return The most recent location, or nil if no locations are available.
+ * @return The most recent location, or `nil` if no locations are available.
  */
-- (CLLocation *)location;
+- (nullable CLLocation *)location;
 
 /**
  * Last location reported to Urban Airship
  */
-@property (nonatomic, strong, readonly) CLLocation *lastReportedLocation;
+@property (nonatomic, strong, readonly, nullable) CLLocation *lastReportedLocation;
 
 /**
  * Date of last location event reported
  */
-@property (nonatomic, strong, readonly) NSDate *dateOfLastLocation;
+@property (nonatomic, strong, readonly, nullable) NSDate *dateOfLastLocation;
 
 /**
  * UALocationServiceDelegate for location service callbacks
  */
-@property (nonatomic, weak) id <UALocationServiceDelegate> delegate;
+@property (nonatomic, weak, nullable) id <UALocationServiceDelegate> delegate;
 
 ///---------------------------------------------------------------------------------------
 /// @name Automatic Location Services 
@@ -226,7 +225,7 @@ extern NSString * const UALocationServiceBestAvailableSingleLocationKey;
 /**
  * Allows location services to continue in the background.
  */
-@property (nonatomic, assign) BOOL backgroundLocationServiceEnabled;
+@property (nonatomic, assign, getter=isBackgroundLocationServiceEnabled) BOOL backgroundLocationServiceEnabled;
 
 /**
  * Minimum time between automatic updates that are tied to app foreground events.
@@ -264,7 +263,7 @@ extern NSString * const UALocationServiceBestAvailableSingleLocationKey;
  * programatically.
  * @return An NSString with the current purpose.
  */
-- (NSString *)purpose;
+- (nullable NSString *)purpose;
 
 ///---------------------------------------------------------------------------------------
 /// @name Creating the Location Service
@@ -337,7 +336,7 @@ extern NSString * const UALocationServiceBestAvailableSingleLocationKey;
  * @param provider The provider that generated the location. Data is pulled from the provider for analytics
  * @warning This must be called on the main thread. Not doing so will result in a crash
  */
-- (void)reportLocationToAnalytics:(CLLocation *)location fromProvider:(id<UALocationProviderProtocol>)provider;
+- (void)reportLocationToAnalytics:(CLLocation *)location fromProvider:(nullable id<UALocationProviderProtocol>)provider;
 
 ///---------------------------------------------------------------------------------------
 /// @name Single Location Service
@@ -384,5 +383,6 @@ extern NSString * const UALocationServiceBestAvailableSingleLocationKey;
  */
 - (void)reportCurrentLocation;
 
-
 @end
+
+NS_ASSUME_NONNULL_END

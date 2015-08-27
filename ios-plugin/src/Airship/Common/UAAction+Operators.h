@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,11 +7,11 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
 
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
 
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -35,6 +35,8 @@ typedef NS_ENUM(NSInteger, UAActionOperatorErrorCode) {
     UAActionOperatorErrorCodeChildActionRejectedArgs
 };
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * The domain for errors encountered during an action operator.
  */
@@ -53,27 +55,27 @@ typedef void (^UAActionPostExecutionBlock)(UAActionArguments *, UAActionResult *
 /**
  * A block that defines a means of merging two UAActionResult instances into one value.
  */
-typedef UAActionResult * (^UAActionFoldResultsBlock)(UAActionResult *, UAActionResult *);
+typedef UAActionResult * __nonnull (^UAActionFoldResultsBlock)(UAActionResult *, UAActionResult *);
 
 /**
  * A block that defines a means of tranforming one UAActionArguments to another
  */
-typedef UAActionArguments * (^UAActionMapArgumentsBlock)(UAActionArguments *);
+typedef UAActionArguments * __nonnull (^UAActionMapArgumentsBlock)(UAActionArguments *);
 
 /**
  * A block defining a monadic bind operation.
  */
-typedef UAAction * (^UAActionBindBlock)(UAActionBlock, UAActionPredicate);
+typedef UAAction * __nonnull (^UAActionBindBlock)(UAActionBlock, UAActionPredicate);
 
 /**
  * A block defining a monadic lift operation on the action block
  */
-typedef UAActionBlock (^UAActionLiftBlock)(UAActionBlock);
+typedef __nonnull UAActionBlock (^UAActionLiftBlock)(UAActionBlock);
 
 /**
  * A block defining a monadic lift operation on the predicate block
  */
-typedef UAActionPredicate (^UAActionPredicateLiftBlock)(UAActionPredicate);
+typedef __nonnull UAActionPredicate (^UAActionPredicateLiftBlock)(UAActionPredicate);
 
 
 @interface UAAction (Operators)
@@ -165,3 +167,5 @@ typedef UAActionPredicate (^UAActionPredicateLiftBlock)(UAActionPredicate);
 - (UAAction *)postExecution:(UAActionPostExecutionBlock)postExecutionBlock;
 
 @end
+
+NS_ASSUME_NONNULL_END

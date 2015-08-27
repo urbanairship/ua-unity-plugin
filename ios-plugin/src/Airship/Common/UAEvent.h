@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,11 +7,11 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
  
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
  
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -23,12 +23,16 @@
  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-#define kEventAppInitSize               (NSUInteger) 450//397 w/ push id, no inbox id
-#define kEventAppExitSize               (NSUInteger) 200//136 w/ only network type
+#define kUAEventAppInitSize               (NSUInteger) 450//397 w/ push ID, no inbox ID
+#define kUAEventAppExitSize               (NSUInteger) 200//136 w/ only network type
 
-#define kEventDeviceRegistrationSize    (NSUInteger) 200//153 w/ only user info
-#define kEventPushReceivedSize          (NSUInteger) 200//160 w/ uuid push info
+#define kUAEventDeviceRegistrationSize    (NSUInteger) 200//153 w/ only user info
+#define kUAEventPushReceivedSize          (NSUInteger) 200//160 w/ uuid push info
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This base class encapsulates analytics events.
@@ -43,7 +47,7 @@
 /**
  * The unique event ID.
  */
-@property (nonatomic, readonly, copy) NSString *eventId;
+@property (nonatomic, readonly, copy) NSString *eventID;
 
 /**
  * The event's data.
@@ -60,15 +64,13 @@
  */
 @property (nonatomic, readonly) NSUInteger estimatedSize;
 
+
 /**
  * Checks if the event is valid. Invalid events will be dropped.
  * @return YES if the event is valid.
  */
 - (BOOL)isValid;
 
-
-
-
-
 @end
 
+NS_ASSUME_NONNULL_END

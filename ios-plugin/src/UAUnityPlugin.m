@@ -12,17 +12,9 @@
 #import "UALocationService.h"
 #import "UAConfig.h"
 
-@implementation UAUnityPlugin
+static UAUnityPlugin *shared_;
 
-SINGLETON_IMPLEMENTATION(UAUnityPlugin)
--(id) init {
-    self = [super init];
-    if (self) {
-        self.listeners = [NSMutableSet setWithCapacity:10];
-        self.receivePushes = [NSMutableArray array];
-    }
-    return self;
-}
+@implementation UAUnityPlugin
 
 + (void)load {
     NSLog(@"UnityPlugin class loaded");
@@ -35,9 +27,9 @@ SINGLETON_IMPLEMENTATION(UAUnityPlugin)
     [UAirship takeOff];
 
     //UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
-    [UAPush shared].pushNotificationDelegate = [UAUnityPlugin shared];
-    
-    UAAction *customAction = [UAAction actionWithBlock: ^(UAActionArguments *args, NSString *actionName, UAActionCompletionHandler handler)  {
+    [UAirship push].pushNotificationDelegate = [UAUnityPlugin shared];
+
+    UAAction *customAction = [UAAction actionWithBlock: ^(UAActionArguments *args, UAActionCompletionHandler handler)  {
         NSLog(@"Setting dl to: %@", args.value);
         [UAUnityPlugin shared].storedDeepLink = args.value;
         handler([UAActionResult emptyResult]);
@@ -48,9 +40,28 @@ SINGLETON_IMPLEMENTATION(UAUnityPlugin)
 
         return [arg.value isKindOfClass:[NSString class]];
     }];
-    
-    [[UAActionRegistry shared] updateAction:customAction forEntryWithName:kUADeepLinkActionDefaultRegistryName];
+
+    [[UAirship shared].actionRegistry updateAction:customAction forEntryWithName:kUADeepLinkActionDefaultRegistryName];
 }
+
++ (UAUnityPlugin *)shared {
+    return shared_;
+}
+
+
+-(id) init {
+    self = [super init];
+    if (self) {
+        self.listeners = [NSMutableSet setWithCapacity:10];
+        self.receivePushes = [NSMutableArray array];
+    }
+    return self;
+}
+
+
+
+
+
 
 #pragma mark -
 #pragma mark Listeners
@@ -105,56 +116,56 @@ const char* UAUnityPlugin_getIncomingPush(bool clear) {
 
 bool UAUnityPlugin_isPushEnabled() {
     NSLog(@"UnityPlugin isPushEnabled");
-    return [UAPush shared].userPushNotificationsEnabled ? true : false;
+    return [UAirship push].userPushNotificationsEnabled ? true : false;
 }
 
 void UAUnityPlugin_enablePush() {
     NSLog(@"UnityPlugin enablePush");
-    [UAPush shared].userPushNotificationsEnabled = YES;
+    [UAirship push].userPushNotificationsEnabled = YES;
 }
 
 void UAUnityPlugin_disablePush() {
     NSLog(@"UnityPlugin disablePush");
-    [UAPush shared].userPushNotificationsEnabled = NO;
+    [UAirship push].userPushNotificationsEnabled = NO;
 }
 
 const char* UAUnityPlugin_getTags() {
     NSLog(@"UnityPlugin getTags");
-    return [UAUnityPlugin convertToJson:[UAPush shared].tags];
+    return [UAUnityPlugin convertToJson:[UAirship push].tags];
 }
 
 void UAUnityPlugin_addTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
     
     NSLog(@"UnityPlugin addTag %@", tagString);
-    [[UAPush shared] addTag:tagString];
-    [[UAPush shared] updateRegistration];
+    [[UAirship push] addTag:tagString];
+    [[UAirship push] updateRegistration];
 }
 
 void UAUnityPlugin_removeTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
     
     NSLog(@"UnityPlugin removeTag %@", tagString);
-    [[UAPush shared] removeTag:tagString];
-    [[UAPush shared] updateRegistration];
+    [[UAirship push] removeTag:tagString];
+    [[UAirship push] updateRegistration];
 }
 
 const char* UAUnityPlugin_getAlias() {
     NSLog(@"UnityPlugin getAlias");
-    return MakeStringCopy([[UAPush shared].alias UTF8String]);
+    return MakeStringCopy([[UAirship push].alias UTF8String]);
 }
 
 void UAUnityPlugin_setAlias(const char* alias) {
     NSString *aliasString = [NSString stringWithUTF8String:alias];
     
     NSLog(@"UnityPlugin setAlias %@", aliasString);
-    [UAPush shared].alias = aliasString;
-    [[UAPush shared] updateRegistration];
+    [UAirship push].alias = aliasString;
+    [[UAirship push] updateRegistration];
 }
 
 const char* UAUnityPlugin_getChannelId() {
     NSLog(@"UnityPlugin getChannelId");    
-    return MakeStringCopy([[UAPush shared].channelID UTF8String]);
+    return MakeStringCopy([[UAirship push].channelID UTF8String]);
 }
 
 #pragma mark -
@@ -179,17 +190,17 @@ void UAUnityPlugin_disableLocation() {
 
 bool UAUnityPlugin_isBackgroundLocationEnabled() {
     NSLog(@"UnityPlugin isBackgroundLocationEnabled");
-    return [[UAirship shared] locationService].backgroundLocationServiceEnabled ? true : false;
+    return [UAirship shared].locationService.backgroundLocationServiceEnabled ? true : false;
 }
 
 void UAUnityPlugin_enableBackgroundLocation() {
     NSLog(@"UnityPlugin enableBackgroundLocation");
-    [[UAirship shared] locationService].backgroundLocationServiceEnabled = YES;
+    [UAirship shared].locationService.backgroundLocationServiceEnabled = YES;
 }
 
 void UAUnityPlugin_disableBackgroundLocation() {
     NSLog(@"UnityPlugin disableBackgroundLocation");
-    [[UAirship shared] locationService].backgroundLocationServiceEnabled = NO;
+    [UAirship shared].locationService.backgroundLocationServiceEnabled = NO;
 }
 
 #pragma mark -

@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,9 +7,9 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
 
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -24,9 +24,13 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
 #import "UARichContentWindow.h"
 
 @class UAInboxMessage;
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This class provides an interface for displaying overlay window over
@@ -40,14 +44,14 @@
  * @param url The URL of the landing page to display
  * @param headers The headers to include with the request
  */
-+ (void)showURL:(NSURL *)url withHeaders:(NSDictionary *)headers;
++ (void)showURL:(NSURL *)url withHeaders:(nullable NSDictionary *)headers;
 
 /**
  * Creates and displays a landing page overlay from a Rich Push message.
  * @param message The Rich Push message to display.
  * @param headers The headers to include with the request.
  */
-+ (void)showMessage:(UAInboxMessage *)message withHeaders:(NSDictionary *)headers;
++ (void)showMessage:(UAInboxMessage *)message withHeaders:(nullable NSDictionary *)headers;
 
 /**
  * Creates and displays a landing page overlay from a Rich Push message.
@@ -62,3 +66,5 @@
 + (void)closeAll:(BOOL)animated;
 
 @end
+
+NS_ASSUME_NONNULL_END

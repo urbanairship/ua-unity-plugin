@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,11 +7,11 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
  
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
  
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -23,9 +23,14 @@
  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
+
 #import "UAEvent.h"
 #import "UALocationProviderProtocol.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 /** Keys and values for location analytics */
 typedef NSString UALocationEventAnalyticsKey;
@@ -66,9 +71,9 @@ extern NSString * const UAAnalyticsValueNone;
  * @return UALocationEvent populated with the necessary values
  */
 + (UALocationEvent *)locationEventWithLocation:(CLLocation *)location
-                                  providerType:(UALocationServiceProviderType *)providerType
-                               desiredAccuracy:(NSNumber *)desiredAccuracy
-                                distanceFilter:(NSNumber *)distanceFilter;
+                                  providerType:(nullable UALocationServiceProviderType *)providerType
+                               desiredAccuracy:(nullable NSNumber *)desiredAccuracy
+                                distanceFilter:(nullable NSNumber *)distanceFilter;
 
 
 /**
@@ -81,9 +86,9 @@ extern NSString * const UAAnalyticsValueNone;
  * @return UALocationEvent populated with the necessary values
  */
 + (UALocationEvent *)singleLocationEventWithLocation:(CLLocation *)location
-                                        providerType:(UALocationServiceProviderType *)providerType
-                                     desiredAccuracy:(NSNumber *)desiredAccuracy
-                                      distanceFilter:(NSNumber *)distanceFilter;
+                                        providerType:(nullable UALocationServiceProviderType *)providerType
+                                     desiredAccuracy:(nullable NSNumber *)desiredAccuracy
+                                      distanceFilter:(nullable NSNumber *)distanceFilter;
 
 
 /**
@@ -94,7 +99,7 @@ extern NSString * const UAAnalyticsValueNone;
  * @return UALocationEvent populated with the necessary values
  */
 + (UALocationEvent *)significantChangeLocationEventWithLocation:(CLLocation *)location
-                                                   providerType:(UALocationServiceProviderType *)providerType;
+                                                   providerType:(nullable UALocationServiceProviderType *)providerType;
 
 /**
  * Creates a UALocationEvent for a standard location change.
@@ -106,11 +111,11 @@ extern NSString * const UAAnalyticsValueNone;
  * @return UALocationEvent populated with the necessary values
  */
 + (UALocationEvent *)standardLocationEventWithLocation:(CLLocation *)location
-                                          providerType:(UALocationServiceProviderType *)providerType
-                                       desiredAccuracy:(NSNumber *)desiredAccuracy
-                                        distanceFilter:(NSNumber *)distanceFilter;
+                                          providerType:(nullable UALocationServiceProviderType *)providerType
+                                       desiredAccuracy:(nullable NSNumber *)desiredAccuracy
+                                        distanceFilter:(nullable NSNumber *)distanceFilter;
 
 
-
+NS_ASSUME_NONNULL_END
 
 @end

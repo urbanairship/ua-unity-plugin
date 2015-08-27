@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,11 +7,11 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
 
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
 
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -26,6 +26,8 @@
 #import <Foundation/Foundation.h>
 
 #import "UAGlobal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The UAConfig object provides an interface for passing common configurable values to [UAirship takeOff].
@@ -42,12 +44,12 @@
 /**
  * The current app key (resolved using the inProduction flag).
  */
-@property (nonatomic, readonly) NSString *appKey;
+@property (nonatomic, readonly, nullable) NSString *appKey;
 
 /**
  * The current app secret (resolved using the inProduction flag).
  */
-@property (nonatomic, readonly) NSString *appSecret;
+@property (nonatomic, readonly, nullable) NSString *appSecret;
 
 /**
  * The current log level for the library's UA_L<level> macros (resolved using the inProduction flag).
@@ -58,13 +60,13 @@
  * The production status of this application. This may be set directly, or it may be determined
  * automatically if the detectProvisioningMode flag is set to `YES`.
  */
-@property (nonatomic, assign) BOOL inProduction;
+@property (nonatomic, assign, getter=isInProduction) BOOL inProduction;
 
 /**
  * Toggles Urban Airship analytics. Defaults to `YES`. If set to `NO`, many UA features will not be
  * available to this application.
  */
-@property (nonatomic, assign) BOOL analyticsEnabled;
+@property (nonatomic, assign, getter=isAnalyticsEnabled) BOOL analyticsEnabled;
 
 ///---------------------------------------------------------------------------------------
 /// @name Configuration Values
@@ -74,27 +76,27 @@
  * The development app key. This should match the application on go.urbanairship.com that is
  * configured with your development push certificate.
  */
-@property (nonatomic, copy) NSString *developmentAppKey;
+@property (nonatomic, copy, nullable) NSString *developmentAppKey;
 
 /**
  * The development app secret. This should match the application on go.urbanairship.com that is
  * configured with your development push certificate.
  */
-@property (nonatomic, copy) NSString *developmentAppSecret;
+@property (nonatomic, copy, nullable) NSString *developmentAppSecret;
 
 /**
  * The production app key. This should match the application on go.urbanairship.com that is
  * configured with your production push certificate. This is used for App Store, Ad-Hoc and Enterprise
  * app configurations.
  */
-@property (nonatomic, copy) NSString *productionAppKey;
+@property (nonatomic, copy, nullable) NSString *productionAppKey;
 
 /**
  * The production app secret. This should match the application on go.urbanairship.com that is
  * configured with your production push certificate. This is used for App Store, Ad-Hoc and Enterprise
  * app configurations.
  */
-@property (nonatomic, copy) NSString *productionAppSecret;
+@property (nonatomic, copy, nullable) NSString *productionAppSecret;
 
 /**
  * The log level used for development apps. Defaults to `UALogLevelDebug` (4).
@@ -130,14 +132,18 @@
  * in application:didFinishLaunchingWithOptions: and forward all notification-related app delegate
  * calls to UAPush and UAInbox.
  */
-@property (nonatomic, assign) BOOL automaticSetupEnabled;
+@property (nonatomic, assign, getter=isAutomaticSetupEnabled) BOOL automaticSetupEnabled;
 
 /**
  * An array of UAWhitelist entry strings.
  *
  * @note See UAWhitelist for pattern entry syntax.
  */
+#if __has_feature(objc_generics)
+@property (nonatomic, strong) NSArray<NSString *> *whitelist;
+#else
 @property (nonatomic, strong) NSArray *whitelist;
+#endif
 
 ///---------------------------------------------------------------------------------------
 /// @name Advanced Configuration Options
@@ -147,12 +153,12 @@
 /**
  * Apps may be set to self-configure based on the APS-environment set in the
  * embedded.mobileprovision file by using detectProvisioningMode. If
- * detectProvisioningMode is set to 'YES', the inProduction value will
+ * detectProvisioningMode is set to `YES`, the inProduction value will
  * be determined at runtime by reading the provisioning profile. If it is set to
- * 'NO' (the default), the inProduction flag may be set directly or by using the
+ * `NO` (the default), the inProduction flag may be set directly or by using the
  * AirshipConfig.plist file.
  *
- * When this flag is enabled, the inProduction flag defaults to 'YES' for safety
+ * When this flag is enabled, the inProduction flag defaults to `YES` for safety
  * so that the production keys will always be used if the profile cannot be read
  * in a released app. Simulator builds do not include the profile, and the
  * detectProvisioningMode flag does not have any effect in cases where a profile
@@ -161,16 +167,6 @@
  * file.
  */
 @property (nonatomic, assign) BOOL detectProvisioningMode;
-
-/**
- * If set to `YES`, the app will clear all keychain user information every time the app starts.
- * This is designed for development mode only.
- *
- * @deprecated As of version 5.0. To clear the keychain once during the next
- * application start, use the settings bundle to set YES for the key
- * "com.urbanairship.reset_keychain" in standard user defaults.
- */
-@property (nonatomic, assign) BOOL clearKeychain __attribute__((deprecated("As of version 5.0.0")));
 
 
 /**
@@ -194,9 +190,27 @@
  * If set to `YES`, the Urban Airship user will be cleared if the application is
  * restored on a different device from an encrypted backup.
  *
- * Defaults to 'NO'.
+ * Defaults to `NO`.
  */
 @property (nonatomic, assign) BOOL clearUserOnAppRestore;
+
+/**
+ * If set to `YES`, the application will clear the previous named user ID on a
+ * re-install. Defaults to `NO`.
+ */
+@property (nonatomic, assign) BOOL clearNamedUserOnAppRestore;
+
+/**
+ * Flag indicating whether channel capture feature is enabled or not.
+ *
+ * Defaults to `YES`.
+ */
+@property (nonatomic, assign, getter=isChannelCaptureEnabled) BOOL channelCaptureEnabled;
+
+/**
+ * Dictionary of custom config values.
+ */
+@property (nonatomic, copy) NSDictionary *customConfig;
 
 ///---------------------------------------------------------------------------------------
 /// @name Factory Methods
@@ -234,3 +248,5 @@
 - (BOOL)validate;
 
 @end
+
+NS_ASSUME_NONNULL_END
