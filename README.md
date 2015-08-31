@@ -1,7 +1,7 @@
 Urban Airship Unity Plugin
 ==========================
 
-Urban Airship offers this code free of charge under the terms of the Apache 2.0 Open Source License. We offer no official support of this code; use of this code is not covered under existing support contracts.
+Urban Airship offers this code free of charge under the terms of the Apache 2.0 Open Source License.
 
 Contributing Code
 -----------------
@@ -11,6 +11,11 @@ Code Contribution Agreement (http://urbanairship.com/legal/contribution-agreemen
 Third Party Packages
 --------------------
  - mod_pbxproj.py - Apache License, Copyright 2012 Calvin Rien
+
+Requirements
+------------
+ - Android SDK installed with the latest updates
+ - Unity 5
 
 Setup
 -----
@@ -29,12 +34,21 @@ Known Issues
 - The Unity Plugin will receive the entire push payload on iOS, while Android only sends the alert message.
 - GetTags() is json encoded string.  
 
-Project Structure
------------------
-- *android-plugin*: The Android native unity plugin.
-- *ios-plugin*: The iOS native unity plugin. 
-- *src*: The common unity plugin source.
-- *Scripts*: Example scripts for the plugin.
+Supported Features
+------------------
+- Tags
+- Aliases
+- Push
+- Location
+- In-app messages
+- Interactive notifications
+- Urban Airship Actions - including landing pages
+
+Currently Unsupported Features
+------------------------------
+- Named users
+- Tag groups
+- Custom events
 
 Plugin Interface
 ---------------
@@ -99,5 +113,12 @@ The main plugin script can be found Assets/Plugins/UAirship.cs. It works for iOS
 
 **public static	void DisableBackgroundLocation()**
 - Disables background location.
+
+Project Structure
+-----------------
+- *android-plugin*: The Android native unity plugin.
+- *ios-plugin*: The iOS native unity plugin.
+- *src*: The common unity plugin source.
+- *Scripts*: Example scripts for the plugin.
 
 
