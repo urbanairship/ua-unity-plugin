@@ -14,7 +14,6 @@ Third Party Packages
 
 Requirements
 ------------
- - Android SDK installed with the latest updates
  - Unity 5
 
 Setup
