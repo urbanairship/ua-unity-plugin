@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,11 +7,11 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
 
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
 
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -26,12 +26,12 @@
 #import <Foundation/Foundation.h>
 #import "UAHTTPRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * A wrapper for NSURLConnection implementing the NSURLConnectionDelegate protocol.
  */
-@interface UAHTTPConnection : NSObject <NSURLConnectionDelegate> {
-
-}
+@interface UAHTTPConnection : NSObject <NSURLConnectionDelegate>
 
 /**
  * The connection sending the message.
@@ -46,27 +46,27 @@
 /**
  * The connection delegate.
  */
-@property (nonatomic, weak) id delegate;
+@property (nonatomic, weak, nullable) id delegate;
 
 /**
  * The connection success selector.
  */
-@property (nonatomic, assign) SEL successSelector;
+@property (nonatomic, assign, nullable) SEL successSelector;
 
 /**
  * The connection failure selector.
  */
-@property (nonatomic, assign) SEL failureSelector;
+@property (nonatomic, assign, nullable) SEL failureSelector;
 
 /**
  * The connection success block.
  */
-@property (nonatomic, copy) UAHTTPConnectionSuccessBlock successBlock;
+@property (nonatomic, copy, nullable) UAHTTPConnectionSuccessBlock successBlock;
 
 /**
  * The connection failure block.
  */
-@property (nonatomic, copy) UAHTTPConnectionFailureBlock failureBlock;
+@property (nonatomic, copy, nullable) UAHTTPConnectionFailureBlock failureBlock;
 
 /**
  * The queue on which to dispatch block and delegate callbacks.
@@ -74,7 +74,7 @@
  * If unset, callbacks will occur on the thread from which the connection was started.
  * Note: you cannot reschedule the delegate queue once a connection is in flight.
  */
-@property (nonatomic, strong) NSOperationQueue *delegateQueue;
+@property (nonatomic, strong, nullable) NSOperationQueue *delegateQueue;
 
 /**
  * Class factory method for creating a UAHTTPConnection.
@@ -115,13 +115,13 @@
 
 /**
  * Start the connection asynchronously.
- * @return 'YES' if the connection was started, otherwise 'NO'.
+ * @return `YES` if the connection was started, otherwise `NO`.
  */
 - (BOOL)start;
 
 /**
  * Start the connection synchronously.
- * @return 'YES' if the connection was started, otherwise 'NO'.
+ * @return `YES` if the connection was started, otherwise `NO`.
  */
 - (BOOL)startSynchronous;
 
@@ -139,3 +139,5 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,11 +7,11 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
  
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
  
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -50,6 +50,8 @@ typedef NS_ENUM(NSInteger, UALocationServiceError) {
     UALocationServiceTimedOut
 };
 
+NS_ASSUME_NONNULL_BEGIN
+
 // The different service provider types, for UAAnalytics
 typedef NSString UALocationServiceProviderType;
 extern UALocationServiceProviderType * const UALocationServiceProviderGps;
@@ -69,3 +71,5 @@ extern UALocationServiceNSDefaultsKey * const UASingleLocationTimeoutKey;
 
 typedef NSString UALocationServiceErrorDomain;
 extern UALocationServiceErrorDomain * const UALocationServiceTimeoutError;
+
+NS_ASSUME_NONNULL_END

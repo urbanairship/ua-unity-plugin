@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,11 +7,11 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
 
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
 
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -24,6 +24,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 /**
  * Represents the result of performing a background fetch, or none if no fetch was performed.
@@ -73,6 +74,8 @@ typedef NS_ENUM(NSInteger, UAActionStatus) {
     UAActionStatusError
 };
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * A class that holds the results of running an action, with optional metadata.
  */
@@ -81,7 +84,7 @@ typedef NS_ENUM(NSInteger, UAActionStatus) {
 /**
  * The result value produced when running an action (can be nil).
  */
-@property (nonatomic, strong, readonly) id value;
+@property (nonatomic, strong, readonly, nullable) id value;
 
 /**
  * An optional UAActionFetchResult that can be set if the action performed a background fetch.
@@ -91,7 +94,7 @@ typedef NS_ENUM(NSInteger, UAActionStatus) {
 /**
  * An optional error value that can be set if the action was unable to perform its work successfully.
  */
-@property (nonatomic, strong, readonly) NSError *error;
+@property (nonatomic, strong, readonly, nullable) NSError *error;
 
 /**
  * The action's run status.
@@ -105,7 +108,7 @@ typedef NS_ENUM(NSInteger, UAActionStatus) {
  * @param value An id typed value object.
  * @return An instance of UAActionResult.
  */
-+ (instancetype)resultWithValue:(id)value;
++ (instancetype)resultWithValue:(nullable id)value;
 
 /**
  * Creates a UAActionResult with the supplied value and fetch result. The `error` property
@@ -115,7 +118,7 @@ typedef NS_ENUM(NSInteger, UAActionStatus) {
  * @param fetchResult A UAActionFetchResult enum value.
  * @return An instance of UAActionResult.
  */
-+ (instancetype)resultWithValue:(id)result withFetchResult:(UAActionFetchResult)fetchResult;
++ (instancetype)resultWithValue:(nullable id)result withFetchResult:(UAActionFetchResult)fetchResult;
 
 /**
  * Creates an "empty" UAActionResult with the value, fetch result and error set to
@@ -141,5 +144,6 @@ typedef NS_ENUM(NSInteger, UAActionStatus) {
  */
 + (instancetype)resultWithError:(NSError *)error withFetchResult:(UAActionFetchResult)fetchResult;
 
-
 @end
+
+NS_ASSUME_NONNULL_END

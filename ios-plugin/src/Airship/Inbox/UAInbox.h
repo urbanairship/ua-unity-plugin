@@ -1,27 +1,27 @@
 /*
-Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
+ 1. Redistributions of source code must retain the above copyright notice, this
+ list of conditions and the following disclaimer.
 
-2. Redistributions in binaryform must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided withthe distribution.
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
-EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
+ IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #import <Foundation/Foundation.h>
 
@@ -30,46 +30,40 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 @class UAInboxMessageList;
 @class UAInboxPushHandler;
 @class UAInboxAPIClient;
+@class UAInboxMessage;
 
+NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A standard protocol for accessing native Objective-C functionality from your
- * Rich Push messages.
- *
- * UAInboxDefaultJSDelegate is a reference implementation of this protocol.
- *
- * @deprecated As of version 3.2. Replaced with UAJavaScriptDelegate.
+ * Delegate protocol for receiving callbacks related to
+ * Rich Push message delivery and display.
  */
-__attribute__((deprecated("As of version 3.2")))
-@protocol UAInboxJavaScriptDelegate <NSObject>
+@protocol UAInboxDelegate <NSObject>
+
+@optional
 
 /**
- * Delegates must implement this method. Implementations take an array of string arguments
- * and a dictionary of key-value pairs (all strings), process them, and return a string
- * containing Javascript that will be evaluated in a message's UIWebView.
+ * Called when the UADisplayInboxAction was triggered from a foreground notification.
  *
- * To pass information to the delegate from a message, insert links with a "ua" scheme,
- * args in the path and key-value option pairs in the query string. The host
- * portion of the URL is ignored.
- * 
- * The basic URL format:
- * ua://callback/<args>?<key/value options>
+ * @param richPushMessage The Rich Push message
+ */
+- (void)richPushMessageAvailable:(UAInboxMessage *)richPushMessage;
+
+/**
+ * Called when the inbox is requested to be displayed by the UADisplayInboxAction.
  *
- * For example, to pass in three args (arg1, arg2 and arg3) and three key-value
- * options {option1:one, option2:two, option3:three}:
- * ua://callback/arg1/arg2/arg3?option1=one&amp;option2=two&amp;option3=three
- *
- * The default implementation is UAInboxDefaultJSDelegate. It is designed to work with
- * the UACallback.js file that ships with the sample project.
- *
- * @param args Array of js delegate arguments
- * @param options Dictionary of js delegate options
- * @return Callback string indicating success or failure
- */ 
-- (NSString *)callbackArguments:(NSArray *)args withOptions:(NSDictionary *)options;
+ * @param message The Rich Push message
+ */
+- (void)showInboxMessage:(UAInboxMessage *)message;
+
+@required
+
+/**
+ * Called when the inbox is requested to be displayed by the UADisplayInboxAction.
+ */
+- (void)showInbox;
 
 @end
-
 
 /**
  * The main class for interacting with the Rich Push Inbox.
@@ -79,13 +73,7 @@ __attribute__((deprecated("As of version 3.2")))
  */
 @interface UAInbox : NSObject
 
-SINGLETON_INTERFACE(UAInbox);
-
-/**
- * Tear down and clean up any resources. This method should be called when the inbox is no
- * longer needed.
- */
-+ (void)land;
++ (nullable instancetype)shared __attribute__((deprecated("As of version 6.0.0. Use [UAirship inbox] instead.")));
 
 /**
  * The list of Rich Push Inbox messages.
@@ -95,7 +83,7 @@ SINGLETON_INTERFACE(UAInbox);
 /**
  * Handles incoming rich push messages.
  */
-@property (nonatomic, strong) UAInboxPushHandler *pushHandler;
+@property (nonatomic, strong, nullable) UAInboxPushHandler *pushHandler __attribute__((deprecated("As of version 6.1.0.")));
 
 /**
  * The Inbox API Client
@@ -104,14 +92,12 @@ SINGLETON_INTERFACE(UAInbox);
 
 
 /**
- * The user-configurable JavaScript delegate, implementing
- * the deprecated UAInboxJavaScriptDelegate protocol.
- * 
- * NOTE: this delegate is not retained.
+ * The delegate that should be notified when an incoming push is handled,
+ * as an object conforming to the UAInboxDelegate protocol.
+ * NOTE: The delegate is not retained.
  */
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-@property (nonatomic, weak) id<UAInboxJavaScriptDelegate> jsDelegate;
-#pragma clang diagnostic pop
+@property (nonatomic, weak, nullable) id <UAInboxDelegate> delegate;
 
 @end
+
+NS_ASSUME_NONNULL_END

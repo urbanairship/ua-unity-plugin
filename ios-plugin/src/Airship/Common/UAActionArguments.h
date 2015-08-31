@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2014 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2015 Urban Airship Inc. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -7,11 +7,11 @@
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
 
- 2. Redistributions in binaryform must reproduce the above copyright notice,
+ 2. Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
- and/or other materials provided withthe distribution.
+ and/or other materials provided with the distribution.
 
- THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE URBAN AIRSHIP INC ``AS IS'' AND ANY EXPRESS OR
  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
  EVENT SHALL URBAN AIRSHIP INC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
@@ -24,8 +24,6 @@
  */
 
 #import <Foundation/Foundation.h>
-
-#define kPendingPushActionDefaultsKey @"com.urbanairship.action.pending"
 
 /**
  * Represents the possible situations.
@@ -61,7 +59,7 @@ typedef NS_ENUM(NSInteger, UASituation) {
      * Represents a situation in which the action was triggered from a
      * foreground interactive notification button.
      */
-    UASituationForegoundInteractiveButton,
+    UASituationForegroundInteractiveButton,
 
     /**
      * Represents a situation in which the action was triggered from a
@@ -69,6 +67,9 @@ typedef NS_ENUM(NSInteger, UASituation) {
      */
     UASituationBackgroundInteractiveButton
 };
+
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Contains the arguments passed into an action during execution.
@@ -81,7 +82,7 @@ typedef NS_ENUM(NSInteger, UASituation) {
  * @param value The value associated with the arguments.
  * @param situation The situation of the action.
  */
-+ (instancetype)argumentsWithValue:(id)value
++ (instancetype)argumentsWithValue:(nullable id)value
                      withSituation:(UASituation)situation;
 
 
@@ -92,9 +93,17 @@ typedef NS_ENUM(NSInteger, UASituation) {
  * @param situation The situation of the action.
  * @param metadata for the action - e.g. webview, payload, etc.
  */
-+ (instancetype)argumentsWithValue:(id)value
++ (instancetype)argumentsWithValue:(nullable id)value
                      withSituation:(UASituation)situation
-                          metadata:(NSDictionary *) metadata;
+                          metadata:(nullable NSDictionary *)metadata;
+
+/**
+ * Represents a situation in which the action was triggered from a
+ * foreground interactive notification button, with alternate spelling.
+ *
+ * @deprecated As of version 6.0.0. Replaced with UASituationForegroundInteractiveButton.
+ */
+extern UASituation const UASituationForegoundInteractiveButton __attribute__((deprecated("As of version 6.0.0")));
 
 /**
  * Metadata key for the web view. Available when an action is triggered from
@@ -121,6 +130,20 @@ extern NSString * const UAActionMetadataInboxMessageKey;
 extern NSString * const UAActionMetadataUserNotificationActionIDKey;
 
 /**
+ * Metadata key for the user notification action response info. Available when an
+ * action is triggered from a user notification action with the behavior 
+ * `UIUserNotificationActionBehaviorTextInput` (iOS 9 and above).
+ */
+extern NSString * const UAActionMetadataResponseInfoKey;
+
+/**
+ * Metadata key for the name of the action in the registry. Available when an
+ * action is triggered by name.
+ */
+extern NSString * const UAActionMetadataRegisteredName;
+
+
+/**
  * Situation of the action
  */
 @property (nonatomic, assign, readonly) UASituation situation;
@@ -128,12 +151,14 @@ extern NSString * const UAActionMetadataUserNotificationActionIDKey;
 /**
  * The value associated with the action
  */
-@property (nonatomic, strong, readonly) id value;
+@property (nonatomic, strong, readonly, nullable) id value;
 
 /**
  * The argument's metadata. Metadata provides more information
  * about the environment that the action was triggered from. 
  */
-@property (nonatomic, copy, readonly) NSDictionary *metadata;
+@property (nonatomic, copy, readonly, nullable) NSDictionary *metadata;
 
 @end
+
+NS_ASSUME_NONNULL_END

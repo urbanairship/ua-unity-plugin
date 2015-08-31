@@ -46,7 +46,7 @@ void UAUnityPlugin_disableBackgroundLocation();
 
 @interface UAUnityPlugin : NSObject <UAPushNotificationDelegate>
 
-SINGLETON_INTERFACE(UAUnityPlugin);
++ (UAUnityPlugin *)shared;
 
 @property (nonatomic,strong) NSMutableSet* listeners;
 @property (nonatomic,strong) NSMutableArray* receivePushes;

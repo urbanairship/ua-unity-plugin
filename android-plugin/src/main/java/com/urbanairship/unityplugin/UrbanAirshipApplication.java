@@ -16,24 +16,26 @@ import com.urbanairship.actions.DeepLinkAction;
 import com.urbanairship.actions.Situation;
 
 public class UrbanAirshipApplication extends Application {
+
+    @Override
     public void onCreate() {
         super.onCreate();
 
         UAirship.takeOff(this, new UAirship.OnReadyCallback() {
             @Override
             public void onAirshipReady(UAirship airship) {
-                ActionRegistry.Entry entry = ActionRegistry.shared().getEntry(DeepLinkAction.DEFAULT_REGISTRY_NAME);
+                ActionRegistry.Entry entry = airship.getActionRegistry().getEntry(DeepLinkAction.DEFAULT_REGISTRY_NAME);
                 entry.setDefaultAction(new Action() {
                     @Override
-                    public ActionResult perform(String actionName, ActionArguments arguments) {
-                        UnityPlugin.shared().setDeepLink(String.valueOf(arguments.getValue()));
+                    public ActionResult perform(ActionArguments arguments) {
+                        UnityPlugin.shared().setDeepLink(arguments.getValue().getString());
 
                         Intent launch = getPackageManager().getLaunchIntentForPackage(UAirship.getPackageName());
                         launch.addCategory(Intent.CATEGORY_LAUNCHER);
                         launch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(launch);
 
-                        return ActionResult.newEmptyResult();
+                        return ActionResult.newResult(arguments.getValue());
                     }
 
                     @Override
