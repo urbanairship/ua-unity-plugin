@@ -15,7 +15,7 @@ Requirements
 ------------
  - Unity 5
 
-Setup (Builds both Andorid and iOS plugins)
+Setup (Builds both Android and iOS plugins)
 -------------------------------------------
 1. Update gradle.properties with your app's configuration.
 2. Install the Android SDK with the latest support repo and libaries installed. (Required to build the plugin, even if you are just using iOS)
