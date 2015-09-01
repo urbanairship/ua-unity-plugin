@@ -1,7 +1,6 @@
 Urban Airship Unity Plugin
 ==========================
-
-Urban Airship offers this code free of charge under the terms of the Apache 2.0 Open Source License.
+A Unity plugin that integrates the iOS and Android Urban Airship SDK.
 
 Contributing Code
 -----------------
@@ -16,10 +15,10 @@ Requirements
 ------------
  - Unity 5
 
-Setup
------
+Setup (Builds both Andorid and iOS plugins)
+-------------------------------------------
 1. Update gradle.properties with your app's configuration.
-2. Install the Android SDK with the latest support repo and libaries installed.
+2. Install the Android SDK with the latest support repo and libaries installed. (Required to build the plugin, even if you are just using iOS)
 3. Build the plugin with `./gradlew build`
 4. Copy the output of build/unity-plugin/ into your unity app.
 
