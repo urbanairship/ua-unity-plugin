@@ -1,6 +1,11 @@
 UA Unity ChangeLog
 ==================
 
+Version 1.1.1 - October 12, 2015
+================================
+ - Fixed issue where iOS devices did not notify listeners when it received pushes.
+ - Fixed issue where isPushEnabled was not checking the user notifications enabled flag on Android.
+
 Version 1.1.0 - August 28, 2015
 ================================
  - Updated Urban Airship Android Library to 6.2.2
