@@ -13,6 +13,7 @@
 #import "UAConfig.h"
 
 static UAUnityPlugin *shared_;
+static dispatch_once_t onceToken_;
 
 @implementation UAUnityPlugin
 
@@ -45,9 +46,12 @@ static UAUnityPlugin *shared_;
 }
 
 + (UAUnityPlugin *)shared {
+    dispatch_once(&onceToken_, ^{
+        shared_ = [[UAUnityPlugin alloc] init];
+    });
+
     return shared_;
 }
-
 
 -(id) init {
     self = [super init];
@@ -57,10 +61,6 @@ static UAUnityPlugin *shared_;
     }
     return self;
 }
-
-
-
-
 
 
 #pragma mark -

@@ -77,7 +77,7 @@ public class UnityPlugin {
 
     public boolean isPushEnabled() {
         Logger.debug("UnityPlugin isPushEnabled");
-        return UAirship.shared().getPushManager().isPushEnabled();
+        return UAirship.shared().getPushManager().getUserNotificationsEnabled();
     }
 
     public void enablePush() {
