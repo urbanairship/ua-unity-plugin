@@ -23,12 +23,12 @@ repositories {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 23
 
         manifestPlaceholders = [unityPackageName:androidApplicationId]
     }
@@ -109,7 +109,7 @@ task packagePlugin <<  {
     }
 
     // Convert the SDK
-    convertAar("aars/urbanairship-lib-6.2.2.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-lib")
+    convertAar("aars/urbanairship-lib-6.3.0.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-lib")
 
     // Convert the plugin
     convertAar("$buildDir/outputs/aar/android-plugin-release.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/ua-unity-plugin-lib")

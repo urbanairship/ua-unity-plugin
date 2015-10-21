@@ -197,7 +197,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UAPush : NSObject <UAChannelRegistrarDelegate>
 
 
-+ (nullable instancetype)shared __attribute__((deprecated("As of version 6.0.0. Use [UAirship push] instead.")));
++ (null_unspecified instancetype)shared __attribute__((deprecated("As of version 6.0.0. Use [UAirship push] instead.")));
 
 
 ///---------------------------------------------------------------------------------------
@@ -545,13 +545,17 @@ NS_ASSUME_NONNULL_BEGIN
 ///---------------------------------------------------------------------------------------
 
 /**
+ * Enables channel creation if channelCreationDelayEnabled was set to `YES` in the config.
+ */
+- (void)enableChannelCreation;
+
+/**
  * Registers or updates the current registration with an API call. If push notifications are
  * not enabled, this unregisters the device token.
  *
  * Add a `UARegistrationDelegate` to `UAPush` to receive success and failure callbacks.
  */
 - (void)updateRegistration;
-
 
 ///---------------------------------------------------------------------------------------
 /// @name AppDelegate hooks
