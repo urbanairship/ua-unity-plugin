@@ -1,5 +1,10 @@
 UA Unity ChangeLog
 ==================
+
+Version 1.2.1 - January 4, 2016
+===============================
+ - Fix iOS post build processor in Unity 5.3.
+
 Version 1.2.0 - October 20, 2015
 ================================
  - Updated Urban Airship iOS and Android Library to 6.3.0
