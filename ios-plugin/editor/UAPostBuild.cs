@@ -17,7 +17,7 @@ public class UAPostBuild {
 			ProcessStartInfo start = new ProcessStartInfo();
 			start.FileName = "python";
 			start.WorkingDirectory = Application.dataPath + "/Editor/";
-			start.Arguments = String.format("{0} \"{1}\"", "ua_ios_post_build.py", pathToBuiltProject);
+			start.Arguments = System.String.Format("{0} \"{1}\"", "ua_ios_post_build.py", pathToBuiltProject);
 			start.UseShellExecute = false;
 			start.RedirectStandardOutput = true;
 			try {
