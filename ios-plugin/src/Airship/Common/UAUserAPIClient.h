@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2015 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2016 Urban Airship Inc. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -24,12 +24,12 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "UAUserData.h"
-#import "UAHTTPConnection.h"
 
 @class UAHTTPRequestEngine;
 @class UAUser;
 @class UAConfig;
+@class UAHTTPRequest;
+@class UAUserData;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,13 +65,11 @@ typedef void (^UAUserAPIClientFailureBlock)(UAHTTPRequest *request);
  * Update a user.
  *
  * @param user The specified user to update.
- * @param deviceToken The user's device token.
  * @param channelID The user's channel ID.
  * @param successBlock A UAUserAPIClientUpdateSuccessBlock that will be called if the update was successful.
  * @param failureBlock A UAUserAPIClientFailureBlock that will be called if the update was unsuccessful.
  */
 - (void)updateUser:(UAUser *)user
-       deviceToken:(nullable NSString *)deviceToken
          channelID:(NSString *)channelID
          onSuccess:(UAUserAPIClientUpdateSuccessBlock)successBlock
          onFailure:(UAUserAPIClientFailureBlock)failureBlock;
