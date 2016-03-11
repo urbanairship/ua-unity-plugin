@@ -1,0 +1,36 @@
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+    }
+}
+
+repositories {
+    jcenter()
+
+     flatDir {
+        dirs 'aars'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 23
+    }
+}
+
+dependencies {
+    compile files('libs/classes.jar')
+    compile 'com.urbanairship:urbanairship-sdk:+@aar'
+}
+

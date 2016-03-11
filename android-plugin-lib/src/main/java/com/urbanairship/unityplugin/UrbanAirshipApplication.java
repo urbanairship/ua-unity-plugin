@@ -13,7 +13,6 @@ import com.urbanairship.actions.ActionArguments;
 import com.urbanairship.actions.ActionRegistry;
 import com.urbanairship.actions.ActionResult;
 import com.urbanairship.actions.DeepLinkAction;
-import com.urbanairship.actions.Situation;
 
 public class UrbanAirshipApplication extends Application {
 
@@ -40,7 +39,7 @@ public class UrbanAirshipApplication extends Application {
 
                     @Override
                     public boolean acceptsArguments(ActionArguments arguments) {
-                        return Situation.PUSH_OPENED == arguments.getSituation();
+                        return SITUATION_PUSH_OPENED == arguments.getSituation();
                     }
                 });
             }
