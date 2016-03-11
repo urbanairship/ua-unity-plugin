@@ -2,6 +2,8 @@
  Copyright 2016 Urban Airship and Contributors
 */
 
+#if UNITY_IPHONE
+
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -10,9 +12,8 @@ using System.IO;
 using System.Linq;
 using UnityEditor.iOS.Xcode;
 
-#if UNITY_IPHONE
-
-namespace UrbanAirship {
+namespace UrbanAirship
+{
 
 	public class UAIOSPostBuild
 	{
@@ -46,7 +47,8 @@ namespace UrbanAirship {
 				proj.TargetGuidByName (PBXProject.GetUnityTestTargetName ())
 			};
 
-			foreach (string target in targets) {
+			foreach (string target in targets)
+			{
 				proj.AddBuildProperty(target, "OTHER_LDFLAGS", "$(inherited)");
 				proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-ObjC -lz -lsqlite3");
 			}

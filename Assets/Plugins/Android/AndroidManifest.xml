@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="${applicationId}"
+<manifest package="com.example.unity"
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:amazon="http://schemas.amazon.com/apk/res/android"
           android:installLocation="preferExternal"
@@ -16,6 +16,10 @@
         android:normalScreens="true"
         android:smallScreens="true"
         android:xlargeScreens="true"/>
+
+    <!-- OPTIONAL for Urban Airship Location -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> /-->
+    <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> /-->
 
     <!-- Application must use android:name="com.urbanairship.unityplugin.UrbanAirshipApplication" required -->
     <application

@@ -9,7 +9,7 @@ Code Contribution Agreement (http://docs.urbanairship.com/contribution-agreement
 
 Third Party Packages
 --------------------
- - mod_pbxproj.py - Apache License, Copyright 2012 Calvin Rien
+ - Google Play Services Jar Resolver Library for Unity - Apache License
 
 Requirements
 ------------

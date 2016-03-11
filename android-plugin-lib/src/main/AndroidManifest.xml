@@ -4,10 +4,6 @@
     xmlns:amazon="http://schemas.amazon.com/apk/res/android"
     package="com.urbanairship.unityplugin">
 
-    <!-- OPTIONAL for location -->
-    <!-- uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /-->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
     <application>
 
         <!-- Urban Airship Plugin -->

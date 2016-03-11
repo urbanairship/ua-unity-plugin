@@ -1,25 +1,86 @@
-task clean(type: Delete) {
-    delete "$buildDir/unity-plugin"
+project.ext {
+    unity_exe = System.getProperty("UNITY_EXE")
+    if (unity_exe == null || unity_exe.isEmpty()) {
+        unity_exe = System.getenv("UNITY_EXE")
+    }
+    if (unity_exe == null || unity_exe.isEmpty()) {
+        unity_exe ='/Applications/Unity/Unity.app/Contents/MacOS/Unity'
+    }
+
+    airshipProperties = new Properties()
+    airshipProperties.load(new FileInputStream("airship.properties"))
 }
+
+
+def explodeAar(String aarPath, String destinationPath) {
+    // Unpack the resources and classes.jar
+    copy {
+        from zipTree(file(aarPath))
+        into file(destinationPath)
+        include "res/**", "classes.jar", "AndroidManifest.xml", "Orig_AndroidManifest.xml"
+        rename "AndroidManifest.xml", "Orig_AndroidManifest.xml"
+    }
+
+    // Move the classes.jar file into the libs directory. Exclude Manifest*.class files.
+    task(destinationPath, type: Jar) {
+        from zipTree(file("$destinationPath/classes.jar"))
+        destinationDir file("$destinationPath/libs")
+        archiveName "${file(destinationPath).name}.jar"
+        exclude '**/Manifest.class', '**/Manifest$*.class'
+    }.execute()
+
+    // Generate a Project.properties file
+    def propertiesFile = file("$destinationPath/project.properties")
+    propertiesFile.text = "target=android-23\n"
+    propertiesFile.text += "android.library=true"
+
+    // Delete the classes.jar
+    delete "$destinationPath/classes.jar"
+}
+
+task clean(type: Delete) {
+    delete "$buildDir"
+}
+
 
 task build << {
     // Copy the plugin src
     copy {
-        from file("src")
-        into file("$buildDir/unity-plugin/Assets/Plugins")
+        from file("Assets")
+        into file("$buildDir/unity-plugin/Assets/")
     }
 
-    // Android Plugin
-    copy {
-        from file("${project.findProject(":android-plugin").buildDir}/unity-plugin")
-        into file("$buildDir/unity-plugin")
+    def androidLibProject = project.findProject(":android-plugin-lib")
+
+    // Android Plugin lib
+    explodeAar("${androidLibProject.buildDir}/outputs/aar/android-plugin-lib-release.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-plugin-lib")
+
+    // Urban Airship SDK
+    file("${androidLibProject.projectDir}/aars").listFiles().each {
+        if (it.getName().startsWith("urbanairship-sdk")) {
+            explodeAar(it.absolutePath, "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-sdk")
+            return true
+        }
     }
 
-    // iOS Plugin
-    copy {
-        from file("${project.findProject(":ios-plugin").buildDir}/unity-plugin")
-        into file("$buildDir/unity-plugin")
+    def argv = [
+                "-g.building",
+                "-buildTarget", "android",
+                "-batchmode",
+                "-projectPath", "$buildDir/unity-plugin/",
+                "-logFile", "build/unity.log",
+                "-exportPackage",
+                    "Assets/UrbanAirship",
+                    "Assets/PlayServicesResolver",
+                    "Assets/Plugins",
+                file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
+                "-quit"
+        ]
+
+    exec {
+        executable "${unity_exe}"
+            args argv
     }
 }
 
-build.dependsOn("clean", "ios-plugin:build", "android-plugin:build")
+build.dependsOn("clean", "android-plugin-lib:assembleRelease")
