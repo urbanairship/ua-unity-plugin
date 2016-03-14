@@ -14,34 +14,22 @@ namespace UrbanAirship
 	[InitializeOnLoad]
 	public class UAConfigEditor : EditorWindow
 	{
-		UAConfig config = UAConfig.Instance;
+		private UAConfig config;
 
 		[MenuItem ("Window/Urban Airship/Settings")]
 		static void Init () {
 			UAConfigEditor window = (UAConfigEditor) EditorWindow.GetWindow(typeof(UAConfigEditor), true, "Urban Airship Config");
-			window.minSize = new Vector2(500, 600);
+			window.minSize = new Vector2(500, 400);
 			window.Show();
 		}
 
-		[MenuItem("Window/Urban Airship/Refresh")]
-		public static void Update()
+		void OnEnable()
 		{
-			try
-			{
-				UAUtils.UpdateManifests();
-				UAConfig.Instance.Apply();
-				AssetDatabase.Refresh();
-				EditorUtility.DisplayDialog("Urban Airship", "Config refreshed!", "OK");
-			}
-			catch (Exception e)
-			{
-				EditorUtility.DisplayDialog("Urban Airship", "Unable to refresh config. Erorr: " +  e.Message, "Ok");
-			}
+			config = UAConfig.LoadConfig();
 		}
 
 		void OnGUI()
 		{
-			
 			GUILayout.Label ("Production App Credentials", EditorStyles.boldLabel);
 			config.ProductionAppKey = EditorGUILayout.TextField("\t App Key", config.ProductionAppKey);
 			config.ProductionAppSecret = EditorGUILayout.TextField("\t App Secret", config.ProductionAppSecret);
@@ -74,8 +62,13 @@ namespace UrbanAirship
 			{
 				try
 				{
-					config.Save();
+					config.Validate();
+
+					UnityEngine.Debug.Log ("Saving Urban Airship config.");
+
 					config.Apply();
+					UAConfig.SaveConfig(config);
+
 					AssetDatabase.Refresh();
 					Close();
 				}

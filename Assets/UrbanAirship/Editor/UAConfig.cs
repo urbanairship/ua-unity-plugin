@@ -14,6 +14,10 @@ namespace UrbanAirship
 	[Serializable]
 	public class UAConfig
 	{
+		private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
+		private static UAConfig cachedInstance;
+
+
 		[SerializeField]
 		public string ProductionAppKey { get; set; }
 
@@ -32,60 +36,84 @@ namespace UrbanAirship
 		[SerializeField]
 		public bool InProduction { get; set; }
 
-
-		private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
-
-		private static UAConfig instace = null;
-		public static UAConfig Instance
+		public bool IsValid
 		{
 			get
 			{
-				if (instace == null)
+				try
 				{
-					try
-					{
-						if (File.Exists(filePath))
-						{
-							using (Stream fileStream = File.OpenRead(filePath))
-							{
-								XmlSerializer serializer = new XmlSerializer(typeof(UAConfig));
-								instace = (UAConfig)serializer.Deserialize(fileStream);
-							}
-						}
-						else
-						{
-							instace = new UAConfig();
-						}
-					}
-					catch(Exception e)
-					{
-						File.Delete(filePath);
-						instace = new UAConfig();
-					}
-
+					Validate();
+					return true;
 				}
-
-				return instace;
+				catch (Exception)
+				{
+					return false;
+				}
 			}
 		}
 
-		public void Apply()
-		{
-			Validate();
+		public UAConfig(){}
 
-			CreateIOSAirshipConfig();
-			CreateAndroidAirshipConfig();
+		public UAConfig(UAConfig config)
+		{
+			this.ProductionAppKey = config.ProductionAppKey;
+			this.ProductionAppSecret = config.ProductionAppSecret;
+			this.DevelopmentAppKey = config.DevelopmentAppKey;
+			this.DevelopmentAppSecret = config.DevelopmentAppSecret;
+			this.InProduction = config.InProduction;
 		}
 
-		public void Save()
+		public static UAConfig LoadConfig()
 		{
-			Validate();
+			try
+			{
+				if (File.Exists(filePath))
+				{
+					using (Stream fileStream = File.OpenRead(filePath))
+					{
+						XmlSerializer serializer = new XmlSerializer(typeof(UAConfig));
+						UAConfig config = (UAConfig)serializer.Deserialize(fileStream);
+						config.Validate();
+						cachedInstance = config;
+					}
+				}
+			}
+			catch(Exception e)
+			{
+				UnityEngine.Debug.Log ("Failed to load UAConfig: " + e.Message);
+				File.Delete(filePath);
+			}
 
+			if (cachedInstance == null)
+			{
+				cachedInstance = new UAConfig();
+			}
+
+			return new UAConfig(cachedInstance);
+		}
+
+		public static void SaveConfig(UAConfig config)
+		{
+			config.Validate();
 			using (Stream fileStream =  File.Open(filePath, FileMode.Create)) 
 			{
 				XmlSerializer serializer = new XmlSerializer(typeof(UAConfig));
-				serializer.Serialize(fileStream, this);
+				serializer.Serialize(fileStream, config);
 			}
+
+			cachedInstance = config;
+		}
+
+		public bool Apply()
+		{
+			if (IsValid)
+			{
+				GenerateIOSAirshipConfig();
+				GenerateAndroidAirshipConfig();
+				return true;
+			}
+
+			return false;
 		}
 
 		public void Validate()
@@ -94,29 +122,30 @@ namespace UrbanAirship
 			{
 				if (string.IsNullOrEmpty (ProductionAppKey))
 				{
-					throw new Exception ("Production App Key missing.");
+					throw new Exception("Production App Key missing.");
 				}
 
 				if (string.IsNullOrEmpty (ProductionAppSecret))
 				{
-					throw new Exception ("Production App Secret missing.");
+					throw new Exception("Production App Secret missing.");
 				}
 			}
 			else
 			{
 				if (string.IsNullOrEmpty (DevelopmentAppKey))
 				{
-					throw new Exception ("Development App Key missing.");
+					throw new Exception("Development App Key missing.");
 				}
 
 				if (string.IsNullOrEmpty (DevelopmentAppSecret))
 				{
-					throw new Exception ("Development App Secret missing.");
+					throw new Exception("Development App Secret missing.");
 				}
 			}
 		}
 
-		private void CreateIOSAirshipConfig()
+
+		private void GenerateIOSAirshipConfig()
 		{
 			string plistPath = Path.Combine(Application.dataPath, "Plugins/iOS/AirshipConfig.plist");
 			if (File.Exists(plistPath))
@@ -131,7 +160,7 @@ namespace UrbanAirship
 			if (!String.IsNullOrEmpty(ProductionAppKey) && !String.IsNullOrEmpty(ProductionAppSecret))
 			{
 				rootDict.SetString("productionAppKey", ProductionAppKey);
-				rootDict.SetString ("productionAppSecret", ProductionAppSecret);
+				rootDict.SetString("productionAppSecret", ProductionAppSecret);
 			}
 				
 			if (!String.IsNullOrEmpty(DevelopmentAppKey) && !String.IsNullOrEmpty(DevelopmentAppSecret))
@@ -146,9 +175,9 @@ namespace UrbanAirship
 			File.WriteAllText(plistPath, plist.WriteToString());
 		}
 
-		private void CreateAndroidAirshipConfig()
+		private void GenerateAndroidAirshipConfig()
 		{
-			string assetsDirecotry = Path.Combine (Application.dataPath, "Plugins/Android/assets");
+			string assetsDirecotry = Path.Combine(Application.dataPath, "Plugins/Android/assets");
 			if (!Directory.Exists(assetsDirecotry))
 			{
 				Directory.CreateDirectory(assetsDirecotry);

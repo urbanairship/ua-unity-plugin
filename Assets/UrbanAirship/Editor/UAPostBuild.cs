@@ -1,10 +1,10 @@
 ﻿/*
  Copyright 2016 Urban Airship and Contributors
 */
+using System;
 
 #if UNITY_IPHONE || UNITY_ANDROID
 
-using System;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -22,14 +22,9 @@ namespace UrbanAirship
 		[PostProcessBuildAttribute(1)]
 		public static void OnPostprocessBuild(BuildTarget target, string buildPath)
 		{
-			try
-			{
-				UAConfig.Instance.Validate();
-			}
-			catch (Exception)
+			if (UAConfig.LoadConfig().IsValid)
 			{
 				EditorUtility.DisplayDialog("Urban Airship", "Urban Airship not configured. Set the app credentials in Window -> Urban Airship -> Settings", "OK");
-				throw;
 			}
 
 			if (target == BuildTarget.iOS)
@@ -82,6 +77,8 @@ namespace UrbanAirship
 				foreach (string framework in frameworks)
 				{
 					proj.AddFrameworkToProject(target, framework, false);
+					UnityEngine.Debug.Log ("Adding framework: " + framework);
+
 				}
 			}
 
