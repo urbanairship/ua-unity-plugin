@@ -34,7 +34,7 @@ namespace UrbanAirship
 			config.ProductionAppKey = EditorGUILayout.TextField("\t App Key", config.ProductionAppKey);
 			config.ProductionAppSecret = EditorGUILayout.TextField("\t App Secret", config.ProductionAppSecret);
 
-			GUILayout.Label ("Development Credentails", EditorStyles.boldLabel);
+			GUILayout.Label ("Development App Credentials", EditorStyles.boldLabel);
 			config.DevelopmentAppKey = EditorGUILayout.TextField("\t App Key", config.DevelopmentAppKey);
 			config.DevelopmentAppSecret = EditorGUILayout.TextField("\t App Secret", config.DevelopmentAppSecret);
 

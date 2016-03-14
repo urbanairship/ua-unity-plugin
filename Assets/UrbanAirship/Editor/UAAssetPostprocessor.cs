@@ -11,7 +11,7 @@ using System.IO;
 namespace UrbanAirship
 {
 	[InitializeOnLoad]
-	public class UAAssetPostprocessor : AssetPostprocessor 
+	public class UAAssetPostprocessor : AssetPostprocessor
 	{
 		static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
 		{
@@ -22,7 +22,7 @@ namespace UrbanAirship
 				AssetDatabase.Refresh();
 			}
 
-			if(deletedAssets.Any(s => s.ToLower().Contains("airshipconfig")))
+			if (deletedAssets.Any(s => s.ToLower().Contains("airshipconfig")))
 			{
 				if (UAConfig.LoadConfig().Apply())
 				{

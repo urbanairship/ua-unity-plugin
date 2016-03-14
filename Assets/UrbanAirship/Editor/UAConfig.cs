@@ -17,7 +17,6 @@ namespace UrbanAirship
 		private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
 		private static UAConfig cachedInstance;
 
-
 		[SerializeField]
 		public string ProductionAppKey { get; set; }
 
@@ -177,13 +176,13 @@ namespace UrbanAirship
 
 		private void GenerateAndroidAirshipConfig()
 		{
-			string assetsDirecotry = Path.Combine(Application.dataPath, "Plugins/Android/assets");
-			if (!Directory.Exists(assetsDirecotry))
+			string assetsDirectory = Path.Combine(Application.dataPath, "Plugins/Android/assets");
+			if (!Directory.Exists(assetsDirectory))
 			{
-				Directory.CreateDirectory(assetsDirecotry);
+				Directory.CreateDirectory(assetsDirectory);
 			}
 
-			using (StreamWriter sw = new StreamWriter(Path.Combine(assetsDirecotry, "airshipconfig.properties"))) {
+			using (StreamWriter sw = new StreamWriter(Path.Combine(assetsDirectory, "airshipconfig.properties"))) {
 
 				if (!String.IsNullOrEmpty(ProductionAppKey) && !String.IsNullOrEmpty(ProductionAppSecret))
 				{

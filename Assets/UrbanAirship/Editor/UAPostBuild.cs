@@ -20,7 +20,7 @@ namespace UrbanAirship
 	{
 
 		[PostProcessBuildAttribute(1)]
-		public static void OnPostprocessBuild(BuildTarget target, string buildPath)
+		public static void OnPostProcessBuild(BuildTarget target, string buildPath)
 		{
 			if (UAConfig.LoadConfig().IsValid)
 			{
