@@ -9,46 +9,47 @@ using System.Collections.Generic;
 interface IUAirshipPlugin
 {
 
-	void AddListener(GameObject gameObject);
+	bool PushEnabled {
+		get;
+		set;
+	}
 
-	void RemoveListener(GameObject gameObject);
+	string Tags {
+		get;
+	}
 
-	// Push 
-	string GetDeepLink(bool clear);
+	string Alias {
+		get;
+		set;
+	}
 
-	string GetIncomingPush(bool clear);
-	
-	bool IsPushEnabled();
+	string ChannelId {
+		get;
+	}
 
-	void EnablePush();
+	bool LocationEnabled {
+		get;
+		set;
+	}
 
-	void DisablePush();
-
-	void AddTag(string tag);
-
-	void RemoveTag(string tag);
-
-	string GetTags();
-
-	void SetAlias(string alias);
-
-	string GetAlias();
-
-	string GetChannelId();
+	bool BackgroundLocationEnabled {
+		get;
+		set;
+	}
 
 
-	// Location
+	void AddListener (GameObject gameObject);
 
-	bool IsLocationEnabled();
+	void RemoveListener (GameObject gameObject);
 
-	void EnableLocation();
+	string GetDeepLink (bool clear);
 
-	void DisableLocation();
+	string GetIncomingPush (bool clear);
 
-	bool IsBackgroundLocationEnabled();
 
-	void EnableBackgroundLocation();
+	void AddTag (string tag);
 
-	void DisableBackgroundLocation();
+	void RemoveTag (string tag);
+
 }
 

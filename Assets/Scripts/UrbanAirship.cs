@@ -1,58 +1,53 @@
-﻿/*
- Copyright 2015 Urban Airship and Contributors
-*/
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
-public class UrbanAirship : MonoBehaviour {
+public class UrbanAirship : MonoBehaviour
+{
 
 	public string addTagOnStart;
 
-	void Awake()
+	void Awake ()
 	{
-		UAirship.EnablePush ();
+		UAirship.PushEnabled = true;
 	}
 
-	void Start()
+	void Start ()
 	{
 		UAirship.AddListener (gameObject);
 
-		if (!string.IsNullOrEmpty(addTagOnStart)) 
-		{
-			UAirship.AddTag(addTagOnStart);
+		if (!string.IsNullOrEmpty (addTagOnStart)) {
+			UAirship.AddTag (addTagOnStart);
 		}
 
 		CheckDeepLink ();
 	}
 
-	void OnDestroy()
+	void OnDestroy ()
 	{
 		UAirship.RemoveListener (gameObject);
 	}
 
-	void OnPushReceived(string payload)
+	void OnPushReceived (string payload)
 	{
 		Debug.Log ("Unity received push! " + payload);
 	}
 
-	void OnApplicationPause(bool pauseStatus) {
-		if (!pauseStatus) 
-		{
-			CheckDeepLink();
+	void OnApplicationPause (bool pauseStatus)
+	{
+		if (!pauseStatus) {
+			CheckDeepLink ();
 		}
 	}
 
-	void CheckDeepLink()
+	void CheckDeepLink ()
 	{
 		Debug.Log ("Checking for deeplink.");
 
-		string deepLink = UAirship.GetDeepLink();
-		if (!string.IsNullOrEmpty(deepLink))
-		{
+		string deepLink = UAirship.GetDeepLink ();
+		if (!string.IsNullOrEmpty (deepLink)) {
 			Debug.Log ("Launched with deeplink! " + deepLink);
-
-			// Handle any deep links here
+			// Assume everything is a Bonus level for now
+			Application.LoadLevel ("Bonus");
 		}
 	}
 }
