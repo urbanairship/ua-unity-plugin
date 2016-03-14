@@ -13,7 +13,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor.iOS.Xcode;
 
-namespace UrbanAirship
+namespace UrbanAirship.Editor
 {
 
 	public class UAPostBuild

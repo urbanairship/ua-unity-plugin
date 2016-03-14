@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 using UnityEditor.iOS.Xcode;
 using UnityEditor;
 
-namespace UrbanAirship
+namespace UrbanAirship.Editor
 {
 	[Serializable]
 	public class UAConfig

@@ -8,7 +8,7 @@ using System.Linq;
 using UnityEngine;
 using System.IO;
 
-namespace UrbanAirship
+namespace UrbanAirship.Editor
 {
     public class UAUtils 
     {

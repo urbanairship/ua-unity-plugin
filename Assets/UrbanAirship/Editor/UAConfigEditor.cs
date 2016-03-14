@@ -9,7 +9,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 
-namespace UrbanAirship
+namespace UrbanAirship.Editor
 {
 	[InitializeOnLoad]
 	public class UAConfigEditor : EditorWindow
