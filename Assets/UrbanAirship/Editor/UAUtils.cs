@@ -27,7 +27,7 @@ namespace UrbanAirship.Editor
                     continue;
                 }
 
-                string original = Path.Combine(lib, "Orig_AndroidManifest.xml");
+                string original = Path.Combine(lib, "original_AndroidManifest.xml");
                 string manifest = Path.Combine(lib, "AndroidManifest.xml");
 
                 if (File.Exists(manifest))
