@@ -9,7 +9,7 @@ using UnityEditor;
 using GooglePlayServices;
 
 
-namespace UrbanAirship
+namespace UrbanAirship.Editor
 {
 
 	[InitializeOnLoad]

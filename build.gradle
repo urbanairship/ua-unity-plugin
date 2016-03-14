@@ -17,8 +17,8 @@ def explodeAar(String aarPath, String destinationPath) {
     copy {
         from zipTree(file(aarPath))
         into file(destinationPath)
-        include "res/**", "classes.jar", "AndroidManifest.xml", "Orig_AndroidManifest.xml"
-        rename "AndroidManifest.xml", "Orig_AndroidManifest.xml"
+        include "res/**", "classes.jar", "AndroidManifest.xml", "original_AndroidManifest.xml"
+        rename "AndroidManifest.xml", "original_AndroidManifest.xml"
     }
 
     // Move the classes.jar file into the libs directory. Exclude Manifest*.class files.
