@@ -1,7 +1,12 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/*
+ Copyright 2015 Urban Airship and Contributors
+*/
 
-public class UrbanAirship : MonoBehaviour
+using UnityEngine;
+using System.Collections;
+using UrbanAirship;
+
+public class UrbanAirshipBehaviour : MonoBehaviour
 {
 
 	public string addTagOnStart;

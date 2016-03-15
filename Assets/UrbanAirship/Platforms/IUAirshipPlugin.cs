@@ -6,50 +6,53 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-interface IUAirshipPlugin
-{
+namespace UrbanAirship {
 
-	bool PushEnabled {
-		get;
-		set;
+	interface IUAirshipPlugin
+	{
+
+		bool PushEnabled {
+			get;
+			set;
+		}
+
+		string Tags {
+			get;
+		}
+
+		string Alias {
+			get;
+			set;
+		}
+
+		string ChannelId {
+			get;
+		}
+
+		bool LocationEnabled {
+			get;
+			set;
+		}
+
+		bool BackgroundLocationEnabled {
+			get;
+			set;
+		}
+
+
+		void AddListener (GameObject gameObject);
+
+		void RemoveListener (GameObject gameObject);
+
+		string GetDeepLink (bool clear);
+
+		string GetIncomingPush (bool clear);
+
+
+		void AddTag (string tag);
+
+		void RemoveTag (string tag);
+
 	}
-
-	string Tags {
-		get;
-	}
-
-	string Alias {
-		get;
-		set;
-	}
-
-	string ChannelId {
-		get;
-	}
-
-	bool LocationEnabled {
-		get;
-		set;
-	}
-
-	bool BackgroundLocationEnabled {
-		get;
-		set;
-	}
-
-
-	void AddListener (GameObject gameObject);
-
-	void RemoveListener (GameObject gameObject);
-
-	string GetDeepLink (bool clear);
-
-	string GetIncomingPush (bool clear);
-
-
-	void AddTag (string tag);
-
-	void RemoveTag (string tag);
-
 }
 
