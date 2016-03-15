@@ -1,10 +1,10 @@
 project.ext {
-    unity_exe = System.getProperty("UNITY_EXE")
-    if (unity_exe == null || unity_exe.isEmpty()) {
-        unity_exe = System.getenv("UNITY_EXE")
+    unityExe = System.getProperty("UNITY_EXE")
+    if (unityExe == null || unityExe.isEmpty()) {
+        unityExe = System.getenv("UNITY_EXE")
     }
-    if (unity_exe == null || unity_exe.isEmpty()) {
-        unity_exe ='/Applications/Unity/Unity.app/Contents/MacOS/Unity'
+    if (unityExe == null || unityExe.isEmpty()) {
+        unityExe ='/Applications/Unity/Unity.app/Contents/MacOS/Unity'
     }
 
     airshipProperties = new Properties()
@@ -78,7 +78,7 @@ task build << {
         ]
 
     exec {
-        executable "${unity_exe}"
+        executable "${unityExe}"
             args argv
     }
 }
