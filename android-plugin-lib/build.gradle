@@ -1,4 +1,14 @@
 
+project.ext {
+    unityClassesJar = System.getProperty("UNITY_CLASSES_JAR")
+    if (unityClassesJar == null || unityClassesJar.isEmpty()) {
+        unityClassesJar = System.getenv("UNITY_CLASSES_JAR")
+    }
+    if (unityClassesJar == null || unityClassesJar.isEmpty()) {
+        unityClassesJar ='/Applications/Unity/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar'
+    }
+}
+
 buildscript {
     repositories {
         jcenter()
@@ -24,13 +34,21 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 10
         targetSdkVersion 23
     }
 }
 
 dependencies {
-    compile files('libs/classes.jar')
+    compile fileTree(dir: 'libs', include: '*.jar')
     compile 'com.urbanairship:urbanairship-sdk:+@aar'
+}
+
+task copyUnityClassesJar() {
+    copy {
+        from file(unityClassesJar).getParent()
+        include file(unityClassesJar).getName()
+        into 'libs'
+    }
 }
 
