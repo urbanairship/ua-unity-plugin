@@ -1,11 +1,13 @@
 /*
  Copyright 2015 Urban Airship and Contributors
-*/
+ */
 
 #import "UAUnityPlugin.h"
+#import "UnityInterface.h"
 #import "UAPush.h"
 #import "UAirship.h"
 #import "NSJSONSerialization+UAAdditions.h"
+#import "UAAction+Operators.h"
 #import "UAActionArguments.h"
 #import "UAActionRunner.h"
 #import "UAActionResult.h"
@@ -27,10 +29,10 @@ static dispatch_once_t onceToken_;
     NSLog(@"UnityPlugin taking off");
     [UAirship takeOff];
 
-    //UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
+    // UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
     [UAirship push].pushNotificationDelegate = [UAUnityPlugin shared];
 
-    UAAction *customAction = [UAAction actionWithBlock: ^(UAActionArguments *args, UAActionCompletionHandler handler)  {
+    UAAction *customDLA = [UAAction actionWithBlock: ^(UAActionArguments *args, UAActionCompletionHandler handler)  {
         NSLog(@"Setting dl to: %@", args.value);
         [UAUnityPlugin shared].storedDeepLink = args.value;
         handler([UAActionResult emptyResult]);
@@ -42,7 +44,23 @@ static dispatch_once_t onceToken_;
         return [arg.value isKindOfClass:[NSString class]];
     }];
 
-    [[UAirship shared].actionRegistry updateAction:customAction forEntryWithName:kUADeepLinkActionDefaultRegistryName];
+    // Replace the display inbox and landing page actions with modified versions that pause the game before display
+    UAAction *dia = [[UAirship shared].actionRegistry registryEntryWithName:kUADisplayInboxActionDefaultRegistryName].action;
+    UAAction *customDIA = [dia preExecution:^(UAActionArguments *args) {
+        // This will ultimately trigger the OnApplicationPause event
+        UnityWillPause();
+    }];
+
+    UAAction *lpa = [[UAirship shared].actionRegistry registryEntryWithName:kUALandingPageActionDefaultRegistryName].action;
+    UAAction *customLPA = [lpa preExecution:^(UAActionArguments *args) {
+        // This will ultimately trigger the OnApplicationPause event
+        UnityWillPause();
+    }];
+
+
+    [[UAirship shared].actionRegistry updateAction:customDLA forEntryWithName:kUADeepLinkActionDefaultRegistryName];
+    [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:kUADisplayInboxActionDefaultRegistryName];
+    [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:kUALandingPageActionDefaultRegistryName];
 }
 
 + (UAUnityPlugin *)shared {
@@ -53,7 +71,7 @@ static dispatch_once_t onceToken_;
     return shared_;
 }
 
--(id) init {
+- (id)init {
     self = [super init];
     if (self) {
         self.listeners = [NSMutableSet setWithCapacity:10];
@@ -67,16 +85,16 @@ static dispatch_once_t onceToken_;
 #pragma mark Listeners
 
 void UAUnityPlugin_addListener(const char* listener) {
-    
+
     NSString *listenerObj = [NSString stringWithUTF8String:listener];
     NSLog(@"UAUnityPlugin_addListener %@",listenerObj);
     [[UAUnityPlugin shared].listeners addObject:listenerObj];
-    
+
     if (![UAUnityPlugin shared].receivePushes.count) {
         for (NSDictionary* notification in [UAUnityPlugin shared].receivePushes) {
             [[UAUnityPlugin shared] notifyRecievedPush:notification];
         }
-        
+
         [[UAUnityPlugin shared].receivePushes removeAllObjects];
     }
 }
@@ -92,7 +110,7 @@ void UAUnityPlugin_removeListener(const char* listener) {
 
 const char* UAUnityPlugin_getDeepLink(bool clear) {
     NSLog(@"UnityPlugin getDeepLink clear %d",clear);
-    
+
     const char* dl = [UAUnityPlugin convertToJson:[UAUnityPlugin shared].storedDeepLink];
     if (clear) {
         [UAUnityPlugin shared].storedDeepLink = nil;
@@ -106,7 +124,7 @@ const char* UAUnityPlugin_getDeepLink(bool clear) {
 #pragma mark UA Push Functions
 const char* UAUnityPlugin_getIncomingPush(bool clear) {
     NSLog(@"UnityPlugin getIncomingPush clear %d",clear);
-    
+
     const char* push = [UAUnityPlugin convertToJson:[UAUnityPlugin shared].storedNotification];
     if (clear) {
         [UAUnityPlugin shared].storedNotification = nil;
@@ -136,7 +154,7 @@ const char* UAUnityPlugin_getTags() {
 
 void UAUnityPlugin_addTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
-    
+
     NSLog(@"UnityPlugin addTag %@", tagString);
     [[UAirship push] addTag:tagString];
     [[UAirship push] updateRegistration];
@@ -144,7 +162,7 @@ void UAUnityPlugin_addTag(const char* tag) {
 
 void UAUnityPlugin_removeTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
-    
+
     NSLog(@"UnityPlugin removeTag %@", tagString);
     [[UAirship push] removeTag:tagString];
     [[UAirship push] updateRegistration];
@@ -157,14 +175,14 @@ const char* UAUnityPlugin_getAlias() {
 
 void UAUnityPlugin_setAlias(const char* alias) {
     NSString *aliasString = [NSString stringWithUTF8String:alias];
-    
+
     NSLog(@"UnityPlugin setAlias %@", aliasString);
     [UAirship push].alias = aliasString;
     [[UAirship push] updateRegistration];
 }
 
 const char* UAUnityPlugin_getChannelId() {
-    NSLog(@"UnityPlugin getChannelId");    
+    NSLog(@"UnityPlugin getChannelId");
     return MakeStringCopy([[UAirship push].channelID UTF8String]);
 }
 
@@ -234,7 +252,7 @@ void UAUnityPlugin_disableBackgroundLocation() {
 
 - (void) notifyRecievedPush:(NSDictionary *)notification {
     NSString *alertMessage = [(NSDictionary*)[notification objectForKey:@"aps"] objectForKey:@"alert"];
-    
+
     for (NSString* listener in self.listeners) {
         NSLog(@"UnityPlugin notifying %@ push received",listener);
         UnitySendMessage(MakeStringCopy([listener UTF8String]),
@@ -257,7 +275,7 @@ char* MakeStringCopy (const char* string) {
     if (string == NULL) {
         return NULL;
     }
-    
+
     char* res = (char*)malloc(strlen(string) + 1);
     strcpy(res, string);
     return res;
