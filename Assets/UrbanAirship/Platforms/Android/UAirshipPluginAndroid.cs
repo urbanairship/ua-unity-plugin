@@ -9,135 +9,128 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 
+namespace UrbanAirship {
 
-public class UAirshipPluginAndroid : IUAirshipPlugin
-{
+	public class UAirshipPluginAndroid : IUAirshipPlugin
+	{
 
-	private AndroidJavaObject androidPlugin;
-	
-	public UAirshipPluginAndroid() {
-		try {
-			using(AndroidJavaClass pluginClass = new AndroidJavaClass("com.urbanairship.unityplugin.UnityPlugin")) {
-				androidPlugin  = pluginClass.CallStatic<AndroidJavaObject>("shared");
+		private AndroidJavaObject androidPlugin;
+
+		public UAirshipPluginAndroid ()
+		{
+			try {
+				using (AndroidJavaClass pluginClass = new AndroidJavaClass ("com.urbanairship.unityplugin.UnityPlugin")) {
+					androidPlugin = pluginClass.CallStatic<AndroidJavaObject> ("shared");
+				}
+			} catch (Exception) {
+				Debug.LogError ("UAirship plugin not found");
 			}
-		} 
-		catch (Exception) {
-			Debug.LogError("UAirship plugin not found");
 		}
-	}
 
-	public string GetDeepLink(bool clear)
-	{
-		return Call<string> ("getDeepLink", clear);
-	}
+		public bool PushEnabled {
+			get {
+				return Call<bool> ("isPushEnabled");
+			}
+			set {
+				if (value) {
+					Call ("enablePush");
+				} else {
+					Call ("disablePush");
+				}
+			}
+		}
 
-	public void AddListener(GameObject gameObject) 
-	{
-		Call("addListener", gameObject.name);
-	}
-	
-	public void RemoveListener(GameObject gameObject)
-	{
-		Call("removeListener", gameObject.name);
-	}
-	
-	public string GetIncomingPush(bool clear)
-	{
-		return Call<string>("getIncomingPush", clear);
-	}
-	
-	public bool IsPushEnabled()
-	{
-		return Call<bool>("isPushEnabled");
-	}
-	
-	public void EnablePush()
-	{
-		Call("enablePush");
-	}
-	
-	public void DisablePush()
-	{
-		Call("disablePush");
-	}
-	
-	public void AddTag(string tag)
-	{
-		Call("addTag", tag);
-	}
-	
-	public void RemoveTag(string tag)
-	{
-		Call("removeTag", tag);
-	}
-	
-	public string GetTags()
-	{
-		return Call<string>("getTags");
-	}
-	
-	public void SetAlias(string alias)
-	{
-		Call("setAlias", alias);
-	}
-	
-	public string GetAlias()
-	{
-		return Call<string>("getAlias");
-	}
+		public string Tags {
+			get {
+				return Call<string> ("getTags");
+			}
+		}
 
-	public string GetChannelId()
-	{
-		return Call<string>("getChannelId");
-	}
-	
-	// Location
-	
-	public bool IsLocationEnabled()
-	{
-		return Call<bool>("isLocationEnabled");
-	}
-	
-	public void EnableLocation ()
-	{
-		Call("enableLocation");
-	}
-	
-	public void DisableLocation()
-	{
-		Call("disableLocation");
-	}
-	
-	public bool IsBackgroundLocationEnabled()
-	{
-		return Call<bool>("isBackgroundLocationEnabled");
-	}
+		public string Alias {
+			get {
+				return Call<string> ("getAlias");
+			}
+			set {
+				Call ("setAlias", value);
+			}
+		}
 
-	public void EnableBackgroundLocation()
-	{
-		Call("enableBackgroundLocation");
-	}
-	
-	public void DisableBackgroundLocation()
-	{
-		Call("disableBackgroundLocation");
-	}
+		public string ChannelId {
+			get {
+				return Call<string> ("getChannelId");
+			}
+		}
 
-	private void Call(string method, params object[] args)
-	{
-		if (androidPlugin != null)
+		public bool LocationEnabled {
+			get {
+				return Call<bool> ("isLocationEnabled");
+			}
+			set {
+				if (value) {
+					Call ("enableLocation");
+				} else {
+					Call ("disableLocation");
+				}
+			}
+		}
+
+		public bool BackgroundLocationEnabled {
+			get {
+				return Call<bool> ("isBackgroundLocationEnabled");
+			}
+			set {
+				if (value) {
+					Call ("enableBackgroundLocation");
+				} else {
+					Call ("disableBackgroundLocation");
+				}
+			}
+		}
+
+		public string GetDeepLink (bool clear)
 		{
-			androidPlugin.Call(method, args);
+			return Call<string> ("getDeepLink", clear);
 		}
-	}
 
-	private T Call<T>(string method, params object[] args) 
-	{
-		if (androidPlugin != null)
+		public void AddListener (GameObject gameObject)
 		{
-			return androidPlugin.Call<T>(method, args);
+			Call ("addListener", gameObject.name);
 		}
-		return default (T);
+
+		public void RemoveListener (GameObject gameObject)
+		{
+			Call ("removeListener", gameObject.name);
+		}
+
+		public string GetIncomingPush (bool clear)
+		{
+			return Call<string> ("getIncomingPush", clear);
+		}
+
+		public void AddTag (string tag)
+		{
+			Call ("addTag", tag);
+		}
+
+		public void RemoveTag (string tag)
+		{
+			Call ("removeTag", tag);
+		}
+
+		private void Call (string method, params object[] args)
+		{
+			if (androidPlugin != null) {
+				androidPlugin.Call (method, args);
+			}
+		}
+
+		private T Call<T> (string method, params object[] args)
+		{
+			if (androidPlugin != null) {
+				return androidPlugin.Call<T> (method, args);
+			}
+			return default (T);
+		}
 	}
 }
 
