@@ -72,7 +72,11 @@ task build << {
                 "-exportPackage",
                     "Assets/UrbanAirship",
                     "Assets/PlayServicesResolver",
-                    "Assets/Plugins",
+                    "Assets/Plugins/iOS",
+                    "Assets/Plugins/Android/AndroidManifest.xml",
+                    "Assets/Plugins/Android/urbanairship-sdk",
+                    "Assets/Plugins/Android/urbanairship-plugin-lib",
+
                 file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
                 "-quit"
         ]
