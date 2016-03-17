@@ -1,13 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="UrbanAirshipConfig">
-        <attr name="urbanAirshipProductionAppKey" format="string" />
-        <attr name="urbanAirshipProductionAppSecret" format="string" />
-        <attr name="urbanAirshipDevelopmentAppKey" format="string" />
-        <attr name="urbanAirshipDevelopmentAppSecret" format="string" />
-        <attr name="urbanAirshipGcmSender" format="string" />
-        <attr name="urbanAirshipInProduction" format="string" />
-        <attr name="urbanAirshipNotificationIcon" format="reference" />
-        <attr name="urbanAirshipNotificationAccentColor" format="color" />
+        <attr name="urbanAirshipProductionAppKey" format="string"/>
+        <attr name="urbanAirshipProductionAppSecret" format="string"/>
+
+        <attr name="urbanAirshipProductionLogLevel" format="enum">
+            <enum name="verbose" value="2"/>
+            <enum name="debug" value="3"/>
+            <enum name="info" value="4"/>
+            <enum name="warning" value="5"/>
+            <enum name="error" value="6"/>
+            <enum name="none" value="7"/>
+        </attr>
+
+        <attr name="urbanAirshipDevelopmentAppKey" format="string"/>
+        <attr name="urbanAirshipDevelopmentAppSecret" format="string"/>
+        <attr name="urbanAirshipDevelopmentLogLevel" format="enum">
+            <enum name="verbose" value="2"/>
+            <enum name="debug" value="3"/>
+            <enum name="info" value="4"/>
+            <enum name="warning" value="5"/>
+            <enum name="error" value="6"/>
+            <enum name="none" value="7"/>
+        </attr>
+
+        <attr name="urbanAirshipGcmSender" format="string"/>
+        <attr name="urbanAirshipInProduction" format="string"/>
+        <attr name="urbanAirshipNotificationIcon" format="reference"/>
+        <attr name="urbanAirshipNotificationAccentColor" format="color"/>
     </declare-styleable>
 </resources>
+

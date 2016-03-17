@@ -15,6 +15,17 @@ namespace UrbanAirship.Editor
 	[Serializable]
 	public class UAConfig
 	{
+
+		public enum LogLevel
+		{
+			Verbose = 0,
+			Debug = 1,
+			Info = 2,
+			Warning = 3,
+			Error = 4,
+			None = 5
+		}
+
 		private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
 		private static UAConfig cachedInstance;
 
@@ -25,10 +36,16 @@ namespace UrbanAirship.Editor
 		public string ProductionAppSecret { get; set; }
 
 		[SerializeField]
+		public LogLevel ProductionLogLevel { get; set; }
+
+		[SerializeField]
 		public string DevelopmentAppKey { get; set; }
 
 		[SerializeField]
 		public string DevelopmentAppSecret { get; set; }
+
+		[SerializeField]
+		public LogLevel DevelopmentLogLevel { get; set; }
 
 		[SerializeField]
 		public string GCMSenderId { get; set; }
@@ -55,14 +72,20 @@ namespace UrbanAirship.Editor
 
 		public UAConfig ()
 		{
+			DevelopmentLogLevel = LogLevel.Debug;
+			ProductionLogLevel = LogLevel.Error;
 		}
 
 		public UAConfig (UAConfig config)
 		{
 			this.ProductionAppKey = config.ProductionAppKey;
 			this.ProductionAppSecret = config.ProductionAppSecret;
+			this.ProductionLogLevel = config.ProductionLogLevel;
+
 			this.DevelopmentAppKey = config.DevelopmentAppKey;
 			this.DevelopmentAppSecret = config.DevelopmentAppSecret;
+			this.DevelopmentLogLevel = config.DevelopmentLogLevel;
+
 			this.InProduction = config.InProduction;
 			this.GCMSenderId = config.GCMSenderId;
 			this.AndroidNotificationAccentColor = config.AndroidNotificationAccentColor;
@@ -150,15 +173,16 @@ namespace UrbanAirship.Editor
 			if (!String.IsNullOrEmpty (ProductionAppKey) && !String.IsNullOrEmpty (ProductionAppSecret)) {
 				rootDict.SetString ("productionAppKey", ProductionAppKey);
 				rootDict.SetString ("productionAppSecret", ProductionAppSecret);
+				rootDict.SetInteger ("productionLogLevel", IOSLogLevel (ProductionLogLevel));
 			}
 				
 			if (!String.IsNullOrEmpty (DevelopmentAppKey) && !String.IsNullOrEmpty (DevelopmentAppSecret)) {
 				rootDict.SetString ("developmentAppKey", DevelopmentAppKey);
 				rootDict.SetString ("developmentAppSecret", DevelopmentAppSecret);
+				rootDict.SetInteger ("developmentLogLevel", IOSLogLevel (DevelopmentLogLevel));
 			}
 
 			rootDict.SetBoolean ("inProduction", InProduction);
-
 
 			File.WriteAllText (plistPath, plist.WriteToString ());
 		}
@@ -174,7 +198,7 @@ namespace UrbanAirship.Editor
 			if (!Directory.Exists (xml)) {
 				Directory.CreateDirectory (xml);
 			}
-
+	
 			using (XmlWriter xmlWriter = XmlWriter.Create (Path.Combine (xml, "airship_config.xml"))) {
 				xmlWriter.WriteStartDocument ();
 				xmlWriter.WriteStartElement ("UrbanAirshipConfig");
@@ -184,11 +208,15 @@ namespace UrbanAirship.Editor
 				if (!String.IsNullOrEmpty (ProductionAppKey) && !String.IsNullOrEmpty (ProductionAppSecret)) {
 					xmlWriter.WriteAttributeString ("app:urbanAirshipProductionAppKey", ProductionAppKey);
 					xmlWriter.WriteAttributeString ("app:urbanAirshipProductionAppSecret", ProductionAppSecret);
+					xmlWriter.WriteAttributeString ("app:urbanAirshipProductionLogLevel", AndroidLogLevel (ProductionLogLevel));
+
 				}
+
 
 				if (!String.IsNullOrEmpty (DevelopmentAppKey) && !String.IsNullOrEmpty (DevelopmentAppSecret)) {
 					xmlWriter.WriteAttributeString ("app:urbanAirshipDevelopmentAppKey", DevelopmentAppKey);
 					xmlWriter.WriteAttributeString ("app:urbanAirshipDevelopmentAppSecret", DevelopmentAppSecret);
+					xmlWriter.WriteAttributeString ("app:urbanAirshipDevelopmentLogLevel", AndroidLogLevel (DevelopmentLogLevel));
 				}
 
 				xmlWriter.WriteAttributeString ("app:urbanAirshipInProduction", (InProduction ? "true" : "false"));
@@ -209,6 +237,30 @@ namespace UrbanAirship.Editor
 				xmlWriter.WriteEndDocument ();
 			}
 		}
+
+		private int IOSLogLevel (LogLevel loglevel)
+		{
+			switch (loglevel) {
+			case LogLevel.Verbose:
+				return 5;
+			case LogLevel.Debug:
+				return 4;
+			case LogLevel.Info:
+				return 3;
+			case LogLevel.Warning:
+				return 2;
+			case LogLevel.Error:
+				return 1;
+			case LogLevel.None:
+				return 0;
+			}
+
+			return 0;
+		}
+
+		private string AndroidLogLevel (LogLevel loglevel)
+		{
+			return Enum.GetName (typeof(LogLevel), loglevel).ToLower ();
+		}
 	}
 }
-

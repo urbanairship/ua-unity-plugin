@@ -29,18 +29,20 @@ namespace UrbanAirship.Editor
 			config = UAConfig.LoadConfig ();
 		}
 
-
 		void OnGUI ()
 		{
 
-			CreateSection ("Production App Credentials", () => {
+			CreateSection ("Production", () => {
 				config.ProductionAppKey = EditorGUILayout.TextField ("App Key", config.ProductionAppKey);
 				config.ProductionAppSecret = EditorGUILayout.TextField ("App Secret", config.ProductionAppSecret);
+				config.ProductionLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup("Log level:", config.ProductionLogLevel);
 			});
 
-			CreateSection ("Development App Credentials", () => {
+
+			CreateSection ("Development", () => {
 				config.DevelopmentAppKey = EditorGUILayout.TextField ("App Key", config.DevelopmentAppKey);
 				config.DevelopmentAppSecret = EditorGUILayout.TextField ("App Secret", config.DevelopmentAppSecret);
+				config.DevelopmentLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup("Log level:", config.DevelopmentLogLevel);
 			});
 
 			CreateSection ("Android", () => {
