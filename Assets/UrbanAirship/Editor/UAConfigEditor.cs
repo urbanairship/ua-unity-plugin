@@ -17,69 +17,91 @@ namespace UrbanAirship.Editor
 		private UAConfig config;
 
 		[MenuItem ("Window/Urban Airship/Settings")]
-		static void Init () {
-			UAConfigEditor window = (UAConfigEditor) EditorWindow.GetWindow(typeof(UAConfigEditor), true, "Urban Airship Config");
-			window.minSize = new Vector2(500, 400);
-			window.Show();
+		static void Init ()
+		{
+			UAConfigEditor window = (UAConfigEditor)EditorWindow.GetWindow (typeof(UAConfigEditor), true, "Urban Airship Config");
+			window.minSize = new Vector2 (400, 400);
+			window.Show ();
 		}
 
-		void OnEnable()
+		void OnEnable ()
 		{
-			config = UAConfig.LoadConfig();
+			config = UAConfig.LoadConfig ();
 		}
 
-		void OnGUI()
+
+		void OnGUI ()
 		{
-			GUILayout.Label ("Production App Credentials", EditorStyles.boldLabel);
-			config.ProductionAppKey = EditorGUILayout.TextField("\t App Key", config.ProductionAppKey);
-			config.ProductionAppSecret = EditorGUILayout.TextField("\t App Secret", config.ProductionAppSecret);
 
-			GUILayout.Label ("Development App Credentials", EditorStyles.boldLabel);
-			config.DevelopmentAppKey = EditorGUILayout.TextField("\t App Key", config.DevelopmentAppKey);
-			config.DevelopmentAppSecret = EditorGUILayout.TextField("\t App Secret", config.DevelopmentAppSecret);
+			CreateSection ("Production App Credentials", () => {
+				config.ProductionAppKey = EditorGUILayout.TextField ("App Key", config.ProductionAppKey);
+				config.ProductionAppSecret = EditorGUILayout.TextField ("App Secret", config.ProductionAppSecret);
+			});
 
-			GUILayout.Label ("Android", EditorStyles.boldLabel);
-			config.GCMSenderId = EditorGUILayout.TextField("\t GCM Sender ID", config.GCMSenderId);
+			CreateSection ("Development App Credentials", () => {
+				config.DevelopmentAppKey = EditorGUILayout.TextField ("App Key", config.DevelopmentAppKey);
+				config.DevelopmentAppSecret = EditorGUILayout.TextField ("App Secret", config.DevelopmentAppSecret);
+			});
 
-			GUILayout.Space(15);
+			CreateSection ("Android", () => {
+				config.GCMSenderId = EditorGUILayout.TextField ("GCM Sender ID", config.GCMSenderId);
+				config.AndroidNotificationAccentColor = EditorGUILayout.TextField ("Notification Accent Color", config.AndroidNotificationAccentColor);
+				config.AndroidNotificationIcon = EditorGUILayout.TextField ("Notification Icon", config.AndroidNotificationIcon);
 
-			config.InProduction = EditorGUILayout.Toggle("inProduction", config.InProduction);
+				GUILayout.Space (5);
 
-			GUILayout.Space(15);
+				GUILayout.Label ("Notification icon must be a reference to a drawable in the project, e.g., " +
+				"@drawable/app_icon, @android:drawable/ic_dialog_alert. Drawables can be added " +
+				"in either the Assets/Plugins/Android/urbanairship-plugin-lib/res directory or by " +
+				"providing a new Android library project.", EditorStyles.wordWrappedMiniLabel);
+			});
 
 
-			GUILayout.BeginHorizontal();
+			config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
 
-			if (GUILayout.Button("Cancel"))
-			{
-				Close();
+			GUILayout.FlexibleSpace ();
+
+			GUILayout.BeginHorizontal ();
+
+			if (GUILayout.Button ("Cancel")) {
+				Close ();
 			}
 
-			GUILayout.FlexibleSpace();
+			GUILayout.FlexibleSpace ();
 
-
-			if (GUILayout.Button("Save"))
-			{
-				try
-				{
-					config.Validate();
+			if (GUILayout.Button ("Save")) {
+				try {
+					config.Validate ();
 
 					UnityEngine.Debug.Log ("Saving Urban Airship config.");
 
-					config.Apply();
-					UAConfig.SaveConfig(config);
+					config.Apply ();
+					UAConfig.SaveConfig (config);
 
-					AssetDatabase.Refresh();
-					Close();
-				}
-				catch (Exception e)
-				{
-					EditorUtility.DisplayDialog("Urban Airship", "Unable to save config. Erorr: " +  e.Message, "Ok");
+					AssetDatabase.Refresh ();
+					Close ();
+				} catch (Exception e) {
+					EditorUtility.DisplayDialog ("Urban Airship", "Unable to save config. Erorr: " + e.Message, "Ok");
 				}
 			}
 
-			GUILayout.FlexibleSpace();
+			GUILayout.FlexibleSpace ();
 
+		}
+
+		private void CreateSection (string sectionTitle, Action body)
+		{
+			GUILayout.Label (sectionTitle, EditorStyles.boldLabel);
+			GUILayout.BeginHorizontal ();
+			GUILayout.Space (15);
+			GUILayout.BeginVertical ();
+
+			body ();
+
+			GUILayout.EndVertical ();
+			GUILayout.Space (5);
+			GUILayout.EndHorizontal ();
+			GUILayout.Space (15);
 		}
 	}
 }
