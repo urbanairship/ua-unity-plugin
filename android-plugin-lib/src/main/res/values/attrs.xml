@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="UrbanAirshipConfig">
+        <attr name="urbanAirshipProductionAppKey" format="string" />
+        <attr name="urbanAirshipProductionAppSecret" format="string" />
+        <attr name="urbanAirshipDevelopmentAppKey" format="string" />
+        <attr name="urbanAirshipDevelopmentAppSecret" format="string" />
+        <attr name="urbanAirshipGcmSender" format="string" />
+        <attr name="urbanAirshipInProduction" format="string" />
+        <attr name="urbanAirshipNotificationIcon" format="reference" />
+        <attr name="urbanAirshipNotificationAccentColor" format="color" />
+    </declare-styleable>
+</resources>

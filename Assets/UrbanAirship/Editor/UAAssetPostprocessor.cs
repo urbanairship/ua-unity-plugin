@@ -13,31 +13,29 @@ namespace UrbanAirship.Editor
 	[InitializeOnLoad]
 	public class UAAssetPostprocessor : AssetPostprocessor
 	{
-		static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+		static void OnPostprocessAllAssets (string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
 		{
-			if (importedAssets.Any(s => s.Contains("urbanairship") || s.ToLower().Contains("airshipconfig")))
-			{
-				UAUtils.UpdateManifests();
+			if (importedAssets.Select (s => s.ToLower ()).Any (s => s.Contains ("urbanairship") || s.Contains ("airshipconfig") || s.Contains ("airship_config"))) {
+				UAUtils.UpdateManifests ();
 				UnityEngine.Debug.Log ("Updated Urban Airship Manifests.");
-				AssetDatabase.Refresh();
+				AssetDatabase.Refresh ();
 			}
 
-			if (deletedAssets.Any(s => s.ToLower().Contains("airshipconfig")))
-			{
-				if (UAConfig.LoadConfig().Apply())
-				{
+			if (deletedAssets.Select (s => s.ToLower ()).Any (s => s.Contains ("airship") || s.Contains ("airship_config"))) {
+				if (UAConfig.LoadConfig ().Apply ()) {
 					UnityEngine.Debug.Log ("Created Urban Airship config.");
+					AssetDatabase.Refresh ();
 				}
 			}
 		}
 
 
-		[MenuItem("Window/Urban Airship/Update Android Manifests")]
-		public static void Update()
+		[MenuItem ("Window/Urban Airship/Update Android Manifests")]
+		public static void Update ()
 		{
-			UAUtils.UpdateManifests();
-			AssetDatabase.Refresh();
-			EditorUtility.DisplayDialog("Urban Airship", "Urban Airship Android Manifests updated with the current bundle ID.", "OK");
+			UAUtils.UpdateManifests ();
+			AssetDatabase.Refresh ();
+			EditorUtility.DisplayDialog ("Urban Airship", "Urban Airship Android Manifests updated with the current bundle ID.", "OK");
 		}
 	}
 }
