@@ -1,3 +1,5 @@
+import java.util.regex.Pattern
+
 project.ext {
     unityExe = System.getProperty("UNITY_EXE")
     if (unityExe == null || unityExe.isEmpty()) {
@@ -44,10 +46,21 @@ task clean(type: Delete) {
 
 
 task build << {
-    // Copy the plugin src
+    // Copy the plugin src, exclude PluginInfo.cs so we can copy and replace the version placeholder
     copy {
         from file("Assets")
         into file("$buildDir/unity-plugin/Assets/")
+        exclude "UrbanAirship/PluginInfo.cs"
+    }
+
+    // Copy PluginInfo.cs and replace the version placeholder
+    copy {
+        from file("Assets")
+        into file("$buildDir/unity-plugin/Assets/")
+        include "UrbanAirship/PluginInfo.cs"
+        filter { String line ->
+            line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version)
+        }
     }
 
     def androidLibProject = project.findProject(":android-plugin-lib")
