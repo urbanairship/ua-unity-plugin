@@ -16,14 +16,6 @@ namespace UrbanAirship.Editor
 	{
 		private UAConfig config;
 
-		[MenuItem ("Window/Urban Airship/Settings")]
-		static void Init ()
-		{
-			UAConfigEditor window = (UAConfigEditor)EditorWindow.GetWindow (typeof(UAConfigEditor), true, "Urban Airship Config");
-			window.minSize = new Vector2 (400, 400);
-			window.Show ();
-		}
-
 		void OnEnable ()
 		{
 			config = UAConfig.LoadConfig ();
