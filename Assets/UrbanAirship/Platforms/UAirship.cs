@@ -92,6 +92,16 @@ namespace UrbanAirship {
 			}
 		}
 
+		public static string NamedUserId {
+			get {
+				return plugin.NamedUserId;
+			}
+
+			set {
+				plugin.NamedUserId = value;
+			}
+		}
+
 		public static void AddListener (GameObject gameObject)
 		{
 			if (plugin != null) {

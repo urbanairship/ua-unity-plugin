@@ -39,6 +39,10 @@ namespace UrbanAirship {
 			set;
 		}
 
+		string NamedUserId {
+			get;
+			set;
+		}
 
 		void AddListener (GameObject gameObject);
 
@@ -52,7 +56,6 @@ namespace UrbanAirship {
 		void AddTag (string tag);
 
 		void RemoveTag (string tag);
-
 	}
 }
 

@@ -13,6 +13,8 @@
 #import "UAActionResult.h"
 #import "UALocationService.h"
 #import "UAConfig.h"
+#import "UAAnalytics.h"
+#import "UAUtils.h"
 
 static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
@@ -118,8 +120,6 @@ const char* UAUnityPlugin_getDeepLink(bool clear) {
     return dl;
 }
 
-
-
 #pragma mark -
 #pragma mark UA Push Functions
 const char* UAUnityPlugin_getIncomingPush(bool clear) {
@@ -221,6 +221,17 @@ void UAUnityPlugin_disableBackgroundLocation() {
     [UAirship shared].locationService.backgroundLocationServiceEnabled = NO;
 }
 
+void UAUnityPlugin_setNamedUserID(const char *namedUserID) {
+    NSString *namedUserIDString = [NSString stringWithUTF8String:namedUserID];
+    NSLog(@"UnityPlugin setNamedUserID %@", namedUserIDString);
+    [UAirship push].namedUser.identifier = namedUserIDString;
+}
+
+const char* UAUnityPlugin_getNamedUserID() {
+    return MakeStringCopy([[UAirship push].namedUser.identifier UTF8String]);
+}
+
+
 #pragma mark -
 #pragma mark Actions!
 
@@ -263,7 +274,7 @@ void UAUnityPlugin_disableBackgroundLocation() {
 
 
 #pragma mark -
-#pragma mark Helper C Functions
+#pragma mark Helpers
 
 + (const char *) convertToJson:(NSObject*) obj {
     NSString *JSONString = [NSJSONSerialization stringWithObject:obj acceptingFragments:YES];

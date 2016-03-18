@@ -43,6 +43,10 @@ bool UAUnityPlugin_isBackgroundLocationEnabled();
 void UAUnityPlugin_enableBackgroundLocation();
 void UAUnityPlugin_disableBackgroundLocation();
 
+#pragma mark -
+#pragma mark Named User
+void UAUnityPlugin_setNamedUserID(const char *namedUserID);
+const char* UAUnityPlugin_getNamedUserID();
 
 @interface UAUnityPlugin : NSObject <UAPushNotificationDelegate>
 
