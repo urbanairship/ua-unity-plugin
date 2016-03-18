@@ -53,6 +53,7 @@ namespace UrbanAirship {
 
 		void RemoveTag (string tag);
 
+		void AddCustomEvent (string customEvent);
 	}
 }
 

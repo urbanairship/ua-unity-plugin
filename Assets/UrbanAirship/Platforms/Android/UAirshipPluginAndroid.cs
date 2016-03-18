@@ -117,6 +117,11 @@ namespace UrbanAirship {
 			Call ("removeTag", tag);
 		}
 
+		public void AddCustomEvent (string customEvent)
+		{
+			Call ("addCustomEvent", customEvent);
+		}
+
 		private void Call (string method, params object[] args)
 		{
 			if (androidPlugin != null) {

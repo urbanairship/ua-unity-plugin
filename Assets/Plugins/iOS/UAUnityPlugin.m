@@ -13,6 +13,9 @@
 #import "UAActionResult.h"
 #import "UALocationService.h"
 #import "UAConfig.h"
+#import "UAAnalytics.h"
+#import "UACustomEvent.h"
+#import "UAUtils.h"
 
 static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
@@ -221,6 +224,45 @@ void UAUnityPlugin_disableBackgroundLocation() {
     [UAirship shared].locationService.backgroundLocationServiceEnabled = NO;
 }
 
+void UAUnityPlugin_addCustomEvent(const char *customEvent) {
+    NSString *customEventString = [NSString stringWithUTF8String:customEvent];
+    NSLog(@"UnityPlugin addCustomEvent");
+    id obj = [NSJSONSerialization objectWithString:customEventString];
+
+    UACustomEvent *ce = [UACustomEvent eventWithName:[UAUnityPlugin stringOrNil:obj[@"eventName"]]];
+
+    NSString *valueString = [UAUnityPlugin stringOrNil:obj[@"eventValue"]];
+    if (valueString) {
+        ce.eventValue = [NSDecimalNumber decimalNumberWithString:valueString];
+    }
+
+    ce.interactionID = [UAUnityPlugin stringOrNil:obj[@"interactionId"]];
+    ce.interactionType = [UAUnityPlugin stringOrNil:obj[@"interactionType"]];
+    ce.transactionID = [UAUnityPlugin stringOrNil:obj[@"transactionID"]];
+
+    for (id property in obj[@"properties"]) {
+        NSString *name = [UAUnityPlugin stringOrNil:property[@"name"]];
+        id value;
+        NSString *type = property[@"type"];
+        if ([type isEqualToString:@"s"]) {
+            value = property[@"stringValue"];
+            [ce setStringProperty:value forKey:name];
+        } else if ([type isEqualToString:@"d"]) {
+            value = property[@"doubleValue"];
+            [ce setNumberProperty:value forKey:name];
+        } else if ([type isEqualToString:@"b"]) {
+            value = property[@"boolValue"];
+            [ce setBoolProperty:value forKey:name];
+        } else if ([type isEqualToString:@"sa"]) {
+            [ce setStringArrayProperty:value forKey:name];
+            value = property[@"stringArrayValue"];
+        }
+    }
+
+    [[UAirship shared].analytics addEvent:ce];
+}
+
+
 #pragma mark -
 #pragma mark Actions!
 
@@ -263,7 +305,11 @@ void UAUnityPlugin_disableBackgroundLocation() {
 
 
 #pragma mark -
-#pragma mark Helper C Functions
+#pragma mark Helpers
+
++ (NSString *)stringOrNil:(NSString *)string {
+    return string.length > 0 ? string : nil;
+}
 
 + (const char *) convertToJson:(NSObject*) obj {
     NSString *JSONString = [NSJSONSerialization stringWithObject:obj acceptingFragments:YES];

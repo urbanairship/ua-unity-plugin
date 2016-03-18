@@ -43,6 +43,11 @@ bool UAUnityPlugin_isBackgroundLocationEnabled();
 void UAUnityPlugin_enableBackgroundLocation();
 void UAUnityPlugin_disableBackgroundLocation();
 
+#pragma mark -
+#pragma mark Custom Events
+void UAUnityPlugin_addCustomEvent(const char *customEvent);
+
+
 
 @interface UAUnityPlugin : NSObject <UAPushNotificationDelegate>
 
