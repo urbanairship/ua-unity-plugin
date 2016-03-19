@@ -11,6 +11,7 @@ import android.content.res.XmlResourceParser;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.Xml;
 
 import com.urbanairship.AirshipConfigOptions;
@@ -113,8 +114,10 @@ public class UnityAutopilot extends Autopilot {
         AirshipConfigOptions configOptions = new AirshipConfigOptions.Builder()
                 .setProductionAppKey(typedArray.getString(R.styleable.UrbanAirshipConfig_urbanAirshipProductionAppKey))
                 .setProductionAppSecret(typedArray.getString(R.styleable.UrbanAirshipConfig_urbanAirshipProductionAppSecret))
+                .setProductionLogLevel(typedArray.getInt(R.styleable.UrbanAirshipConfig_urbanAirshipProductionLogLevel, Log.ERROR))
                 .setDevelopmentAppKey(typedArray.getString(R.styleable.UrbanAirshipConfig_urbanAirshipDevelopmentAppKey))
                 .setDevelopmentAppSecret(typedArray.getString(R.styleable.UrbanAirshipConfig_urbanAirshipDevelopmentAppSecret))
+                .setDevelopmentLogLevel(typedArray.getInt(R.styleable.UrbanAirshipConfig_urbanAirshipDevelopmentLogLevel, Log.DEBUG))
                 .setInProduction(typedArray.getBoolean(R.styleable.UrbanAirshipConfig_urbanAirshipInProduction, false))
                 .setGcmSender(typedArray.getString(R.styleable.UrbanAirshipConfig_urbanAirshipGcmSender))
                 .build();
