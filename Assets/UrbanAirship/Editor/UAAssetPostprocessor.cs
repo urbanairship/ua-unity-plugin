@@ -28,14 +28,5 @@ namespace UrbanAirship.Editor
 				}
 			}
 		}
-
-
-		[MenuItem ("Window/Urban Airship/Update Android Manifests")]
-		public static void Update ()
-		{
-			UAUtils.UpdateManifests ();
-			AssetDatabase.Refresh ();
-			EditorUtility.DisplayDialog ("Urban Airship", "Urban Airship Android Manifests updated with the current bundle ID.", "OK");
-		}
 	}
 }
