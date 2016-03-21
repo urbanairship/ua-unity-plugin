@@ -132,6 +132,11 @@ namespace UrbanAirship {
 			Call ("addCustomEvent", customEvent);
 		}
 
+		public void DisplayMessageCenter ()
+		{
+			Call ("displayMessageCenter");
+		}
+
 		private void Call (string method, params object[] args)
 		{
 			if (androidPlugin != null) {

@@ -16,6 +16,7 @@
 #import "UAAnalytics.h"
 #import "UACustomEvent.h"
 #import "UAUtils.h"
+#import "UADefaultMessageCenter.h"
 
 static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
@@ -272,6 +273,15 @@ const char* UAUnityPlugin_getNamedUserID() {
 
 
 #pragma mark -
+#pragma mark MessageCenter
+
+void UAUnityPlugin_displayMessageCenter() {
+    NSLog(@"UnityPlugin displayMessageCenter");
+    UnityWillPause();
+    [[UAirship defaultMessageCenter] display];
+}
+
+#pragma mark -
 #pragma mark Actions!
 
 #pragma mark -
@@ -289,6 +299,7 @@ const char* UAUnityPlugin_getNamedUserID() {
         [self.receivePushes addObject:notification];
     }
 }
+
 
 /**
  * Called when the app is started or resumed because a user opened a notification.

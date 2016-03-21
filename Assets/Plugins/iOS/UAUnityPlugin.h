@@ -47,11 +47,16 @@ void UAUnityPlugin_disableBackgroundLocation();
 #pragma mark Custom Events
 void UAUnityPlugin_addCustomEvent(const char *customEvent);
 
-
 #pragma mark -
 #pragma mark Named User
 void UAUnityPlugin_setNamedUserID(const char *namedUserID);
 const char* UAUnityPlugin_getNamedUserID();
+
+
+#pragma mark -
+#pragma mark Message Center
+void UAUnityPlugin_displayMessageCenter();
+
 
 @interface UAUnityPlugin : NSObject <UAPushNotificationDelegate>
 
