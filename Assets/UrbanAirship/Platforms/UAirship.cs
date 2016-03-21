@@ -45,10 +45,6 @@ namespace UrbanAirship {
 		[SerializeField]
 		private string interactionId;
 		[SerializeField]
-		private string pushSendId;
-		[SerializeField]
-		private string pushMetadata;
-		[SerializeField]
 		private Property[] properties;
 
 		private List<Property> propertyList;
@@ -83,16 +79,6 @@ namespace UrbanAirship {
 			set { interactionId = value; }
 		}
 
-		public string PushSendId {
-			get { return pushSendId; }
-			set { pushSendId = value; }
-		}
-
-		public string PushMetadata {
-			get { return pushMetadata; }
-			set { pushMetadata = value; }
-		}
-
 		public void AddProperty(string name, string value)
 		{
 			this.propertyList.Add (new Property ("s", name, value));
@@ -124,9 +110,9 @@ namespace UrbanAirship {
 		{
 			public string type;
 			public string name;
-		    public string stringValue;
-		    public double doubleValue;
-		    public bool boolValue;
+			public string stringValue;
+			public double doubleValue;
+			public bool boolValue;
 			public string[] stringArrayValue;
 
 			public Property(string type, string name, System.Object value)
@@ -140,7 +126,7 @@ namespace UrbanAirship {
 					this.doubleValue = (double) value;
 				} else if (type == "b") {
 					this.boolValue = (bool) value;
-				} else if (type == "l") {
+				} else if (type == "sa") {
 					ICollection<string> collection = (ICollection<string>) value;
 					this.stringArrayValue = collection.ToArray ();
 				}
