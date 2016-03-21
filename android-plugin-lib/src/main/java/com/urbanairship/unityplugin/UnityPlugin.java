@@ -161,6 +161,16 @@ public class UnityPlugin {
         return UAirship.shared().getLocationManager().isBackgroundLocationAllowed();
     }
 
+    public String getNamedUserId() {
+        Logger.debug("UnityPlugin getNamedUserId");
+        return UAirship.shared().getPushManager().getNamedUser().getId();
+    }
+
+    public void setNamedUserId(String namedUserId) {
+        Logger.debug("UnityPlugin setNamedUserId: " + namedUserId);
+        UAirship.shared().getPushManager().getNamedUser().setId(namedUserId);
+    }
+
     void onPushOpened(PushMessage message) {
         Logger.debug("UnityPlugin push opened.");
         this.incomingPush = message;
