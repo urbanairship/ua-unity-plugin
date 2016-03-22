@@ -29,9 +29,8 @@ import java.util.Set;
 public class UnityPlugin {
 
     private static UnityPlugin instance = new UnityPlugin();
-    private List<String> listeners = new ArrayList<>();
+    private String listener;
     private PushMessage incomingPush;
-    private List<PushMessage> receivePushes = new ArrayList<>();
     private String deepLink;
 
     UnityPlugin() {
@@ -51,29 +50,10 @@ public class UnityPlugin {
         return link;
     }
 
-    // Listener
-
-    public void addListener(String listener) {
-        Logger.debug("UnityPlugin adding listener: " + listener);
-
-        listeners.add(listener);
-
-        if (!receivePushes.isEmpty()) {
-            for (PushMessage pushMessage : receivePushes) {
-                notifyReceivedPush(pushMessage);
-            }
-
-            receivePushes.clear();
-        }
+    public void setListener(String listener) {
+        Logger.debug("UnityPlugin setListener: " + listener);
+        this.listener = listener;
     }
-
-    public void removeListener(String listener) {
-        Logger.debug("UnityPlugin removing listener: " + listener);
-
-        listeners.remove(listener);
-    }
-
-    // push
 
     public String getIncomingPush(boolean clear) {
         Logger.debug("UnityPlugin getIncomingPush clear " + clear);
@@ -290,22 +270,10 @@ public class UnityPlugin {
     }
 
     void onPushReceived(PushMessage message) {
-        Logger.debug("UnityPlugin push received.");
-        if (listeners.isEmpty()) {
-            receivePushes.add(message);
-        } else {
-            notifyReceivedPush(message);
-        }
-    }
+        Logger.debug("UnityPlugin push received. " + message);
 
-    private void notifyReceivedPush(PushMessage pushMessage) {
-        for (String listener : listeners) {
-            try {
-                Logger.debug("UnityPlugin notifying " + listener + " push received");
-                UnityPlayer.UnitySendMessage(listener, "OnPushReceived", getPushPayload(pushMessage));
-            } catch (Exception e) {
-                Logger.error("Failed to send message to " + listener, e);
-            }
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnPushReceived", getPushPayload(message));
         }
     }
 

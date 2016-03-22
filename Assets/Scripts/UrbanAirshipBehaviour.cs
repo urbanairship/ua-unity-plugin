@@ -8,7 +8,6 @@ using UrbanAirship;
 
 public class UrbanAirshipBehaviour : MonoBehaviour
 {
-
 	public string addTagOnStart;
 
 	void Awake ()
@@ -18,23 +17,18 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 
 	void Start ()
 	{
-		UAirship.AddListener (gameObject);
 
 		if (!string.IsNullOrEmpty (addTagOnStart)) {
 			UAirship.AddTag (addTagOnStart);
 		}
 
+		UAirship.OnPushReceived += OnPushReceived;
 		CheckDeepLink ();
 	}
 
 	void OnDestroy ()
 	{
-		UAirship.RemoveListener (gameObject);
-	}
-
-	void OnPushReceived (string payload)
-	{
-		Debug.Log ("Unity received push! " + payload);
+		UAirship.OnPushReceived -= OnPushReceived;
 	}
 
 	void OnApplicationPause (bool pauseStatus)
@@ -44,6 +38,10 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 		}
 	}
 
+	void OnPushReceived(PushMessage message) {
+		Debug.Log ("Unity received push! " + message);
+	}
+	
 	void CheckDeepLink ()
 	{
 		Debug.Log ("Checking for deeplink.");

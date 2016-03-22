@@ -13,17 +13,10 @@ namespace UrbanAirship {
 	{
 
 		[DllImport ("__Internal")]
-		private static extern void UAUnityPlugin_addListener (string listener);
-
-		[DllImport ("__Internal")]
-		private static extern void UAUnityPlugin_removeListener (string listener);
-
+		private static extern void UAUnityPlugin_setListener (string listener);
 		[DllImport ("__Internal")]
 		private static extern string UAUnityPlugin_getDeepLink (bool clear);
 
-
-		// PUSH FUNCTION IMPORTS
-		// import a single C-function from our plugin
 		[DllImport ("__Internal")]
 		private static extern  string UAUnityPlugin_getIncomingPush (bool clear);
 
@@ -161,19 +154,15 @@ namespace UrbanAirship {
 			}
 		}
 
+		public GameObject Listener {
+			set {
+				UAUnityPlugin_setListener (value.name);
+			}
+		}
+
 		public string GetDeepLink (bool clear)
 		{
 			return UAUnityPlugin_getDeepLink (clear);
-		}
-
-		public void AddListener (GameObject gameObject)
-		{
-			UAUnityPlugin_addListener (gameObject.name);
-		}
-
-		public void RemoveListener (GameObject gameObject)
-		{
-			UAUnityPlugin_removeListener (gameObject.name);
 		}
 
 		public string GetIncomingPush (bool clear)
