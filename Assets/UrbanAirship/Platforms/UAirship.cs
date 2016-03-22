@@ -255,6 +255,13 @@ namespace UrbanAirship {
 				plugin.AddCustomEvent (customEvent.ToJson ());
 			}
 		}
+
+		public static void DisplayMessageCenter ()
+		{
+			if (plugin != null) {
+				plugin.DisplayMessageCenter ();
+			}
+		}
 	}
 }
 

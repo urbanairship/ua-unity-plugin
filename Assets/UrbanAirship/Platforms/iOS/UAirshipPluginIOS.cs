@@ -83,6 +83,9 @@ namespace UrbanAirship {
 		[DllImport ("__Internal")]
 		private static extern void UAUnityPlugin_setNamedUserID (string namedUserID);
 
+		[DllImport ("__Internal")]
+		private static extern void UAUnityPlugin_displayMessageCenter ();
+
 		public bool PushEnabled {
 			get {
 				return UAUnityPlugin_isPushEnabled ();
@@ -186,6 +189,11 @@ namespace UrbanAirship {
 		public void AddCustomEvent (string customEvent)
 		{
 			UAUnityPlugin_addCustomEvent (customEvent);
+		}
+
+		public void DisplayMessageCenter ()
+		{
+			UAUnityPlugin_displayMessageCenter ();
 		}
 	}
 }

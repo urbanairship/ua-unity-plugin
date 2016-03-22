@@ -259,6 +259,11 @@ public class UnityPlugin {
         UAirship.shared().getPushManager().getNamedUser().setId(namedUserId);
     }
 
+    public void displayMessageCenter(){
+        Logger.debug("UnityPlugin displayMessageCenter");
+        UAirship.shared().getInbox().startInboxActivity();
+    }
+
     void onPushOpened(PushMessage message) {
         Logger.debug("UnityPlugin push opened.");
         this.incomingPush = message;
