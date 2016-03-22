@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace UrbanAirship {
 
-	public class UAirshipPluginIOS : IUAirshipPlugin
+	class UAirshipPluginIOS : IUAirshipPlugin
 	{
 
 		[DllImport ("__Internal")]

@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace UrbanAirship {
 
-	public class UAirshipPluginAndroid : IUAirshipPlugin
+	class UAirshipPluginAndroid : IUAirshipPlugin
 	{
 
 		private AndroidJavaObject androidPlugin;
