@@ -15,8 +15,7 @@ namespace UrbanAirship {
 	{
 		public T[] values = null;
 
-
-		public static JsonArray<T> FromJson (T jsonString)
+		public static JsonArray<T> FromJson (string jsonString)
 		{
 			string wrappedArray = string.Format ("{{ \"{0}\": {1}}}", "values", jsonString);
 			return JsonUtility.FromJson<JsonArray<T>> (wrappedArray);
@@ -35,7 +34,6 @@ namespace UrbanAirship {
 		{
 			return JsonUtility.ToJson (this);
 		}
-
 	}
 
 	[System.Serializable]
@@ -141,6 +139,60 @@ namespace UrbanAirship {
 		}
 	}
 
+	[Serializable]
+	public class PushMessage
+	{
+		[SerializeField]
+		private string alert;
+		[SerializeField]
+		private string identifier;
+		[SerializeField]
+		private Extra[] extras;
+
+		private Dictionary<string, string> extrasDictionary;
+
+		[Serializable]
+		class Extra
+		{
+			public string key;
+			public string value;
+		}
+
+		public string Alert {
+			get { return this.alert; }
+		}
+
+		public string Identifier {
+			get { return this.identifier; }
+		}
+
+		public Dictionary<string, string> Extras {
+			get {
+				if (extras == null) {
+					return null;
+				}
+
+				if (this.extrasDictionary == null) {
+					this.extrasDictionary = new Dictionary<string, string> ();
+					foreach (Extra extra in extras) {
+						this.extrasDictionary.Add (extra.key, extra.value);
+					}
+				}
+
+				return this.extrasDictionary;
+			}
+		}
+
+		public static PushMessage FromJson (string jsonString)
+		{
+			PushMessage pushMessage = JsonUtility.FromJson<PushMessage> (jsonString);
+			if (pushMessage.Alert == null && pushMessage.Identifier == null && pushMessage.Extras == null) {
+				return null;
+			}
+			return pushMessage;
+		}
+	}
+
 	public class UAirship
 	{
 
@@ -234,10 +286,12 @@ namespace UrbanAirship {
 			return null;
 		}
 
-		public static string GetIncomingPush (bool clear = true)
+		public static PushMessage GetIncomingPush (bool clear = true)
 		{
 			if (plugin != null) {
-				return plugin.GetIncomingPush (clear);
+				string jsonPushMessage = plugin.GetIncomingPush (clear);
+				PushMessage pushMessage = PushMessage.FromJson (jsonPushMessage);
+				return pushMessage;
 			}
 			return null;
 		}
