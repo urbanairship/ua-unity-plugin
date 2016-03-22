@@ -121,8 +121,6 @@ const char* UAUnityPlugin_getDeepLink(bool clear) {
     return dl;
 }
 
-
-
 #pragma mark -
 #pragma mark UA Push Functions
 const char* UAUnityPlugin_getIncomingPush(bool clear) {
@@ -260,6 +258,16 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
     }
 
     [[UAirship shared].analytics addEvent:ce];
+}
+
+void UAUnityPlugin_setNamedUserID(const char *namedUserID) {
+    NSString *namedUserIDString = [NSString stringWithUTF8String:namedUserID];
+    NSLog(@"UnityPlugin setNamedUserID %@", namedUserIDString);
+    [UAirship push].namedUser.identifier = namedUserIDString;
+}
+
+const char* UAUnityPlugin_getNamedUserID() {
+    return MakeStringCopy([[UAirship push].namedUser.identifier UTF8String]);
 }
 
 

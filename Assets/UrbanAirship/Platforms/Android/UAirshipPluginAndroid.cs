@@ -87,6 +87,16 @@ namespace UrbanAirship {
 			}
 		}
 
+		public string NamedUserId {
+			get {
+				return Call<string> ("getNamedUserId");
+			}
+
+			set {
+				Call ("setNamedUserId", value);
+			}
+		}
+
 		public string GetDeepLink (bool clear)
 		{
 			return Call<string> ("getDeepLink", clear);

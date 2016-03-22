@@ -77,6 +77,12 @@ namespace UrbanAirship {
 		[DllImport ("__Internal")]
 		private static extern void UAUnityPlugin_addCustomEvent (string customEvent);
 
+		[DllImport ("__Internal")]
+		private static extern string UAUnityPlugin_getNamedUserID ();
+
+		[DllImport ("__Internal")]
+		private static extern void UAUnityPlugin_setNamedUserID (string namedUserID);
+
 		public bool PushEnabled {
 			get {
 				return UAUnityPlugin_isPushEnabled ();
@@ -134,6 +140,16 @@ namespace UrbanAirship {
 				} else {
 					UAUnityPlugin_disableBackgroundLocation ();
 				}
+			}
+		}
+
+		public string NamedUserId {
+			get {
+				return UAUnityPlugin_getNamedUserID ();
+			}
+
+			set {
+				UAUnityPlugin_setNamedUserID (value);
 			}
 		}
 

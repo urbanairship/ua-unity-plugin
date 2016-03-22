@@ -39,6 +39,10 @@ namespace UrbanAirship {
 			set;
 		}
 
+		string NamedUserId {
+			get;
+			set;
+		}
 
 		void AddListener (GameObject gameObject);
 
