@@ -2,6 +2,8 @@
  Copyright 2015 Urban Airship and Contributors
 */
 
+#if UNITY_IPHONE
+
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -21,13 +23,10 @@ namespace UrbanAirship {
 		private static extern  string UAUnityPlugin_getIncomingPush (bool clear);
 
 		[DllImport ("__Internal")]
-		private static extern bool UAUnityPlugin_isPushEnabled ();
+		private static extern bool UAUnityPlugin_getUserNotificationsEnabled ();
 
 		[DllImport ("__Internal")]
-		private static extern void UAUnityPlugin_enablePush ();
-
-		[DllImport ("__Internal")]
-		private static extern void UAUnityPlugin_disablePush ();
+		private static extern void UAUnityPlugin_setUserNotificationsEnabled (bool enabled);
 
 		[DllImport ("__Internal")]
 		private static extern string UAUnityPlugin_getTags ();
@@ -52,19 +51,13 @@ namespace UrbanAirship {
 		private static extern bool UAUnityPlugin_isLocationEnabled ();
 
 		[DllImport ("__Internal")]
-		private static extern void UAUnityPlugin_enableLocation ();
+		private static extern void UAUnityPlugin_setLocationEnabled (bool enabled);
 
 		[DllImport ("__Internal")]
-		private static extern void UAUnityPlugin_disableLocation ();
+		private static extern bool UAUnityPlugin_isBackgroundLocationAllowed ();
 
 		[DllImport ("__Internal")]
-		private static extern bool UAUnityPlugin_isBackgroundLocationEnabled ();
-
-		[DllImport ("__Internal")]
-		private static extern void UAUnityPlugin_enableBackgroundLocation ();
-
-		[DllImport ("__Internal")]
-		private static extern void UAUnityPlugin_disableBackgroundLocation ();
+		private static extern void UAUnityPlugin_setBackgroundLocationAllowed (bool allowed);
 
 		[DllImport ("__Internal")]
 		private static extern void UAUnityPlugin_addCustomEvent (string customEvent);
@@ -84,16 +77,12 @@ namespace UrbanAirship {
 		[DllImport ("__Internal")]
 		private static extern void UAUnityPlugin_editChannelTagGroups (string payload);
 
-		public bool PushEnabled {
+		public bool UserNotificationsEnabled {
 			get {
-				return UAUnityPlugin_isPushEnabled ();
+				return UAUnityPlugin_getUserNotificationsEnabled ();
 			}
 			set {
-				if (value) {
-					UAUnityPlugin_enablePush ();
-				} else {
-					UAUnityPlugin_disablePush ();
-				}
+				UAUnityPlugin_setUserNotificationsEnabled (value);
 			}
 		}
 
@@ -123,24 +112,16 @@ namespace UrbanAirship {
 				return UAUnityPlugin_isLocationEnabled ();
 			}
 			set {
-				if (value) {
-					UAUnityPlugin_enableLocation ();
-				} else {
-					UAUnityPlugin_disableLocation ();
-				}
+				UAUnityPlugin_setLocationEnabled (value);
 			}
 		}
 
-		public bool BackgroundLocationEnabled {
+		public bool BackgroundLocationAllowed {
 			get {
-				return UAUnityPlugin_isBackgroundLocationEnabled ();
+				return UAUnityPlugin_isBackgroundLocationAllowed ();
 			}
 			set {
-				if (value) {
-					UAUnityPlugin_enableBackgroundLocation ();
-				} else {
-					UAUnityPlugin_disableBackgroundLocation ();
-				}
+				UAUnityPlugin_setBackgroundLocationAllowed (value);
 			}
 		}
 
@@ -201,3 +182,7 @@ namespace UrbanAirship {
 		}
 	}
 }
+
+#endif
+
+	

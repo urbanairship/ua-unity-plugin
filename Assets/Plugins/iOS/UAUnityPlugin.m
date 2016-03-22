@@ -120,19 +120,14 @@ const char* UAUnityPlugin_getIncomingPush(bool clear) {
     return payload;
 }
 
-bool UAUnityPlugin_isPushEnabled() {
+bool UAUnityPlugin_getUserNotificationsEnabled() {
     NSLog(@"UnityPlugin isPushEnabled");
     return [UAirship push].userPushNotificationsEnabled ? true : false;
 }
 
-void UAUnityPlugin_enablePush() {
-    NSLog(@"UnityPlugin enablePush");
-    [UAirship push].userPushNotificationsEnabled = YES;
-}
-
-void UAUnityPlugin_disablePush() {
-    NSLog(@"UnityPlugin disablePush");
-    [UAirship push].userPushNotificationsEnabled = NO;
+void UAUnityPlugin_setUserNotificationsEnabled(bool enabled) {
+    NSLog(@"UnityPlugin setUserNotificationsEnabled: %d", enabled);
+    [UAirship push].userPushNotificationsEnabled = enabled ? YES : NO;
 }
 
 const char* UAUnityPlugin_getTags() {
@@ -182,31 +177,26 @@ bool UAUnityPlugin_isLocationEnabled() {
     return [UALocationService airshipLocationServiceEnabled] ? true : false;
 }
 
-void UAUnityPlugin_enableLocation() {
-    NSLog(@"UnityPlugin enableLocation");
-    [UALocationService setAirshipLocationServiceEnabled:YES];
-    [[UAirship shared].locationService startReportingSignificantLocationChanges];
+void UAUnityPlugin_setLocationEnabled(bool enabled) {
+    NSLog(@"UnityPlugin setUserNotificationsEnabled: %d", enabled);
+
+    if (enabled) {
+        [UALocationService setAirshipLocationServiceEnabled:YES];
+        [[UAirship shared].locationService startReportingSignificantLocationChanges];
+    } else {
+        [UALocationService setAirshipLocationServiceEnabled:NO];
+        [[UAirship shared].locationService stopReportingSignificantLocationChanges];
+    }
 }
 
-void UAUnityPlugin_disableLocation() {
-    NSLog(@"UnityPlugin disableLocation");
-    [UALocationService setAirshipLocationServiceEnabled:NO];
-    [[UAirship shared].locationService stopReportingSignificantLocationChanges];
-}
-
-bool UAUnityPlugin_isBackgroundLocationEnabled() {
-    NSLog(@"UnityPlugin isBackgroundLocationEnabled");
+bool UAUnityPlugin_isBackgroundLocationAllowed() {
+    NSLog(@"UnityPlugin isBackgroundLocationAllowed");
     return [UAirship shared].locationService.backgroundLocationServiceEnabled ? true : false;
 }
 
-void UAUnityPlugin_enableBackgroundLocation() {
-    NSLog(@"UnityPlugin enableBackgroundLocation");
-    [UAirship shared].locationService.backgroundLocationServiceEnabled = YES;
-}
-
-void UAUnityPlugin_disableBackgroundLocation() {
-    NSLog(@"UnityPlugin disableBackgroundLocation");
-    [UAirship shared].locationService.backgroundLocationServiceEnabled = NO;
+void UAUnityPlugin_setBackgroundLocationAllowed() {
+    NSLog(@"UnityPlugin setBackgroundLocationAllowed: %d", enabled);
+    [UAirship shared].locationService.backgroundLocationServiceEnabled = enabled ? YES : NO;
 }
 
 void UAUnityPlugin_addCustomEvent(const char *customEvent) {

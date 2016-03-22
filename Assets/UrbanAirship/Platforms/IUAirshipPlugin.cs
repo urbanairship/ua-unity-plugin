@@ -10,7 +10,7 @@ namespace UrbanAirship {
 
 	interface IUAirshipPlugin
 	{
-		bool PushEnabled {
+		bool UserNotificationsEnabled {
 			get;
 			set;
 		}
@@ -33,7 +33,7 @@ namespace UrbanAirship {
 			set;
 		}
 
-		bool BackgroundLocationEnabled {
+		bool BackgroundLocationAllowed {
 			get;
 			set;
 		}
@@ -59,9 +59,9 @@ namespace UrbanAirship {
 
 		void DisplayMessageCenter ();
 
-		void EditNamedUserTagGroups(string payload);
+		void EditNamedUserTagGroups (string payload);
 
-		void EditChannelTagGroups(string payload);
+		void EditChannelTagGroups (string payload);
 	}
 }
 

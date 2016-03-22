@@ -27,16 +27,12 @@ namespace UrbanAirship {
 			}
 		}
 
-		public bool PushEnabled {
+		public bool UserNotificationsEnabled {
 			get {
-				return Call<bool> ("isPushEnabled");
+				return Call<bool> ("getUserNotificationsEnabled");
 			}
 			set {
-				if (value) {
-					Call ("enablePush");
-				} else {
-					Call ("disablePush");
-				}
+				Call ("setUserNotificationsEnabled",  value);
 			}
 		}
 
@@ -66,24 +62,16 @@ namespace UrbanAirship {
 				return Call<bool> ("isLocationEnabled");
 			}
 			set {
-				if (value) {
-					Call ("enableLocation");
-				} else {
-					Call ("disableLocation");
-				}
+				Call ("setLocationEnabled", value);
 			}
 		}
 
-		public bool BackgroundLocationEnabled {
+		public bool BackgroundLocationAllowed {
 			get {
-				return Call<bool> ("isBackgroundLocationEnabled");
+				return Call<bool> ("isBackgroundLocationAllowed");
 			}
 			set {
-				if (value) {
-					Call ("enableBackgroundLocation");
-				} else {
-					Call ("disableBackgroundLocation");
-				}
+				Call ("setBackgroundLocationAllowed", value);
 			}
 		}
 
@@ -103,15 +91,14 @@ namespace UrbanAirship {
 			}
 		}
 
-		public string GetDeepLink (bool clear)
-		{
-			return Call<string> ("getDeepLink", clear);
-		}
-
-
 		public string GetIncomingPush (bool clear)
 		{
 			return Call<string> ("getIncomingPush", clear);
+		}
+
+		public string GetDeepLink (bool clear)
+		{
+			return Call<string> ("getDeepLink", clear);
 		}
 
 		public void AddTag (string tag)

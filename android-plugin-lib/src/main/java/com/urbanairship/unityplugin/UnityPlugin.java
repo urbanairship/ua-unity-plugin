@@ -65,19 +65,14 @@ public class UnityPlugin {
         return push;
     }
 
-    public boolean isPushEnabled() {
-        Logger.debug("UnityPlugin isPushEnabled");
+    public boolean getUserNotificationsEnabled() {
+        Logger.debug("UnityPlugin getUserNotificationsEnabled");
         return UAirship.shared().getPushManager().getUserNotificationsEnabled();
     }
 
-    public void enablePush() {
-        Logger.debug("UnityPlugin enablePush");
-        UAirship.shared().getPushManager().setUserNotificationsEnabled(true);
-    }
-
-    public void disablePush() {
-        Logger.debug("UnityPlugin disablePush");
-        UAirship.shared().getPushManager().setUserNotificationsEnabled(false);
+    public void setUserNotificationsEnabled(boolean enabled) {
+        Logger.debug("UnityPlugin setUserNotificationsEnabled: " + enabled);
+        UAirship.shared().getPushManager().setUserNotificationsEnabled(enabled);
     }
 
     public String getChannelId() {
@@ -119,35 +114,24 @@ public class UnityPlugin {
         UAirship.shared().getPushManager().setAlias(alias);
     }
 
-    // location
-
-    public void enableLocation() {
-        Logger.debug("UnityPlugin enableLocation");
-        UAirship.shared().getLocationManager().setLocationUpdatesEnabled(true);
+    public void setLocationEnabled(boolean enabled) {
+        Logger.debug("UnityPlugin setLocationEnabled: " + enabled);
+        UAirship.shared().getLocationManager().setLocationUpdatesEnabled(enabled);
     }
 
     public boolean isLocationEnabled() {
-        Logger.debug("UnityPlugin isLocationEnabled");
+        Logger.debug("UnityPlugin isLocationUpdatesEnabled");
         return UAirship.shared().getLocationManager().isLocationUpdatesEnabled();
     }
 
-    public void disableLocation() {
-        Logger.debug("UnityPlugin disableLocation");
-        UAirship.shared().getLocationManager().setLocationUpdatesEnabled(false);
+
+    public void setBackgroundLocationAllowed(boolean allowed) {
+        Logger.debug("UnityPlugin setBackgroundLocationAllowed: " + allowed);
+        UAirship.shared().getLocationManager().setBackgroundLocationAllowed(allowed);
     }
 
-    public void enableBackgroundLocation() {
-        Logger.debug("UnityPlugin enableBackgroundLocation");
-        UAirship.shared().getLocationManager().setBackgroundLocationAllowed(true);
-    }
-
-    public void disableBackgroundLocation() {
-        Logger.debug("UnityPlugin disableBackgroundLocation");
-        UAirship.shared().getLocationManager().setBackgroundLocationAllowed(false);
-    }
-
-    public boolean isBackgroundLocationEnabled() {
-        Logger.debug("UnityPlugin isBackgroundLocationEnabled");
+    public boolean isBackgroundLocationAllowed() {
+        Logger.debug("UnityPlugin isBackgroundLocationAllowed");
         return UAirship.shared().getLocationManager().isBackgroundLocationAllowed();
     }
 
