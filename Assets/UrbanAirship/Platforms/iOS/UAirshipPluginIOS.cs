@@ -74,6 +74,9 @@ namespace UrbanAirship {
 		[DllImport ("__Internal")]
 		private static extern void UAUnityPlugin_disableBackgroundLocation ();
 
+		[DllImport ("__Internal")]
+		private static extern void UAUnityPlugin_addCustomEvent (string customEvent);
+
 		public bool PushEnabled {
 			get {
 				return UAUnityPlugin_isPushEnabled ();
@@ -162,6 +165,11 @@ namespace UrbanAirship {
 		public void RemoveTag (string tag)
 		{
 			UAUnityPlugin_removeTag (tag);
+		}
+
+		public void AddCustomEvent (string customEvent)
+		{
+			UAUnityPlugin_addCustomEvent (customEvent);
 		}
 	}
 }

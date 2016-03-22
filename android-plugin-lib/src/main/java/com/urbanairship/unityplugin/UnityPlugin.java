@@ -7,8 +7,14 @@ package com.urbanairship.unityplugin;
 import com.unity3d.player.UnityPlayer;
 import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
+import com.urbanairship.analytics.CustomEvent;
+import com.urbanairship.json.JsonException;
+import com.urbanairship.json.JsonList;
+import com.urbanairship.json.JsonMap;
+import com.urbanairship.json.JsonValue;
 import com.urbanairship.push.PushManager;
 import com.urbanairship.push.PushMessage;
+import com.urbanairship.util.UAStringUtil;
 
 import org.json.JSONArray;
 
@@ -159,6 +165,88 @@ public class UnityPlugin {
     public boolean isBackgroundLocationEnabled() {
         Logger.debug("UnityPlugin isBackgroundLocationEnabled");
         return UAirship.shared().getLocationManager().isBackgroundLocationAllowed();
+    }
+
+    public void addCustomEvent(String eventPayload) {
+        Logger.debug("UnityPlugin addCustomEvent: " + eventPayload);
+
+        if (UAStringUtil.isEmpty(eventPayload)) {
+            Logger.error("Missing event payload.");
+            return;
+        }
+
+        JsonMap customEventMap = null;
+        try {
+            customEventMap = JsonValue.parseString(eventPayload).getMap();
+        } catch (JsonException e) {
+            Logger.error("Failed to parse event payload", e);
+        }
+        if (customEventMap == null) {
+            Logger.error("Event payload must define a JSON object.");
+            return;
+        }
+
+        String eventName = customEventMap.opt("eventName").getString();
+        String eventValue = customEventMap.opt("eventValue").getString();
+        String transactionId = customEventMap.opt("transactionId").getString();
+        String interactionType = customEventMap.opt("interactionType").getString();
+        String interactionId = customEventMap.opt("interactionId").getString();
+        JsonList properties = customEventMap.opt("properties").getList();
+
+        CustomEvent.Builder eventBuilder = new CustomEvent.Builder(eventName)
+                .setEventValue(eventValue);
+
+        if (!UAStringUtil.isEmpty(transactionId)) {
+            eventBuilder.setTransactionId(transactionId);
+        }
+
+        if (!UAStringUtil.isEmpty(interactionType) && !UAStringUtil.isEmpty(interactionId)) {
+           eventBuilder.setInteraction(interactionType, interactionId);
+        }
+
+        if (properties != null) {
+            for (JsonValue property : properties) {
+                JsonMap jsonMap = property.getMap();
+                if (jsonMap == null) {
+                    continue;
+                }
+
+                String name = jsonMap.opt("name").getString();
+                String type = jsonMap.opt("type").getString();
+
+                if (UAStringUtil.isEmpty(name) || UAStringUtil.isEmpty(type)) {
+                    continue;
+                }
+
+                switch (type) {
+                    case "s":
+                        eventBuilder.addProperty(name, jsonMap.opt("stringValue").getString());
+                        break;
+                    case "d":
+                        eventBuilder.addProperty(name, jsonMap.opt("doubleValue").getDouble(0));
+                        break;
+                    case "b":
+                        eventBuilder.addProperty(name, jsonMap.opt("boolValue").getBoolean(false));
+                        break;
+                    case "sa":
+                        List<String> strings = new ArrayList<>();
+                        for (JsonValue jsonValue : jsonMap.opt("stringArrayValue").getList()) {
+                            if (jsonValue.isString()) {
+                                strings.add(jsonValue.getString());
+                            } else {
+                                strings.add(jsonValue.toString());
+                            }
+                        }
+
+                        eventBuilder.addProperty(name, strings);
+                        break;
+                    default:
+                        continue;
+                }
+            }
+        }
+
+        UAirship.shared().getAnalytics().addEvent(eventBuilder.create());
     }
 
     void onPushOpened(PushMessage message) {
