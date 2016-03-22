@@ -15,6 +15,7 @@ namespace UrbanAirship {
 	{
 		public T[] values = null;
 
+
 		public static JsonArray<T> FromJson (T jsonString)
 		{
 			string wrappedArray = string.Format ("{{ \"{0}\": {1}}}", "values", jsonString);
@@ -29,6 +30,12 @@ namespace UrbanAirship {
 				return this.values.AsEnumerable ();
 			}
 		}
+
+		public string ToJson ()
+		{
+			return JsonUtility.ToJson (this);
+		}
+
 	}
 
 	[System.Serializable]
@@ -261,6 +268,24 @@ namespace UrbanAirship {
 			if (plugin != null) {
 				plugin.DisplayMessageCenter ();
 			}
+		}
+
+		public static TagGroupEditor EditNamedUserTagGroups ()
+		{
+			return new TagGroupEditor ((string payload) => {
+				if (plugin != null) {
+					plugin.EditNamedUserTagGroups(payload);
+				}
+			});
+		}
+
+		public static TagGroupEditor EditChannelTagGroups ()
+		{
+			return new TagGroupEditor ((string payload) => {
+				if (plugin != null) {
+					plugin.EditChannelTagGroups(payload);
+				}
+			});
 		}
 	}
 }

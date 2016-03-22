@@ -18,7 +18,6 @@ namespace UrbanAirship {
 		[DllImport ("__Internal")]
 		private static extern void UAUnityPlugin_removeListener (string listener);
 
-
 		[DllImport ("__Internal")]
 		private static extern string UAUnityPlugin_getDeepLink (bool clear);
 
@@ -85,6 +84,12 @@ namespace UrbanAirship {
 
 		[DllImport ("__Internal")]
 		private static extern void UAUnityPlugin_displayMessageCenter ();
+
+		[DllImport ("__Internal")]
+		private static extern void UAUnityPlugin_editNamedUserTagGroups (string payload);
+
+		[DllImport ("__Internal")]
+		private static extern void UAUnityPlugin_editChannelTagGroups (string payload);
 
 		public bool PushEnabled {
 			get {
@@ -194,6 +199,16 @@ namespace UrbanAirship {
 		public void DisplayMessageCenter ()
 		{
 			UAUnityPlugin_displayMessageCenter ();
+		}
+
+		public void EditNamedUserTagGroups (string payload)
+		{
+			UAUnityPlugin_editNamedUserTagGroups (payload);
+		}
+
+		public void EditChannelTagGroups (string payload)
+		{
+			UAUnityPlugin_editChannelTagGroups (payload);
 		}
 	}
 }

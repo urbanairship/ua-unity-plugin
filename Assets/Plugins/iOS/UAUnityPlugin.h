@@ -57,6 +57,11 @@ const char* UAUnityPlugin_getNamedUserID();
 #pragma mark Message Center
 void UAUnityPlugin_displayMessageCenter();
 
+#pragma mark -
+#pragma mark Tag Groups
+
+void UAUnityPlugin_editNamedUserTagGroups(const char *payload);
+void UAUnityPlugin_editChannelTagGroups(const char *payload);
 
 @interface UAUnityPlugin : NSObject <UAPushNotificationDelegate>
 
