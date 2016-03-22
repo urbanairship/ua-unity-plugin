@@ -10,7 +10,6 @@ namespace UrbanAirship {
 
 	interface IUAirshipPlugin
 	{
-
 		bool PushEnabled {
 			get;
 			set;
