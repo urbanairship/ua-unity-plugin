@@ -77,10 +77,6 @@ static dispatch_once_t onceToken_;
 
 - (id)init {
     self = [super init];
-    if (self) {
-        self.listeners = [NSMutableSet setWithCapacity:10];
-        self.receivePushes = [NSMutableArray array];
-    }
     return self;
 }
 
@@ -88,25 +84,9 @@ static dispatch_once_t onceToken_;
 #pragma mark -
 #pragma mark Listeners
 
-void UAUnityPlugin_addListener(const char* listener) {
-
-    NSString *listenerObj = [NSString stringWithUTF8String:listener];
-    NSLog(@"UAUnityPlugin_addListener %@",listenerObj);
-    [[UAUnityPlugin shared].listeners addObject:listenerObj];
-
-    if (![UAUnityPlugin shared].receivePushes.count) {
-        for (NSDictionary* notification in [UAUnityPlugin shared].receivePushes) {
-            [[UAUnityPlugin shared] notifyRecievedPush:notification];
-        }
-
-        [[UAUnityPlugin shared].receivePushes removeAllObjects];
-    }
-}
-
-void UAUnityPlugin_removeListener(const char* listener) {
-    NSString *listenerObj = [NSString stringWithUTF8String:listener];
-    NSLog(@"UAUnityPlugin_removeListener %@",listenerObj);
-    [[UAUnityPlugin shared].listeners removeObject:listenerObj];
+void UAUnityPlugin_setListener(const char* listener) {
+    [UAUnityPlugin shared].listener = [NSString stringWithUTF8String:listener];
+    NSLog(@"UAUnityPlugin_setListener %@",[UAUnityPlugin shared].listener);
 }
 
 #pragma mark -
@@ -127,42 +107,17 @@ const char* UAUnityPlugin_getDeepLink(bool clear) {
 const char* UAUnityPlugin_getIncomingPush(bool clear) {
     NSLog(@"UnityPlugin getIncomingPush clear %d",clear);
 
-    NSDictionary *storedNotification = [UAUnityPlugin shared].storedNotification;
-
-    NSString *alert = storedNotification[@"aps"][@"alert"];
-    NSString *identifier = storedNotification[@"_"];
-
-    NSMutableArray *extras = [NSMutableArray array];
-    for (NSString *key in storedNotification) {
-        if ([key isEqualToString:@"_"] && [key isEqualToString:@"aps"]) {
-            continue;
-        }
-
-        NSMutableDictionary *extra = [NSMutableDictionary dictionary];
-        [extra setValue:key forKey:@"key"];
-
-        id value = storedNotification[key];
-        if ([value isKindOfClass:[NSString class]]) {
-            [extra setValue:value forKey:@"value"];
-        } else {
-            [extra setValue:[NSJSONSerialization stringWithObject:value] forKey:@"value"];
-        }
-
-        [extras addObject:extra];
+    if (![UAUnityPlugin shared].storedNotification) {
+        return nil;
     }
 
-    NSMutableDictionary *serializedPayload = [NSMutableDictionary dictionary];
-    [serializedPayload setValue:alert forKey:@"alert"];
-    [serializedPayload setValue:identifier forKey:@"identifier"];
-    [serializedPayload setValue:extras forKey:@"extras"];
-
-    const char* serializedPayloadString = [UAUnityPlugin convertToJson:serializedPayload];
+    const char* payload = [UAUnityPlugin convertPushToJson:[UAUnityPlugin shared].storedNotification];
 
     if (clear) {
         [UAUnityPlugin shared].storedNotification = nil;
     }
 
-    return serializedPayloadString;
+    return payload;
 }
 
 bool UAUnityPlugin_isPushEnabled() {
@@ -364,10 +319,10 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
  */
 - (void)receivedForegroundNotification:(NSDictionary *)notification {
     NSLog(@"receivedForegroundNotification %@",notification);
-    if (self.listeners.count) {
-        [self notifyRecievedPush:notification];
-    } else {
-        [self.receivePushes addObject:notification];
+    if (listener) {
+        UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
+                     "OnPushReceived",
+                     [UAUnityPlugin convertPushToJson:notification]);
     }
 }
 
@@ -382,23 +337,37 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     self.storedNotification = notification;
 }
 
-- (void) notifyRecievedPush:(NSDictionary *)notification {
-    NSString *alertMessage = [(NSDictionary*)[notification objectForKey:@"aps"] objectForKey:@"alert"];
-
-    for (NSString* listener in self.listeners) {
-        NSLog(@"UnityPlugin notifying %@ push received",listener);
-        UnitySendMessage(MakeStringCopy([listener UTF8String]),
-                         "OnPushReceived",
-                         MakeStringCopy([alertMessage UTF8String]));
-    }
-}
-
-
 #pragma mark -
 #pragma mark Helpers
 
 + (NSString *)stringOrNil:(NSString *)string {
     return string.length > 0 ? string : nil;
+}
+
++ (const char *) convertPushToJson:(NSDictionary *)push {
+    NSString *alert = push[@"aps"][@"alert"];
+    NSString *identifier = push[@"_"];
+    NSMutableDictionary *extras = [NSMutableDictionary dictionary];
+    for (NSString *key in push) {
+        if (![key isEqualToString:@"_"] && ! [key isEqualToString:@"aps"]) {
+            id value = push[key];
+            if ([value isKindOfClass:[NSString class]]) {
+                [extras setValue:value forKey:key];
+            } else {
+                [extras setValue:[NSJSONSerialization stringWithObject:value] forKey:key];
+            }
+        }
+    }
+
+    NSMutableDictionary *serializedPayload = [NSMutableDictionary dictionary];
+    [serializedPayload setValue:alert forKey:@"alert"];
+    [serializedPayload setValue:identifier forKey:@"identifier"];
+
+    if (extras.count) {
+        [serializedPayload setValue:extras forKey:@"extras"];
+    }
+
+    return [UAUnityPlugin convertToJson:serializedPayload];
 }
 
 + (const char *) convertToJson:(NSObject*) obj {

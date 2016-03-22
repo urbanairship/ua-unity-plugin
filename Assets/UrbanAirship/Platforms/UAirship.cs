@@ -12,14 +12,27 @@ namespace UrbanAirship {
 
 	public class UAirship
 	{
+		private static UrbanAirshipListener listener;
+		private static IUAirshipPlugin plugin = null;
 
-		#if UNITY_ANDROID
-			private static IUAirshipPlugin plugin = new UAirshipPluginAndroid ();
-		#elif UNITY_IPHONE
-			private static IUAirshipPlugin plugin = new UAirshipPluginIOS();
-		#else
-			private static IUAirshipPlugin plugin = null;
-		#endif
+		public delegate void PushReceivedEventHandler(PushMessage message);
+		public static event PushReceivedEventHandler OnPushReceived;
+
+		static UAirship() {
+			#if UNITY_ANDROID
+			plugin = new UAirshipPluginAndroid ();
+			#elif UNITY_IPHONE
+			plugin = new UAirshipPluginIOS ();
+			#endif
+
+			GameObject gameObject = new GameObject("[UrbanAirshipListener]");
+			listener = gameObject.AddComponent<UrbanAirshipListener>();
+			MonoBehaviour.DontDestroyOnLoad(gameObject);
+
+			if (plugin != null) {
+				plugin.Listener = gameObject;
+			}
+		}
 
 		public static bool PushEnabled {
 			get {
@@ -78,20 +91,6 @@ namespace UrbanAirship {
 
 			set {
 				plugin.NamedUserId = value;
-			}
-		}
-
-		public static void AddListener (GameObject gameObject)
-		{
-			if (plugin != null) {
-				plugin.AddListener (gameObject);
-			}
-		}
-
-		public static void RemoveListener (GameObject gameObject)
-		{
-			if (plugin != null) {
-				plugin.RemoveListener (gameObject);
 			}
 		}
 
@@ -161,6 +160,21 @@ namespace UrbanAirship {
 					plugin.EditChannelTagGroups(payload);
 				}
 			});
+		}
+
+		class UrbanAirshipListener : MonoBehaviour {
+			void OnPushReceived(string payload) {
+				PushReceivedEventHandler handler = UAirship.OnPushReceived;
+
+				if (handler == null) {
+					return;
+				}
+
+				PushMessage pushMessage = PushMessage.FromJson (payload);
+				if (pushMessage != null) {
+					handler(pushMessage);
+				}
+			}
 		}
 	}
 }

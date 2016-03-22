@@ -97,20 +97,17 @@ namespace UrbanAirship {
 			}
 		}
 
+		public GameObject Listener {
+			set {
+				Call ("setListener", value.name);
+			}
+		}
+
 		public string GetDeepLink (bool clear)
 		{
 			return Call<string> ("getDeepLink", clear);
 		}
 
-		public void AddListener (GameObject gameObject)
-		{
-			Call ("addListener", gameObject.name);
-		}
-
-		public void RemoveListener (GameObject gameObject)
-		{
-			Call ("removeListener", gameObject.name);
-		}
 
 		public string GetIncomingPush (bool clear)
 		{

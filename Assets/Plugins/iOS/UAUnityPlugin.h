@@ -8,10 +8,9 @@
 extern void UnitySendMessage(const char *, const char *, const char *);
 
 #pragma mark -
-#pragma mark Listeners
+#pragma mark Listener
 
-void UAUnityPlugin_addListener(const char* listener);
-void UAUnityPlugin_removeListener(const char* listener);
+void UAUnityPlugin_setListener(const char* listener);
 
 #pragma mark -
 #pragma mark Deep Links
@@ -67,9 +66,8 @@ void UAUnityPlugin_editChannelTagGroups(const char *payload);
 
 + (UAUnityPlugin *)shared;
 
-@property (nonatomic,strong) NSMutableSet* listeners;
-@property (nonatomic,strong) NSMutableArray* receivePushes;
-@property (nonatomic,strong) NSDictionary* storedNotification;
-@property (nonatomic,strong) NSString* storedDeepLink;
+@property (nonatomic, copy) NSString* listener;
+@property (nonatomic, strong) NSDictionary* storedNotification;
+@property (nonatomic, copy) NSString* storedDeepLink;
 
 @end

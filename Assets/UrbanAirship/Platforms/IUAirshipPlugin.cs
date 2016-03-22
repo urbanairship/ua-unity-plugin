@@ -43,9 +43,9 @@ namespace UrbanAirship {
 			set;
 		}
 
-		void AddListener (GameObject gameObject);
-
-		void RemoveListener (GameObject gameObject);
+		GameObject Listener {
+			set;
+		}
 
 		string GetDeepLink (bool clear);
 
