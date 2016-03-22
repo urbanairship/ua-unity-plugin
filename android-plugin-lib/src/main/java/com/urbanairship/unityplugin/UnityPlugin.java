@@ -20,8 +20,10 @@ import com.urbanairship.util.UAStringUtil;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class UnityPlugin {
@@ -307,12 +309,32 @@ public class UnityPlugin {
         }
     }
 
-    private String getPushPayload(PushMessage pushMessage) {
-        if (pushMessage == null) {
-            return "";
+    private String getPushPayload(PushMessage message) {
+        if (message == null) {
+            return null;
         }
 
-        return pushMessage.getAlert();
+        Map<String, Object> payloadMap = new HashMap<>();
+
+        List<Map<String, String>> extras = new ArrayList<>();
+
+        for (String key : message.getPushBundle().keySet()) {
+            String value = message.getPushBundle().getString(key);
+            if (value == null) {
+                continue;
+            }
+
+            Map<String, String> extra = new HashMap<>();
+            extra.put("key", key);
+            extra.put("value", value);
+            extras.add(extra);
+        }
+
+        payloadMap.put("alert", message.getAlert());
+        payloadMap.put("identifier", message.getSendId());
+        payloadMap.put("extras", extras);
+
+        return JsonValue.wrapOpt(payloadMap).toString();
     }
 
     void setDeepLink(String deepLink) {

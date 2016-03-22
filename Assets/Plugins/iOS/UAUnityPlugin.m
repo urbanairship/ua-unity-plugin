@@ -127,11 +127,42 @@ const char* UAUnityPlugin_getDeepLink(bool clear) {
 const char* UAUnityPlugin_getIncomingPush(bool clear) {
     NSLog(@"UnityPlugin getIncomingPush clear %d",clear);
 
-    const char* push = [UAUnityPlugin convertToJson:[UAUnityPlugin shared].storedNotification];
+    NSDictionary *storedNotification = [UAUnityPlugin shared].storedNotification;
+
+    NSString *alert = storedNotification[@"aps"][@"alert"];
+    NSString *identifier = storedNotification[@"_"];
+
+    NSMutableArray *extras = [NSMutableArray array];
+    for (NSString *key in storedNotification) {
+        if ([key isEqualToString:@"_"] && [key isEqualToString:@"aps"]) {
+            continue;
+        }
+
+        NSMutableDictionary *extra = [NSMutableDictionary dictionary];
+        [extra setValue:key forKey:@"key"];
+
+        id value = storedNotification[key];
+        if ([value isKindOfClass:[NSString class]]) {
+            [extra setValue:value forKey:@"value"];
+        } else {
+            [extra setValue:[NSJSONSerialization stringWithObject:value] forKey:@"value"];
+        }
+
+        [extras addObject:extra];
+    }
+
+    NSMutableDictionary *serializedPayload = [NSMutableDictionary dictionary];
+    [serializedPayload setValue:alert forKey:@"alert"];
+    [serializedPayload setValue:identifier forKey:@"identifier"];
+    [serializedPayload setValue:extras forKey:@"extras"];
+
+    const char* serializedPayloadString = [UAUnityPlugin convertToJson:serializedPayload];
+
     if (clear) {
         [UAUnityPlugin shared].storedNotification = nil;
     }
-    return push;
+
+    return serializedPayloadString;
 }
 
 bool UAUnityPlugin_isPushEnabled() {
@@ -287,7 +318,7 @@ void UAUnityPlugin_displayMessageCenter() {
 void UAUnityPlugin_editChannelTagGroups(const char *payload) {
     NSLog(@"UnityPlugin editChannelTagGroups");
     id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
-    id operations = payloadMap["values"];
+    id operations = payloadMap[@"values"];
 
     for (NSDictionary *operation in operations) {
         NSString *group = operation[@"tagGroup"];
@@ -304,7 +335,7 @@ void UAUnityPlugin_editChannelTagGroups(const char *payload) {
 void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     NSLog(@"UnityPlugin editNamedUserTagGroups");
     id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
-    id operations = payloadMap["values"];
+    id operations = payloadMap[@"values"];
 
     UANamedUser *namedUser = [UAirship push].namedUser;
 
