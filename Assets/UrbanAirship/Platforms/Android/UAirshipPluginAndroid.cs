@@ -137,6 +137,16 @@ namespace UrbanAirship {
 			Call ("displayMessageCenter");
 		}
 
+		public void EditNamedUserTagGroups (string payload)
+		{
+			Call ("editNamedUserTagGroups", payload);
+		}
+
+		public void EditChannelTagGroups (string payload)
+		{
+			Call ("editChannelTagGroups", payload);
+		}
+
 		private void Call (string method, params object[] args)
 		{
 			if (androidPlugin != null) {

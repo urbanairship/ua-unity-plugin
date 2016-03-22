@@ -14,11 +14,13 @@ import com.urbanairship.json.JsonMap;
 import com.urbanairship.json.JsonValue;
 import com.urbanairship.push.PushManager;
 import com.urbanairship.push.PushMessage;
+import com.urbanairship.push.TagGroupsEditor;
 import com.urbanairship.util.UAStringUtil;
 
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -264,6 +266,22 @@ public class UnityPlugin {
         UAirship.shared().getInbox().startInboxActivity();
     }
 
+    public void editNamedUserTagGroups(String payload) {
+        Logger.debug("UnityPlugin editNamedUserTagGroups");
+
+        TagGroupsEditor editor = UAirship.shared().getPushManager().getNamedUser().editTagGroups();
+        applyTagGroupOperations(editor, payload);
+        editor.apply();
+    }
+
+    public void editChannelTagGroups(String payload) {
+        Logger.debug("UnityPlugin editChannelTagGroups");
+
+        TagGroupsEditor editor = UAirship.shared().getPushManager().editTagGroups();
+        applyTagGroupOperations(editor, payload);
+        editor.apply();
+    }
+
     void onPushOpened(PushMessage message) {
         Logger.debug("UnityPlugin push opened.");
         this.incomingPush = message;
@@ -301,5 +319,48 @@ public class UnityPlugin {
         Logger.debug("UnityPlugin setDeepLink: " + deepLink);
 
         this.deepLink = deepLink;
+    }
+
+
+    private static void applyTagGroupOperations(TagGroupsEditor editor, String payload) {
+        JsonMap payloadMap;
+        try {
+            payloadMap = JsonValue.parseString(payload).getMap();
+        } catch (JsonException e) {
+            Logger.error("Unable to apply tag group operations: ", e);
+            return;
+        }
+
+        if (payloadMap == null || !payloadMap.opt("values").isJsonList()) {
+            return;
+        }
+
+        for (JsonValue operation : payloadMap.opt("values").getList()) {
+            if (!operation.isJsonMap()) {
+                continue;
+            }
+
+            JsonList tags = operation.getMap().opt("tags").getList();
+            String group = operation.getMap().get("tagGroup").getString();
+            String operationType = operation.getMap().get("operation").getString();
+
+            if (tags == null || tags.isEmpty() || UAStringUtil.isEmpty(group) || UAStringUtil.isEmpty(operationType)) {
+                continue;
+            }
+
+            HashSet<String> tagSet = new HashSet<>();
+            for (JsonValue tag : tags) {
+                tagSet.add(tag.toString());
+            }
+
+            switch (operationType) {
+                case "add":
+                    editor.addTags(group, tagSet);
+                    break;
+                case "remove:":
+                    editor.removeTags(group, tagSet);
+                    break;
+            }
+        }
     }
 }

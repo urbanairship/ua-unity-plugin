@@ -52,7 +52,6 @@ namespace UrbanAirship {
 
 		string GetIncomingPush (bool clear);
 
-
 		void AddTag (string tag);
 
 		void RemoveTag (string tag);
@@ -60,6 +59,10 @@ namespace UrbanAirship {
 		void AddCustomEvent (string customEvent);
 
 		void DisplayMessageCenter ();
+
+		void EditNamedUserTagGroups(string payload);
+
+		void EditChannelTagGroups(string payload);
 	}
 }
 

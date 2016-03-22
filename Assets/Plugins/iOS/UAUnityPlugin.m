@@ -282,6 +282,46 @@ void UAUnityPlugin_displayMessageCenter() {
 }
 
 #pragma mark -
+#pragma mark Tag Groups
+
+void UAUnityPlugin_editChannelTagGroups(const char *payload) {
+    NSLog(@"UnityPlugin editChannelTagGroups");
+    id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
+    id operations = payloadMap["values"];
+
+    for (NSDictionary *operation in operations) {
+        NSString *group = operation[@"tagGroup"];
+        if ([operation[@"operation"] isEqualToString:@"add"]) {
+            [[UAirship push] addTags:operation[@"tags"] group:group];
+        } else if ([operation[@"operation"] isEqualToString:@"remove"]) {
+            [[UAirship push] removeTags:operation[@"tags"] group:group];
+        }
+    }
+
+    [[UAirship push] updateRegistration];
+}
+
+void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
+    NSLog(@"UnityPlugin editNamedUserTagGroups");
+    id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
+    id operations = payloadMap["values"];
+
+    UANamedUser *namedUser = [UAirship push].namedUser;
+
+    for (NSDictionary *operation in operations) {
+        NSString *group = operation[@"tagGroup"];
+        if ([operation[@"operation"] isEqualToString:@"add"]) {
+            [namedUser addTags:operation[@"tags"] group:group];
+        } else if ([operation[@"operation"] isEqualToString:@"remove"]) {
+            [namedUser removeTags:operation[@"tags"] group:group];
+        }
+    }
+
+    [namedUser updateTags];
+}
+
+
+#pragma mark -
 #pragma mark Actions!
 
 #pragma mark -
