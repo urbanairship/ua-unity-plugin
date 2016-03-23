@@ -135,7 +135,7 @@ namespace UrbanAirship {
 		}
 
 		/// <summary>
-		/// Gets the last performed deep link.
+		/// Gets the last received deep link.
 		/// </summary>
 		/// <returns>The deep link.</returns>
 		/// <param name="clear">If set to <c>true</c> clear the stored deep link after accessing it.</param>
@@ -148,7 +148,7 @@ namespace UrbanAirship {
 		/// Gets the last stored incoming push message.
 		/// </summary>
 		/// <returns>The push message.</returns>
-		/// <param name="clear">If set to <c>true</c> clea the stored push message after accessing it.</param>
+		/// <param name="clear">If set to <c>true</c> clear the stored push message after accessing it.</param>
 		public static PushMessage GetIncomingPush (bool clear = true)
 		{
 			string jsonPushMessage = plugin.GetIncomingPush (clear);
