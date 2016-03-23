@@ -194,7 +194,7 @@ bool UAUnityPlugin_isBackgroundLocationAllowed() {
     return [UAirship shared].locationService.backgroundLocationServiceEnabled ? true : false;
 }
 
-void UAUnityPlugin_setBackgroundLocationAllowed() {
+void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
     NSLog(@"UnityPlugin setBackgroundLocationAllowed: %d", enabled);
     [UAirship shared].locationService.backgroundLocationServiceEnabled = enabled ? YES : NO;
 }
@@ -309,7 +309,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
  */
 - (void)receivedForegroundNotification:(NSDictionary *)notification {
     NSLog(@"receivedForegroundNotification %@",notification);
-    if (listener) {
+    if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                      "OnPushReceived",
                      [UAUnityPlugin convertPushToJson:notification]);
