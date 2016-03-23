@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace UrbanAirship
 {
+	/// <summary>
+	/// A push message model object.
+	/// </summary>
 	[Serializable]
 	public class PushMessage
 	{
@@ -27,14 +30,27 @@ namespace UrbanAirship
 			public string value;
 		}
 
+		/// <summary>
+		/// Gets the alert text.
+		/// </summary>
+		/// <value>The alert text.</value>
 		public string Alert {
 			get { return this.alert; }
 		}
 
+		/// <summary>
+		/// Gets the push identifier.
+		/// </summary>
+		/// <value>The identifier.</value>
 		public string Identifier {
 			get { return this.identifier; }
 		}
 
+		/// <summary>
+		/// Gets the key value extras sent with the push.
+		/// </summary>
+		/// <remarks>Non-string extra values are encoded as JSON strings.</remarks>
+		/// <value>The extras.</value>
 		public Dictionary<string, string> Extras {
 			get {
 				if (extras == null) {

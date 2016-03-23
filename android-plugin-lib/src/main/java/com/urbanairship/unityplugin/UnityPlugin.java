@@ -266,6 +266,14 @@ public class UnityPlugin {
         }
     }
 
+    void onChannelRegistrationSucceeded(String channelId) {
+        Logger.debug("UnityPlugin channel registration  succeeded: " + channelId);
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnChannelUpdated", channelId);
+        }
+    }
+
     private String getPushPayload(PushMessage message) {
         if (message == null) {
             return null;

@@ -63,7 +63,7 @@ void UAUnityPlugin_displayMessageCenter();
 void UAUnityPlugin_editNamedUserTagGroups(const char *payload);
 void UAUnityPlugin_editChannelTagGroups(const char *payload);
 
-@interface UAUnityPlugin : NSObject <UAPushNotificationDelegate>
+@interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UARegistrationDelegate>
 
 + (UAUnityPlugin *)shared;
 
