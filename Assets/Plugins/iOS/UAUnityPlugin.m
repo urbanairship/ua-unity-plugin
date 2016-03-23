@@ -24,13 +24,13 @@ static dispatch_once_t onceToken_;
 @implementation UAUnityPlugin
 
 + (void)load {
-    NSLog(@"UnityPlugin class loaded");
+    UA_LDEBUG(@"UnityPlugin class loaded");
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:[UAUnityPlugin class] selector:@selector(performTakeOff:) name:UIApplicationDidFinishLaunchingNotification object:nil];
 }
 
 + (void)performTakeOff:(NSNotification *)notification {
-    NSLog(@"UnityPlugin taking off");
+    UA_LDEBUG(@"UnityPlugin taking off");
     [UAirship takeOff];
 
     // UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
@@ -38,7 +38,7 @@ static dispatch_once_t onceToken_;
     [UAirship push].registrationDelegate = [UAUnityPlugin shared];
 
     UAAction *customDLA = [UAAction actionWithBlock: ^(UAActionArguments *args, UAActionCompletionHandler handler)  {
-        NSLog(@"Setting dl to: %@", args.value);
+        UA_LDEBUG(@"Setting dl to: %@", args.value);
         [UAUnityPlugin shared].storedDeepLink = args.value;
         handler([UAActionResult emptyResult]);
     } acceptingArguments:^BOOL(UAActionArguments *arg)  {
@@ -87,14 +87,14 @@ static dispatch_once_t onceToken_;
 
 void UAUnityPlugin_setListener(const char* listener) {
     [UAUnityPlugin shared].listener = [NSString stringWithUTF8String:listener];
-    NSLog(@"UAUnityPlugin_setListener %@",[UAUnityPlugin shared].listener);
+    UA_LDEBUG(@"UAUnityPlugin_setListener %@",[UAUnityPlugin shared].listener);
 }
 
 #pragma mark -
 #pragma mark Deep Links
 
 const char* UAUnityPlugin_getDeepLink(bool clear) {
-    NSLog(@"UnityPlugin getDeepLink clear %d",clear);
+    UA_LDEBUG(@"UnityPlugin getDeepLink clear %d",clear);
 
     const char* dl = [UAUnityPlugin convertToJson:[UAUnityPlugin shared].storedDeepLink];
     if (clear) {
@@ -106,7 +106,7 @@ const char* UAUnityPlugin_getDeepLink(bool clear) {
 #pragma mark -
 #pragma mark UA Push Functions
 const char* UAUnityPlugin_getIncomingPush(bool clear) {
-    NSLog(@"UnityPlugin getIncomingPush clear %d",clear);
+    UA_LDEBUG(@"UnityPlugin getIncomingPush clear %d",clear);
 
     if (![UAUnityPlugin shared].storedNotification) {
         return nil;
@@ -122,24 +122,24 @@ const char* UAUnityPlugin_getIncomingPush(bool clear) {
 }
 
 bool UAUnityPlugin_getUserNotificationsEnabled() {
-    NSLog(@"UnityPlugin getUserNotificationsEnabled");
+    UA_LDEBUG(@"UnityPlugin getUserNotificationsEnabled");
     return [UAirship push].userPushNotificationsEnabled ? true : false;
 }
 
 void UAUnityPlugin_setUserNotificationsEnabled(bool enabled) {
-    NSLog(@"UnityPlugin setUserNotificationsEnabled: %d", enabled);
+    UA_LDEBUG(@"UnityPlugin setUserNotificationsEnabled: %d", enabled);
     [UAirship push].userPushNotificationsEnabled = enabled ? YES : NO;
 }
 
 const char* UAUnityPlugin_getTags() {
-    NSLog(@"UnityPlugin getTags");
+    UA_LDEBUG(@"UnityPlugin getTags");
     return [UAUnityPlugin convertToJson:[UAirship push].tags];
 }
 
 void UAUnityPlugin_addTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
 
-    NSLog(@"UnityPlugin addTag %@", tagString);
+    UA_LDEBUG(@"UnityPlugin addTag %@", tagString);
     [[UAirship push] addTag:tagString];
     [[UAirship push] updateRegistration];
 }
@@ -147,26 +147,26 @@ void UAUnityPlugin_addTag(const char* tag) {
 void UAUnityPlugin_removeTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
 
-    NSLog(@"UnityPlugin removeTag %@", tagString);
+    UA_LDEBUG(@"UnityPlugin removeTag %@", tagString);
     [[UAirship push] removeTag:tagString];
     [[UAirship push] updateRegistration];
 }
 
 const char* UAUnityPlugin_getAlias() {
-    NSLog(@"UnityPlugin getAlias");
+    UA_LDEBUG(@"UnityPlugin getAlias");
     return MakeStringCopy([[UAirship push].alias UTF8String]);
 }
 
 void UAUnityPlugin_setAlias(const char* alias) {
     NSString *aliasString = [NSString stringWithUTF8String:alias];
 
-    NSLog(@"UnityPlugin setAlias %@", aliasString);
+    UA_LDEBUG(@"UnityPlugin setAlias %@", aliasString);
     [UAirship push].alias = aliasString;
     [[UAirship push] updateRegistration];
 }
 
 const char* UAUnityPlugin_getChannelId() {
-    NSLog(@"UnityPlugin getChannelId");
+    UA_LDEBUG(@"UnityPlugin getChannelId");
     return MakeStringCopy([[UAirship push].channelID UTF8String]);
 }
 
@@ -174,12 +174,12 @@ const char* UAUnityPlugin_getChannelId() {
 #pragma mark UA Location Functions
 
 bool UAUnityPlugin_isLocationEnabled() {
-    NSLog(@"UnityPlugin isLocationEnabled");
+    UA_LDEBUG(@"UnityPlugin isLocationEnabled");
     return [UALocationService airshipLocationServiceEnabled] ? true : false;
 }
 
 void UAUnityPlugin_setLocationEnabled(bool enabled) {
-    NSLog(@"UnityPlugin setLocationEnabled: %d", enabled);
+    UA_LDEBUG(@"UnityPlugin setLocationEnabled: %d", enabled);
 
     if (enabled) {
         [UALocationService setAirshipLocationServiceEnabled:YES];
@@ -191,18 +191,18 @@ void UAUnityPlugin_setLocationEnabled(bool enabled) {
 }
 
 bool UAUnityPlugin_isBackgroundLocationAllowed() {
-    NSLog(@"UnityPlugin isBackgroundLocationAllowed");
+    UA_LDEBUG(@"UnityPlugin isBackgroundLocationAllowed");
     return [UAirship shared].locationService.backgroundLocationServiceEnabled ? true : false;
 }
 
 void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
-    NSLog(@"UnityPlugin setBackgroundLocationAllowed: %d", enabled);
+    UA_LDEBUG(@"UnityPlugin setBackgroundLocationAllowed: %d", enabled);
     [UAirship shared].locationService.backgroundLocationServiceEnabled = enabled ? YES : NO;
 }
 
 void UAUnityPlugin_addCustomEvent(const char *customEvent) {
     NSString *customEventString = [NSString stringWithUTF8String:customEvent];
-    NSLog(@"UnityPlugin addCustomEvent");
+    UA_LDEBUG(@"UnityPlugin addCustomEvent");
     id obj = [NSJSONSerialization objectWithString:customEventString];
 
     UACustomEvent *ce = [UACustomEvent eventWithName:[UAUnityPlugin stringOrNil:obj[@"eventName"]]];
@@ -240,7 +240,7 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
 
 void UAUnityPlugin_setNamedUserID(const char *namedUserID) {
     NSString *namedUserIDString = [NSString stringWithUTF8String:namedUserID];
-    NSLog(@"UnityPlugin setNamedUserID %@", namedUserIDString);
+    UA_LDEBUG(@"UnityPlugin setNamedUserID %@", namedUserIDString);
     [UAirship push].namedUser.identifier = namedUserIDString;
 }
 
@@ -253,7 +253,7 @@ const char* UAUnityPlugin_getNamedUserID() {
 #pragma mark MessageCenter
 
 void UAUnityPlugin_displayMessageCenter() {
-    NSLog(@"UnityPlugin displayMessageCenter");
+    UA_LDEBUG(@"UnityPlugin displayMessageCenter");
     UnityWillPause();
     [[UAirship defaultMessageCenter] display];
 }
@@ -262,7 +262,7 @@ void UAUnityPlugin_displayMessageCenter() {
 #pragma mark Tag Groups
 
 void UAUnityPlugin_editChannelTagGroups(const char *payload) {
-    NSLog(@"UnityPlugin editChannelTagGroups");
+    UA_LDEBUG(@"UnityPlugin editChannelTagGroups");
     id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
 
@@ -279,7 +279,7 @@ void UAUnityPlugin_editChannelTagGroups(const char *payload) {
 }
 
 void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
-    NSLog(@"UnityPlugin editNamedUserTagGroups");
+    UA_LDEBUG(@"UnityPlugin editNamedUserTagGroups");
     id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
 
@@ -309,7 +309,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
  * @param notification The notification dictionary.
  */
 - (void)receivedForegroundNotification:(NSDictionary *)notification {
-    NSLog(@"receivedForegroundNotification %@",notification);
+    UA_LDEBUG(@"receivedForegroundNotification %@",notification);
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                      "OnPushReceived",
@@ -324,7 +324,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
  * @param notification The notification dictionary.
  */
 - (void)launchedFromNotification:(NSDictionary *)notification {
-    NSLog(@"launchedFromNotification %@",notification);
+    UA_LDEBUG(@"launchedFromNotification %@",notification);
     self.storedNotification = notification;
 }
 
@@ -346,7 +346,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
  * @param deviceToken The device token string.
  */
 - (void)registrationSucceededForChannelID:(NSString *)channelID deviceToken:(NSString *)deviceToken {
-    NSLog(@"registrationSucceededForChannelID: %@", channelID);
+    UA_LDEBUG(@"registrationSucceededForChannelID: %@", channelID);
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                          "OnChannelUpdated",
