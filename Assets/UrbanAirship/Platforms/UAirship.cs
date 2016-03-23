@@ -10,12 +10,22 @@ using System.Linq;
 
 namespace UrbanAirship {
 
+	/// <summary>
+	/// The primary manager class for the Urban Airship plugin.
+	/// </summary>
 	public class UAirship
 	{
 		private static UrbanAirshipListener listener;
 		private static IUAirshipPlugin plugin = null;
 
+		/// <summary>
+		/// Push received event handler.
+		/// </summary>
 		public delegate void PushReceivedEventHandler(PushMessage message);
+
+		/// <summary>
+		/// Occurs when a push is received.
+		/// </summary>
 		public static event PushReceivedEventHandler OnPushReceived;
 
 		static UAirship() {
@@ -37,6 +47,10 @@ namespace UrbanAirship {
 			plugin.Listener = gameObject;
 		}
 
+		/// <summary>
+		/// Determinines whether user notifications are enabled.
+		/// </summary>
+		/// <value><c>true</c> if user notifications are enabled; otherwise, <c>false</c>.</value>
 		public static bool UserNotificationsEnabled {
 			get {
 				return plugin.UserNotificationsEnabled;
@@ -46,6 +60,10 @@ namespace UrbanAirship {
 			}
 		}
 
+		/// <summary>
+		/// Gets the tags currently set for the device.
+		/// </summary>
+		/// <value>The tags.</value>
 		public static IEnumerable<string> Tags {
 			get {
 				string tagsAsJson = plugin.Tags;
@@ -54,6 +72,10 @@ namespace UrbanAirship {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the alias for the device.
+		/// </summary>
+		/// <value>The alias.</value>
 		public static string Alias {
 			get {
 				return plugin.Alias;
@@ -63,12 +85,20 @@ namespace UrbanAirship {
 			}
 		}
 
+		/// <summary>
+		/// Gets the channel identifier associated with the device.
+		/// </summary>
+		/// <value>The channel identifier.</value>
 		public static string ChannelId {
 			get {
 				return plugin.ChannelId;
 			}
 		}
 
+		/// <summary>
+		/// Determines whether location is enabled.
+		/// </summary>
+		/// <value><c>true</c> if location is enabled; otherwise, <c>false</c>.</value>
 		public static bool LocationEnabled {
 			get {
 				return plugin.LocationEnabled;
@@ -78,6 +108,10 @@ namespace UrbanAirship {
 			}
 		}
 
+		/// <summary>
+		/// Determine whether background location is allowed.
+		/// </summary>
+		/// <value><c>true</c> if background location is allowed; otherwise, <c>false</c>.</value>
 		public static bool BackgroundLocationAllowed {
 			get {
 				return plugin.BackgroundLocationAllowed;
@@ -87,6 +121,10 @@ namespace UrbanAirship {
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the named user identifier.
+		/// </summary>
+		/// <value>The named user identifier.</value>
 		public static string NamedUserId {
 			get {
 				return plugin.NamedUserId;
@@ -96,11 +134,21 @@ namespace UrbanAirship {
 			}
 		}
 
+		/// <summary>
+		/// Gets the last performed deep link.
+		/// </summary>
+		/// <returns>The deep link.</returns>
+		/// <param name="clear">If set to <c>true</c> clear the stored deep link after accessing it.</param>
 		public static string GetDeepLink (bool clear = true)
 		{
 			return plugin.GetDeepLink (clear);
 		}
 
+		/// <summary>
+		/// Gets the last stored incoming push message.
+		/// </summary>
+		/// <returns>The push message.</returns>
+		/// <param name="clear">If set to <c>true</c> clea the stored push message after accessing it.</param>
 		public static PushMessage GetIncomingPush (bool clear = true)
 		{
 			string jsonPushMessage = plugin.GetIncomingPush (clear);
@@ -112,26 +160,45 @@ namespace UrbanAirship {
 			return pushMessage;
 		}
 
+		/// <summary>
+		/// Adds the provided device tag.
+		/// </summary>
+		/// <param name="tag">The tag.</param>
 		public static void AddTag (string tag)
 		{
 			plugin.AddTag (tag);
 		}
 
+		/// <summary>
+		/// Removes the provided device tag.
+		/// </summary>
+		/// <param name="tag">The tag.</param>
 		public static void RemoveTag (string tag)
 		{
 			plugin.RemoveTag (tag);
 		}
 
+		/// <summary>
+		/// Adds a custom event.
+		/// </summary>
+		/// <param name="customEvent">The custom event.</param>
 		public static void AddCustomEvent (CustomEvent customEvent)
 		{
 			plugin.AddCustomEvent (customEvent.ToJson ());
 		}
 
+		/// <summary>
+		/// Displays the message center.
+		/// </summary>
 		public static void DisplayMessageCenter ()
 		{
 			plugin.DisplayMessageCenter ();
 		}
 
+		/// <summary>
+		/// Returns an editor for named user tag groups.
+		/// </summary>
+		/// <returns>A TagGroupEditor for named user tag groups.</returns>
 		public static TagGroupEditor EditNamedUserTagGroups ()
 		{
 			return new TagGroupEditor ((string payload) => {
@@ -139,6 +206,10 @@ namespace UrbanAirship {
 			});
 		}
 
+		/// <summary>
+		/// Returns an editor for channel tag groups.
+		/// </summary>
+		/// <returns>A TagGroupEditor for channel tag groups.</returns>
 		public static TagGroupEditor EditChannelTagGroups ()
 		{
 			return new TagGroupEditor ((string payload) => {
