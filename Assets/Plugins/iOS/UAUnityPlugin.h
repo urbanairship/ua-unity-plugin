@@ -23,7 +23,7 @@ const char* UAUnityPlugin_getDeepLink(bool clear);
 const char* UAUnityPlugin_getIncomingPush(bool clear);
 
 bool UAUnityPlugin_getUserNotificationsEnabled();
-void UAUnityPlugin_setUserNotificationsEnabled(bool clear);
+void UAUnityPlugin_setUserNotificationsEnabled(bool enabled);
 
 const char* UAUnityPlugin_getTags();
 void UAUnityPlugin_addTag(const char* tag);
