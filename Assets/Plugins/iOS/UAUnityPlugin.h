@@ -19,28 +19,29 @@ const char* UAUnityPlugin_getDeepLink(bool clear);
 
 #pragma mark -
 #pragma mark UA Push Functions
-const char* UAUnityPlugin_getIncomingPush(bool clear);
-bool UAUnityPlugin_isPushEnabled();
 
-void UAUnityPlugin_enablePush();
-void UAUnityPlugin_disablePush();
+const char* UAUnityPlugin_getIncomingPush(bool clear);
+
+bool UAUnityPlugin_getUserNotificationsEnabled();
+void UAUnityPlugin_setUserNotificationsEnabled(bool clear);
+
 const char* UAUnityPlugin_getTags();
 void UAUnityPlugin_addTag(const char* tag);
 void UAUnityPlugin_removeTag(const char* tag);
+
 const char* UAUnityPlugin_getAlias();
 void UAUnityPlugin_setAlias(const char* alias);
+
 const char* UAUnityPlugin_getChannelId();
 
 #pragma mark -
 #pragma mark UA Location Functions
 
 bool UAUnityPlugin_isLocationEnabled();
-void UAUnityPlugin_enableLocation();
-void UAUnityPlugin_disableLocation();
+void UAUnityPlugin_setLocationEnabled(bool enabled);
 
-bool UAUnityPlugin_isBackgroundLocationEnabled();
-void UAUnityPlugin_enableBackgroundLocation();
-void UAUnityPlugin_disableBackgroundLocation();
+bool UAUnityPlugin_isBackgroundLocationAllowed();
+void UAUnityPlugin_setBackgroundLocationAllowed(bool allowed);
 
 #pragma mark -
 #pragma mark Custom Events

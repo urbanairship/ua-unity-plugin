@@ -12,7 +12,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 
 	void Awake ()
 	{
-		UAirship.PushEnabled = true;
+		UAirship.UserNotificationsEnabled = true;
 	}
 
 	void Start ()
@@ -46,7 +46,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 	{
 		Debug.Log ("Checking for deeplink.");
 
-		string deepLink = UAirship.GetDeepLink ();
+		string deepLink = UAirship.GetDeepLink (true);
 		if (!string.IsNullOrEmpty (deepLink)) {
 			Debug.Log ("Launched with deeplink! " + deepLink);
 			// Assume everything is a Bonus level for now

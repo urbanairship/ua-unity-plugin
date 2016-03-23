@@ -19,27 +19,30 @@ namespace UrbanAirship {
 		public static event PushReceivedEventHandler OnPushReceived;
 
 		static UAirship() {
-			#if UNITY_ANDROID
-			plugin = new UAirshipPluginAndroid ();
-			#elif UNITY_IPHONE
-			plugin = new UAirshipPluginIOS ();
-			#endif
+			if (Application.isEditor) {
+				plugin = new StubbedPlugin ();
+			} else {
+				#if UNITY_ANDROID
+				plugin = new UAirshipPluginAndroid ();
+				#elif UNITY_IPHONE
+				plugin = new UAirshipPluginIOS ();
+				#else
+				plugin = new StubbedPlugin ();
+				#endif
+			}
 
 			GameObject gameObject = new GameObject("[UrbanAirshipListener]");
 			listener = gameObject.AddComponent<UrbanAirshipListener>();
 			MonoBehaviour.DontDestroyOnLoad(gameObject);
-
-			if (plugin != null) {
-				plugin.Listener = gameObject;
-			}
+			plugin.Listener = gameObject;
 		}
 
-		public static bool PushEnabled {
+		public static bool UserNotificationsEnabled {
 			get {
-				return plugin.PushEnabled;
+				return plugin.UserNotificationsEnabled;
 			}
 			set {
-				plugin.PushEnabled = value;
+				plugin.UserNotificationsEnabled = value;
 			}
 		}
 
@@ -75,12 +78,12 @@ namespace UrbanAirship {
 			}
 		}
 
-		public static bool BackgroundLocationEnabled {
+		public static bool BackgroundLocationAllowed {
 			get {
-				return plugin.BackgroundLocationEnabled;
+				return plugin.BackgroundLocationAllowed;
 			}
 			set {
-				plugin.BackgroundLocationEnabled = value;
+				plugin.BackgroundLocationAllowed = value;
 			}
 		}
 
@@ -88,7 +91,6 @@ namespace UrbanAirship {
 			get {
 				return plugin.NamedUserId;
 			}
-
 			set {
 				plugin.NamedUserId = value;
 			}
@@ -96,69 +98,51 @@ namespace UrbanAirship {
 
 		public static string GetDeepLink (bool clear = true)
 		{
-			if (plugin != null) {
-				return plugin.GetDeepLink (clear);
-			}
-			return null;
+			return plugin.GetDeepLink (clear);
 		}
 
 		public static PushMessage GetIncomingPush (bool clear = true)
 		{
-			if (plugin != null) {
-				string jsonPushMessage = plugin.GetIncomingPush (clear);
-				if (String.IsNullOrEmpty(jsonPushMessage)) {
-					return null;
-				}
-
-				PushMessage pushMessage = PushMessage.FromJson (jsonPushMessage);
-				return pushMessage;
+			string jsonPushMessage = plugin.GetIncomingPush (clear);
+			if (String.IsNullOrEmpty(jsonPushMessage)) {
+				return null;
 			}
-			return null;
+
+			PushMessage pushMessage = PushMessage.FromJson (jsonPushMessage);
+			return pushMessage;
 		}
 
 		public static void AddTag (string tag)
 		{
-			if (plugin != null) {
-				plugin.AddTag (tag);
-			}
+			plugin.AddTag (tag);
 		}
 
 		public static void RemoveTag (string tag)
 		{
-			if (plugin != null) {
-				plugin.RemoveTag (tag);
-			}
+			plugin.RemoveTag (tag);
 		}
 
 		public static void AddCustomEvent (CustomEvent customEvent)
 		{
-			if (plugin != null) {
-				plugin.AddCustomEvent (customEvent.ToJson ());
-			}
+			plugin.AddCustomEvent (customEvent.ToJson ());
 		}
 
 		public static void DisplayMessageCenter ()
 		{
-			if (plugin != null) {
-				plugin.DisplayMessageCenter ();
-			}
+			plugin.DisplayMessageCenter ();
 		}
 
 		public static TagGroupEditor EditNamedUserTagGroups ()
 		{
 			return new TagGroupEditor ((string payload) => {
-				if (plugin != null) {
-					plugin.EditNamedUserTagGroups(payload);
-				}
+				plugin.EditNamedUserTagGroups(payload);
 			});
 		}
 
 		public static TagGroupEditor EditChannelTagGroups ()
 		{
 			return new TagGroupEditor ((string payload) => {
-				if (plugin != null) {
-					plugin.EditChannelTagGroups(payload);
-				}
+				plugin.EditChannelTagGroups(payload);
 			});
 		}
 
