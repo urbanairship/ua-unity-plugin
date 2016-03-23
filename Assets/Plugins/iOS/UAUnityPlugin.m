@@ -121,7 +121,7 @@ const char* UAUnityPlugin_getIncomingPush(bool clear) {
 }
 
 bool UAUnityPlugin_getUserNotificationsEnabled() {
-    NSLog(@"UnityPlugin isPushEnabled");
+    NSLog(@"UnityPlugin getUserNotificationsEnabled");
     return [UAirship push].userPushNotificationsEnabled ? true : false;
 }
 
@@ -178,7 +178,7 @@ bool UAUnityPlugin_isLocationEnabled() {
 }
 
 void UAUnityPlugin_setLocationEnabled(bool enabled) {
-    NSLog(@"UnityPlugin setUserNotificationsEnabled: %d", enabled);
+    NSLog(@"UnityPlugin setLocationEnabled: %d", enabled);
 
     if (enabled) {
         [UALocationService setAirshipLocationServiceEnabled:YES];
