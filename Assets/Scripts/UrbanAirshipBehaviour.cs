@@ -23,12 +23,15 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 		}
 
 		UAirship.OnPushReceived += OnPushReceived;
+		UAirship.OnChannelUpdated += OnChannelUpdated;
+
 		CheckDeepLink ();
 	}
 
 	void OnDestroy ()
 	{
 		UAirship.OnPushReceived -= OnPushReceived;
+		UAirship.OnChannelUpdated -= OnChannelUpdated;
 	}
 
 	void OnApplicationPause (bool pauseStatus)
@@ -39,9 +42,13 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 	}
 
 	void OnPushReceived(PushMessage message) {
-		Debug.Log ("Unity received push! " + message);
+		Debug.Log ("Received push! " + message.Alert);
 	}
-	
+
+	void OnChannelUpdated(string channelId) {
+		Debug.Log ("Channel updated: " + channelId);
+	}
+
 	void CheckDeepLink ()
 	{
 		Debug.Log ("Checking for deeplink.");

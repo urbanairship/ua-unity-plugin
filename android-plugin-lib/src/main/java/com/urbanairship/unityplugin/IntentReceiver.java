@@ -12,7 +12,7 @@ import com.urbanairship.push.PushMessage;
 public class IntentReceiver extends BaseIntentReceiver {
     @Override
     protected void onChannelRegistrationSucceeded(Context context, String channelId) {
-
+        UnityPlugin.shared().onChannelRegistrationSucceeded(channelId);
     }
 
     @Override

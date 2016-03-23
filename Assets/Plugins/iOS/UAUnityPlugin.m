@@ -35,6 +35,7 @@ static dispatch_once_t onceToken_;
 
     // UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
     [UAirship push].pushNotificationDelegate = [UAUnityPlugin shared];
+    [UAirship push].registrationDelegate = [UAUnityPlugin shared];
 
     UAAction *customDLA = [UAAction actionWithBlock: ^(UAActionArguments *args, UAActionCompletionHandler handler)  {
         NSLog(@"Setting dl to: %@", args.value);
@@ -325,6 +326,32 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 - (void)launchedFromNotification:(NSDictionary *)notification {
     NSLog(@"launchedFromNotification %@",notification);
     self.storedNotification = notification;
+}
+
+#pragma mark -
+#pragma mark UARegistrationDelegate
+
+
+/**
+ * Called when the device channel registers with Urban Airship. Successful
+ * registrations could be disabling push, enabling push, or updating the device
+ * registration settings.
+ *
+ * The device token will only be available once the application successfully
+ * registers with APNS.
+ *
+ * When registration finishes in the background, any async tasks that are triggered
+ * from this call should request a background task.
+ * @param channelID The channel ID string.
+ * @param deviceToken The device token string.
+ */
+- (void)registrationSucceededForChannelID:(NSString *)channelID deviceToken:(NSString *)deviceToken {
+    NSLog(@"registrationSucceededForChannelID: %@", channelID);
+    if (self.listener) {
+        UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
+                         "OnChannelUpdated",
+                         MakeStringCopy([channelID UTF8String]));
+    }
 }
 
 #pragma mark -

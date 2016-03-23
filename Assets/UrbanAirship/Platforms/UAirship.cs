@@ -28,6 +28,16 @@ namespace UrbanAirship {
 		/// </summary>
 		public static event PushReceivedEventHandler OnPushReceived;
 
+		/// <summary>
+		/// Channel update event handler.
+		/// </summary>
+		public delegate void ChannelUpdateEventHandler(string channelId);
+
+		/// <summary>
+		/// Occurs when the channel updates.
+		/// </summary>
+		public static event ChannelUpdateEventHandler OnChannelUpdated;
+
 		static UAirship() {
 			if (Application.isEditor) {
 				plugin = new StubbedPlugin ();
@@ -218,7 +228,7 @@ namespace UrbanAirship {
 		}
 
 		class UrbanAirshipListener : MonoBehaviour {
-			void OnPushReceived(string payload) {
+			void OnPushReceived (string payload) {
 				PushReceivedEventHandler handler = UAirship.OnPushReceived;
 
 				if (handler == null) {
@@ -227,7 +237,15 @@ namespace UrbanAirship {
 
 				PushMessage pushMessage = PushMessage.FromJson (payload);
 				if (pushMessage != null) {
-					handler(pushMessage);
+					handler (pushMessage);
+				}
+			}
+
+			void OnChannelUpdated (string channelId) {
+				ChannelUpdateEventHandler handler = UAirship.OnChannelUpdated;
+
+				if (handler != null) {
+					handler (channelId);
 				}
 			}
 		}
