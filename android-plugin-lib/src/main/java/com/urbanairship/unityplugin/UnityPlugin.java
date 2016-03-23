@@ -109,6 +109,11 @@ public class UnityPlugin {
         return jsonArray.toString();
     }
 
+    public String getAlias() {
+        Logger.debug("UnityPlugin getAlias");
+        return UAirship.shared().getPushManager().getAlias();
+    }
+
     public void setAlias(String alias) {
         Logger.debug("UnityPlugin setAlias: " + alias);
         UAirship.shared().getPushManager().setAlias(alias);
@@ -331,7 +336,7 @@ public class UnityPlugin {
                 case "add":
                     editor.addTags(group, tagSet);
                     break;
-                case "remove:":
+                case "remove":
                     editor.removeTags(group, tagSet);
                     break;
             }
