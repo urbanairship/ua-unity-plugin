@@ -1,5 +1,5 @@
 /*
- Copyright 2015 Urban Airship and Contributors
+ Copyright 2016 Urban Airship and Contributors
 */
 
 #import <Foundation/Foundation.h>
