@@ -229,8 +229,8 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
             value = property[@"boolValue"];
             [ce setBoolProperty:value forKey:name];
         } else if ([type isEqualToString:@"sa"]) {
-            [ce setStringArrayProperty:value forKey:name];
             value = property[@"stringArrayValue"];
+            [ce setStringArrayProperty:value forKey:name];
         }
     }
 
