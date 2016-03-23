@@ -123,7 +123,7 @@ namespace UrbanAirship
 			this.propertyList.Add (new Property ("sa", name, value));
 		}
 
-		public string ToJson ()
+		internal string ToJson ()
 		{
 			this.properties = this.propertyList.ToArray ();
 			return JsonUtility.ToJson (this);

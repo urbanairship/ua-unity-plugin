@@ -68,7 +68,7 @@ namespace UrbanAirship
 			}
 		}
 
-		public static PushMessage FromJson (string jsonString)
+		internal static PushMessage FromJson (string jsonString)
 		{
 			PushMessage pushMessage = JsonUtility.FromJson<PushMessage> (jsonString);
 			if (pushMessage.Alert == null && pushMessage.Identifier == null && pushMessage.Extras == null) {
