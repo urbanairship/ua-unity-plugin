@@ -15,7 +15,6 @@ namespace UrbanAirship {
 	/// </summary>
 	public class UAirship
 	{
-		private static UAirship sharedAirship;
 		private UrbanAirshipListener listener;
 		private IUAirshipPlugin plugin = null;
 
@@ -39,7 +38,19 @@ namespace UrbanAirship {
 		/// </summary>
 		public event ChannelUpdateEventHandler OnChannelUpdated;
 
-		UAirship() {
+		private static UAirship sharedAirship = new UAirship();
+
+		/// <summary>
+		/// Gets the shared UAirship instance.
+		/// </summary>
+		/// <value>The shared UAirship instance.</value>
+		public static UAirship Shared {
+			get {
+				return sharedAirship;
+			}
+		}
+
+		private UAirship() {
 		    if (Application.isEditor) {
 				plugin = new StubbedPlugin ();
 			} else {
@@ -56,20 +67,6 @@ namespace UrbanAirship {
 			listener = gameObject.AddComponent<UrbanAirshipListener>();
 			MonoBehaviour.DontDestroyOnLoad(gameObject);
 			plugin.Listener = gameObject;
-		}
-
-		/// <summary>
-		/// Gets the shared UAirship instance.
-		/// </summary>
-		/// <value>The shared UAirship instance.</value>
-		public static UAirship Shared {
-			get {
-				if (UAirship.sharedAirship == null) {
-					sharedAirship = new UAirship ();
-				}
-
-				return UAirship.sharedAirship;
-			}
 		}
 
 		/// <summary>
@@ -242,7 +239,7 @@ namespace UrbanAirship {
 			});
 		}
 
-		class UrbanAirshipListener : MonoBehaviour {
+		private class UrbanAirshipListener : MonoBehaviour {
 			void OnPushReceived (string payload) {
 				PushReceivedEventHandler handler = UAirship.Shared.OnPushReceived;
 
