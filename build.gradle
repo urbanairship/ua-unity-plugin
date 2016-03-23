@@ -89,6 +89,7 @@ task build << {
                     "Assets/Plugins/Android/AndroidManifest.xml",
                     "Assets/Plugins/Android/urbanairship-sdk",
                     "Assets/Plugins/Android/urbanairship-plugin-lib",
+                    "Assets/Scripts",
 
                 file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
                 "-quit"
