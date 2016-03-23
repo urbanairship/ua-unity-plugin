@@ -15,8 +15,8 @@ namespace UrbanAirship {
 	/// </summary>
 	public class UAirship
 	{
-		private static UrbanAirshipListener listener;
-		private static IUAirshipPlugin plugin = null;
+		private UrbanAirshipListener listener;
+		private IUAirshipPlugin plugin = null;
 
 		/// <summary>
 		/// Push received event handler.
@@ -26,7 +26,7 @@ namespace UrbanAirship {
 		/// <summary>
 		/// Occurs when a push is received.
 		/// </summary>
-		public static event PushReceivedEventHandler OnPushReceived;
+		public event PushReceivedEventHandler OnPushReceived;
 
 		/// <summary>
 		/// Channel update event handler.
@@ -36,10 +36,22 @@ namespace UrbanAirship {
 		/// <summary>
 		/// Occurs when the channel updates.
 		/// </summary>
-		public static event ChannelUpdateEventHandler OnChannelUpdated;
+		public event ChannelUpdateEventHandler OnChannelUpdated;
 
-		static UAirship() {
-			if (Application.isEditor) {
+		private static UAirship sharedAirship = new UAirship();
+
+		/// <summary>
+		/// Gets the shared UAirship instance.
+		/// </summary>
+		/// <value>The shared UAirship instance.</value>
+		public static UAirship Shared {
+			get {
+				return sharedAirship;
+			}
+		}
+
+		private UAirship() {
+		    if (Application.isEditor) {
 				plugin = new StubbedPlugin ();
 			} else {
 				#if UNITY_ANDROID
@@ -61,7 +73,7 @@ namespace UrbanAirship {
 		/// Determinines whether user notifications are enabled.
 		/// </summary>
 		/// <value><c>true</c> if user notifications are enabled; otherwise, <c>false</c>.</value>
-		public static bool UserNotificationsEnabled {
+		public bool UserNotificationsEnabled {
 			get {
 				return plugin.UserNotificationsEnabled;
 			}
@@ -74,7 +86,7 @@ namespace UrbanAirship {
 		/// Gets the tags currently set for the device.
 		/// </summary>
 		/// <value>The tags.</value>
-		public static IEnumerable<string> Tags {
+		public IEnumerable<string> Tags {
 			get {
 				string tagsAsJson = plugin.Tags;
 				JsonArray<string> jsonArray = JsonArray<string>.FromJson (tagsAsJson);
@@ -86,7 +98,7 @@ namespace UrbanAirship {
 		/// Gets or sets the alias for the device.
 		/// </summary>
 		/// <value>The alias.</value>
-		public static string Alias {
+		public string Alias {
 			get {
 				return plugin.Alias;
 			}
@@ -99,7 +111,7 @@ namespace UrbanAirship {
 		/// Gets the channel identifier associated with the device.
 		/// </summary>
 		/// <value>The channel identifier.</value>
-		public static string ChannelId {
+		public string ChannelId {
 			get {
 				return plugin.ChannelId;
 			}
@@ -109,7 +121,7 @@ namespace UrbanAirship {
 		/// Determines whether location is enabled.
 		/// </summary>
 		/// <value><c>true</c> if location is enabled; otherwise, <c>false</c>.</value>
-		public static bool LocationEnabled {
+		public bool LocationEnabled {
 			get {
 				return plugin.LocationEnabled;
 			}
@@ -122,7 +134,7 @@ namespace UrbanAirship {
 		/// Determine whether background location is allowed.
 		/// </summary>
 		/// <value><c>true</c> if background location is allowed; otherwise, <c>false</c>.</value>
-		public static bool BackgroundLocationAllowed {
+		public bool BackgroundLocationAllowed {
 			get {
 				return plugin.BackgroundLocationAllowed;
 			}
@@ -135,7 +147,7 @@ namespace UrbanAirship {
 		/// Gets or sets the named user identifier.
 		/// </summary>
 		/// <value>The named user identifier.</value>
-		public static string NamedUserId {
+		public string NamedUserId {
 			get {
 				return plugin.NamedUserId;
 			}
@@ -149,7 +161,7 @@ namespace UrbanAirship {
 		/// </summary>
 		/// <returns>The deep link.</returns>
 		/// <param name="clear">If set to <c>true</c> clear the stored deep link after accessing it.</param>
-		public static string GetDeepLink (bool clear = true)
+		public string GetDeepLink (bool clear = true)
 		{
 			return plugin.GetDeepLink (clear);
 		}
@@ -159,7 +171,7 @@ namespace UrbanAirship {
 		/// </summary>
 		/// <returns>The push message.</returns>
 		/// <param name="clear">If set to <c>true</c> clear the stored push message after accessing it.</param>
-		public static PushMessage GetIncomingPush (bool clear = true)
+		public PushMessage GetIncomingPush (bool clear = true)
 		{
 			string jsonPushMessage = plugin.GetIncomingPush (clear);
 			if (String.IsNullOrEmpty(jsonPushMessage)) {
@@ -174,7 +186,7 @@ namespace UrbanAirship {
 		/// Adds the provided device tag.
 		/// </summary>
 		/// <param name="tag">The tag.</param>
-		public static void AddTag (string tag)
+		public void AddTag (string tag)
 		{
 			plugin.AddTag (tag);
 		}
@@ -183,7 +195,7 @@ namespace UrbanAirship {
 		/// Removes the provided device tag.
 		/// </summary>
 		/// <param name="tag">The tag.</param>
-		public static void RemoveTag (string tag)
+		public void RemoveTag (string tag)
 		{
 			plugin.RemoveTag (tag);
 		}
@@ -192,7 +204,7 @@ namespace UrbanAirship {
 		/// Adds a custom event.
 		/// </summary>
 		/// <param name="customEvent">The custom event.</param>
-		public static void AddCustomEvent (CustomEvent customEvent)
+		public void AddCustomEvent (CustomEvent customEvent)
 		{
 			plugin.AddCustomEvent (customEvent.ToJson ());
 		}
@@ -200,7 +212,7 @@ namespace UrbanAirship {
 		/// <summary>
 		/// Displays the message center.
 		/// </summary>
-		public static void DisplayMessageCenter ()
+		public void DisplayMessageCenter ()
 		{
 			plugin.DisplayMessageCenter ();
 		}
@@ -209,7 +221,7 @@ namespace UrbanAirship {
 		/// Returns an editor for named user tag groups.
 		/// </summary>
 		/// <returns>A TagGroupEditor for named user tag groups.</returns>
-		public static TagGroupEditor EditNamedUserTagGroups ()
+		public TagGroupEditor EditNamedUserTagGroups ()
 		{
 			return new TagGroupEditor ((string payload) => {
 				plugin.EditNamedUserTagGroups(payload);
@@ -220,16 +232,16 @@ namespace UrbanAirship {
 		/// Returns an editor for channel tag groups.
 		/// </summary>
 		/// <returns>A TagGroupEditor for channel tag groups.</returns>
-		public static TagGroupEditor EditChannelTagGroups ()
+		public TagGroupEditor EditChannelTagGroups ()
 		{
 			return new TagGroupEditor ((string payload) => {
 				plugin.EditChannelTagGroups(payload);
 			});
 		}
 
-		class UrbanAirshipListener : MonoBehaviour {
+		private class UrbanAirshipListener : MonoBehaviour {
 			void OnPushReceived (string payload) {
-				PushReceivedEventHandler handler = UAirship.OnPushReceived;
+				PushReceivedEventHandler handler = UAirship.Shared.OnPushReceived;
 
 				if (handler == null) {
 					return;
@@ -242,7 +254,7 @@ namespace UrbanAirship {
 			}
 
 			void OnChannelUpdated (string channelId) {
-				ChannelUpdateEventHandler handler = UAirship.OnChannelUpdated;
+				ChannelUpdateEventHandler handler = UAirship.Shared.OnChannelUpdated;
 
 				if (handler != null) {
 					handler (channelId);
