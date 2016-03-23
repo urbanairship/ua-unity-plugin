@@ -50,14 +50,14 @@ LOOKUP_CACHE_SIZE      = 0
 # Build related configuration options
 #---------------------------------------------------------------------------
 EXTRACT_ALL            = YES
-EXTRACT_PRIVATE        = YES
+EXTRACT_PRIVATE        = NO
 EXTRACT_PACKAGE        = NO
 EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_CLASSES  = YES
 EXTRACT_LOCAL_METHODS  = NO
 EXTRACT_ANON_NSPACES   = NO
 HIDE_UNDOC_MEMBERS     = NO
-HIDE_UNDOC_CLASSES     = NO
+HIDE_UNDOC_CLASSES     = YES
 HIDE_FRIEND_COMPOUNDS  = NO
 HIDE_IN_BODY_DOCS      = NO
 INTERNAL_DOCS          = NO
@@ -102,7 +102,7 @@ INPUT                  = ../Assets/UrbanAirship/Platforms mainpage.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.cs
 RECURSIVE              = NO
-EXCLUDE                = ../Assets/UrbanAirship/Platforms/IUAirshipPlugin.cs
+EXCLUDE                = ../Assets/UrbanAirship/Platforms/IUAirshipPlugin.cs ../Assets/UrbanAirship/Platforms/StubbedPlugin.cs ../Assets/UrbanAirship/Platforms/JsonArray.cs
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        =
