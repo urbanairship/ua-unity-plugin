@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!-- Applied to the MessageCenter activities -->
+    <style name="MessageCenterTheme" parent="@android:style/Theme.DeviceDefault.Light.DarkActionBar">
+        <item name="messageCenterStyle">@style/MessageCenterTheme.MessageCenter</item>
+    </style>
+
+    <!-- Apply any overrides http://docs.urbanairship.com/platform/android.html#styling-the-message-center -->
+    <style name="MessageCenterTheme.MessageCenter" parent="MessageCenter">
+
+    </style>
+
+</resources>
