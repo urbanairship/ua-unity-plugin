@@ -20,14 +20,13 @@ Code Contribution Agreement (http://docs.urbanairship.com/contribution-agreement
 
 ## Setup
 1. [Download](https://bintray.com/urbanairship/unity/unity-plugin/_latestVersion) the latest plugin
-2. Import the plugin into a unity project: Open Assets -> Import Package -> Custom Package and import the downloaded Urban Airship unitypackage
-3. Configure Urban Airship Settings: Open Window -> Urban Airship -> Settings and set the Urban Airship settings
+2. Import Urban Airship unitypackage: In Unity, Assets -> Import Package -> Custom Package
+3. Configure Urban Airship: In Unity, Window -> Urban Airship -> Settings
 
 An example script is provided in 'Scripts/UrbanAirshipBehaviour.cs'. Import into your app's scripts and attach it to a game object in each scene. The script shows a very basic integration with Urban Airship.
 
 
 ## Building the Plugin
-
 1. Install doxygen, Android SDK, Xcode, and Unity
 2. Build the plugin with `./gradlew clean build`
 
