@@ -1,6 +1,33 @@
 UA Unity ChangeLog
 ==================
 
+Version 2.0.0 - March 23, 2016
+==============================
+
+New Features
+------------
+  - Updated interface to use C# Properties and Events
+  - Full push payload is exposed through the PushMessage model object
+  - Tags now return a list of strings instead of a JSON encoded string
+  - Added channel registration events
+  - Added Named User API
+  - Added Tag Group API
+  - Added Custom Event API
+  - Added Message Center support
+  - Added support to set the Android Notification icon and accent color
+
+Packaging Changes
+-----------------
+ - Plugin is now prepackaged in a unitypackage file
+ - GUI Editor to set Urban Airship Configuration (Window -> Urban Airship -> Settings)
+ - Uses Google Play Services Jar Resolver Library for Android dependency management
+ - Added generated API docs - http://docs.urbanairship.com/reference/libraries/unity/latest/
+
+Bug Fixes
+---------
+ - Landing pages now pause iOS
+ - Fixed iOS build issues
+
 Version 1.2.1 - January 4, 2016
 ===============================
  - Fix iOS post build processor in Unity 5.3.
