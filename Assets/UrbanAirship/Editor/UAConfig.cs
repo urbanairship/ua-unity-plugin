@@ -201,36 +201,33 @@ namespace UrbanAirship.Editor
 	
 			using (XmlWriter xmlWriter = XmlWriter.Create (Path.Combine (xml, "airship_config.xml"))) {
 				xmlWriter.WriteStartDocument ();
-				xmlWriter.WriteStartElement ("UrbanAirshipConfig");
-
-				xmlWriter.WriteAttributeString ("xmlns:app", "http://schemas.android.com/apk/res-auto");
+				xmlWriter.WriteStartElement ("AirshipConfigOptions");
 
 				if (!String.IsNullOrEmpty (ProductionAppKey) && !String.IsNullOrEmpty (ProductionAppSecret)) {
-					xmlWriter.WriteAttributeString ("app:urbanAirshipProductionAppKey", ProductionAppKey);
-					xmlWriter.WriteAttributeString ("app:urbanAirshipProductionAppSecret", ProductionAppSecret);
-					xmlWriter.WriteAttributeString ("app:urbanAirshipProductionLogLevel", AndroidLogLevel (ProductionLogLevel));
+					xmlWriter.WriteAttributeString ("productionAppKey", ProductionAppKey);
+					xmlWriter.WriteAttributeString ("productionAppSecret", ProductionAppSecret);
+					xmlWriter.WriteAttributeString ("productionLogLevel", AndroidLogLevel (ProductionLogLevel));
 
 				}
-
 
 				if (!String.IsNullOrEmpty (DevelopmentAppKey) && !String.IsNullOrEmpty (DevelopmentAppSecret)) {
-					xmlWriter.WriteAttributeString ("app:urbanAirshipDevelopmentAppKey", DevelopmentAppKey);
-					xmlWriter.WriteAttributeString ("app:urbanAirshipDevelopmentAppSecret", DevelopmentAppSecret);
-					xmlWriter.WriteAttributeString ("app:urbanAirshipDevelopmentLogLevel", AndroidLogLevel (DevelopmentLogLevel));
+					xmlWriter.WriteAttributeString ("developmentAppKey", DevelopmentAppKey);
+					xmlWriter.WriteAttributeString ("developmentAppSecret", DevelopmentAppSecret);
+					xmlWriter.WriteAttributeString ("developmentLogLevel", AndroidLogLevel (DevelopmentLogLevel));
 				}
 
-				xmlWriter.WriteAttributeString ("app:urbanAirshipInProduction", (InProduction ? "true" : "false"));
+				xmlWriter.WriteAttributeString ("inProduction", (InProduction ? "true" : "false"));
 
 				if (!String.IsNullOrEmpty (AndroidNotificationIcon)) {
-					xmlWriter.WriteAttributeString ("app:urbanAirshipNotificationIcon", AndroidNotificationIcon);
+					xmlWriter.WriteAttributeString ("notificationIcon", AndroidNotificationIcon);
 				}
 
 				if (!String.IsNullOrEmpty (AndroidNotificationAccentColor)) {
-					xmlWriter.WriteAttributeString ("app:urbanAirshipNotificationAccentColor", AndroidNotificationAccentColor);
+					xmlWriter.WriteAttributeString ("notificationAccentColor", AndroidNotificationAccentColor);
 				}
 
 				if (!String.IsNullOrEmpty (GCMSenderId)) {
-					xmlWriter.WriteAttributeString ("app:urbanAirshipGcmSender", GCMSenderId);
+					xmlWriter.WriteAttributeString ("gcmSender", GCMSenderId);
 				}
 
 				xmlWriter.WriteEndElement ();
