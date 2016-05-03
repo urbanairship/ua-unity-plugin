@@ -7,7 +7,7 @@
 
         <!-- Urban Airship Plugin -->
         <receiver
-            android:name="com.urbanairship.unityplugin.IntentReceiver"
+            android:name="com.urbanairship.unityplugin.UnityAirshipReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.urbanairship.push.CHANNEL_UPDATED"/>
@@ -23,7 +23,7 @@
             android:name="com.urbanairship.autopilot"
             android:value="com.urbanairship.unityplugin.UnityAutopilot"/>
 
-        <activity android:name=".CustomMessageCenterActivity"
+        <activity android:name="com.urbanairship.unityplugin.CustomMessageCenterActivity"
                   android:theme="@style/MessageCenterTheme"
                   android:label="@string/ua_message_center_title">
 
@@ -35,7 +35,7 @@
 
         </activity>
 
-        <activity android:name=".CustomMessageActivity"
+        <activity android:name="com.urbanairship.unityplugin.CustomMessageActivity"
                   android:theme="@style/MessageCenterTheme">
 
             <intent-filter>
