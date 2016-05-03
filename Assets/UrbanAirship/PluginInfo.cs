@@ -4,7 +4,7 @@
 namespace UrbanAirship
 {
     /// <summary>
-    /// Urban Airshp Unity plugin info.
+    /// Urban Airship Unity plugin info.
     /// </summary>
     public class PluginInfo
     {
