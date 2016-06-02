@@ -21,7 +21,7 @@ namespace UrbanAirship.Editor
 			Verbose = 0,
 			Debug = 1,
 			Info = 2,
-			Warning = 3,
+			Warn = 3,
 			Error = 4,
 			None = 5
 		}
@@ -244,7 +244,7 @@ namespace UrbanAirship.Editor
 				return 4;
 			case LogLevel.Info:
 				return 3;
-			case LogLevel.Warning:
+			case LogLevel.Warn:
 				return 2;
 			case LogLevel.Error:
 				return 1;

@@ -51,7 +51,6 @@ namespace UrbanAirship.Editor
 				"UIKit.framework",
 				"CoreTelephony.framework",
 				"CoreLocation.framework",
-				"PassKit.framework",
 				"CoreData.framework"
 			};
 
