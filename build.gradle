@@ -86,7 +86,6 @@ task build << {
                     "Assets/UrbanAirship",
                     "Assets/PlayServicesResolver",
                     "Assets/Plugins/iOS",
-                    "Assets/Plugins/Android/AndroidManifest.xml",
                     "Assets/Plugins/Android/urbanairship-sdk",
                     "Assets/Plugins/Android/urbanairship-plugin-lib",
                     "Assets/Scripts",
