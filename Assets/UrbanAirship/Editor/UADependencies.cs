@@ -30,8 +30,8 @@ namespace UrbanAirship.Editor
 				EditorPrefs.GetString ("AndroidSdkRoot"),
 				"ProjectSettings");
 
-			svcSupport.DependOn ("com.google.android.gms", "play-services-gcm", "8.4+");
-			svcSupport.DependOn ("com.android.support", "support-v4", "23.1+");
+			svcSupport.DependOn ("com.google.android.gms", "play-services-gcm", "9.0.2");
+			svcSupport.DependOn ("com.android.support", "support-v4", "23.4.0");
 
 
 			// Resolve dependency on load. Only resolve the dependency if we are using the ResolverVer1_1
