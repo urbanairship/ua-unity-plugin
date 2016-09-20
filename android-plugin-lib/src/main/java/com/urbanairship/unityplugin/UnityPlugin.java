@@ -224,12 +224,12 @@ public class UnityPlugin {
 
     public String getNamedUserId() {
         Logger.debug("UnityPlugin getNamedUserId");
-        return UAirship.shared().getPushManager().getNamedUser().getId();
+        return UAirship.shared().getNamedUser().getId();
     }
 
     public void setNamedUserId(String namedUserId) {
         Logger.debug("UnityPlugin setNamedUserId: " + namedUserId);
-        UAirship.shared().getPushManager().getNamedUser().setId(namedUserId);
+        UAirship.shared().getNamedUser().setId(namedUserId);
     }
 
     public void displayMessageCenter(){
@@ -240,7 +240,7 @@ public class UnityPlugin {
     public void editNamedUserTagGroups(String payload) {
         Logger.debug("UnityPlugin editNamedUserTagGroups");
 
-        TagGroupsEditor editor = UAirship.shared().getPushManager().getNamedUser().editTagGroups();
+        TagGroupsEditor editor = UAirship.shared().getNamedUser().editTagGroups();
         applyTagGroupOperations(editor, payload);
         editor.apply();
     }
@@ -266,11 +266,19 @@ public class UnityPlugin {
         }
     }
 
-    void onChannelRegistrationSucceeded(String channelId) {
-        Logger.debug("UnityPlugin channel registration  succeeded: " + channelId);
+    void onChannelCreated(String channelId) {
+        Logger.debug("UnityPlugin channel created: " + channelId);
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnChannelUpdated", channelId);
+            UnityPlayer.UnitySendMessage(listener, "onChannelCreated", channelId);
+        }
+    }
+
+    void onChannelUpdated(String channelId) {
+        Logger.debug("UnityPlugin channel updated: " + channelId);
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "onChannelUpdated", channelId);
         }
     }
 
@@ -284,8 +292,10 @@ public class UnityPlugin {
         List<Map<String, String>> extras = new ArrayList<>();
 
         for (String key : message.getPushBundle().keySet()) {
-            String value = message.getPushBundle().getString(key);
-            if (value == null) {
+            String value = null;
+            if (!UAStringUtil.equals(key, "google.sent_time")) {
+                value = message.getPushBundle().getString(key);
+            } else {
                 continue;
             }
 

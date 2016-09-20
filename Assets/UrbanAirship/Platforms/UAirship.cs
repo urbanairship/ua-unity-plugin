@@ -70,7 +70,7 @@ namespace UrbanAirship {
 		}
 
 		/// <summary>
-		/// Determinines whether user notifications are enabled.
+		/// Determines whether user notifications are enabled.
 		/// </summary>
 		/// <value><c>true</c> if user notifications are enabled; otherwise, <c>false</c>.</value>
 		public bool UserNotificationsEnabled {
