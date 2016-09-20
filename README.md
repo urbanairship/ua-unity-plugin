@@ -10,7 +10,7 @@ Code Contribution Agreement (http://docs.urbanairship.com/contribution-agreement
 
 ### Requirements
  - Unity 5
- - iOS - Xcode 8+ for iOS
+ - iOS - Xcode 8+ for iOS and Link Binary with `UserNotifications.framework`
  - Android - Android SDK installed and updated (require Android MinSdkVersion = 16)
 
 ### Resources:

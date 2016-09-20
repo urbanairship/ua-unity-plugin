@@ -11,7 +11,7 @@
 #import "UAActionArguments.h"
 #import "UAActionRunner.h"
 #import "UAActionResult.h"
-#import "UALocationService.h"
+#import "UALocation.h"
 #import "UAConfig.h"
 #import "UAAnalytics.h"
 #import "UACustomEvent.h"
@@ -175,29 +175,22 @@ const char* UAUnityPlugin_getChannelId() {
 
 bool UAUnityPlugin_isLocationEnabled() {
     UA_LDEBUG(@"UnityPlugin isLocationEnabled");
-    return [UALocationService airshipLocationServiceEnabled] ? true : false;
+    return [UAirship location].locationUpdatesEnabled ? true : false;
 }
 
 void UAUnityPlugin_setLocationEnabled(bool enabled) {
     UA_LDEBUG(@"UnityPlugin setLocationEnabled: %d", enabled);
-
-    if (enabled) {
-        [UALocationService setAirshipLocationServiceEnabled:YES];
-        [[UAirship shared].locationService startReportingSignificantLocationChanges];
-    } else {
-        [UALocationService setAirshipLocationServiceEnabled:NO];
-        [[UAirship shared].locationService stopReportingSignificantLocationChanges];
-    }
+    [UAirship location].locationUpdatesEnabled = enabled;
 }
 
 bool UAUnityPlugin_isBackgroundLocationAllowed() {
     UA_LDEBUG(@"UnityPlugin isBackgroundLocationAllowed");
-    return [UAirship shared].locationService.backgroundLocationServiceEnabled ? true : false;
+    return [UAirship location].backgroundLocationUpdatesAllowed ? true : false;
 }
 
 void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
     UA_LDEBUG(@"UnityPlugin setBackgroundLocationAllowed: %d", enabled);
-    [UAirship shared].locationService.backgroundLocationServiceEnabled = enabled ? YES : NO;
+    [UAirship location].backgroundLocationUpdatesAllowed = enabled ? YES : NO;
 }
 
 void UAUnityPlugin_addCustomEvent(const char *customEvent) {
@@ -241,11 +234,11 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
 void UAUnityPlugin_setNamedUserID(const char *namedUserID) {
     NSString *namedUserIDString = [NSString stringWithUTF8String:namedUserID];
     UA_LDEBUG(@"UnityPlugin setNamedUserID %@", namedUserIDString);
-    [UAirship push].namedUser.identifier = namedUserIDString;
+    [UAirship namedUser].identifier = namedUserIDString;
 }
 
 const char* UAUnityPlugin_getNamedUserID() {
-    return MakeStringCopy([[UAirship push].namedUser.identifier UTF8String]);
+    return MakeStringCopy([[UAirship namedUser].identifier UTF8String]);
 }
 
 
@@ -283,18 +276,16 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
 
-    UANamedUser *namedUser = [UAirship push].namedUser;
-
     for (NSDictionary *operation in operations) {
         NSString *group = operation[@"tagGroup"];
         if ([operation[@"operation"] isEqualToString:@"add"]) {
-            [namedUser addTags:operation[@"tags"] group:group];
+            [[UAirship namedUser] addTags:operation[@"tags"] group:group];
         } else if ([operation[@"operation"] isEqualToString:@"remove"]) {
-            [namedUser removeTags:operation[@"tags"] group:group];
+            [[UAirship namedUser] removeTags:operation[@"tags"] group:group];
         }
     }
 
-    [namedUser updateTags];
+    [[UAirship namedUser] updateTags];
 }
 
 
