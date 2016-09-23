@@ -297,14 +297,16 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 /**
  * Called when a push notification is received while the app is running in the foreground.
  *
- * @param notification The notification dictionary.
+ * @param notificationContent The UANotificationContent object representing the notification info.
  */
-- (void)receivedForegroundNotification:(NSDictionary *)notification {
-    UA_LDEBUG(@"receivedForegroundNotification %@",notification);
+- (void)receivedForegroundNotification:(UANotificationContent *)notificationContent completionHandler:(void(^)())completionHandler {
+    UA_LDEBUG(@"receivedForegroundNotification %@",notificationContent);
+
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                      "OnPushReceived",
-                     [UAUnityPlugin convertPushToJson:notification]);
+                     [UAUnityPlugin convertPushToJson:notificationContent.notificationInfo]);
+        completionHandler();
     }
 }
 
@@ -312,11 +314,12 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 /**
  * Called when the app is started or resumed because a user opened a notification.
  *
- * @param notification The notification dictionary.
+ * @param notificationResponse UANotificationResponse object representing the user's response
  */
-- (void)launchedFromNotification:(NSDictionary *)notification {
-    UA_LDEBUG(@"launchedFromNotification %@",notification);
-    self.storedNotification = notification;
+- (void)receivedNotificationResponse:(UANotificationResponse *)notificationResponse completionHandler:(void(^)())completionHandler {
+    UA_LDEBUG(@"receivedNotificationResponse %@",notificationResponse);
+    self.storedNotification = notificationResponse.notificationContent.notificationInfo;
+    completionHandler();
 }
 
 #pragma mark -
