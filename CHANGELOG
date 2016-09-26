@@ -1,7 +1,7 @@
 UA Unity ChangeLog
 ==================
 
-Version 3.0.0 - September 20, 2016
+Version 3.0.0 - September 26, 2016
 ==================================
  - Updated Urban Airship iOS Library to 8.0.1 (requires Xcode 8)
  - Updated Urban Airship Android library to 8.0.1 (requires android MinSdkVersion = 16)
