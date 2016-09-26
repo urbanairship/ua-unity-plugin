@@ -75,7 +75,7 @@ namespace UrbanAirship.Editor
 					AssetDatabase.Refresh ();
 					Close ();
 				} catch (Exception e) {
-					EditorUtility.DisplayDialog ("Urban Airship", "Unable to save config. Erorr: " + e.Message, "Ok");
+					EditorUtility.DisplayDialog ("Urban Airship", "Unable to save config. Error: " + e.Message, "Ok");
 				}
 			}
 

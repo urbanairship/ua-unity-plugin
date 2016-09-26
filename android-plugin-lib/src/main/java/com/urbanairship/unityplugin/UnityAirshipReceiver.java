@@ -12,8 +12,13 @@ import com.urbanairship.push.PushMessage;
 
 public class UnityAirshipReceiver extends AirshipReceiver {
     @Override
-    protected void onChannelRegistrationSucceeded(Context context, String channelId) {
-        UnityPlugin.shared().onChannelRegistrationSucceeded(channelId);
+    protected void onChannelCreated(Context context, String channelId) {
+        UnityPlugin.shared().onChannelCreated(channelId);
+    }
+
+    @Override
+    protected void onChannelUpdated(Context context, String channelId) {
+        UnityPlugin.shared().onChannelUpdated(channelId);
     }
 
     @Override

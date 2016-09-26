@@ -10,8 +10,8 @@ Code Contribution Agreement (http://docs.urbanairship.com/contribution-agreement
 
 ### Requirements
  - Unity 5
- - iOS - Xcode 7+ for iOS
- - Android - Android SDK installed and updated
+ - iOS - Xcode 8+ for iOS
+ - Android - Android SDK installed and updated (require Android MinSdkVersion = 16)
 
 ### Resources:
  - [Getting started guide](http://docs.urbanairship.com/platform/unity.html)
@@ -36,3 +36,8 @@ To build the plugin from source, do the following:
 
 Docs will be available in `docs/build/html` and a unitypackage will be created in `build/`. If an error occurs, the unity.log
 file is available in the build directory.
+
+#### iOS
+Enable Push Notifications in the project editor's Capabilities pane:
+
+![Alt text](unity-enable-push.png?raw=true "Enable Push Notifications")

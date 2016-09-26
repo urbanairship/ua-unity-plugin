@@ -51,7 +51,8 @@ namespace UrbanAirship.Editor
 				"UIKit.framework",
 				"CoreTelephony.framework",
 				"CoreLocation.framework",
-				"CoreData.framework"
+				"CoreData.framework",
+				"UserNotifications.framework"
 			};
 
 			string[] targets = {
