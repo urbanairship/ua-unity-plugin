@@ -3,8 +3,8 @@ A Unity plugin that integrates the iOS and Android Urban Airship SDK.
 
 ### Requirements
  - Unity 5
- - iOS - Xcode 7+ for iOS
- - Android - Android SDK installed and updated
+ - iOS - Xcode 8+ for iOS
+ - Android - Android SDK installed and updated (require Android MinSdkVersion = 16)
 
 ### Resources:
  - [Getting started guide](http://docs.urbanairship.com/platform/unity.html)
