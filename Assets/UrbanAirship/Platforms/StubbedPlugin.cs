@@ -21,6 +21,7 @@ namespace UrbanAirship
 		public void AddTag (string tag) {}
 		public void RemoveTag (string tag) {}
 		public void AddCustomEvent (string customEvent) {}
+		public void AssociateIdentifier (string key, string identifier) {}
 		public void DisplayMessageCenter () {}
 		public void EditNamedUserTagGroups (string payload) {}
 		public void EditChannelTagGroups (string payload) {}

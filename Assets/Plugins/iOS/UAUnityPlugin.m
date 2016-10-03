@@ -17,6 +17,7 @@
 #import "UACustomEvent.h"
 #import "UAUtils.h"
 #import "UADefaultMessageCenter.h"
+#import "UAAssociatedIdentifiers.h"
 
 static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
@@ -229,6 +230,27 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
     }
 
     [[UAirship shared].analytics addEvent:ce];
+}
+
+void UAUnityPlugin_associateIdentifier(const char *key, const char *identifier) {
+    if (!key) {
+        UA_LDEBUG(@"UnityPlugin associateIdentifier failed, key cannot be nil");
+        return;
+    }
+
+    NSString *keyString = [UAUnityPlugin stringOrNil:[NSString stringWithUTF8String:key]];
+    NSString *identifierString = nil;
+
+    if (!identifier) {
+        UA_LDEBUG(@"UnityPlugin associateIdentifier removed identifier for key: %@", keyString);
+    } else {
+        identifierString = [UAUnityPlugin stringOrNil:[NSString stringWithUTF8String:identifier]];
+        UA_LDEBUG(@"UnityPlugin associateIdentifier with identifier: %@ for key: %@", identifierString, keyString);
+    }
+
+    UAAssociatedIdentifiers *identifiers = [[UAirship shared].analytics currentAssociatedDeviceIdentifiers];
+    [identifiers setIdentifier:identifierString forKey:keyString];
+    [[UAirship shared].analytics associateDeviceIdentifiers:identifiers];
 }
 
 void UAUnityPlugin_setNamedUserID(const char *namedUserID) {

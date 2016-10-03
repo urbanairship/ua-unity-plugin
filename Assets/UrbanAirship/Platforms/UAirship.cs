@@ -210,6 +210,18 @@ namespace UrbanAirship {
 		}
 
 		/// <summary>
+		/// Associate a custom identifier.
+		/// Previous identifiers will be replaced by the new identifiers each time AssociateIdentifier is called.
+		/// It is a set operation.
+		/// </summary>
+		/// <param name="key">The custom key for the identifier.</param>
+		/// <param name="identifier">The value of the identifier, or `null` to remove the identifier.</param>
+		public void AssociateIdentifier (string key, string identifier)
+		{
+			plugin.AssociateIdentifier (key, identifier);
+		}
+
+		/// <summary>
 		/// Displays the message center.
 		/// </summary>
 		public void DisplayMessageCenter ()

@@ -222,6 +222,21 @@ public class UnityPlugin {
         UAirship.shared().getAnalytics().addEvent(eventBuilder.create());
     }
 
+    public void associateIdentifier(String key, String identifier) {
+        if (key == null) {
+            Logger.debug("UnityPlugin associateIdentifier failed, key cannot be null");
+            return;
+        }
+
+        if (identifier == null) {
+            Logger.debug("UnityPlugin associateIdentifier removed identifier for key: " + key);
+            UAirship.shared().getAnalytics().editAssociatedIdentifiers().removeIdentifier(key).apply();
+        } else {
+            Logger.debug("UnityPlugin associateIdentifier with identifier: " + identifier + " for key: " + key);
+            UAirship.shared().getAnalytics().editAssociatedIdentifiers().addIdentifier(key, identifier).apply();
+        }
+    }
+
     public String getNamedUserId() {
         Logger.debug("UnityPlugin getNamedUserId");
         return UAirship.shared().getNamedUser().getId();

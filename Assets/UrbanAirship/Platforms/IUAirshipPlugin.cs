@@ -57,6 +57,8 @@ namespace UrbanAirship {
 
 		void AddCustomEvent (string customEvent);
 
+		void AssociateIdentifier (string key, string identifier);
+
 		void DisplayMessageCenter ();
 
 		void EditNamedUserTagGroups (string payload);
