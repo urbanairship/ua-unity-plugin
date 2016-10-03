@@ -37,6 +37,28 @@ static dispatch_once_t onceToken_;
     [UAirship push].pushNotificationDelegate = [UAUnityPlugin shared];
     [UAirship push].registrationDelegate = [UAUnityPlugin shared];
 
+    // Check if the config specified default foreground presentation options
+    UAConfig *airshipConfig = [UAirship shared].config;
+    NSDictionary *customOptions = [airshipConfig customConfig];
+
+    if (customOptions) {
+        UNNotificationPresentationOptions options = UNNotificationPresentationOptionNone;
+
+        if ([customOptions[@"notificationPresentationOptionAlert"] boolValue]) {
+            options = options | UNNotificationPresentationOptionAlert;
+        }
+        if ([customOptions[@"notificationPresentationOptionBadge"] boolValue]) {
+            options = options | UNNotificationPresentationOptionBadge;
+        }
+        if ([customOptions[@"notificationPresentationOptionSound"] boolValue]) {
+            options = options | UNNotificationPresentationOptionSound;
+        }
+
+        UA_LDEBUG(@"Foreground presentation options from the config: %lu", (unsigned long)options);
+
+        [UAirship push].defaultPresentationOptions = options;
+    }
+
     UAAction *customDLA = [UAAction actionWithBlock: ^(UAActionArguments *args, UAActionCompletionHandler handler)  {
         UA_LDEBUG(@"Setting dl to: %@", args.value);
         [UAUnityPlugin shared].storedDeepLink = args.value;

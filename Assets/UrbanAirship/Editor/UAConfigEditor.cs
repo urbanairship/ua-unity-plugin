@@ -37,6 +37,10 @@ namespace UrbanAirship.Editor
 				config.DevelopmentLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup("Log level:", config.DevelopmentLogLevel);
 			});
 
+			CreateSection ("In Production", () => {
+				config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
+			});
+
 			CreateSection ("Android", () => {
 				config.GCMSenderId = EditorGUILayout.TextField ("GCM Sender ID", config.GCMSenderId);
 				config.AndroidNotificationAccentColor = EditorGUILayout.TextField ("Notification Accent Color", config.AndroidNotificationAccentColor);
@@ -50,8 +54,11 @@ namespace UrbanAirship.Editor
 				"providing a new Android library project.", EditorStyles.wordWrappedMiniLabel);
 			});
 
-
-			config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
+			CreateSection ("Default Foreground Presentation Options for iOS 10+", () => {
+				config.NotificationPresentationOptionAlert = EditorGUILayout.Toggle ("Alert", config.NotificationPresentationOptionAlert);
+				config.NotificationPresentationOptionBadge = EditorGUILayout.Toggle ("Badge", config.NotificationPresentationOptionBadge);
+				config.NotificationPresentationOptionSound = EditorGUILayout.Toggle ("Sound", config.NotificationPresentationOptionSound);
+			});
 
 			GUILayout.FlexibleSpace ();
 
