@@ -48,6 +48,10 @@ void UAUnityPlugin_setBackgroundLocationAllowed(bool allowed);
 void UAUnityPlugin_addCustomEvent(const char *customEvent);
 
 #pragma mark -
+#pragma mark Associated Identifier
+void UAUnityPlugin_associateIdentifier(const char *key, const char *identifier);
+
+#pragma mark -
 #pragma mark Named User
 void UAUnityPlugin_setNamedUserID(const char *namedUserID);
 const char* UAUnityPlugin_getNamedUserID();

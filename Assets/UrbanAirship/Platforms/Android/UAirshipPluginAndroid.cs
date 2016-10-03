@@ -116,6 +116,11 @@ namespace UrbanAirship {
 			Call ("addCustomEvent", customEvent);
 		}
 
+		public void AssociateIdentifier (string key, string identifier)
+		{
+			Call ("associateIdentifier", key, identifier);
+		}
+
 		public void DisplayMessageCenter ()
 		{
 			Call ("displayMessageCenter");

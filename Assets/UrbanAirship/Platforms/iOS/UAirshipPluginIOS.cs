@@ -63,6 +63,9 @@ namespace UrbanAirship {
 		private static extern void UAUnityPlugin_addCustomEvent (string customEvent);
 
 		[DllImport ("__Internal")]
+		private static extern void UAUnityPlugin_associateIdentifier (string key, string identifier);
+
+		[DllImport ("__Internal")]
 		private static extern string UAUnityPlugin_getNamedUserID ();
 
 		[DllImport ("__Internal")]
@@ -164,6 +167,11 @@ namespace UrbanAirship {
 		public void AddCustomEvent (string customEvent)
 		{
 			UAUnityPlugin_addCustomEvent (customEvent);
+		}
+
+		public void AssociateIdentifier (string key, string identifier)
+		{
+			UAUnityPlugin_associateIdentifier (key, identifier);
 		}
 
 		public void DisplayMessageCenter ()
