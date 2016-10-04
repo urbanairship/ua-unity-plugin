@@ -51,6 +51,15 @@ namespace UrbanAirship.Editor
 		public string GCMSenderId { get; set; }
 
 		[SerializeField]
+		public bool NotificationPresentationOptionAlert { get; set; }
+
+		[SerializeField]
+		public bool NotificationPresentationOptionBadge { get; set; }
+
+		[SerializeField]
+		public bool NotificationPresentationOptionSound { get; set; }
+
+		[SerializeField]
 		public bool InProduction { get; set; }
 
 		[SerializeField]
@@ -87,6 +96,11 @@ namespace UrbanAirship.Editor
 			this.DevelopmentLogLevel = config.DevelopmentLogLevel;
 
 			this.InProduction = config.InProduction;
+
+			this.NotificationPresentationOptionAlert = config.NotificationPresentationOptionAlert;
+			this.NotificationPresentationOptionBadge = config.NotificationPresentationOptionBadge;
+			this.NotificationPresentationOptionSound = config.NotificationPresentationOptionSound;
+
 			this.GCMSenderId = config.GCMSenderId;
 			this.AndroidNotificationAccentColor = config.AndroidNotificationAccentColor;
 			this.AndroidNotificationIcon = config.AndroidNotificationIcon;
@@ -175,7 +189,7 @@ namespace UrbanAirship.Editor
 				rootDict.SetString ("productionAppSecret", ProductionAppSecret);
 				rootDict.SetInteger ("productionLogLevel", IOSLogLevel (ProductionLogLevel));
 			}
-				
+
 			if (!String.IsNullOrEmpty (DevelopmentAppKey) && !String.IsNullOrEmpty (DevelopmentAppSecret)) {
 				rootDict.SetString ("developmentAppKey", DevelopmentAppKey);
 				rootDict.SetString ("developmentAppSecret", DevelopmentAppSecret);
@@ -183,6 +197,11 @@ namespace UrbanAirship.Editor
 			}
 
 			rootDict.SetBoolean ("inProduction", InProduction);
+
+			PlistElementDict customConfig = rootDict.CreateDict ("customConfig");
+			customConfig.SetBoolean ("notificationPresentationOptionAlert", NotificationPresentationOptionAlert);
+			customConfig.SetBoolean ("notificationPresentationOptionBadge", NotificationPresentationOptionBadge);
+			customConfig.SetBoolean ("notificationPresentationOptionSound", NotificationPresentationOptionSound);
 
 			File.WriteAllText (plistPath, plist.WriteToString ());
 		}
@@ -198,7 +217,7 @@ namespace UrbanAirship.Editor
 			if (!Directory.Exists (xml)) {
 				Directory.CreateDirectory (xml);
 			}
-	
+
 			using (XmlWriter xmlWriter = XmlWriter.Create (Path.Combine (xml, "airship_config.xml"))) {
 				xmlWriter.WriteStartDocument ();
 				xmlWriter.WriteStartElement ("AirshipConfigOptions");
