@@ -1,6 +1,12 @@
 UA Unity ChangeLog
 ==================
 
+Version 3.1.0 - October 4, 2016
+===============================
+ - Updated Urban Airship iOS Library to 8.0.2
+ - Added support for associated identifiers
+ - Added iOS 10 foreground presentation support
+
 Version 3.0.0 - September 26, 2016
 ==================================
  - Updated Urban Airship iOS Library to 8.0.1 (requires Xcode 8)
