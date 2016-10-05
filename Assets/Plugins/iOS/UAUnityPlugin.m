@@ -63,6 +63,13 @@ static dispatch_once_t onceToken_;
     UAAction *customDLA = [UAAction actionWithBlock: ^(UAActionArguments *args, UAActionCompletionHandler handler)  {
         UA_LDEBUG(@"Setting dl to: %@", args.value);
         [UAUnityPlugin shared].storedDeepLink = args.value;
+
+        if ([UAUnityPlugin shared].listener) {
+            UnitySendMessage(MakeStringCopy([[UAUnityPlugin shared].listener UTF8String]),
+                             "OnDeepLinkReceived",
+                             MakeStringCopy([args.value UTF8String]));
+        }
+
         handler([UAActionResult emptyResult]);
     } acceptingArguments:^BOOL(UAActionArguments *arg)  {
         if (arg.situation == UASituationBackgroundPush) {
