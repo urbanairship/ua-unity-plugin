@@ -64,8 +64,9 @@ static dispatch_once_t onceToken_;
         UA_LDEBUG(@"Setting dl to: %@", args.value);
         [UAUnityPlugin shared].storedDeepLink = args.value;
 
-        if ([UAUnityPlugin shared].listener) {
-            UnitySendMessage(MakeStringCopy([[UAUnityPlugin shared].listener UTF8String]),
+        id listener = [UAUnityPlugin shared].listener;
+        if (listener) {
+            UnitySendMessage(MakeStringCopy([listener UTF8String]),
                              "OnDeepLinkReceived",
                              MakeStringCopy([args.value UTF8String]));
         }
