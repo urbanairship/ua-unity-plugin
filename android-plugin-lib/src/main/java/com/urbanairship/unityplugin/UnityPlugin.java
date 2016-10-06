@@ -281,11 +281,19 @@ public class UnityPlugin {
         }
     }
 
+    void onDeepLinkReceived(String deepLink) {
+        Logger.debug("UnityPlugin deepLink received: " + deepLink);
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnDeepLinkReceived", deepLink);
+        }
+    }
+
     void onChannelCreated(String channelId) {
         Logger.debug("UnityPlugin channel created: " + channelId);
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "onChannelCreated", channelId);
+            UnityPlayer.UnitySendMessage(listener, "OnChannelCreated", channelId);
         }
     }
 
@@ -293,7 +301,7 @@ public class UnityPlugin {
         Logger.debug("UnityPlugin channel updated: " + channelId);
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "onChannelUpdated", channelId);
+            UnityPlayer.UnitySendMessage(listener, "OnChannelUpdated", channelId);
         }
     }
 

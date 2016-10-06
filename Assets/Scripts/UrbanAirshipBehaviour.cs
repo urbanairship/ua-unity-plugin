@@ -24,21 +24,14 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 
 		UAirship.Shared.OnPushReceived += OnPushReceived;
 		UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
-
-		CheckDeepLink ();
+		UAirship.Shared.OnDeepLinkReceived += OnDeepLinkReceived;
 	}
 
 	void OnDestroy ()
 	{
 		UAirship.Shared.OnPushReceived -= OnPushReceived;
 		UAirship.Shared.OnChannelUpdated -= OnChannelUpdated;
-	}
-
-	void OnApplicationPause (bool pauseStatus)
-	{
-		if (!pauseStatus) {
-			CheckDeepLink ();
-		}
+		UAirship.Shared.OnDeepLinkReceived -= OnDeepLinkReceived;
 	}
 
 	void OnPushReceived(PushMessage message) {
@@ -49,15 +42,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 		Debug.Log ("Channel updated: " + channelId);
 	}
 
-	void CheckDeepLink ()
-	{
-		Debug.Log ("Checking for deeplink.");
-
-		string deepLink = UAirship.Shared.GetDeepLink (true);
-		if (!string.IsNullOrEmpty (deepLink)) {
-			Debug.Log ("Launched with deeplink! " + deepLink);
-			// Assume everything is a Bonus level for now
-			Application.LoadLevel ("Bonus");
-		}
+	void OnDeepLinkReceived(string deeplink) {
+		Debug.Log ("Received deep link: " + deeplink);
 	}
 }

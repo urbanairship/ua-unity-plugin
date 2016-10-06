@@ -29,6 +29,16 @@ namespace UrbanAirship {
 		public event PushReceivedEventHandler OnPushReceived;
 
 		/// <summary>
+		/// Deep link received event handler.
+		/// </summary>
+		public delegate void DeepLinkReceivedEventHandler(string deeplink);
+
+		/// <summary>
+		/// Occurs when a deep link is received.
+		/// </summary>
+		public event DeepLinkReceivedEventHandler OnDeepLinkReceived;
+
+		/// <summary>
 		/// Channel update event handler.
 		/// </summary>
 		public delegate void ChannelUpdateEventHandler(string channelId);
@@ -265,6 +275,14 @@ namespace UrbanAirship {
 				}
 			}
 
+			void OnDeepLinkReceived (string deeplink) {
+				DeepLinkReceivedEventHandler handler = UAirship.Shared.OnDeepLinkReceived;
+
+				if (handler != null) {
+					handler (deeplink);
+				}
+			}
+
 			void OnChannelUpdated (string channelId) {
 				ChannelUpdateEventHandler handler = UAirship.Shared.OnChannelUpdated;
 
@@ -275,4 +293,3 @@ namespace UrbanAirship {
 		}
 	}
 }
-

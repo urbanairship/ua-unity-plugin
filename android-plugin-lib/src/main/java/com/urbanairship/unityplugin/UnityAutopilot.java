@@ -29,8 +29,11 @@ public class UnityAutopilot extends Autopilot {
         entry.setDefaultAction(new Action() {
             @Override
             public ActionResult perform(ActionArguments arguments) {
-                UnityPlugin.shared().setDeepLink(arguments.getValue().getString());
-
+                String deeplink = arguments.getValue().getString();
+                if (deeplink != null) {
+                    UnityPlugin.shared().setDeepLink(deeplink);
+                    UnityPlugin.shared().onDeepLinkReceived(deeplink);
+                }
 
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
