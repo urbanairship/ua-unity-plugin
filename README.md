@@ -41,3 +41,7 @@ file is available in the build directory.
 Enable Push Notifications in the project editor's Capabilities pane:
 
 ![Alt text](unity-enable-push.png?raw=true "Enable Push Notifications")
+
+To add support for iOS 10 notification attachments, you will need to create a
+notification service extension. Detailed steps can be found
+[here](http://docs.urbanairship.com/platform/unity.html#setup).
