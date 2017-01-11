@@ -1,5 +1,5 @@
 /*
- Copyright 2016 Urban Airship and Contributors
+ Copyright 2017 Urban Airship and Contributors
  */
 
 #import "UAUnityPlugin.h"
@@ -407,19 +407,26 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     return string.length > 0 ? string : nil;
 }
 
-+ (const char *) convertPushToJson:(NSDictionary *)push {
++ (const char *)convertPushToJson:(NSDictionary *)push {
     NSString *alert = push[@"aps"][@"alert"];
     NSString *identifier = push[@"_"];
-    NSMutableDictionary *extras = [NSMutableDictionary dictionary];
+
+    NSMutableArray *extras = [NSMutableArray array];
     for (NSString *key in push) {
-        if (![key isEqualToString:@"_"] && ! [key isEqualToString:@"aps"]) {
-            id value = push[key];
-            if ([value isKindOfClass:[NSString class]]) {
-                [extras setValue:value forKey:key];
-            } else {
-                [extras setValue:[NSJSONSerialization stringWithObject:value] forKey:key];
-            }
+        if ([key isEqualToString:@"_"] || [key isEqualToString:@"aps"]) {
+            continue;
         }
+
+        id value = push[key];
+        if (![value isKindOfClass:[NSString class]]) {
+            value = [NSJSONSerialization stringWithObject:value acceptingFragments:YES];
+        }
+
+        if (!value) {
+            continue;
+        }
+
+        [extras addObject:@{@"key": key, @"value": value}];
     }
 
     NSMutableDictionary *serializedPayload = [NSMutableDictionary dictionary];
@@ -433,7 +440,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     return [UAUnityPlugin convertToJson:serializedPayload];
 }
 
-+ (const char *) convertToJson:(NSObject*) obj {
++ (const char *)convertToJson:(NSObject*) obj {
     NSString *JSONString = [NSJSONSerialization stringWithObject:obj acceptingFragments:YES];
     return MakeStringCopy([JSONString UTF8String]);
 }

@@ -1,6 +1,10 @@
 UA Unity ChangeLog
 ==================
 
+Version 3.2.2 - January 10, 2017
+================================
+ - Fix null Extras in PushMessage on iOS
+
 Version 3.2.1 - December 8, 2016
 ================================
  - Updated Urban Airship iOS Library to 8.1.4

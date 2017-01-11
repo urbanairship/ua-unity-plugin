@@ -1,9 +1,10 @@
 ﻿/*
- Copyright 2016 Urban Airship and Contributors
+ Copyright 2017 Urban Airship and Contributors
 */
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UrbanAirship;
 
 public class UrbanAirshipBehaviour : MonoBehaviour
@@ -36,6 +37,12 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 
 	void OnPushReceived(PushMessage message) {
 		Debug.Log ("Received push! " + message.Alert);
+
+		if (message.Extras != null) {
+			foreach (KeyValuePair<string, string> kvp in message.Extras) {
+				Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
+			}
+		}
 	}
 
 	void OnChannelUpdated(string channelId) {
