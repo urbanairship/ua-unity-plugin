@@ -240,6 +240,15 @@ namespace UrbanAirship {
 		}
 
 		/// <summary>
+		/// Gets the number of unread messages for the message center.
+		/// </summary>
+		public int UnreadCount {
+			get {
+				return plugin.UnreadCount;
+			}
+		}
+
+		/// <summary>
 		/// Returns an editor for named user tag groups.
 		/// </summary>
 		/// <returns>A TagGroupEditor for named user tag groups.</returns>

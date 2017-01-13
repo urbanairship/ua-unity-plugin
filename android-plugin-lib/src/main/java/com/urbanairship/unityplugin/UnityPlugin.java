@@ -252,6 +252,11 @@ public class UnityPlugin {
         UAirship.shared().getInbox().startInboxActivity();
     }
 
+    public int getUnreadCount(){
+        Logger.debug("UnityPlugin getUnreadCount");
+        return UAirship.shared().getInbox().getUnreadCount();
+    }
+
     public void editNamedUserTagGroups(String payload) {
         Logger.debug("UnityPlugin editNamedUserTagGroups");
 

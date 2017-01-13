@@ -60,6 +60,7 @@ const char* UAUnityPlugin_getNamedUserID();
 #pragma mark -
 #pragma mark Message Center
 void UAUnityPlugin_displayMessageCenter();
+int UAUnityPlugin_getUnreadCount();
 
 #pragma mark -
 #pragma mark Tag Groups

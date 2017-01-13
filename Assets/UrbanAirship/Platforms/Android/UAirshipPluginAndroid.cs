@@ -126,6 +126,12 @@ namespace UrbanAirship {
 			Call ("displayMessageCenter");
 		}
 
+		public int UnreadCount {
+			get {
+				return Call<int> ("getUnreadCount");
+			}	
+		}
+
 		public void EditNamedUserTagGroups (string payload)
 		{
 			Call ("editNamedUserTagGroups", payload);

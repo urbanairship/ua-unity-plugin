@@ -17,6 +17,8 @@
 #import "UACustomEvent.h"
 #import "UAUtils.h"
 #import "UADefaultMessageCenter.h"
+#import "UAInbox.h"
+#import "UAInboxMessageList.h"
 #import "UAAssociatedIdentifiers.h"
 
 static UAUnityPlugin *shared_;
@@ -301,6 +303,11 @@ void UAUnityPlugin_displayMessageCenter() {
     UA_LDEBUG(@"UnityPlugin displayMessageCenter");
     UnityWillPause();
     [[UAirship defaultMessageCenter] display];
+}
+
+int UAUnityPlugin_getUnreadCount() {
+    UA_LDEBUG(@"UnityPlugin getUnreadCount");
+    return [UAirship inbox].messageList.unreadCount;
 }
 
 #pragma mark -
