@@ -60,6 +60,14 @@ namespace UrbanAirship {
 		void AssociateIdentifier (string key, string identifier);
 
 		void DisplayMessageCenter ();
+		
+		int MessageCenterUnreadCount {
+			get;
+		}
+
+		int MessageCenterCount {
+			get;
+		}
 
 		void EditNamedUserTagGroups (string payload);
 

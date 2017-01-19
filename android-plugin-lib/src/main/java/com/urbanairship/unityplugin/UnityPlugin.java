@@ -247,9 +247,19 @@ public class UnityPlugin {
         UAirship.shared().getNamedUser().setId(namedUserId);
     }
 
-    public void displayMessageCenter(){
+    public void displayMessageCenter() {
         Logger.debug("UnityPlugin displayMessageCenter");
         UAirship.shared().getInbox().startInboxActivity();
+    }
+
+    public int getMessageCenterUnreadCount() {
+        Logger.debug("UnityPlugin getMessageCenterUnreadCount");
+        return UAirship.shared().getInbox().getUnreadCount();
+    }
+
+    public int getMessageCenterCount() {
+        Logger.debug("UnityPlugin getMessageCenterCount");
+        return UAirship.shared().getInbox().getCount();
     }
 
     public void editNamedUserTagGroups(String payload) {
