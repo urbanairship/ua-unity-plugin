@@ -4,51 +4,70 @@
 
 #if UNITY_ANDROID
 
-using Google.JarResolver;
 using UnityEditor;
-using GooglePlayServices;
+using System;
+using System.Collections.Generic;
 
 namespace UrbanAirship.Editor
 {
+   [InitializeOnLoad]
+   public class UADependencies : AssetPostprocessor
+   {
+      /// <summary>
+      /// The name of your plugin.  This is used to create a settings file
+      /// which contains the dependencies specific to your plugin.
+      /// </summary>
+      private static readonly string PluginName = "UrbanAirship";
 
-	[InitializeOnLoad]
-	public static class UADependencies
-	{
-		/// <summary>
-		/// The name of your plugin.  This is used to create a settings file
-		/// which contains the dependencies specific to your plugin.
-		/// </summary>
-		private static readonly string PluginName = "UrbanAirship";
+      private static readonly string GCMVersion = "9.8.0";
+      private static readonly string SupportV4Version = "25.0.1";
 
-		/// <summary>
-		/// Initializes static members of the <see cref="SampleDependencies"/> class.
-		/// </summary>
-		static UADependencies()
-		{
-			PlayServicesSupport svcSupport = PlayServicesSupport.CreateInstance(
-				PluginName,
-				EditorPrefs.GetString ("AndroidSdkRoot"),
-				"ProjectSettings");
+      static UADependencies()
+      {
+         RegisterDependencies();
+      }
 
-			svcSupport.DependOn ("com.google.android.gms", "play-services-gcm", "9.8.0");
-			svcSupport.DependOn ("com.android.support", "support-v4", "25.0.1");
+      public static void RegisterDependencies()
+      {
+         Type playServicesSupport = Google.VersionHandler.FindClass("Google.JarResolver", "Google.JarResolver.PlayServicesSupport");
+         if (playServicesSupport == null)
+         {
+            return;
+         }
 
+         object svcSupport = Google.VersionHandler.InvokeStaticMethod(playServicesSupport, "CreateInstance",
+            new object[] { PluginName, EditorPrefs.GetString("AndroidSdkRoot"), "ProjectSettings" });
 
-			// Resolve dependency on load. Only resolve the dependency if we are using the ResolverVer1_1
-			// and automatic resolution is enabled.
-			ResolverVer1_1 resolverv1_1 = new ResolverVer1_1 ();
-			IResolver resolver = PlayServicesResolver.RegisterResolver (resolverv1_1);
-			if (resolver != null &&  resolver.Version() == resolverv1_1.Version() && resolver.AutomaticResolutionEnabled ()) {
-				resolver.DoResolution (svcSupport, "Assets/Plugins/Android", HandleOverwriteConfirmation);
-				AssetDatabase.Refresh ();
-			}
-		}
+         Google.VersionHandler.InvokeInstanceMethod(
+            svcSupport, "DependOn",
+            new object[] {
+               "com.google.android.gms",
+               "play-services-gcm",
+               GCMVersion },
+            namedArgs: new Dictionary<string, object>() {
+               {"packageIds", new string[] { "extra-google-m2repository" } }
+            });
 
-		static bool HandleOverwriteConfirmation(Dependency oldDep, Dependency newDep)
-		{
-			return (oldDep.BestVersion == newDep.BestVersion);
-		}
-	}
+         Google.VersionHandler.InvokeInstanceMethod(
+            svcSupport, "DependOn",
+            new object[] {
+               "com.android.support",
+               "support-v4",
+               SupportV4Version });
+      }
+
+      private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromPath)
+      {
+         foreach (string asset in importedAssets)
+         {
+            if (asset.Contains("IOSResolver") || asset.Contains("JarResolver"))
+            {
+               RegisterDependencies();
+               break;
+            }
+         }
+      }
+   }
 }
 
 #endif
