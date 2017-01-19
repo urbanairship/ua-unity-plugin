@@ -252,8 +252,8 @@ public class UnityPlugin {
         UAirship.shared().getInbox().startInboxActivity();
     }
 
-    public int getUnreadCount(){
-        Logger.debug("UnityPlugin getUnreadCount");
+    public int getMessageCenterUnreadCount(){
+        Logger.debug("UnityPlugin getMessageCenterUnreadCount");
         return UAirship.shared().getInbox().getUnreadCount();
     }
 

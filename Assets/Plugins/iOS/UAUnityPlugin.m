@@ -305,8 +305,8 @@ void UAUnityPlugin_displayMessageCenter() {
     [[UAirship defaultMessageCenter] display];
 }
 
-int UAUnityPlugin_getUnreadCount() {
-    UA_LDEBUG(@"UnityPlugin getUnreadCount");
+int UAUnityPlugin_getMessageCenterUnreadCount() {
+    UA_LDEBUG(@"UnityPlugin getMessageCenterUnreadCount");
     return [UAirship inbox].messageList.unreadCount;
 }
 

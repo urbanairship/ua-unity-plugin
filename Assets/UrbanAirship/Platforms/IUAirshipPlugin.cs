@@ -61,7 +61,7 @@ namespace UrbanAirship {
 
 		void DisplayMessageCenter ();
 		
-		int UnreadCount {
+		int MessageCenterUnreadCount {
 			get;
 		}
 

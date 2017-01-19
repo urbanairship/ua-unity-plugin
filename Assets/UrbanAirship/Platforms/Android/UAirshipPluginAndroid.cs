@@ -126,9 +126,9 @@ namespace UrbanAirship {
 			Call ("displayMessageCenter");
 		}
 
-		public int UnreadCount {
+		public int MessageCenterUnreadCount {
 			get {
-				return Call<int> ("getUnreadCount");
+				return Call<int> ("getMessageCenterUnreadCount");
 			}	
 		}
 

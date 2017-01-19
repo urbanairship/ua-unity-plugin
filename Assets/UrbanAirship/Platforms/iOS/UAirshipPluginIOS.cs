@@ -75,7 +75,7 @@ namespace UrbanAirship {
 		private static extern void UAUnityPlugin_displayMessageCenter ();
 
 		[DllImport ("__Internal")]
-		private static extern int UAUnityPlugin_getUnreadCount ();
+		private static extern int UAUnityPlugin_getMessageCenterUnreadCount ();
 
 		[DllImport ("__Internal")]
 		private static extern void UAUnityPlugin_editNamedUserTagGroups (string payload);
@@ -182,9 +182,9 @@ namespace UrbanAirship {
 			UAUnityPlugin_displayMessageCenter ();
 		}
 
-		public int UnreadCount {
+		public int MessageCenterUnreadCount {
 			get {
-				return UAUnityPlugin_getUnreadCount ();
+				return UAUnityPlugin_getMessageCenterUnreadCount ();
 			}
 		}
 

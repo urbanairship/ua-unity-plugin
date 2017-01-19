@@ -242,9 +242,9 @@ namespace UrbanAirship {
 		/// <summary>
 		/// Gets the number of unread messages for the message center.
 		/// </summary>
-		public int UnreadCount {
+		public int MessageCenterUnreadCount {
 			get {
-				return plugin.UnreadCount;
+				return plugin.MessageCenterUnreadCount;
 			}
 		}
 
