@@ -65,6 +65,10 @@ namespace UrbanAirship {
 			get;
 		}
 
+		int MessageCenterCount {
+			get;
+		}
+
 		void EditNamedUserTagGroups (string payload);
 
 		void EditChannelTagGroups (string payload);

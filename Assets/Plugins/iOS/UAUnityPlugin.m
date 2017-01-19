@@ -310,6 +310,11 @@ int UAUnityPlugin_getMessageCenterUnreadCount() {
     return [UAirship inbox].messageList.unreadCount;
 }
 
+int UAUnityPlugin_getMessageCenterCount() {
+    UA_LDEBUG(@"UnityPlugin getMessageCenterCount");
+    return [UAirship inbox].messageList.messageCount;
+}
+
 #pragma mark -
 #pragma mark Tag Groups
 

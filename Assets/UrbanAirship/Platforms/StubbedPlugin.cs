@@ -23,7 +23,8 @@ namespace UrbanAirship
 		public void AddCustomEvent (string customEvent) {}
 		public void AssociateIdentifier (string key, string identifier) {}
 		public void DisplayMessageCenter () {}
-		public int MessageCenterUnreadCount { get; private set;}
+		public int MessageCenterUnreadCount { get; private set; }
+		public int MessageCenterCount { get; private set; }
 		public void EditNamedUserTagGroups (string payload) {}
 		public void EditChannelTagGroups (string payload) {}
 	}
