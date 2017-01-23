@@ -3,7 +3,6 @@
 */
 using System;
 
-#if UNITY_IPHONE || UNITY_ANDROID
 
 using UnityEngine;
 using UnityEditor;
@@ -11,7 +10,10 @@ using UnityEditor.Callbacks;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+
+#if UNITY_IOS
 using UnityEditor.iOS.Xcode;
+#endif
 
 namespace UrbanAirship.Editor
 {
@@ -27,15 +29,18 @@ namespace UrbanAirship.Editor
 				EditorUtility.DisplayDialog("Urban Airship", "Urban Airship not configured. Set the app credentials in Window -> Urban Airship -> Settings", "OK");
 			}
 
+#if UNITY_IOS
 			if (target == BuildTarget.iOS)
 			{
 				UpdatePbxProject(buildPath + "/Unity-iPhone.xcodeproj/project.pbxproj", buildPath);
 				UpdateProjectPlist(buildPath + "/Info.plist");
 			}
+#endif
 
 			UnityEngine.Debug.Log("Finished Urban Airship post build steps.");
 		}
 
+#if UNITY_IOS
 		private static void UpdatePbxProject(string projectPath, string buildPath)
 		{
 			PBXProject proj = new PBXProject();
@@ -95,7 +100,7 @@ namespace UrbanAirship.Editor
 
 			File.WriteAllText(plistPath, plist.WriteToString());
 		}
+#endif
 	}
 }
 
-#endif

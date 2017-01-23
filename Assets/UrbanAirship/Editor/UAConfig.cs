@@ -6,12 +6,16 @@ using System;
 using UnityEngine;
 using System.IO;
 using System.Xml.Serialization;
-using UnityEditor.iOS.Xcode;
 using UnityEditor;
 using System.Xml;
 
+#if UNITY_IOS
+using UnityEditor.iOS.Xcode;
+#endif
+
 namespace UrbanAirship.Editor
 {
+
 	[Serializable]
 	public class UAConfig
 	{
@@ -143,8 +147,13 @@ namespace UrbanAirship.Editor
 		public bool Apply ()
 		{
 			if (IsValid) {
-				GenerateIOSAirshipConfig ();
-				GenerateAndroidAirshipConfig ();
+#if UNITY_IOS
+				    GenerateIOSAirshipConfig ();
+#endif
+
+#if UNITY_ANDROID
+				    GenerateAndroidAirshipConfig ();
+#endif
 				return true;
 			}
 
@@ -172,7 +181,7 @@ namespace UrbanAirship.Editor
 			}
 		}
 
-
+#if UNITY_IOS
 		private void GenerateIOSAirshipConfig ()
 		{
 			string plistPath = Path.Combine (Application.dataPath, "Plugins/iOS/AirshipConfig.plist");
@@ -205,6 +214,7 @@ namespace UrbanAirship.Editor
 
 			File.WriteAllText (plistPath, plist.WriteToString ());
 		}
+#endif
 
 		private void GenerateAndroidAirshipConfig ()
 		{
