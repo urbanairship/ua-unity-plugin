@@ -2,7 +2,7 @@
  Copyright 2017 Urban Airship and Contributors
 */
 
-#if UNITY_IPHONE
+#if UNITY_IOS
 
 using UnityEngine;
 using System;
@@ -211,4 +211,4 @@ namespace UrbanAirship {
 
 #endif
 
-	
+

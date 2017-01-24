@@ -66,7 +66,7 @@ namespace UrbanAirship {
 			} else {
 				#if UNITY_ANDROID
 				plugin = new UAirshipPluginAndroid ();
-				#elif UNITY_IPHONE
+				#elif UNITY_IOS
 				plugin = new UAirshipPluginIOS ();
 				#else
 				plugin = new StubbedPlugin ();
