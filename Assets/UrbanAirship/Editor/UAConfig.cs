@@ -16,6 +16,7 @@ using UnityEditor.iOS.Xcode;
 namespace UrbanAirship.Editor
 {
 
+        [InitializeOnLoad]
 	[Serializable]
 	public class UAConfig
 	{
@@ -32,6 +33,11 @@ namespace UrbanAirship.Editor
 
 		private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
 		private static UAConfig cachedInstance;
+
+                static UAConfig ()
+                {
+                    LoadConfig (). Apply ();
+                }
 
 		[SerializeField]
 		public string ProductionAppKey { get; set; }
