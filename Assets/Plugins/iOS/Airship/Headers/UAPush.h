@@ -1,5 +1,5 @@
 /*
- Copyright 2009-2016 Urban Airship Inc. All rights reserved.
+ Copyright 2009-2017 Urban Airship Inc. All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -181,7 +181,6 @@ static const UANotificationOptions UANotificationOptionNone =  0;
 /**
  * This singleton provides an interface to the functionality provided by the Urban Airship iOS Push API.
  */
-#pragma clang diagnostic push
 @interface UAPush : NSObject
 
 
