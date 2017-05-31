@@ -1,73 +1,115 @@
-﻿/*
- Copyright 2017 Urban Airship and Contributors
+/*
+ Copyright 2016 Urban Airship and Contributors
 */
 
-#if UNITY_ANDROID
-
-using UnityEditor;
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 
 namespace UrbanAirship.Editor
 {
-   [InitializeOnLoad]
-   public class UADependencies : AssetPostprocessor
-   {
-      /// <summary>
-      /// The name of your plugin.  This is used to create a settings file
-      /// which contains the dependencies specific to your plugin.
-      /// </summary>
-      private static readonly string PluginName = "UrbanAirship";
 
-      private static readonly string GCMVersion = "9.8.0";
-      private static readonly string SupportV4Version = "25.0.1";
+	[InitializeOnLoad]
+	public class UADependencies : AssetPostprocessor
+	{
 
-      static UADependencies()
-      {
-         RegisterDependencies();
-      }
+		/// <summary>
+		/// The name of your plugin.  This is used to create a settings file
+		/// which contains the dependencies specific to your plugin.
+		/// </summary>
+		private static readonly string PluginName = "UrbanAirship";
 
-      public static void RegisterDependencies()
-      {
-         Type playServicesSupport = Google.VersionHandler.FindClass("Google.JarResolver", "Google.JarResolver.PlayServicesSupport");
-         if (playServicesSupport == null)
-         {
-            return;
-         }
+		/// <summary>Instance of the PlayServicesSupport resolver</summary>
+		public static object svcSupport;
 
-         object svcSupport = Google.VersionHandler.InvokeStaticMethod(playServicesSupport, "CreateInstance",
-            new object[] { PluginName, EditorPrefs.GetString("AndroidSdkRoot"), "ProjectSettings" });
+		static UADependencies()
+		{
+			RegisterDependencies();
+		}
 
-         Google.VersionHandler.InvokeInstanceMethod(
-            svcSupport, "DependOn",
-            new object[] {
-               "com.google.android.gms",
-               "play-services-gcm",
-               GCMVersion },
-            namedArgs: new Dictionary<string, object>() {
-               {"packageIds", new string[] { "extra-google-m2repository" } }
-            });
+		public static void RegisterDependencies() {
+			#if UNITY_ANDROID
+			RegisterAndroidDependencies();
+			#elif UNITY_IOS
+			RegisterIOSDependencies();
+			#endif
+		}
 
-         Google.VersionHandler.InvokeInstanceMethod(
-            svcSupport, "DependOn",
-            new object[] {
-               "com.android.support",
-               "support-v4",
-               SupportV4Version });
-      }
+		/// <summary>
+		/// Registers the android dependencies.
+		/// </summary>
+		public static void RegisterAndroidDependencies() {
 
-      private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromPath)
-      {
-         foreach (string asset in importedAssets)
-         {
-            if (asset.Contains("IOSResolver") || asset.Contains("JarResolver"))
-            {
-               RegisterDependencies();
-               break;
-            }
-         }
-      }
-   }
+			// Setup the resolver using reflection as the module may not be
+			// available at compile time.
+			Type playServicesSupport = Google.VersionHandler.FindClass(
+				"Google.JarResolver", "Google.JarResolver.PlayServicesSupport");
+
+			if (playServicesSupport == null) {
+				return;
+			}
+
+			svcSupport = svcSupport ?? Google.VersionHandler.InvokeStaticMethod(
+				playServicesSupport, "CreateInstance",
+				new object[] {
+					PluginName,
+					EditorPrefs.GetString("AndroidSdkRoot"),
+					"ProjectSettings"
+				});
+
+			Google.VersionHandler.InvokeInstanceMethod(
+				svcSupport, "DependOn",
+				new object[] { "com.android.support", "support-v4", "25.3.1" },
+				namedArgs: new Dictionary<string, object>() {
+					{"packageIds", new string[] { "extra-android-m2repository" } }
+				});
+
+			Google.VersionHandler.InvokeInstanceMethod(
+				svcSupport, "DependOn",
+				new object[] { "com.google.android.gms", "play-services-gcm", "10.2.1" },
+				namedArgs: new Dictionary<string, object>() {
+					{"packageIds", new string[] { "extra-android-m2repository" } }
+				});
+		}
+
+		/// <summary>
+		/// Registers the IOS dependencies.
+		/// </summary>
+		public static void RegisterIOSDependencies() {
+
+			// Setup the resolver using reflection as the module may not be
+			// available at compile time.
+			Type iosResolver = Google.VersionHandler.FindClass(
+				"Google.IOSResolver", "Google.IOSResolver");
+
+			if (iosResolver == null) {
+				return;
+			}
+
+			// Dependencies for iOS are added by referring to CocoaPods.  The libraries and frameworkds are
+			//  and added to the Unity project, so they will automatically be included.
+			//
+			// This example add the GooglePlayGames pod, version 5.0 or greater, disabling bitcode generation.
+
+			Google.VersionHandler.InvokeStaticMethod(
+				iosResolver, "AddPod",
+				new object[] { "UrbanAirship-iOS-SDK" },
+				namedArgs: new Dictionary<string, object>() {
+					{ "version", "8.3.3" },
+				});
+		}
+
+		// Handle delayed loading of the dependency resolvers.
+		private static void OnPostprocessAllAssets(
+			string[] importedAssets, string[] deletedAssets,
+			string[] movedAssets, string[] movedFromPath) {
+			foreach (string asset in importedAssets) {
+				if (asset.Contains("IOSResolver") ||
+					asset.Contains("JarResolver")) {
+					RegisterDependencies();
+					break;
+				}
+			}
+		}
+	}
 }
-
-#endif

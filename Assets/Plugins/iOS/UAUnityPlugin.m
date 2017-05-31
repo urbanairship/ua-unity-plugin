@@ -4,22 +4,7 @@
 
 #import "UAUnityPlugin.h"
 #import "UnityInterface.h"
-#import "UAPush.h"
-#import "UAirship.h"
-#import "NSJSONSerialization+UAAdditions.h"
-#import "UAAction+Operators.h"
-#import "UAActionArguments.h"
-#import "UAActionRunner.h"
-#import "UAActionResult.h"
-#import "UALocation.h"
-#import "UAConfig.h"
-#import "UAAnalytics.h"
-#import "UACustomEvent.h"
-#import "UAUtils.h"
-#import "UADefaultMessageCenter.h"
-#import "UAInbox.h"
-#import "UAInboxMessageList.h"
-#import "UAAssociatedIdentifiers.h"
+#import "AirshipLib.h"
 
 static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
