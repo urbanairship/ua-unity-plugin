@@ -1,14 +1,3 @@
-
-project.ext {
-    unityClassesJar = System.getProperty("UNITY_CLASSES_JAR")
-    if (unityClassesJar == null || unityClassesJar.isEmpty()) {
-        unityClassesJar = System.getenv("UNITY_CLASSES_JAR")
-    }
-    if (unityClassesJar == null || unityClassesJar.isEmpty()) {
-        unityClassesJar ='/Applications/Unity/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar'
-    }
-}
-
 buildscript {
     repositories {
         jcenter()
@@ -26,23 +15,22 @@ repositories {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion airshipProperties.androidCompileSdkVersion.toInteger()
+    buildToolsVersion airshipProperties.androidBuildToolsVersion
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 25
+        minSdkVersion airshipProperties.androidMinSdkVersion.toInteger()
+        targetSdkVersion airshipProperties.androidTargetSdkVersion.toInteger()
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.android.support:support-annotations:25.3.1'
-    compile 'com.google.android.gms:play-services-gcm:10.2.1'
-    compile 'com.google.android.gms:play-services-location:10.2.1'
-    compile 'com.urbanairship.android:urbanairship-sdk:8.4.3'
+    compile "com.android.support:support-v4:${airshipProperties.androidSupportLibVersion}"
+    compile "com.android.support:cardview-v7:${airshipProperties.androidSupportLibVersion}"
+    compile "com.android.support:support-annotations:${airshipProperties.androidSupportLibVersion}"
+    compile "com.google.android.gms:play-services-gcm:${airshipProperties.androidPlayServicesVersion}"
+    compile "com.urbanairship.android:urbanairship-sdk:${airshipProperties.androidAirshipVersion}"
 }
 
 task copyUnityClassesJar() {
@@ -53,14 +41,14 @@ task copyUnityClassesJar() {
     }
 }
 
-// AAR dependencies
-task copyDependencies(type: Copy) {
-      from (configurations.compile) {
-          include 'urbanairship*'
-      }
+android.libraryVariants.all { variant ->
+     variant.assemble.doLast {
+         copy {
+             from (configurations.compile) {
+                 include 'urbanairship*'
+             }
 
-      into "build/outputs/aar"
-}
-
-build.dependsOn('copyDependencies')
-copyDependencies.dependsOn('assembleRelease')
+             into "build/outputs/aar"
+         }
+     }
+ }
