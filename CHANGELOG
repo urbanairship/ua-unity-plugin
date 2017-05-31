@@ -1,6 +1,12 @@
 UA Unity ChangeLog
 ==================
 
+Version 4.0.0 - May 31, 2017
+============================
+ - Updated Urban Airship iOS SDK to 8.3.3
+ - Updated Urban Airship Android SDK to 8.5.1
+ - iOS now requires CocoaPods for plugin installation.
+
 Version 3.3.1 - January 26, 2017
 ================================
  - Updated Urban Airship iOS Library to 8.1.6
@@ -109,4 +115,3 @@ Version 1.0.1 - January 28, 2015
 Version 1.0.0 - January 26, 2015
 ================================
  - Initial plugin release
-

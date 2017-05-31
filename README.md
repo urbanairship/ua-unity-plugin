@@ -10,7 +10,7 @@ Code Contribution Agreement (http://docs.urbanairship.com/contribution-agreement
 
 ### Requirements
  - Unity 5
- - iOS - Xcode 8+ for iOS
+ - iOS - Xcode 8+ for iOS and [CocoaPods](http://cocoapods.org)
  - Android - Android SDK installed and updated (requires Android MinSdkVersion = 16)
 
 ### Resources:
@@ -25,7 +25,9 @@ Code Contribution Agreement (http://docs.urbanairship.com/contribution-agreement
 2. Import Urban Airship unitypackage: In Unity, Assets -> Import Package -> Custom Package
 3. Configure Urban Airship: In Unity, Window -> Urban Airship -> Settings
 
-An example script is provided in 'Scripts/UrbanAirshipBehaviour.cs'. Import into your app's scripts and attach it to a game object in each scene. The script shows a very basic integration with Urban Airship.
+An example script is provided in 'Scripts/UrbanAirshipBehaviour.cs'. Import into your app's
+scripts and attach it to a game object in each scene. The script shows a very basic
+integration with Urban Airship.
 
 #### Manually Building the Plugin
 
