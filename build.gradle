@@ -13,7 +13,6 @@ project.ext {
     airshipProperties.load(new FileInputStream("airship.properties"))
 }
 
-
 def explodeAar(String aarPath, String destinationPath) {
     // Unpack the resources and classes.jar
     copy {
@@ -44,8 +43,8 @@ task clean(type: Delete) {
     delete "$buildDir"
 }
 
-
 task build << {
+
     // Copy the plugin src, exclude PluginInfo.cs so we can copy and replace the version placeholder
     copy {
         from file("Assets")
@@ -67,14 +66,7 @@ task build << {
 
     // Android Plugin lib
     explodeAar("${androidLibProject.buildDir}/outputs/aar/android-plugin-lib-release.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-plugin-lib")
-
-    // Urban Airship SDK
-    file("${androidLibProject.projectDir}/aars").listFiles().each {
-        if (it.getName().startsWith("urbanairship-sdk")) {
-            explodeAar(it.absolutePath, "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-sdk")
-            return true
-        }
-    }
+    explodeAar("${androidLibProject.buildDir}/outputs/aar/urbanairship*.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-sdk")
 
     def argv = [
                 "-g.building",
@@ -100,4 +92,4 @@ task build << {
     }
 }
 
-build.dependsOn("clean", "android-plugin-lib:assembleRelease")
+build.dependsOn("android-plugin-lib:assembleRelease")

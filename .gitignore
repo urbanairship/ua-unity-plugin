@@ -17,3 +17,5 @@ reports/
 .idea/
 .gradle
 build/
+
+*.meta
