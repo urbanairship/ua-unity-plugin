@@ -1,4 +1,4 @@
-﻿/*
+/*
  Copyright 2017 Urban Airship and Contributors
 */
 using System;
@@ -46,20 +46,6 @@ namespace UrbanAirship.Editor
 			PBXProject proj = new PBXProject();
 			proj.ReadFromString(File.ReadAllText(projectPath));
 
-			string[] frameworks = {
-				"CFNetwork.framework",
-				"CoreGraphics.framework",
-				"Foundation.framework",
-				"MobileCoreServices.framework",
-				"Security.framework",
-				"SystemConfiguration.framework",
-				"UIKit.framework",
-				"CoreTelephony.framework",
-				"CoreLocation.framework",
-				"CoreData.framework",
-				"UserNotifications.framework"
-			};
-
 			string[] targets = {
 				proj.TargetGuidByName(PBXProject.GetUnityTargetName()),
 				proj.TargetGuidByName(PBXProject.GetUnityTestTargetName())
@@ -75,16 +61,7 @@ namespace UrbanAirship.Editor
 
 			foreach (string target in targets)
 			{
-				proj.AddBuildProperty(target, "OTHER_LDFLAGS", "$(inherited)");
-				proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-ObjC -lz -lsqlite3");
 				proj.AddFileToBuild(target, airshipGUID);
-
-				foreach (string framework in frameworks)
-				{
-					proj.AddFrameworkToProject(target, framework, false);
-					UnityEngine.Debug.Log ("Adding framework: " + framework);
-
-				}
 			}
 
 			File.WriteAllText(projectPath, proj.WriteToString());
@@ -103,4 +80,3 @@ namespace UrbanAirship.Editor
 #endif
 	}
 }
-
