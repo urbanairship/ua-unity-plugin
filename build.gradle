@@ -53,63 +53,62 @@ task clean(type: Delete) {
     delete "$buildDir"
 }
 
-task build << {
-
-    // Copy the plugin src, exclude PluginInfo.cs so we can copy and replace the version placeholder
-    copy {
-        from file("Assets")
-        into file("$buildDir/unity-plugin/Assets/")
-        exclude "UrbanAirship/PluginInfo.cs"
-    }
-
-    // Copy PluginInfo.cs and replace the version placeholders
-    copy {
-        from file("Assets")
-        into file("$buildDir/unity-plugin/Assets/")
-        include "UrbanAirship/PluginInfo.cs"
-        filter { String line ->
-            line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version)
-            line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion)
-            line.replaceAll(Pattern.quote("__ANDROID_SUPPORT_LIB_VERSION__"), airshipProperties.androidSupportLibVersion)
-            line.replaceAll(Pattern.quote("__ANDROID_PLAY_SERVICES_VERSION__"), airshipProperties.androidPlayServicesVersion)
-            line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion)
+task build {
+    doLast {
+        // Copy the plugin src, exclude PluginInfo.cs so we can copy and replace the version placeholder
+        copy {
+            from file("Assets")
+            into file("$buildDir/unity-plugin/Assets/")
+            exclude "UrbanAirship/PluginInfo.cs"
         }
-    }
 
-    def androidLibProject = project.findProject(":android-plugin-lib")
-
-    // Android Plugin lib
-    explodeAar("${androidLibProject.buildDir}/outputs/aar/android-plugin-lib-release.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-plugin-lib")
-
-    // Android Urban Airship SDK
-    file("${androidLibProject.buildDir}/outputs/aar").listFiles().each {
-        if (it.getName().startsWith("urbanairship-sdk")) {
-            explodeAar(it.absolutePath, "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-sdk")
-            return true
+        // Copy PluginInfo.cs and replace the version placeholders
+        copy {
+            from file("Assets")
+            into file("$buildDir/unity-plugin/Assets/")
+            include "UrbanAirship/PluginInfo.cs"
+            filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
+            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_SUPPORT_LIB_VERSION__"), airshipProperties.androidSupportLibVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_PLAY_SERVICES_VERSION__"), airshipProperties.androidPlayServicesVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
         }
-    }
 
-    def argv = [
-                "-g.building",
-                "-buildTarget", "android",
-                "-batchmode",
-                "-projectPath", "$buildDir/unity-plugin/",
-                "-logFile", "build/unity.log",
-                "-exportPackage",
-                    "Assets/UrbanAirship",
-                    "Assets/PlayServicesResolver",
-                    "Assets/Plugins/iOS",
-                    "Assets/Plugins/Android/urbanairship-sdk",
-                    "Assets/Plugins/Android/urbanairship-plugin-lib",
-                    "Assets/Scripts",
+        def androidLibProject = project.findProject(":android-plugin-lib")
 
-                file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
-                "-quit"
-        ]
+        // Android Plugin lib
+        explodeAar("${androidLibProject.buildDir}/outputs/aar/android-plugin-lib-release.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-plugin-lib")
 
-    exec {
-        executable "${unityExe}"
-            args argv
+        // Android Urban Airship SDK
+        file("${androidLibProject.buildDir}/outputs/aar").listFiles().each {
+            if (it.getName().startsWith("urbanairship-sdk")) {
+                explodeAar(it.absolutePath, "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-sdk")
+                return true
+            }
+        }
+
+        def argv = [
+                    "-g.building",
+                    "-buildTarget", "android",
+                    "-batchmode",
+                    "-projectPath", "$buildDir/unity-plugin/",
+                    "-logFile", "build/unity.log",
+                    "-exportPackage",
+                        "Assets/UrbanAirship",
+                        "Assets/PlayServicesResolver",
+                        "Assets/Plugins/iOS",
+                        "Assets/Plugins/Android/urbanairship-sdk",
+                        "Assets/Plugins/Android/urbanairship-plugin-lib",
+                        "Assets/Scripts",
+
+                    file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
+                    "-quit"
+            ]
+
+        exec {
+            executable "${unityExe}"
+                args argv
+        }
     }
 }
 

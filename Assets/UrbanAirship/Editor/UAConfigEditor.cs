@@ -23,6 +23,7 @@ namespace UrbanAirship.Editor
 
 		void OnGUI ()
 		{
+			minSize = new Vector2 (800, 640);
 
 			CreateSection ("Production", () => {
 				config.ProductionAppKey = EditorGUILayout.TextField ("App Key", config.ProductionAppKey);
@@ -106,4 +107,3 @@ namespace UrbanAirship.Editor
 		}
 	}
 }
-
