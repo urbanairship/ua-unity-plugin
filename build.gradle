@@ -67,13 +67,11 @@ task build {
             from file("Assets")
             into file("$buildDir/unity-plugin/Assets/")
             include "UrbanAirship/PluginInfo.cs"
-            filter { String line ->
-                line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version)
-                line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion)
-                line.replaceAll(Pattern.quote("__ANDROID_SUPPORT_LIB_VERSION__"), airshipProperties.androidSupportLibVersion)
-                line.replaceAll(Pattern.quote("__ANDROID_PLAY_SERVICES_VERSION__"), airshipProperties.androidPlayServicesVersion)
-                line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion)
-            }
+            filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
+            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_SUPPORT_LIB_VERSION__"), airshipProperties.androidSupportLibVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_PLAY_SERVICES_VERSION__"), airshipProperties.androidPlayServicesVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
         }
 
         def androidLibProject = project.findProject(":android-plugin-lib")
