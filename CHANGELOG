@@ -1,6 +1,11 @@
 UA Unity ChangeLog
 ==================
 
+Version 4.2.0 - August 10, 2017
+===============================
+ - Updated Urban Airship iOS SDK to 8.5.2
+ - Updated Urban Airship Android SDK to 8.8.1
+
 Version 4.1.0 - June 22, 2017
 =============================
  - Updated Urban Airship Android SDK to 8.6.0 (Android O support)
