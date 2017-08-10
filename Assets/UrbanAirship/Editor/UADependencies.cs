@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UrbanAirship;
 
 namespace UrbanAirship.Editor
 {
@@ -59,14 +60,14 @@ namespace UrbanAirship.Editor
 
 			Google.VersionHandler.InvokeInstanceMethod(
 				svcSupport, "DependOn",
-				new object[] { "com.android.support", "support-v4", "25.3.1" },
+				new object[] { "com.android.support", "support-v4", PluginInfo.AndroidSupportLibVersion },
 				namedArgs: new Dictionary<string, object>() {
 					{"packageIds", new string[] { "extra-android-m2repository" } }
 				});
 
 			Google.VersionHandler.InvokeInstanceMethod(
 				svcSupport, "DependOn",
-				new object[] { "com.google.android.gms", "play-services-gcm", "10.2.1" },
+				new object[] { "com.google.android.gms", "play-services-gcm", PluginInfo.AndroidPlayServicesVersion },
 				namedArgs: new Dictionary<string, object>() {
 					{"packageIds", new string[] { "extra-android-m2repository" } }
 				});
@@ -95,7 +96,7 @@ namespace UrbanAirship.Editor
 				iosResolver, "AddPod",
 				new object[] { "UrbanAirship-iOS-SDK" },
 				namedArgs: new Dictionary<string, object>() {
-					{ "version", "8.3.3" },
+					{ "version", PluginInfo.IOSAirsipVersion },
 				});
 		}
 
