@@ -1,17 +1,3 @@
-{
-   "aliases": [
-      "topic-guides/unity-migration.html"
-   ],
-   "landing": "false",
-   "title": "Unity Plugin Migration Guide",
-   "weight": 10,
-   "product": ["sdk"],
-   "platform": ["unity"],
-   "tags": "",
-   "guideType": "implementation",
-   "description": "Upgrade to the latest version of the Urban Airship SDK."
-}
-
 # Urban Airship Unity Plugin 2.3.0 to 3.0.0
 
 ## Android Minimum SDK Version
