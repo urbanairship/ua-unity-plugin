@@ -16,6 +16,7 @@ Code Contribution Agreement (http://docs.urbanairship.com/contribution-agreement
 ### Resources:
  - [Getting started guide](http://docs.urbanairship.com/platform/unity.html)
  - [API Docs](http://docs.urbanairship.com/reference/libraries/unity/latest/)
+ - [Migration Guide](Documentation/migration-guide.md)
 
 ### Third Party Packages
  - Google Play Services Jar Resolver Library for Unity - Apache License
