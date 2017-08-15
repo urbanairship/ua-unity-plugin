@@ -10,7 +10,7 @@ Xcode 8+ is required for Urban Airship iOS 8.0.1 SDK.
 
 Manually enable Push Notifications in the project editor's Capabilities pane:
 
-{{< lightbox src="/images/ios-enable-push-notifications.png" >}}
+![Enable Push Notifications](images/ios-enable-push-notifications.png)
 
 # Urban Airship Unity Plugin 2.0.0 to 2.3.0
 
@@ -29,19 +29,18 @@ The plugin is now an instance `UAirship.Shared` instead of a collection of stati
 
 The following methods have been removed and replaced with events:
 
-{{< highlight "csharp" >}}
+```cs
 // methods removed
 public static void AddListener(GameObject gameObject)
 public static void RemoveListener(GameObject gameObject)
 
 // new events
 public PushReceivedEventHandler OnPushReceived
-public ChannelUpdateEventHandler OnChannelUpdated
-{{< /highlight >}}
+```
 
 The following methods have been removed and replaced with properties:
 
-{{< highlight "csharp" >}}
+```cs
 // methods removed
 public static bool IsPushEnabled()
 public static void EnablePush()
@@ -49,34 +48,34 @@ public static void DisablePush()
 
 // new property
 public bool UserNotificationsEnabled
-{{< /highlight >}}
+```
 
-{{< highlight "csharp" >}}
+```cs
 // method removed
 public static string GetTags()
 
 // new property
 public IEnumerable< string > Tags
-{{< /highlight >}}
+```
 
-{{< highlight "csharp" >}}
+```cs
 // methods removed
 public static void SetAlias(string alias)
 public static string GetAlias()
 
 // new property
 public string Alias
-{{< /highlight >}}
+```
 
-{{< highlight "csharp" >}}
+```cs
 // method removed
 public static string GetChannelId()
 
 // new property
 public string ChannelId
-{{< /highlight >}}
+```
 
-{{< highlight "csharp" >}}
+```cs
 // methods removed
 public static bool IsLocationEnabled()
 public static void EnableLocation()
@@ -84,9 +83,9 @@ public static void DisableLocation()
 
 // new property
 public bool LocationEnabled
-{{< /highlight >}}
+```
 
-{{< highlight "csharp" >}}
+```cs
 // methods removed
 public static bool IsBackgroundLocationEnabled()
 public static void EnableBackgroundLocation()
@@ -94,4 +93,4 @@ public static void DisableBackgroundLocation()
 
 // new property
 public bool BackgroundLocationAllowed
-{{< /highlight >}}
+```
