@@ -93,6 +93,7 @@ task build {
                     "-batchmode",
                     "-projectPath", "$buildDir/unity-plugin/",
                     "-logFile", "build/unity.log",
+                    "-gvh_disable",
                     "-exportPackage",
                         "Assets/UrbanAirship",
                         "Assets/PlayServicesResolver",
