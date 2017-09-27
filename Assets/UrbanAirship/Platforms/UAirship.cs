@@ -15,7 +15,6 @@ namespace UrbanAirship {
 	/// </summary>
 	public class UAirship
 	{
-		private UrbanAirshipListener listener;
 		private IUAirshipPlugin plugin = null;
 
 		/// <summary>
@@ -74,7 +73,8 @@ namespace UrbanAirship {
 			}
 
 			GameObject gameObject = new GameObject("[UrbanAirshipListener]");
-			listener = gameObject.AddComponent<UrbanAirshipListener>();
+			gameObject.AddComponent<UrbanAirshipListener>();
+
 			MonoBehaviour.DontDestroyOnLoad(gameObject);
 			plugin.Listener = gameObject;
 		}

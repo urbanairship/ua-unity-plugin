@@ -23,11 +23,16 @@ namespace UrbanAirship
 
 		private Dictionary<string, string> extrasDictionary;
 
+
 		[Serializable]
 		class Extra
 		{
+			#pragma warning disable
+			// Used for JSON encoding/decoding
 			public string key;
 			public string value;
+			#pragma warning restore
+
 		}
 
 		/// <summary>

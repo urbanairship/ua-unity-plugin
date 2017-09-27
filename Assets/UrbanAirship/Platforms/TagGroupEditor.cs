@@ -86,6 +86,9 @@ namespace UrbanAirship
 		[Serializable]
 		internal class TagGroupOperation
 		{
+			#pragma warning disable
+			// Used for JSON encoding/decoding
+
 			[SerializeField]
 			private string operation;
 
@@ -94,6 +97,7 @@ namespace UrbanAirship
 
 			[SerializeField]
 			private string[] tags;
+			#pragma warning restore
 
 			public TagGroupOperation (string operation, string tagGroup, ICollection<string> tags)
 			{
