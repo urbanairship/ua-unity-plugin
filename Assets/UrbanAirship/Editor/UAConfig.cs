@@ -242,12 +242,12 @@ namespace UrbanAirship.Editor
 
 		private void GenerateAndroidAirshipConfig ()
 		{
-			string res = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-plugin-lib/res");
+			string res = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res");
 			if (!Directory.Exists (res)) {
 				Directory.CreateDirectory (res);
 			}
 
-			string xml = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-plugin-lib/res/xml");
+			string xml = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res/xml");
 			if (!Directory.Exists (xml)) {
 				Directory.CreateDirectory (xml);
 			}
