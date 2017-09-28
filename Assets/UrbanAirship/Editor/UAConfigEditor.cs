@@ -29,6 +29,8 @@ namespace UrbanAirship.Editor
 				config.ProductionAppKey = EditorGUILayout.TextField ("App Key", config.ProductionAppKey);
 				config.ProductionAppSecret = EditorGUILayout.TextField ("App Secret", config.ProductionAppSecret);
 				config.ProductionLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup("Log level:", config.ProductionLogLevel);
+				config.ProductionFCMSenderId = EditorGUILayout.TextField ("Android FCM Sender ID:", config.ProductionFCMSenderId);
+
 			});
 
 
@@ -36,26 +38,27 @@ namespace UrbanAirship.Editor
 				config.DevelopmentAppKey = EditorGUILayout.TextField ("App Key", config.DevelopmentAppKey);
 				config.DevelopmentAppSecret = EditorGUILayout.TextField ("App Secret", config.DevelopmentAppSecret);
 				config.DevelopmentLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup("Log level:", config.DevelopmentLogLevel);
+				config.DevelopmentFCMSenderId = EditorGUILayout.TextField ("Android FCM Sender ID:", config.DevelopmentFCMSenderId);
+
 			});
 
 			CreateSection ("In Production", () => {
 				config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
 			});
 
-			CreateSection ("Android", () => {
-				config.GCMSenderId = EditorGUILayout.TextField ("GCM Sender ID", config.GCMSenderId);
+			CreateSection ("Android Notifications", () => {
 				config.AndroidNotificationAccentColor = EditorGUILayout.TextField ("Notification Accent Color", config.AndroidNotificationAccentColor);
 				config.AndroidNotificationIcon = EditorGUILayout.TextField ("Notification Icon", config.AndroidNotificationIcon);
 
 				GUILayout.Space (5);
 
-				GUILayout.Label ("Notification icon must be a reference to a drawable in the project, e.g., " +
-				"@drawable/app_icon, @android:drawable/ic_dialog_alert. Drawables can be added " +
-				"in either the Assets/Plugins/Android/urbanairship-plugin-lib/res directory or by " +
+				GUILayout.Label ("Notification icon must be the name of a drawable in the project, e.g., " +
+				"app_icon, ic_dialog_alert. Drawables can be added " +
+				"in either the Assets/Plugins/Android/urbanairship-resources/res/drawable* directory or by " +
 				"providing a new Android library project.", EditorStyles.wordWrappedMiniLabel);
 			});
 
-			CreateSection ("Default Foreground Presentation Options for iOS 10+", () => {
+			CreateSection ("iOS Foreground Presentation Options", () => {
 				config.NotificationPresentationOptionAlert = EditorGUILayout.Toggle ("Alert", config.NotificationPresentationOptionAlert);
 				config.NotificationPresentationOptionBadge = EditorGUILayout.Toggle ("Badge", config.NotificationPresentationOptionBadge);
 				config.NotificationPresentationOptionSound = EditorGUILayout.Toggle ("Sound", config.NotificationPresentationOptionSound);
@@ -95,7 +98,7 @@ namespace UrbanAirship.Editor
 		{
 			GUILayout.Label (sectionTitle, EditorStyles.boldLabel);
 			GUILayout.BeginHorizontal ();
-			GUILayout.Space (15);
+			GUILayout.Space (20);
 			GUILayout.BeginVertical ();
 
 			body ();
@@ -103,7 +106,7 @@ namespace UrbanAirship.Editor
 			GUILayout.EndVertical ();
 			GUILayout.Space (5);
 			GUILayout.EndHorizontal ();
-			GUILayout.Space (15);
+			GUILayout.Space (20);
 		}
 	}
 }
