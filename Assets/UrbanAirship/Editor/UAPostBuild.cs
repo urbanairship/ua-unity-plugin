@@ -72,8 +72,16 @@ namespace UrbanAirship.Editor
 			PlistDocument plist = new PlistDocument();
 			plist.ReadFromString(File.ReadAllText(plistPath));
 
+
 			PlistElementDict rootDict = plist.root;
-			rootDict.CreateArray("UIBackgroundModes").AddString("remote-notification");
+			if (rootDict ["UIBackgroundModes"] == null) {
+				rootDict.CreateArray ("UIBackgroundModes");
+			}
+
+			PlistElementArray backgroundModes = rootDict ["UIBackgroundModes"].AsArray ();
+			if (backgroundModes.values.Find ((m) => "remote-data" == m.AsString ()) == null) {
+				backgroundModes.AddString("remote-data");
+			}
 
 			File.WriteAllText(plistPath, plist.WriteToString());
 		}
