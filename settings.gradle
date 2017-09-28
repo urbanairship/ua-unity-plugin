@@ -1,1 +1,1 @@
-include ':android-plugin-lib', ':docs'
+include ':unity-plugin', ':docs'

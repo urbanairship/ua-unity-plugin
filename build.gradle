@@ -23,32 +23,6 @@ allprojects {
   }
 }
 
-def explodeAar(String aarPath, String destinationPath) {
-    // Unpack the resources and classes.jar
-    copy {
-        from zipTree(file(aarPath))
-        into file(destinationPath)
-        include "res/**", "classes.jar", "AndroidManifest.xml", "original_AndroidManifest.xml"
-        rename "AndroidManifest.xml", "original_AndroidManifest.xml"
-    }
-
-    // Move the classes.jar file into the libs directory. Exclude Manifest*.class files.
-    task(destinationPath, type: Jar) {
-        from zipTree(file("$destinationPath/classes.jar"))
-        destinationDir file("$destinationPath/libs")
-        archiveName "${file(destinationPath).name}.jar"
-        exclude '**/Manifest.class', '**/Manifest$*.class'
-    }.execute()
-
-    // Generate a Project.properties file
-    def propertiesFile = file("$destinationPath/project.properties")
-    propertiesFile.text = "target=android-23\n"
-    propertiesFile.text += "android.library=true"
-
-    // Delete the classes.jar
-    delete "$destinationPath/classes.jar"
-}
-
 task clean(type: Delete) {
     delete "$buildDir"
 }
@@ -87,11 +61,6 @@ task build {
             filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
         }
 
-        def androidLibProject = project.findProject(":android-plugin-lib")
-
-        // Android Plugin lib
-        explodeAar("${androidLibProject.buildDir}/outputs/aar/android-plugin-lib-release.aar", "$buildDir/unity-plugin/Assets/Plugins/Android/urbanairship-plugin-lib")
-
         def argv = [
                     "-g.building",
                     "-buildTarget", "android",
@@ -103,7 +72,7 @@ task build {
                         "Assets/UrbanAirship",
                         "Assets/PlayServicesResolver",
                         "Assets/Plugins/iOS",
-                        "Assets/Plugins/Android/urbanairship-plugin-lib",
+                        "Assets/Plugins/Android/urbanairship-resources",
                         "Assets/Scripts",
 
                     file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
@@ -116,5 +85,3 @@ task build {
         }
     }
 }
-
-build.dependsOn("android-plugin-lib:assembleRelease")

@@ -15,12 +15,6 @@ namespace UrbanAirship.Editor
 	{
 		static void OnPostprocessAllAssets (string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
 		{
-			if (importedAssets.Select (s => s.ToLower ()).Any (s => s.Contains ("urbanairship") || s.Contains ("airshipconfig") || s.Contains ("airship_config"))) {
-				UAUtils.UpdateManifests ();
-				UnityEngine.Debug.Log ("Updated Urban Airship Manifests.");
-				AssetDatabase.Refresh ();
-			}
-
 			if (deletedAssets.Select (s => s.ToLower ()).Any (s => s.Contains ("airship") || s.Contains ("airship_config"))) {
 				if (UAConfig.LoadConfig ().Apply ()) {
 					UnityEngine.Debug.Log ("Created Urban Airship config.");
