@@ -25,8 +25,12 @@ namespace UrbanAirship
 		private string interactionType;
 		[SerializeField]
 		private string interactionId;
+
+		#pragma warning disable
+		// Used for JSON encoding/decoding.
 		[SerializeField]
 		private Property[] properties;
+		#pragma warning restore
 
 		private List<Property> propertyList;
 
