@@ -69,7 +69,7 @@ namespace UrbanAirship.Editor
 
 			foreach (string directory in obsoleteDirectories) {
 				if (Directory.Exists (directory)) {
-					Directory.Delete (directory);
+					Directory.Delete (directory, true);
 					refreshAssets = true;
 				}
 			}
