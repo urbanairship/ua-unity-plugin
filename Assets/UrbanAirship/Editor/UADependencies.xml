@@ -26,10 +26,4 @@
 
   </androidPackages>
 
-  <!-- iOS -->
-  <iosPods>
-    <!-- Urban Airship -->
-    <iosPod name="UrbanAirship-iOS-SDK" version="__IOS_AIRSHIP_VERSION__" bitcodeEnabled="true" minTargetSdk="8.0" />
-  </iosPods>
-
 </dependencies>

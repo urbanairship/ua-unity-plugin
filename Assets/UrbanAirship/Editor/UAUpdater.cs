@@ -21,8 +21,7 @@ namespace UrbanAirship.Editor
 
 		private static string[] obsoleteDirectories = {
 			"Assets/Plugins/Android/urbanairship-plugin-lib",
-			"Assets/Plugins/Android/urbanairship-sdk",
-			"Assets/Plugins/iOS/Airship"
+			"Assets/Plugins/Android/urbanairship-sdk"
 		};
 
 		static UAUpdater()
