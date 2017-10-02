@@ -10,7 +10,7 @@ Code Contribution Agreement (http://docs.urbanairship.com/contribution-agreement
 
 ### Requirements
  - Unity 5
- - iOS - Xcode 8+ for iOS and [CocoaPods](http://cocoapods.org)
+ - iOS - Xcode 8.3+ for iOS
  - Android - Android SDK installed and updated (requires Android MinSdkVersion = 16)
 
 ### Resources:
@@ -30,17 +30,7 @@ An example script is provided in 'Scripts/UrbanAirshipBehaviour.cs'. Import into
 scripts and attach it to a game object in each scene. The script shows a very basic
 integration with Urban Airship.
 
-#### Manually Building the Plugin
-
-To build the plugin from source, do the following:
-
-1. Install doxygen, Android SDK, Xcode, and Unity
-2. Build the plugin with `./gradlew clean build`
-
-Docs will be available in `docs/build/html` and a unitypackage will be created in `build/`. If an error occurs, the unity.log
-file is available in the build directory.
-
-#### iOS
+### iOS
 Enable Push Notifications in the project editor's Capabilities pane:
 
 ![Alt text](unity-enable-push.png?raw=true "Enable Push Notifications")

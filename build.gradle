@@ -23,12 +23,42 @@ allprojects {
   }
 }
 
+configurations {
+    ios
+}
+
+repositories {
+    ivy {
+        url 'https://bintray.com'
+        layout 'pattern', {
+            artifact '/artifact/download/[organisation]/iOS/[module]/[revision]/libUAirship-[revision].[ext]'
+        }
+    }
+}
+
+dependencies {
+    ios "urbanairship:urbanairship-sdk:${airshipProperties.iosAirshipVersion}@zip"
+}
+
+
 task clean(type: Delete) {
     delete "$buildDir"
 }
 
 task build {
     doLast {
+
+        // Copy and unpack iOS static library
+        copy {
+            def zipPath = project.configurations.ios.find {it.name.startsWith("urbanairship") }
+            def zipFile = file(zipPath)
+            def outputDir = file("${buildDir}/unity-plugin/Assets/plugins/iOS/")
+
+            from zipTree(zipFile)
+            into outputDir
+            include "Airship/**"
+        }
+
         // Copy the Assets, exclude PluginInfo.cs and UADependencies.xml so we can copy and replace the version placeholder
         copy {
             from file("Assets")
@@ -72,6 +102,7 @@ task build {
                         "Assets/UrbanAirship",
                         "Assets/PlayServicesResolver",
                         "Assets/Plugins/iOS",
+                        "Assets/Plugins/iOS/Airship",
                         "Assets/Plugins/Android/urbanairship-resources",
                         "Assets/Scripts",
 

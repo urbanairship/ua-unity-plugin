@@ -24,14 +24,12 @@ namespace UrbanAirship.Editor
 		[PostProcessBuildAttribute(1)]
 		public static void OnPostProcessBuild(BuildTarget target, string buildPath)
 		{
-			if (!UAConfig.LoadConfig().IsValid)
-			{
+			if (!UAConfig.LoadConfig().IsValid) {
 				EditorUtility.DisplayDialog("Urban Airship", "Urban Airship not configured. Set the app credentials in Window -> Urban Airship -> Settings", "OK");
 			}
 
 #if UNITY_IOS
-			if (target == BuildTarget.iOS)
-			{
+			if (target == BuildTarget.iOS) {
 				UpdatePbxProject(buildPath + "/Unity-iPhone.xcodeproj/project.pbxproj", buildPath);
 				UpdateProjectPlist(buildPath + "/Info.plist");
 			}
@@ -46,6 +44,22 @@ namespace UrbanAirship.Editor
 			PBXProject proj = new PBXProject();
 			proj.ReadFromString(File.ReadAllText(projectPath));
 
+			string[] frameworks = {
+				"CFNetwork.framework",
+				"CoreGraphics.framework",
+				"Foundation.framework",
+				"MobileCoreServices.framework",
+				"Security.framework",
+				"SystemConfiguration.framework",
+				"UIKit.framework",
+				"CoreTelephony.framework",
+				"CoreLocation.framework",
+				"CoreData.framework",
+				"UserNotifications.framework",
+				"WebKit.framework",
+				"StoreKit.framework"
+			};
+
 			string[] targets = {
 				proj.TargetGuidByName(PBXProject.GetUnityTargetName()),
 				proj.TargetGuidByName(PBXProject.GetUnityTestTargetName())
@@ -59,9 +73,14 @@ namespace UrbanAirship.Editor
 			File.Copy(Path.Combine(Application.dataPath, "Plugins/iOS/AirshipConfig.plist"), airshipConfig);
 			string airshipGUID = proj.AddFile("AirshipConfig.plist", "AirshipConfig.plist", PBXSourceTree.Source);
 
-			foreach (string target in targets)
-			{
+			foreach (string target in targets) {
+				proj.AddBuildProperty(target, "OTHER_LDFLAGS", "$(inherited)");
+				proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-ObjC -lz -lsqlite3");
 				proj.AddFileToBuild(target, airshipGUID);
+
+				foreach (string framework in frameworks) {
+					proj.AddFrameworkToProject(target, framework, false);
+				}
 			}
 
 			File.WriteAllText(projectPath, proj.WriteToString());
@@ -72,16 +91,8 @@ namespace UrbanAirship.Editor
 			PlistDocument plist = new PlistDocument();
 			plist.ReadFromString(File.ReadAllText(plistPath));
 
-
 			PlistElementDict rootDict = plist.root;
-			if (rootDict ["UIBackgroundModes"] == null) {
-				rootDict.CreateArray ("UIBackgroundModes");
-			}
-
-			PlistElementArray backgroundModes = rootDict ["UIBackgroundModes"].AsArray ();
-			if (backgroundModes.values.Find ((m) => "remote-data" == m.AsString ()) == null) {
-				backgroundModes.AddString("remote-data");
-			}
+			rootDict.CreateArray("UIBackgroundModes").AddString("remote-notification");
 
 			File.WriteAllText(plistPath, plist.WriteToString());
 		}

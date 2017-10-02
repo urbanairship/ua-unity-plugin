@@ -1,6 +1,18 @@
 UA Unity ChangeLog
 ==================
 
+Version 4.3.0 - October 2, 2017
+===============================
+ - Update Urban Airship iOS SDK to 8.6.0
+ - Update Urban Airship Android SDK to 8.9.0
+ - Added option to set the production and development GCM/FCM sender ID
+ - Added script that cleans up old plugin installations
+ - Android notification icon now supports the resource name instead of the
+   resource reference to look up the resource at runtime
+ - Fixed building with Unity's gradle build option
+ - Fixed plugin warnings
+ - Reverted use of CocoaPods for Urban Airship SDK installation
+
 Version 4.2.0 - August 10, 2017
 ===============================
  - Updated Urban Airship iOS SDK to 8.5.2
