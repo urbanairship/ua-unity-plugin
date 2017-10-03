@@ -87,7 +87,7 @@ bintray {
 
         version {
             repo = 'android'
-            publish = false
+            publish = true
             desc = project.description
             name = project.version
 
