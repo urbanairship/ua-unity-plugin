@@ -1,6 +1,10 @@
 UA Unity ChangeLog
 ==================
 
+Version 4.3.1 - October 4, 2017
+===============================
+ - Fixed plugin adding files into `Assets/plugins` instead of `Assets/Plugins`
+
 Version 4.3.0 - October 2, 2017
 ===============================
  - Update Urban Airship iOS SDK to 8.6.0
