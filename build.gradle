@@ -52,7 +52,7 @@ task build {
         copy {
             def zipPath = project.configurations.ios.find {it.name.startsWith("urbanairship") }
             def zipFile = file(zipPath)
-            def outputDir = file("${buildDir}/unity-plugin/Assets/plugins/iOS/")
+            def outputDir = file("${buildDir}/unity-plugin/Assets/Plugins/iOS/")
 
             from zipTree(zipFile)
             into outputDir
