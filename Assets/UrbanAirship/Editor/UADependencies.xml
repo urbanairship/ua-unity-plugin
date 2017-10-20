@@ -17,12 +17,19 @@
       </androidSdkPackageIds>
     </androidPackage>
 
-    <!-- Urban Airship -->
-    <androidPackage spec="com.urbanairship.android:urbanairship-sdk:__ANDROID_AIRSHIP_VERSION__" />
-    <androidPackage spec="com.urbanairship.android:unity-plugin:__PLUGIN_VERSION__" />
-    <repositories>
-      <repository>https://urbanairship.bintray.com/android</repository>
-    </repositories>
+    <!-- Urban Airship SDK -->
+    <androidPackage spec="com.urbanairship.android:urbanairship-sdk:__ANDROID_AIRSHIP_VERSION__">
+      <repositories>
+        <repository>https://urbanairship.bintray.com/android</repository>
+      </repositories>
+    </androidPackage>
+
+    <!-- Urban Airship Android Unity Plugin Support -->
+    <androidPackage spec="com.urbanairship.android:unity-plugin:__PLUGIN_VERSION__">
+      <repositories>
+        <repository>https://urbanairship.bintray.com/android</repository>
+      </repositories>
+    </androidPackage>
 
   </androidPackages>
 
