@@ -1,6 +1,12 @@
 UA Unity ChangeLog
 ==================
 
+Version 4.3.3 - October 24, 2017
+================================
+- Updated Urban Airship Android SDK to 8.9.4
+- Updated Urban Airship iOS SDK to 8.6.1
+- Fixed conflict with Facebook Plugin due to Support Library 26.1.0.
+
 Version 4.3.2 - October 20, 2017
 ================================
  - Updated Urban Airship Android SDK to 8.9.3
