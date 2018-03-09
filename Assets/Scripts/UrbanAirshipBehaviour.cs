@@ -26,6 +26,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 		UAirship.Shared.OnPushReceived += OnPushReceived;
 		UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
 		UAirship.Shared.OnDeepLinkReceived += OnDeepLinkReceived;
+		UAirship.Shared.OnPushOpened += OnPushOpened;
 	}
 
 	void OnDestroy ()
@@ -33,6 +34,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 		UAirship.Shared.OnPushReceived -= OnPushReceived;
 		UAirship.Shared.OnChannelUpdated -= OnChannelUpdated;
 		UAirship.Shared.OnDeepLinkReceived -= OnDeepLinkReceived;
+		UAirship.Shared.OnPushOpened -= OnPushOpened;
 	}
 
 	void OnPushReceived(PushMessage message) {
@@ -43,6 +45,16 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 				Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
 			}
 		}
+	}
+
+	void OnPushOpened(PushMessage message) {
+	    Debug.Log ("Opened Push!" + message.Alert);
+
+	    if (message.Extras != null) {
+            foreach (KeyValuePair<string, string> kvp in message.Extras) {
+                Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
+            }
+        }
 	}
 
 	void OnChannelUpdated(string channelId) {

@@ -278,17 +278,21 @@ public class UnityPlugin {
         editor.apply();
     }
 
-    void onPushOpened(PushMessage message) {
-        Logger.debug("UnityPlugin push opened.");
-        this.incomingPush = message;
-    }
-
     void onPushReceived(PushMessage message) {
         Logger.debug("UnityPlugin push received. " + message);
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnPushReceived", getPushPayload(message));
         }
+    }
+
+    void onPushOpened(PushMessage message) {
+        Logger.debug("UnityPlugin push opened. " + message);
+
+        if(listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnPushOpened", getPushPayload(message));
+        }
+        this.incomingPush = message;
     }
 
     void onDeepLinkReceived(String deepLink) {
