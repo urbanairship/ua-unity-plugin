@@ -16,12 +16,12 @@ namespace UrbanAirship
         /// <summary>
         /// The Urban Airship iOS version
         /// </summary>
-        public const string IOSAirsipVersion = "__IOS_AIRSHIP_VERSION__";
+        public const string IOSAirshipVersion = "__IOS_AIRSHIP_VERSION__";
 
         /// <summary>
         /// The Urban Airship Android version
         /// </summary>
-        public const string AndroidAirsipVersion = "__ANDROID_AIRSHIP_VERSION__";
+        public const string AndroidAirshipVersion = "__ANDROID_AIRSHIP_VERSION__";
 
         /// <summary>
         /// The Urban Airship Requested Support Library version
