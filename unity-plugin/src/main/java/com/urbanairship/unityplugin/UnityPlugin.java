@@ -380,7 +380,9 @@ public class UnityPlugin {
 
             HashSet<String> tagSet = new HashSet<>();
             for (JsonValue tag : tags) {
-                tagSet.add(tag.toString());
+                if (tag.isString()) {
+                    tagSet.add(tag.getString());
+                }
             }
 
             switch (operationType) {
