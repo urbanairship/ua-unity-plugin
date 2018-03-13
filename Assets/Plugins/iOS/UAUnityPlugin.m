@@ -372,7 +372,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                          "OnPushOpened",
-                         [UAUnityPlugin convertPushToJson:notificationContent.notificationInfo]);
+                         [UAUnityPlugin convertPushToJson:notificationResponse.notificationContent.notificationInfo]);
         completionHandler();
     }
 }
