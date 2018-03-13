@@ -28,6 +28,16 @@ namespace UrbanAirship {
 		public event PushReceivedEventHandler OnPushReceived;
 
 		/// <summary>
+        /// Push opened event handler.
+        /// </summary>
+        public delegate void PushOpenedEventHandler(PushMessage message);
+
+        /// <summary>
+        /// Occurs when a push is opened.
+        /// </summary>
+        public event PushOpenedEventHandler OnPushOpened;
+
+		/// <summary>
 		/// Deep link received event handler.
 		/// </summary>
 		public delegate void DeepLinkReceivedEventHandler(string deeplink);
@@ -292,6 +302,19 @@ namespace UrbanAirship {
 					handler (pushMessage);
 				}
 			}
+
+			void OnPushOpened (string payload) {
+                PushOpenedEventHandler handler = UAirship.Shared.OnPushOpened;
+
+                if (handler == null) {
+                    return;
+                }
+
+                PushMessage pushMessage = PushMessage.FromJson (payload);
+                if (pushMessage != null) {
+                    handler (pushMessage);
+                }
+            }
 
 			void OnDeepLinkReceived (string deeplink) {
 				DeepLinkReceivedEventHandler handler = UAirship.Shared.OnDeepLinkReceived;

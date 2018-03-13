@@ -1,6 +1,10 @@
 UA Unity ChangeLog
 ==================
 
+Version 4.4.0 - March XX, 2018
+================================
+- Added support for OnPushOpened in the listener.
+
 Version 4.3.3 - October 24, 2017
 ================================
 - Updated Urban Airship Android SDK to 8.9.4

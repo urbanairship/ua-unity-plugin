@@ -368,7 +368,13 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 - (void)receivedNotificationResponse:(UANotificationResponse *)notificationResponse completionHandler:(void(^)())completionHandler {
     UA_LDEBUG(@"receivedNotificationResponse %@",notificationResponse);
     self.storedNotification = notificationResponse.notificationContent.notificationInfo;
-    completionHandler();
+    
+    if (self.listener) {
+        UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
+                         "OnPushOpened",
+                         [UAUnityPlugin convertPushToJson:notificationResponse.notificationContent.notificationInfo]);
+        completionHandler();
+    }
 }
 
 #pragma mark -
