@@ -1,9 +1,10 @@
 UA Unity ChangeLog
 ==================
 
-Version 4.4.0 - March XX, 2018
-================================
-- Added support for OnPushOpened in the listener.
+Version 4.4.0 - March 13, 2018
+==============================
+- Fixed tag groups adding quotes around tags on Android.
+- Added OnPushOpened listener.
 
 Version 4.3.3 - October 24, 2017
 ================================
