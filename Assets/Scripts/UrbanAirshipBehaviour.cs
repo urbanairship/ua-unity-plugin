@@ -48,7 +48,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour
 	}
 
 	void OnPushOpened(PushMessage message) {
-	    Debug.Log ("Opened Push!" + message.Alert);
+	    Debug.Log ("Opened Push! " + message.Alert);
 
 	    if (message.Extras != null) {
             foreach (KeyValuePair<string, string> kvp in message.Extras) {
