@@ -24,7 +24,7 @@ allprojects {
 }
 
 configurations {
-    ios
+    plugin
 }
 
 repositories {
@@ -34,29 +34,45 @@ repositories {
             artifact '/artifact/download/[organisation]/iOS/[module]/[revision]/libUAirship-[revision].[ext]'
         }
     }
+
+    ivy {
+        url 'https://github.com'
+        layout 'pattern', {
+            artifact '[organisation]/[module]/archive/[revision].[ext]'
+        }
+    }
 }
 
 dependencies {
-    ios "urbanairship:urbanairship-sdk:${airshipProperties.iosAirshipVersion}@zip"
+    plugin "urbanairship:urbanairship-sdk:${airshipProperties.iosAirshipVersion}@zip"
+    plugin "googlesamples:unity-jar-resolver:${airshipProperties.playServicesResolverSHA}@zip"
 }
-
 
 task clean(type: Delete) {
     delete "$buildDir"
 }
 
-task build {
+task preparePlugin {
     doLast {
-
         // Copy and unpack iOS static library
         copy {
-            def zipPath = project.configurations.ios.find {it.name.startsWith("urbanairship") }
+            def zipPath = project.configurations.plugin.find {it.name.startsWith("urbanairship") }
             def zipFile = file(zipPath)
             def outputDir = file("${buildDir}/unity-plugin/Assets/Plugins/iOS/")
 
             from zipTree(zipFile)
             into outputDir
             include "Airship/**"
+        }
+
+        // Copy unity jar resolver
+        copy {
+            def zipPath = project.configurations.plugin.find {it.name.startsWith("unity-jar-resolver") }
+            def zipFile = file(zipPath)
+            def outputDir = file("${buildDir}/packages")
+            from zipTree(zipFile)
+            into outputDir
+            include "*/*.unitypackage"
         }
 
         // Copy the Assets, exclude PluginInfo.cs and UADependencies.xml so we can copy and replace the version placeholder
@@ -90,29 +106,59 @@ task build {
             filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_PLAY_SERVICES_VERSION__"), airshipProperties.androidPlayServicesVersion) }
             filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
         }
+    }
+}
 
-        def argv = [
+task build(dependsOn: 'preparePlugin') {
+    doLast {
+
+        // Add each package
+        def packages = fileTree("${buildDir}/packages") {
+            include '**/*.unitypackage'
+        }
+        packages.each { file ->
+            def addPackageOptions = [
                     "-g.building",
-                    "-buildTarget", "android",
-                    "-batchmode",
-                    "-projectPath", "$buildDir/unity-plugin/",
-                    "-logFile", "build/unity.log",
                     "-gvh_disable",
-                    "-exportPackage",
-                        "Assets/UrbanAirship",
-                        "Assets/PlayServicesResolver",
-                        "Assets/Plugins/iOS",
-                        "Assets/Plugins/iOS/Airship",
-                        "Assets/Plugins/Android/urbanairship-resources",
-                        "Assets/Scripts",
-
-                    file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
+                    "-batchmode",
+                    "-nographics",
+                    "-createProject", "$buildDir/unity-plugin",
+                    "-logFile", "$buildDir/package-${file.name}.log",
+                    "-importPackage", "$file",
                     "-quit"
             ]
 
+            exec {
+                workingDir "$buildDir/unity-plugin"
+                executable "${unityExe}"
+                args addPackageOptions
+            }
+        }
+
+
+        // Export the plugin
+        def exportPackageOptions = [
+                "-g.building",
+                "-batchmode",
+                "-nographics",
+                "-gvh_disable",
+                "-projectPath", "$buildDir/unity-plugin",
+                "-logFile", "$buildDir/package.log",
+                "-exportPackage",
+                    "Assets/PlayServicesResolver",
+                    "Assets/UrbanAirship",
+                    "Assets/Plugins/iOS",
+                    "Assets/Plugins/iOS/Airship",
+                    "Assets/Plugins/Android/urbanairship-resources",
+                    "Assets/Scripts",
+                file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
+                "-quit"
+              ]
+
         exec {
+            workingDir "$buildDir/unity-plugin"
             executable "${unityExe}"
-                args argv
+            args exportPackageOptions
         }
     }
 }
