@@ -47,17 +47,14 @@ dependencies {
     compile "com.urbanairship.android:urbanairship-sdk:${airshipProperties.androidAirshipVersion}"
 }
 
-task copyUnityClassesJar() << {
-    copy {
-        from file(unityClassesJar).getParent()
-        include file(unityClassesJar).getName()
-        rename ("classes.jar", "unity-classes.jar")
-        into 'libs'
-    }
+task copyUnityClassesJar(type: Copy) {
+  from file(unityClassesJar).getParent()
+  include file(unityClassesJar).getName()
+  rename ("classes.jar", "unity-classes.jar")
+  into 'libs'
 }
 
 preBuild.dependsOn copyUnityClassesJar
-
 
 install {
     repositories.mavenInstaller {
