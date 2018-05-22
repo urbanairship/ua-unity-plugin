@@ -24,6 +24,7 @@ static dispatch_once_t onceToken_;
     // UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
     [UAirship push].pushNotificationDelegate = [UAUnityPlugin shared];
     [UAirship push].registrationDelegate = [UAUnityPlugin shared];
+    [UAirship shared].deepLinkDelegate = [UAUnityPlugin shared];
 
     // Check if the config specified default foreground presentation options
     UAConfig *airshipConfig = [UAirship shared].config;
@@ -47,26 +48,6 @@ static dispatch_once_t onceToken_;
         [UAirship push].defaultPresentationOptions = options;
     }
 
-    UAAction *customDLA = [UAAction actionWithBlock: ^(UAActionArguments *args, UAActionCompletionHandler handler)  {
-        UA_LDEBUG(@"Setting dl to: %@", args.value);
-        [UAUnityPlugin shared].storedDeepLink = args.value;
-
-        id listener = [UAUnityPlugin shared].listener;
-        if (listener) {
-            UnitySendMessage(MakeStringCopy([listener UTF8String]),
-                             "OnDeepLinkReceived",
-                             MakeStringCopy([args.value UTF8String]));
-        }
-
-        handler([UAActionResult emptyResult]);
-    } acceptingArguments:^BOOL(UAActionArguments *arg)  {
-        if (arg.situation == UASituationBackgroundPush) {
-            return NO;
-        }
-
-        return [arg.value isKindOfClass:[NSString class]];
-    }];
-
     // Replace the display inbox and landing page actions with modified versions that pause the game before display
     UAAction *dia = [[UAirship shared].actionRegistry registryEntryWithName:kUADisplayInboxActionDefaultRegistryName].action;
     UAAction *customDIA = [dia preExecution:^(UAActionArguments *args) {
@@ -81,7 +62,6 @@ static dispatch_once_t onceToken_;
     }];
 
 
-    [[UAirship shared].actionRegistry updateAction:customDLA forEntryWithName:kUADeepLinkActionDefaultRegistryName];
     [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:kUADisplayInboxActionDefaultRegistryName];
     [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:kUALandingPageActionDefaultRegistryName];
 }
@@ -287,7 +267,7 @@ const char* UAUnityPlugin_getNamedUserID() {
 void UAUnityPlugin_displayMessageCenter() {
     UA_LDEBUG(@"UnityPlugin displayMessageCenter");
     UnityWillPause();
-    [[UAirship defaultMessageCenter] display];
+    [[UAirship messageCenter] display];
 }
 
 int UAUnityPlugin_getMessageCenterUnreadCount() {
@@ -402,6 +382,23 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
                          MakeStringCopy([channelID UTF8String]));
     }
 }
+
+#pragma mark -
+#pragma mark UADeepLinkDelegate
+-(void)receivedDeepLink:(NSURL *_Nonnull)url completionHandler:(void (^_Nonnull)(void))completionHandler {
+    UA_LDEBUG(@"Setting dl to: %@", args.value);
+    NSString *deepLinkString = url.absoluteString
+    self.storedDeepLink = deepLinkString;
+    id listener = [UAUnityPlugin shared].listener;
+    if (listener) {
+        UnitySendMessage(MakeStringCopy([listener UTF8String]),
+                         "OnDeepLinkReceived",
+                         MakeStringCopy([deepLinkString UTF8String]));
+    }
+
+    completionHandler();
+}
+
 
 #pragma mark -
 #pragma mark Helpers
