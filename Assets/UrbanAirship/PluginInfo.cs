@@ -24,16 +24,6 @@ namespace UrbanAirship
         public const string AndroidAirshipVersion = "__ANDROID_AIRSHIP_VERSION__";
 
         /// <summary>
-        /// The Urban Airship Requested Support Library version
-        /// </summary>
-        public const string AndroidSupportLibVersion = "__ANDROID_SUPPORT_LIB_VERSION__";
-
-        /// <summary>
-        /// The Urban Airship Requested Play Services version
-        /// </summary>
-        public const string AndroidPlayServicesVersion = "__ANDROID_PLAY_SERVICES_VERSION__";
-
-        /// <summary>
         /// The API documents URL.
         /// </summary>
         public const string APIDocsURL = "http://docs.urbanairship.com/reference/libraries/unity/__PLUGIN_VERSION__/index.html";

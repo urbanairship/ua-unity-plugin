@@ -5,9 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+        classpath 'com.android.tools.build:gradle:3.1.2'
     }
 }
 
@@ -21,30 +19,23 @@ version = airshipProperties.version
 description = "Urban Airship Android Unity Plugin"
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven-publish'
+
 
 android {
     compileSdkVersion airshipProperties.androidCompileSdkVersion.toInteger()
-    buildToolsVersion airshipProperties.androidBuildToolsVersion
 
     defaultConfig {
         minSdkVersion airshipProperties.androidMinSdkVersion.toInteger()
         targetSdkVersion airshipProperties.androidTargetSdkVersion.toInteger()
     }
-
-    lintOptions {
-        abortOnError false
-    }
 }
 
 dependencies {
-    provided files('libs/unity-classes.jar')
-    compile "com.android.support:support-v4:${airshipProperties.androidSupportLibVersion}"
-    compile "com.android.support:cardview-v7:${airshipProperties.androidSupportLibVersion}"
-    compile "com.android.support:support-annotations:${airshipProperties.androidSupportLibVersion}"
-    compile "com.google.android.gms:play-services-gcm:${airshipProperties.androidPlayServicesVersion}"
-    compile "com.urbanairship.android:urbanairship-sdk:${airshipProperties.androidAirshipVersion}"
+    compileOnly files('libs/unity-classes.jar')
+    implementation "com.android.support:support-v4:${airshipProperties.androidSupportLibVersion}"
+    implementation "com.android.support:support-annotations:${airshipProperties.androidSupportLibVersion}"
+    implementation "com.urbanairship.android:urbanairship-sdk:${airshipProperties.androidAirshipVersion}"
 }
 
 task copyUnityClassesJar(type: Copy) {
@@ -56,39 +47,58 @@ task copyUnityClassesJar(type: Copy) {
 
 preBuild.dependsOn copyUnityClassesJar
 
-install {
-    repositories.mavenInstaller {
-        pom.project {
-            packaging 'aar'
-            groupId project.group
-            artifactId project.name
-
-            name project.name
-            description project.description
-            url 'http://www.urbanairship.com'
+// Create the pom configuration:
+def pomConfig = {
+    licenses {
+        license {
+            name 'The Apache Software License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            distribution 'repo'
         }
+    }
+
+    developers {
+        developer {
+            name 'Urban Airship'
+        }
+    }
+
+    scm {
+        connection 'https://github.com/urbanairship/unity-plugin.git'
+        url 'https://github.com/urbanairship/unity-plugin'
     }
 }
 
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+publish.dependsOn "assembleRelease"
 
-    configurations = ['archives']
+publishing {
+    publications {
+        Production(MavenPublication) {
+            artifact("$buildDir/outputs/aar/" + project.name + "-release.aar")
+            groupId project.group
+            artifactId project.name
 
-    pkg {
-        userOrg = 'urbanairship'
-        name = project.name
-        desc = project.description
-        websiteUrl = 'http://www.urbanairship.com'
+            pom.withXml {
+                def root = asNode()
 
-        version {
-            repo = 'android'
-            publish = true
-            desc = project.description
-            name = project.version
+                def dependenciesNode = root.appendNode('dependencies')
+                configurations.implementation.allDependencies.each {
+                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', it.group)
+                    dependencyNode.appendNode('artifactId', it.name)
+                    dependencyNode.appendNode('version', it.version)
+                }
 
-            released = new Date()
+                root.appendNode('description', project.description)
+                root.appendNode('name', project.name)
+                root.appendNode('url', 'https://github.com/urbanairship/unity-plugin')
+                root.children().last() + pomConfig
+            }
+            repositories {
+                maven {
+                    url "$buildDir/m2repository"
+                }
+            }
         }
     }
 }

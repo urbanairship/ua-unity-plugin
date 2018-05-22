@@ -48,12 +48,20 @@ dependencies {
     plugin "googlesamples:unity-jar-resolver:${airshipProperties.playServicesResolverSHA}@zip"
 }
 
-task clean(type: Delete) {
-    delete "$buildDir"
-}
-
-task preparePlugin {
+task preparePlugin(dependsOn: 'unity-plugin:publish') {
+    doFirst {
+        delete {
+            "$buildDir"
+        }
+    }
+    
     doLast {
+        // Copy Android plugin
+        copy {
+            from file("unity-plugin/build/m2repository")
+            into file("$buildDir/unity-plugin/Assets/UrbanAirship/m2repository")
+        }
+
         // Copy and unpack iOS static library
         copy {
             def zipPath = project.configurations.plugin.find {it.name.startsWith("urbanairship") }
@@ -90,8 +98,6 @@ task preparePlugin {
             include "UrbanAirship/PluginInfo.cs"
             filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
             filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion) }
-            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_SUPPORT_LIB_VERSION__"), airshipProperties.androidSupportLibVersion) }
-            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_PLAY_SERVICES_VERSION__"), airshipProperties.androidPlayServicesVersion) }
             filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
         }
 
@@ -103,7 +109,6 @@ task preparePlugin {
             filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
             filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion) }
             filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_SUPPORT_LIB_VERSION__"), airshipProperties.androidSupportLibVersion) }
-            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_PLAY_SERVICES_VERSION__"), airshipProperties.androidPlayServicesVersion) }
             filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
         }
     }
@@ -111,7 +116,6 @@ task preparePlugin {
 
 task build(dependsOn: 'preparePlugin') {
     doLast {
-
         // Add each package
         def packages = fileTree("${buildDir}/packages") {
             include '**/*.unitypackage'
