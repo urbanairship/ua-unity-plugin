@@ -1,5 +1,5 @@
 /*
- Copyright 2017 Urban Airship and Contributors
+ Copyright 2018 Urban Airship and Contributors
 */
 
 using System.Collections;
@@ -12,8 +12,17 @@ using System.Linq;
 
 namespace UrbanAirship.Editor {
 
-
 	public class GoogleJson {
+
+        private const string GcmDefaultSenderId = "gcm_defaultSenderId";
+        private const string FirebaseDatabaseUrl = "firebase_database_url";
+        private const string ProjectId = "project_id";
+        private const string GoogleStorageBucket = "google_storage_bucket";
+        private const string GoogleAppId = "google_app_id";
+        private const string GoogleApiKey = "google_api_key";
+        private const string GoogleCrashReportingApiKey = "google_crash_reporting_api_key";
+        private const string DefaultWebClientId = "default_web_client_id";
+        private const int WebClientType = 3;
 
 		private Config config;
 
@@ -29,24 +38,24 @@ namespace UrbanAirship.Editor {
 
 		public void WriteXml(string path) {
 			Dictionary<string, string> map = new Dictionary<string, string>();
-			map["gcm_defaultSenderId"] = config.project_info.project_number;
-			map["firebase_database_url"] = config.project_info.firebase_url;
-			map["project_id"] = config.project_info.project_id;
-			map["google_storage_bucket"] = config.project_info.storage_bucket;
+			map[GcmDefaultSenderId] = config.project_info.project_number;
+			map[FirebaseDatabaseUrl] = config.project_info.firebase_url;
+			map[ProjectId] = config.project_info.project_id;
+			map[GoogleStorageBucket] = config.project_info.storage_bucket;
 
 			Client client = config.client.First();
 			if (client != null) {
-				map["google_app_id"] = client.client_info.mobilesdk_app_id;
+				map[GoogleAppId] = client.client_info.mobilesdk_app_id;
 
 				ApiKey apiKey = client.api_key.First();
 				if (apiKey != null) {
-					map["google_api_key"] = apiKey.current_key;
-					map["google_crash_reporting_api_key"] = apiKey.current_key;
+					map[GoogleApiKey] = apiKey.current_key;
+					map[GoogleCrashReportingApiKey] = apiKey.current_key;
 				}
 
-				OauthClient webClient = client.oauth_client.Where(c => c.client_type == 3).First();
+				OauthClient webClient = client.oauth_client.Where(c => c.client_type == WebClientType).First();
 				if (webClient != null) {
-					map["default_web_client_id"] = webClient.client_id;
+					map[DefaultWebClientId] = webClient.client_id;
 				}
 			}
 

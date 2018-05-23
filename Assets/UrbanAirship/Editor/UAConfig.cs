@@ -34,9 +34,8 @@ namespace UrbanAirship.Editor
 		private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
 		private static UAConfig cachedInstance;
 
-		static UAConfig()
-		{
-			LoadConfig ();
+		static UAConfig() {
+			LoadConfig();
 		}
 
 		[SerializeField]
@@ -255,7 +254,7 @@ namespace UrbanAirship.Editor
 		}
 #endif
 
-		private void GenerateFirebaseConfig () {
+		private void GenerateFirebaseConfig() {
 			string res = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res/values");
 			string json = Path.Combine (Application.dataPath, "google-services.json");
 			string xml = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res/values/values.xml");
@@ -265,7 +264,7 @@ namespace UrbanAirship.Editor
 				return;
 			}
 
-			if (!Directory.Exists (res)) {
+			if (!Directory.Exists(res)) {
 				Directory.CreateDirectory (res);
 			}
 
