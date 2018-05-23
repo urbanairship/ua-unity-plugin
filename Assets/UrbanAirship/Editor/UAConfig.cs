@@ -34,9 +34,9 @@ namespace UrbanAirship.Editor
 		private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
 		private static UAConfig cachedInstance;
 
-		static UAConfig ()
+		static UAConfig()
 		{
-		    LoadConfig (). Apply ();
+			LoadConfig ();
 		}
 
 		[SerializeField]
@@ -66,6 +66,8 @@ namespace UrbanAirship.Editor
 		[SerializeField]
 		public string DevelopmentFCMSenderId { get; set; }
 
+		[SerializeField]
+		public bool GenerateGoogleJsonConfig { get; set; }
 
 		[SerializeField]
 		public bool NotificationPresentationOptionAlert { get; set; }
@@ -85,6 +87,9 @@ namespace UrbanAirship.Editor
 		[SerializeField]
 		public String AndroidNotificationAccentColor { get; set; }
 
+		[SerializeField]
+		public String Version { get; set; }
+
 		public bool IsValid {
 			get {
 				try {
@@ -100,6 +105,8 @@ namespace UrbanAirship.Editor
 		{
 			DevelopmentLogLevel = LogLevel.Debug;
 			ProductionLogLevel = LogLevel.Error;
+			GenerateGoogleJsonConfig = true;
+			Version = PluginInfo.Version;
 		}
 
 		public UAConfig (UAConfig config)
@@ -122,6 +129,7 @@ namespace UrbanAirship.Editor
 			this.DevelopmentFCMSenderId = config.DevelopmentFCMSenderId;
 			this.AndroidNotificationAccentColor = config.AndroidNotificationAccentColor;
 			this.AndroidNotificationIcon = config.AndroidNotificationIcon;
+			this.GenerateGoogleJsonConfig = config.GenerateGoogleJsonConfig;
 		}
 
 		public static UAConfig LoadConfig ()
@@ -168,6 +176,7 @@ namespace UrbanAirship.Editor
 
 #if UNITY_ANDROID
 				GenerateAndroidAirshipConfig ();
+				GenerateFirebaseConfig ();
 #endif
 				return true;
 			}
@@ -203,6 +212,12 @@ namespace UrbanAirship.Editor
 				ProductionFCMSenderId = GCMSenderId;
 				GCMSenderId = null;
 			}
+
+			if (Version == null) {
+				GenerateGoogleJsonConfig = true;
+			}
+
+			Version = PluginInfo.Version;
 		}
 
 #if UNITY_IOS
@@ -239,6 +254,23 @@ namespace UrbanAirship.Editor
 			File.WriteAllText (plistPath, plist.WriteToString ());
 		}
 #endif
+
+		private void GenerateFirebaseConfig () {
+			string res = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res/values");
+			string json = Path.Combine (Application.dataPath, "google-services.json");
+			string xml = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res/values/values.xml");
+
+			if (!GenerateGoogleJsonConfig) {
+				File.Delete(xml);
+				return;
+			}
+
+			if (!Directory.Exists (res)) {
+				Directory.CreateDirectory (res);
+			}
+
+			GoogleJson.FromPath(json).WriteXml(xml);
+		}
 
 		private void GenerateAndroidAirshipConfig ()
 		{

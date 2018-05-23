@@ -19,6 +19,7 @@ namespace UrbanAirship.Editor
 		void OnEnable ()
 		{
 			config = UAConfig.LoadConfig ();
+			config.Apply ();
 		}
 
 		void OnGUI ()
@@ -30,7 +31,6 @@ namespace UrbanAirship.Editor
 				config.ProductionAppSecret = EditorGUILayout.TextField ("App Secret", config.ProductionAppSecret);
 				config.ProductionLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup("Log level:", config.ProductionLogLevel);
 				config.ProductionFCMSenderId = EditorGUILayout.TextField ("Android FCM Sender ID:", config.ProductionFCMSenderId);
-
 			});
 
 
@@ -39,14 +39,14 @@ namespace UrbanAirship.Editor
 				config.DevelopmentAppSecret = EditorGUILayout.TextField ("App Secret", config.DevelopmentAppSecret);
 				config.DevelopmentLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup("Log level:", config.DevelopmentLogLevel);
 				config.DevelopmentFCMSenderId = EditorGUILayout.TextField ("Android FCM Sender ID:", config.DevelopmentFCMSenderId);
-
 			});
 
 			CreateSection ("In Production", () => {
 				config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
 			});
 
-			CreateSection ("Android Notifications", () => {
+			CreateSection ("Android Settings", () => {
+				config.GenerateGoogleJsonConfig = EditorGUILayout.Toggle ("Process google-service", config.GenerateGoogleJsonConfig);
 				config.AndroidNotificationAccentColor = EditorGUILayout.TextField ("Notification Accent Color", config.AndroidNotificationAccentColor);
 				config.AndroidNotificationIcon = EditorGUILayout.TextField ("Notification Icon", config.AndroidNotificationIcon);
 
