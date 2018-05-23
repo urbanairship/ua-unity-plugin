@@ -1,67 +1,63 @@
-﻿/*
- Copyright 2017 Urban Airship and Contributors
+/*
+ Copyright 2018 Urban Airship and Contributors
 */
 
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using UrbanAirship;
 
-public class UrbanAirshipBehaviour : MonoBehaviour
-{
-	public string addTagOnStart;
+public class UrbanAirshipBehaviour : MonoBehaviour {
+    public string addTagOnStart;
 
-	void Awake ()
-	{
-		UAirship.Shared.UserNotificationsEnabled = true;
-	}
+    void Awake () {
+        UAirship.Shared.UserNotificationsEnabled = true;
+    }
 
-	void Start ()
-	{
+    void Start () {
 
-		if (!string.IsNullOrEmpty (addTagOnStart)) {
-			UAirship.Shared.AddTag (addTagOnStart);
-		}
+        if (!string.IsNullOrEmpty (addTagOnStart)) {
+            UAirship.Shared.AddTag (addTagOnStart);
+        }
 
-		UAirship.Shared.OnPushReceived += OnPushReceived;
-		UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
-		UAirship.Shared.OnDeepLinkReceived += OnDeepLinkReceived;
-		UAirship.Shared.OnPushOpened += OnPushOpened;
-	}
+        UAirship.Shared.OnPushReceived += OnPushReceived;
+        UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
+        UAirship.Shared.OnDeepLinkReceived += OnDeepLinkReceived;
+        UAirship.Shared.OnPushOpened += OnPushOpened;
+    }
 
-	void OnDestroy ()
-	{
-		UAirship.Shared.OnPushReceived -= OnPushReceived;
-		UAirship.Shared.OnChannelUpdated -= OnChannelUpdated;
-		UAirship.Shared.OnDeepLinkReceived -= OnDeepLinkReceived;
-		UAirship.Shared.OnPushOpened -= OnPushOpened;
-	}
+    void OnDestroy () {
+        UAirship.Shared.OnPushReceived -= OnPushReceived;
+        UAirship.Shared.OnChannelUpdated -= OnChannelUpdated;
+        UAirship.Shared.OnDeepLinkReceived -= OnDeepLinkReceived;
+        UAirship.Shared.OnPushOpened -= OnPushOpened;
+    }
 
-	void OnPushReceived(PushMessage message) {
-		Debug.Log ("Received push! " + message.Alert);
+    void OnPushReceived (PushMessage message) {
+        Debug.Log ("Received push! " + message.Alert);
 
-		if (message.Extras != null) {
-			foreach (KeyValuePair<string, string> kvp in message.Extras) {
-				Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
-			}
-		}
-	}
-
-	void OnPushOpened(PushMessage message) {
-	    Debug.Log ("Opened Push! " + message.Alert);
-
-	    if (message.Extras != null) {
+        if (message.Extras != null) {
             foreach (KeyValuePair<string, string> kvp in message.Extras) {
                 Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
             }
         }
-	}
+    }
 
-	void OnChannelUpdated(string channelId) {
-		Debug.Log ("Channel updated: " + channelId);
-	}
+    void OnPushOpened (PushMessage message) {
+        Debug.Log ("Opened Push! " + message.Alert);
 
-	void OnDeepLinkReceived(string deeplink) {
-		Debug.Log ("Received deep link: " + deeplink);
-	}
+        if (message.Extras != null) {
+            foreach (KeyValuePair<string, string> kvp in message.Extras) {
+                Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
+            }
+        }
+    }
+
+    void OnChannelUpdated (string channelId) {
+        Debug.Log ("Channel updated: " + channelId);
+    }
+
+    void OnDeepLinkReceived (string deeplink) {
+        Debug.Log ("Received deep link: " + deeplink);
+    }
 }

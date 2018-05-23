@@ -1,13 +1,11 @@
 /*
- Copyright 2017 Urban Airship and Contributors
+ Copyright 2018 Urban Airship and Contributors
 */
-namespace UrbanAirship
-{
+namespace UrbanAirship {
     /// <summary>
     /// Urban Airship Unity plugin info.
     /// </summary>
-    public class PluginInfo
-    {
+    public class PluginInfo {
         /// <summary>
         /// The Urban Airship Unity plugin version
         /// </summary>

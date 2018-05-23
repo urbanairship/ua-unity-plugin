@@ -1,17 +1,15 @@
 /*
- Copyright 2017 Urban Airship and Contributors
+ Copyright 2018 Urban Airship and Contributors
 */
 
 using System;
-using UnityEditor;
-using System.Linq;
-using UnityEngine;
 using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
-namespace UrbanAirship.Editor
-{
-    public class UAUtils 
-    {
+namespace UrbanAirship.Editor {
+    public class UAUtils {
 
     }
 }
