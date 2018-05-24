@@ -386,8 +386,8 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 #pragma mark -
 #pragma mark UADeepLinkDelegate
 -(void)receivedDeepLink:(NSURL *_Nonnull)url completionHandler:(void (^_Nonnull)(void))completionHandler {
-    UA_LDEBUG(@"Setting dl to: %@", args.value);
-    NSString *deepLinkString = url.absoluteString
+    UA_LDEBUG(@"Setting dl to: %@", url);
+    NSString *deepLinkString = url.absoluteString;
     self.storedDeepLink = deepLinkString;
     id listener = [UAUnityPlugin shared].listener;
     if (listener) {
