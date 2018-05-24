@@ -35,10 +35,10 @@ namespace UrbanAirship.Editor {
                 UAConfig config = UAConfig.LoadConfig ();
                 if (!config.IsValid) {
                     EditorUtility.DisplayDialog ("Urban Airship", "Urban Airship not configured. Set the app credentials in Window -> Urban Airship -> Settings", "OK");
+                    return;
                 }
 
                 config.Apply ();
-
                 UnityEngine.Debug.Log ("Updated Urban Airship Config");
             }
         }
