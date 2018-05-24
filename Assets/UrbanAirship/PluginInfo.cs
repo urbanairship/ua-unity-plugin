@@ -1,13 +1,11 @@
 /*
- Copyright 2017 Urban Airship and Contributors
+ Copyright 2018 Urban Airship and Contributors
 */
-namespace UrbanAirship
-{
+namespace UrbanAirship {
     /// <summary>
     /// Urban Airship Unity plugin info.
     /// </summary>
-    public class PluginInfo
-    {
+    public class PluginInfo {
         /// <summary>
         /// The Urban Airship Unity plugin version
         /// </summary>
@@ -22,16 +20,6 @@ namespace UrbanAirship
         /// The Urban Airship Android version
         /// </summary>
         public const string AndroidAirshipVersion = "__ANDROID_AIRSHIP_VERSION__";
-
-        /// <summary>
-        /// The Urban Airship Requested Support Library version
-        /// </summary>
-        public const string AndroidSupportLibVersion = "__ANDROID_SUPPORT_LIB_VERSION__";
-
-        /// <summary>
-        /// The Urban Airship Requested Play Services version
-        /// </summary>
-        public const string AndroidPlayServicesVersion = "__ANDROID_PLAY_SERVICES_VERSION__";
 
         /// <summary>
         /// The API documents URL.

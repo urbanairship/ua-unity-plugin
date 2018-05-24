@@ -3,12 +3,6 @@
 
   <!-- Android -->
   <androidPackages>
-    <!-- GCM -->
-    <androidPackage spec="com.google.android.gms:play-services-gcm:__ANDROID_PLAY_SERVICES_VERSION__">
-      <androidSdkPackageIds>
-        <androidSdkPackageId>extra-google-m2repository</androidSdkPackageId>
-      </androidSdkPackageIds>
-    </androidPackage>
 
     <!-- Support Library v4 -->
     <androidPackage spec="com.android.support:support-v4:__ANDROID_SUPPORT_LIB_VERSION__">
@@ -17,8 +11,8 @@
       </androidSdkPackageIds>
     </androidPackage>
 
-    <!-- Urban Airship SDK -->
-    <androidPackage spec="com.urbanairship.android:urbanairship-sdk:__ANDROID_AIRSHIP_VERSION__">
+    <!-- Urban Airship FCM -->
+    <androidPackage spec="com.urbanairship.android:urbanairship-fcm:__ANDROID_AIRSHIP_VERSION__">
       <repositories>
         <repository>https://urbanairship.bintray.com/android</repository>
       </repositories>
@@ -27,7 +21,7 @@
     <!-- Urban Airship Android Unity Plugin Support -->
     <androidPackage spec="com.urbanairship.android:unity-plugin:__PLUGIN_VERSION__">
       <repositories>
-        <repository>https://urbanairship.bintray.com/android</repository>
+        <repository>Assets/UrbanAirship/m2repository</repository>
       </repositories>
     </androidPackage>
 

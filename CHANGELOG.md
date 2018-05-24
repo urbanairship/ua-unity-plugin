@@ -1,6 +1,13 @@
 UA Unity ChangeLog
 ==================
 
+Version 5.0.0 - May 22, 2018
+============================
+- Updated Urban Airship iOS SDK to 9.1.0
+- Updated Urban Airship Android SDK to 9.2.0
+- Updated Google Play Resolver to 1.2.71
+- Android now uses FCM APIs and requires google-services.json config file
+
 Version 4.4.0 - March 13, 2018
 ==============================
 - Fixed tag groups adding quotes around tags on Android.
