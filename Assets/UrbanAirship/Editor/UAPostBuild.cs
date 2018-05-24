@@ -19,9 +19,6 @@ namespace UrbanAirship.Editor {
 
         [PostProcessBuildAttribute (1)]
         public static void OnPostProcessBuild (BuildTarget target, string buildPath) {
-            if (!UAConfig.LoadConfig ().IsValid) {
-                EditorUtility.DisplayDialog ("Urban Airship", "Urban Airship not configured. Set the app credentials in Window -> Urban Airship -> Settings", "OK");
-            }
 
 #if UNITY_IOS
             if (target == BuildTarget.iOS) {

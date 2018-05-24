@@ -31,10 +31,6 @@ namespace UrbanAirship.Editor {
         private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
         private static UAConfig cachedInstance;
 
-        static UAConfig () {
-            LoadConfig ();
-        }
-
         [SerializeField]
         public string ProductionAppKey { get; set; }
 
@@ -127,6 +123,10 @@ namespace UrbanAirship.Editor {
         }
 
         public static UAConfig LoadConfig () {
+            if (cachedInstance != null) {
+                return new UAConfig (cachedInstance);
+            }
+
             try {
                 if (File.Exists (filePath)) {
                     using (Stream fileStream = File.OpenRead (filePath)) {
@@ -211,7 +211,7 @@ namespace UrbanAirship.Editor {
 
 #if UNITY_IOS
         private void GenerateIOSAirshipConfig () {
-            string plistPath = Path.Combine (Application.dataPath, "Plugins/iOS/AirshipConfig.plist");
+            string plistPath = "Assets/Plugins/iOS/AirshipConfig.plist";
             if (File.Exists (plistPath)) {
                 File.Delete (plistPath);
             }
@@ -244,9 +244,9 @@ namespace UrbanAirship.Editor {
 #endif
 
         private void GenerateFirebaseConfig () {
-            string res = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res/values");
-            string json = Path.Combine (Application.dataPath, "google-services.json");
-            string xml = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res/values/values.xml");
+            string res = "Assets/Plugins/Android/urbanairship-resources/res/values";
+            string json = "Assets/google-services.json";
+            string xml = "Assets/Plugins/Android/urbanairship-resources/res/values/values.xml";
 
             if (!GenerateGoogleJsonConfig) {
                 File.Delete (xml);
@@ -261,12 +261,12 @@ namespace UrbanAirship.Editor {
         }
 
         private void GenerateAndroidAirshipConfig () {
-            string res = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res");
+            string res = "Assets/Plugins/Android/urbanairship-resources/res";
             if (!Directory.Exists (res)) {
                 Directory.CreateDirectory (res);
             }
 
-            string xml = Path.Combine (Application.dataPath, "Plugins/Android/urbanairship-resources/res/xml");
+            string xml = "Assets/Plugins/Android/urbanairship-resources/res/xml";
             if (!Directory.Exists (xml)) {
                 Directory.CreateDirectory (xml);
             }
