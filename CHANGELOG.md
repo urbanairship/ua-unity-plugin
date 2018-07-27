@@ -1,6 +1,12 @@
 UA Unity ChangeLog
 ==================
 
+Version 5.1.0 - July 27, 2018
+=============================
+- Updated Urban Airship iOS SDK to 9.3.3
+- Updated Urban Airship Android SDK to 9.4.1
+- Updated Google Play Resolver to 1.2.80
+
 Version 5.0.0 - May 22, 2018
 ============================
 - Updated Urban Airship iOS SDK to 9.1.0
