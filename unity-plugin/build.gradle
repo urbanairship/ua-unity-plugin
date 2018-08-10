@@ -69,8 +69,6 @@ def pomConfig = {
     }
 }
 
-publish.dependsOn "assembleRelease"
-
 publishing {
     publications {
         Production(MavenPublication) {
@@ -101,4 +99,8 @@ publishing {
             }
         }
     }
+}
+
+project.afterEvaluate {
+    publish.dependsOn(assembleRelease)
 }
