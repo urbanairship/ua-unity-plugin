@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('firebase-messaging-unity-5.3.0.aar'))

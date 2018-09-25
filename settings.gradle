@@ -1,1 +1,1 @@
-include ':unity-plugin', ':docs'
+include ':unity-plugin', ':docs', ':firebase-compat', ':firebase-app-unity-5.3.0', ':firebase-messaging-unity-5.3.0'

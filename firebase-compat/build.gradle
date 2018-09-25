@@ -1,0 +1,25 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compileOnly project(':firebase-app-unity-5.3.0')
+    compileOnly project(':firebase-messaging-unity-5.3.0')
+    compileOnly "com.urbanairship.android:urbanairship-fcm:${airshipProperties.androidAirshipVersion}"
+}

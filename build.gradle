@@ -1,47 +1,64 @@
 import java.util.regex.Pattern
 
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.1.4'
+    }
+}
+
+
+
 allprojects {
-  ext {
-      unityExe = System.getProperty("UNITY_EXE")
-      if (unityExe == null || unityExe.isEmpty()) {
-          unityExe = System.getenv("UNITY_EXE")
-      }
-      if (unityExe == null || unityExe.isEmpty()) {
-          unityExe ='/Applications/Unity/Unity.app/Contents/MacOS/Unity'
-      }
+    repositories {
+        jcenter()
+        google()
 
-      unityClassesJar = System.getProperty("UNITY_CLASSES_JAR")
-      if (unityClassesJar == null || unityClassesJar.isEmpty()) {
-          unityClassesJar = System.getenv("UNITY_CLASSES_JAR")
-      }
-      if (unityClassesJar == null || unityClassesJar.isEmpty()) {
-          unityClassesJar ='/Applications/Unity/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar'
-      }
+        ivy {
+            url 'https://bintray.com'
+            layout 'pattern', {
+                artifact '/artifact/download/[organisation]/iOS/[module]/[revision]/libUAirship-[revision].[ext]'
+            }
+        }
 
-      airshipProperties = new Properties()
-      airshipProperties.load(new FileInputStream("airship.properties"))
-  }
+        ivy {
+            url 'https://github.com'
+            layout 'pattern', {
+                artifact '[organisation]/[module]/archive/[revision].[ext]'
+            }
+        }
+    }
+
+    ext {
+        unityExe = System.getProperty("UNITY_EXE")
+        if (unityExe == null || unityExe.isEmpty()) {
+            unityExe = System.getenv("UNITY_EXE")
+        }
+        if (unityExe == null || unityExe.isEmpty()) {
+            unityExe ='/Applications/Unity/Unity.app/Contents/MacOS/Unity'
+        }
+
+        unityClassesJar = System.getProperty("UNITY_CLASSES_JAR")
+        if (unityClassesJar == null || unityClassesJar.isEmpty()) {
+            unityClassesJar = System.getenv("UNITY_CLASSES_JAR")
+        }
+        if (unityClassesJar == null || unityClassesJar.isEmpty()) {
+            unityClassesJar ='/Applications/Unity/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar'
+        }
+
+        airshipProperties = new Properties()
+        airshipProperties.load(new FileInputStream("airship.properties"))
+    }
 }
 
 configurations {
     plugin
 }
 
-repositories {
-    ivy {
-        url 'https://bintray.com'
-        layout 'pattern', {
-            artifact '/artifact/download/[organisation]/iOS/[module]/[revision]/libUAirship-[revision].[ext]'
-        }
-    }
-
-    ivy {
-        url 'https://github.com'
-        layout 'pattern', {
-            artifact '[organisation]/[module]/archive/[revision].[ext]'
-        }
-    }
-}
 
 dependencies {
     plugin "urbanairship:urbanairship-sdk:${airshipProperties.iosAirshipVersion}@zip"
