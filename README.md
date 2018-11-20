@@ -12,7 +12,7 @@ One of our engineers will verify receipt of the agreement before approving your 
 
 ### Requirements
  - Unity 5
- - iOS - Xcode 9.3+ for iOS
+ - iOS - Xcode 10+ for iOS
  - Android - Android SDK installed and updated (requires Android MinSdkVersion = 16)
 
 ### Resources:
