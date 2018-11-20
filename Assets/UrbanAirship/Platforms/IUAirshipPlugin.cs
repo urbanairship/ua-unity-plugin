@@ -18,11 +18,6 @@ namespace UrbanAirship {
             get;
         }
 
-        string Alias {
-            get;
-            set;
-        }
-
         string ChannelId {
             get;
         }

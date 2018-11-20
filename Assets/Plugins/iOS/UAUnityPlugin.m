@@ -150,19 +150,6 @@ void UAUnityPlugin_removeTag(const char* tag) {
     [[UAirship push] updateRegistration];
 }
 
-const char* UAUnityPlugin_getAlias() {
-    UA_LDEBUG(@"UnityPlugin getAlias");
-    return MakeStringCopy([[UAirship push].alias UTF8String]);
-}
-
-void UAUnityPlugin_setAlias(const char* alias) {
-    NSString *aliasString = [NSString stringWithUTF8String:alias];
-
-    UA_LDEBUG(@"UnityPlugin setAlias %@", aliasString);
-    [UAirship push].alias = aliasString;
-    [[UAirship push] updateRegistration];
-}
-
 const char* UAUnityPlugin_getChannelId() {
     UA_LDEBUG(@"UnityPlugin getChannelId");
     return MakeStringCopy([[UAirship push].channelID UTF8String]);
@@ -348,7 +335,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 - (void)receivedNotificationResponse:(UANotificationResponse *)notificationResponse completionHandler:(void(^)())completionHandler {
     UA_LDEBUG(@"receivedNotificationResponse %@",notificationResponse);
     self.storedNotification = notificationResponse.notificationContent.notificationInfo;
-    
+
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                          "OnPushOpened",

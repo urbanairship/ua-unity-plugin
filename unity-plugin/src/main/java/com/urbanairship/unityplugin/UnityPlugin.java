@@ -109,16 +109,6 @@ public class UnityPlugin {
         return jsonArray.toString();
     }
 
-    public String getAlias() {
-        Logger.debug("UnityPlugin getAlias");
-        return UAirship.shared().getPushManager().getAlias();
-    }
-
-    public void setAlias(String alias) {
-        Logger.debug("UnityPlugin setAlias: " + alias);
-        UAirship.shared().getPushManager().setAlias(alias);
-    }
-
     public void setLocationEnabled(boolean enabled) {
         Logger.debug("UnityPlugin setLocationEnabled: " + enabled);
         UAirship.shared().getLocationManager().setLocationUpdatesEnabled(enabled);
@@ -128,7 +118,6 @@ public class UnityPlugin {
         Logger.debug("UnityPlugin isLocationUpdatesEnabled");
         return UAirship.shared().getLocationManager().isLocationUpdatesEnabled();
     }
-
 
     public void setBackgroundLocationAllowed(boolean allowed) {
         Logger.debug("UnityPlugin setBackgroundLocationAllowed: " + allowed);
