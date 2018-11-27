@@ -9,7 +9,6 @@ namespace UrbanAirship {
     class StubbedPlugin : IUAirshipPlugin {
         public bool UserNotificationsEnabled { get; set; }
         public string Tags { get { return null; } }
-        public string Alias { get; set; }
         public string ChannelId { get { return null; } }
         public bool LocationEnabled { get; set; }
         public bool BackgroundLocationAllowed { get; set; }

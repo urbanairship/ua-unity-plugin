@@ -1,6 +1,12 @@
 UA Unity ChangeLog
 ==================
 
+Version 6.0.0 - November 20, 2018
+=================================
+- Updated Urban Airship iOS SDK to 10.0.3
+- Updated Urban Airship Android SDK to 9.5.6
+- Removed ability to set/get an alias. Use named user instead.
+
 Version 5.1.0 - August 8, 2018
 ==============================
 - Updated Urban Airship iOS SDK to 9.3.3

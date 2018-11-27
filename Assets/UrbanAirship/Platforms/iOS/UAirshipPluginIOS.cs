@@ -37,12 +37,6 @@ namespace UrbanAirship {
         private static extern void UAUnityPlugin_removeTag (string tag);
 
         [DllImport ("__Internal")]
-        private static extern string UAUnityPlugin_getAlias ();
-
-        [DllImport ("__Internal")]
-        private static extern void UAUnityPlugin_setAlias (string alias);
-
-        [DllImport ("__Internal")]
         private static extern string UAUnityPlugin_getChannelId ();
 
         //Location Function Imports
@@ -97,15 +91,6 @@ namespace UrbanAirship {
         public string Tags {
             get {
                 return UAUnityPlugin_getTags ();
-            }
-        }
-
-        public string Alias {
-            get {
-                return UAUnityPlugin_getAlias ();
-            }
-            set {
-                UAUnityPlugin_setAlias (value);
             }
         }
 

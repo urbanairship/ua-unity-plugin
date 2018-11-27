@@ -29,9 +29,6 @@ const char* UAUnityPlugin_getTags();
 void UAUnityPlugin_addTag(const char* tag);
 void UAUnityPlugin_removeTag(const char* tag);
 
-const char* UAUnityPlugin_getAlias();
-void UAUnityPlugin_setAlias(const char* alias);
-
 const char* UAUnityPlugin_getChannelId();
 
 #pragma mark -

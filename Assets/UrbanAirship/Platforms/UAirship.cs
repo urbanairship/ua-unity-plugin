@@ -114,19 +114,6 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Gets or sets the alias for the device.
-        /// </summary>
-        /// <value>The alias.</value>
-        public string Alias {
-            get {
-                return plugin.Alias;
-            }
-            set {
-                plugin.Alias = value;
-            }
-        }
-
-        /// <summary>
         /// Gets the channel identifier associated with the device.
         /// </summary>
         /// <value>The channel identifier.</value>

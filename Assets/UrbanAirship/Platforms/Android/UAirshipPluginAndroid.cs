@@ -40,15 +40,6 @@ namespace UrbanAirship {
             }
         }
 
-        public string Alias {
-            get {
-                return Call<string> ("getAlias");
-            }
-            set {
-                Call ("setAlias", value);
-            }
-        }
-
         public string ChannelId {
             get {
                 return Call<string> ("getChannelId");
