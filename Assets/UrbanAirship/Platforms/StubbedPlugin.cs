@@ -1,6 +1,4 @@
-/*
- Copyright 2018 Urban Airship and Contributors
-*/
+/* Copyright Urban Airship and Contributors */
 
 using System;
 using UnityEngine;

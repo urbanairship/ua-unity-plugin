@@ -1,6 +1,4 @@
-/*
- Copyright 2018 Urban Airship and Contributors
-*/
+/* Copyright Urban Airship and Contributors */
 
 #if UNITY_ANDROID
 
