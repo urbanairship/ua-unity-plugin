@@ -1,6 +1,5 @@
-/*
- Copyright 2018 Urban Airship and Contributors
-*/
+/* Copyright Urban Airship and Contributors */
+
 namespace UrbanAirship {
     /// <summary>
     /// Urban Airship Unity plugin info.
