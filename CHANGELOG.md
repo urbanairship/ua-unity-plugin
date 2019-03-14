@@ -1,16 +1,12 @@
 UA Unity ChangeLog
 ==================
+
+Version 6.0.0 - March 14, 2019
+=================================
 Fixed a security issue within Android Urban Airship SDK, that could allow
 trusted URL redirects in certain edge cases. All applications that are using
 Urban Airship Unity plugin for Android version 5.0.0 - 6.0.0 should update
 as soon as possible. For more details, please email security@urbanairship.com.
-
-Version 6.0.0 - March 14, 2019
-=================================
-- Updated Urban Airship iOS SDK to 10.0.3
-- Updated Urban Airship Android SDK to 9.5.6
-- Removed ability to set/get an alias. Use named user instead.
-
 
 Version 6.0.0 - November 20, 2018
 =================================
