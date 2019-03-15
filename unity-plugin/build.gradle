@@ -21,8 +21,11 @@ description = "Urban Airship Android Unity Plugin"
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
-
 android {
+    lintOptions {
+        abortOnError false
+    }
+
     compileSdkVersion airshipProperties.androidCompileSdkVersion.toInteger()
 
     defaultConfig {
