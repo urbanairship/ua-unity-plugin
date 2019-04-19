@@ -1,6 +1,10 @@
 UA Unity ChangeLog
 ==================
 
+Version 6.0.2 - April 19, 2019
+==============================
+- Updated Airship iOS SDK to 10.2.2
+
 Version 6.0.1 - March 14, 2019
 ==============================
 Fixed a security issue within Android Urban Airship SDK, that could allow
