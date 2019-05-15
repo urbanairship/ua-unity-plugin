@@ -70,6 +70,8 @@ namespace UrbanAirship.Editor {
             if (refreshAssets) {
                 AssetDatabase.Refresh ();
             }
+        }
+        
         /// <summary>
         /// Removes obsolete iOS libraries (libUAirship*).
         /// </summary>

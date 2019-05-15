@@ -114,6 +114,8 @@ namespace UrbanAirship.Editor {
             this.NotificationPresentationOptionBadge = config.NotificationPresentationOptionBadge;
             this.NotificationPresentationOptionSound = config.NotificationPresentationOptionSound;
 
+            this.ProductionFCMSenderId = config.ProductionFCMSenderId;
+            this.DevelopmentFCMSenderId = config.DevelopmentFCMSenderId;
             this.AndroidNotificationAccentColor = config.AndroidNotificationAccentColor;
             this.AndroidNotificationIcon = config.AndroidNotificationIcon;
             this.GenerateGoogleJsonConfig = config.GenerateGoogleJsonConfig;
@@ -212,6 +214,8 @@ namespace UrbanAirship.Editor {
             }
 
             if (GCMSenderId != null) {
+                DevelopmentFCMSenderId = GCMSenderId;
+                ProductionFCMSenderId = GCMSenderId;
                 GCMSenderId = null;
             }
 
