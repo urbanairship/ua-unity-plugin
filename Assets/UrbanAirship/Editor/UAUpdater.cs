@@ -24,6 +24,7 @@ namespace UrbanAirship.Editor {
 
             MigrateResources ();
             DeleteObsoleteFiles ();
+            RemoveObsoleteIOSLibraries(PluginInfo.IOSAirshipVersion);
         }
 
         private static void MigrateResources () {
@@ -69,6 +70,35 @@ namespace UrbanAirship.Editor {
             if (refreshAssets) {
                 AssetDatabase.Refresh ();
             }
+        }
+        
+        /// <summary>
+        /// Removes obsolete iOS libraries (libUAirship*).
+        /// </summary>
+        /// <param name="keepVersion">iOS library version to keep</param>
+        private static void RemoveObsoleteIOSLibraries(string keepVersion)
+        {
+            Debug.Log("UAUpdater: Removing obsolete iOS libraries");
+
+            string iOSLibraryFolder = "Assets/Plugins/iOS/Airship";
+
+            // get a list of all the libraries in the plugin
+            string[] libraries = Directory.GetFiles(iOSLibraryFolder, "libUAirship*");
+
+            // filter the new library out of the list
+            string[] librariesToRemove = Array.FindAll(libraries, library => !library.Contains(keepVersion));
+
+            if (librariesToRemove.Length == 0) {
+                Debug.Log("UAUpdater: No obsolete libraries to remove");
+                return;
+            }
+
+            foreach (string library in librariesToRemove) {
+                Debug.Log("UAUpdater: Deleting file: " + library);
+                File.Delete(library);
+            }
+
+            Debug.Log("UAUpdater: Removed obsolete iOS libraries");
         }
     }
 }

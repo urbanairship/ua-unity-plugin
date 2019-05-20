@@ -22,6 +22,7 @@ namespace UrbanAirship.Editor {
             Debug = 1,
             Info = 2,
             Warn = 3,
+            Warning = -1,
             Error = 4,
             None = 5
         }
@@ -48,7 +49,7 @@ namespace UrbanAirship.Editor {
         public LogLevel DevelopmentLogLevel { get; set; }
 
         [SerializeField]
-        public string GCMSenderId { get; private set; }
+        public string GCMSenderId { get; set; }
 
         [SerializeField]
         public string ProductionFCMSenderId { get; set; }
@@ -125,23 +126,29 @@ namespace UrbanAirship.Editor {
                 return new UAConfig (cachedInstance);
             }
 
+            bool migratedConfig = false;
             try {
                 if (File.Exists (filePath)) {
                     using (Stream fileStream = File.OpenRead (filePath)) {
                         XmlSerializer serializer = new XmlSerializer (typeof (UAConfig));
                         UAConfig config = (UAConfig) serializer.Deserialize (fileStream);
-                        config.Migrate ();
+                        migratedConfig = config.Migrate ();
                         config.Validate ();
                         cachedInstance = config;
                     }
                 }
             } catch (Exception e) {
-                UnityEngine.Debug.Log ("Failed to load UAConfig: " + e.Message);
+                UnityEngine.Debug.Log ("UAConfig: Failed to load config: " + e.Message);
                 File.Delete (filePath);
             }
 
             if (cachedInstance == null) {
                 cachedInstance = new UAConfig ();
+            }
+
+            if (migratedConfig) {
+                UnityEngine.Debug.Log ("UAConfig: saving config");
+                SaveConfig(cachedInstance);
             }
 
             return new UAConfig (cachedInstance);
@@ -193,18 +200,38 @@ namespace UrbanAirship.Editor {
             }
         }
 
-        public void Migrate () {
+        public bool Migrate () {
+             if (Version == null) {
+                UnityEngine.Debug.Log ("UAConfig: migrating pre-versioned config to version " + PluginInfo.Version);
+                GenerateGoogleJsonConfig = true;
+                Version = PluginInfo.Version;
+            } else if (Version != PluginInfo.Version) {
+                UnityEngine.Debug.Log ("UAConfig: migrating from version " + Version + " to version " + PluginInfo.Version);
+                Version = PluginInfo.Version;
+            } else {
+                UnityEngine.Debug.Log("UAConfig: no migration needed. Version already " + Version);
+                return false;
+            }
+
             if (GCMSenderId != null) {
                 DevelopmentFCMSenderId = GCMSenderId;
                 ProductionFCMSenderId = GCMSenderId;
                 GCMSenderId = null;
             }
 
-            if (Version == null) {
-                GenerateGoogleJsonConfig = true;
+            // migrate to new log levels
+            if (ProductionLogLevel == LogLevel.Warning) {
+                UnityEngine.Debug.Log ("UAConfig: migrating obsolete Production Log Level = Warning to Warn");
+                ProductionLogLevel = LogLevel.Warn;
+            }
+            if (DevelopmentLogLevel == LogLevel.Warning) {
+                UnityEngine.Debug.Log ("UAConfig: migrating obsolete Development Log Level = Warning to Warn");
+                DevelopmentLogLevel = LogLevel.Warn;
             }
 
-            Version = PluginInfo.Version;
+            UnityEngine.Debug.Log ("UAConfig: migrated to version " + Version);
+
+            return true;
         }
 
 #if UNITY_IOS
@@ -318,7 +345,8 @@ namespace UrbanAirship.Editor {
                 case LogLevel.Info:
                     return 3;
                 case LogLevel.Warn:
-                    return 2;
+                case LogLevel.Warning:
+                     return 2;
                 case LogLevel.Error:
                     return 1;
                 case LogLevel.None:
