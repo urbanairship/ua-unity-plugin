@@ -11,9 +11,10 @@ We accept pull requests! If you would like to submit a pull request, please fill
 One of our engineers will verify receipt of the agreement before approving your pull request.
 
 ### Requirements
- - Unity 5
+ - Unity 5+
  - iOS - Xcode 10+ for iOS
  - Android - Android SDK installed and updated (requires Android MinSdkVersion = 16)
+ - Android - Using Android SDK manager, install 28+. If Custom Gradle Template is used, the gradle template needs to be configured to use API VERSION 28+.
 
 ### Resources:
  - [Getting started guide](http://docs.urbanairship.com/platform/unity.html)
@@ -43,3 +44,13 @@ notification service extension. Detailed steps can be found
 
 ### Android
 Download google-services.json into the `Assets` directory from the application's firebase console.
+
+If proguard is enabled, add Airship settings to the proguard-user.txt file.
+```
+-keep public class com.urbanairship.unityplugin.UnityPlugin
+-keepclassmembers class com.urbanairship.unityplugin.UnityPlugin {
+  public <methods>;
+  public <fields>;
+  static <methods>; 
+}
+```
