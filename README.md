@@ -4,12 +4,6 @@ A Unity plugin that integrates the iOS and Android Urban Airship SDK.
 
 [ ![Download](https://api.bintray.com/packages/urbanairship/unity/unity-plugin/images/download.svg) ](https://bintray.com/urbanairship/unity/unity-plugin/_latestVersion)
 
-### Contributing Code
-We accept pull requests! If you would like to submit a pull request, please fill out and submit our
-[Contributor License Agreement](https://docs.google.com/forms/d/e/1FAIpQLScErfiz-fXSPpVZ9r8Di2Tr2xDFxt5MgzUel0__9vqUgvko7Q/viewform).
-
-One of our engineers will verify receipt of the agreement before approving your pull request.
-
 ### Requirements
  - Unity 5+
  - iOS - Xcode 10+ for iOS
@@ -51,6 +45,6 @@ If proguard is enabled, add Airship settings to the proguard-user.txt file.
 -keepclassmembers class com.urbanairship.unityplugin.UnityPlugin {
   public <methods>;
   public <fields>;
-  static <methods>; 
+  static <methods>;
 }
 ```
