@@ -1,4 +1,4 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 using System;
 using System.IO;
@@ -71,9 +71,9 @@ namespace UrbanAirship.Editor {
                 AssetDatabase.Refresh ();
             }
         }
-        
+
         /// <summary>
-        /// Removes obsolete iOS libraries (libUAirship*).
+        /// Removes obsolete Airship iOS libraries
         /// </summary>
         /// <param name="keepVersion">iOS library version to keep</param>
         private static void RemoveObsoleteIOSLibraries(string keepVersion)
@@ -83,7 +83,7 @@ namespace UrbanAirship.Editor {
             string iOSLibraryFolder = "Assets/Plugins/iOS/Airship";
 
             // get a list of all the libraries in the plugin
-            string[] libraries = Directory.GetFiles(iOSLibraryFolder, "libUAirship*");
+            string[] libraries = Directory.GetFiles(iOSLibraryFolder, "libUA*");
 
             // filter the new library out of the list
             string[] librariesToRemove = Array.FindAll(libraries, library => !library.Contains(keepVersion));

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 
 import com.urbanairship.AirshipConfigOptions;
 import com.urbanairship.Autopilot;
@@ -18,12 +19,73 @@ import com.urbanairship.actions.ActionArguments;
 import com.urbanairship.actions.ActionRegistry;
 import com.urbanairship.actions.ActionResult;
 import com.urbanairship.actions.DeepLinkAction;
+import com.urbanairship.push.NotificationActionButtonInfo;
+import com.urbanairship.push.NotificationInfo;
+import com.urbanairship.push.NotificationListener;
+import com.urbanairship.push.PushListener;
+import com.urbanairship.push.PushMessage;
+import com.urbanairship.push.RegistrationListener;
 
 
 public class UnityAutopilot extends Autopilot {
 
     @Override
     public void onAirshipReady(UAirship airship) {
+
+        airship.getPushManager().addRegistrationListener(new RegistrationListener() {
+            @Override
+            public void onChannelCreated(@NonNull String channelId) {
+                UnityPlugin.shared().onChannelCreated(channelId);
+            }
+
+            @Override
+            public void onChannelUpdated(@NonNull String channelId) {
+                UnityPlugin.shared().onChannelUpdated(channelId);
+
+            }
+
+            @Override
+            public void onPushTokenUpdated(@NonNull String token) {
+
+            }
+        });
+
+        airship.getPushManager().addPushListener(new PushListener() {
+            @Override
+            public void onPushReceived(@NonNull PushMessage message, boolean notificationPosted) {
+                UnityPlugin.shared().onPushReceived(message);
+            }
+        });
+
+        airship.getPushManager().setNotificationListener(new NotificationListener() {
+            @Override
+            public void onNotificationPosted(@NonNull NotificationInfo notificationInfo) {
+
+            }
+
+            @Override
+            public boolean onNotificationOpened(@NonNull NotificationInfo notificationInfo) {
+                UnityPlugin.shared().onPushOpened(notificationInfo.getMessage());
+                return false;
+            }
+
+            @Override
+            public boolean onNotificationForegroundAction(@NonNull NotificationInfo notificationInfo, @NonNull NotificationActionButtonInfo notificationActionButtonInfo) {
+                UnityPlugin.shared().onPushOpened(notificationInfo.getMessage());
+                return false;
+            }
+
+            @Override
+            public void onNotificationBackgroundAction(@NonNull NotificationInfo notificationInfo, @NonNull NotificationActionButtonInfo notificationActionButtonInfo) {
+                UnityPlugin.shared().onPushOpened(notificationInfo.getMessage());
+            }
+
+            @Override
+            public void onNotificationDismissed(@NonNull NotificationInfo notificationInfo) {
+
+            }
+        });
+
 
         ActionRegistry.Entry entry = airship.getActionRegistry().getEntry(DeepLinkAction.DEFAULT_REGISTRY_NAME);
         entry.setDefaultAction(new Action() {
@@ -58,7 +120,7 @@ public class UnityAutopilot extends Autopilot {
     public AirshipConfigOptions createAirshipConfigOptions(Context context) {
         int resourceId = context.getResources().getIdentifier("airship_config", "xml", context.getPackageName());
         if (resourceId <= 0) {
-            Logger.error("airship_config.xml not found. Make sure Urban Airship is configured Window => Urban Airship => Settings.");
+            PluginLogger.error("airship_config.xml not found. Make sure Urban Airship is configured Window => Urban Airship => Settings.");
             return null;
         }
 

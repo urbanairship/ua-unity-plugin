@@ -30,14 +30,14 @@ configurations {
 repositories {
     ivy {
         url 'https://bintray.com'
-        layout 'pattern', {
+        patternLayout {
             artifact '/artifact/download/[organisation]/iOS/[module]/[revision]/libUAirship-[revision].[ext]'
         }
     }
 
     ivy {
         url 'https://github.com'
-        layout 'pattern', {
+        patternLayout {
             artifact '[organisation]/[module]/archive/[revision].[ext]'
         }
     }
@@ -54,7 +54,7 @@ task preparePlugin(dependsOn: 'unity-plugin:publish') {
             "$buildDir"
         }
     }
-    
+
     doLast {
         // Copy Android plugin
         copy {
@@ -165,4 +165,8 @@ task build(dependsOn: 'preparePlugin') {
             args exportPackageOptions
         }
     }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }

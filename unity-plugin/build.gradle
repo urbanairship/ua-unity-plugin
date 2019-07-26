@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.4.2'
     }
 }
 
@@ -14,7 +14,7 @@ repositories {
     jcenter()
 }
 
-group = 'com.urbanairship.android'
+group = 'com.urbanairship.unitysupport'
 version = airshipProperties.version
 description = "Urban Airship Android Unity Plugin"
 
@@ -49,6 +49,7 @@ task copyUnityClassesJar(type: Copy) {
 }
 
 preBuild.dependsOn copyUnityClassesJar
+publish.dependsOn assemble
 
 // Create the pom configuration:
 def pomConfig = {
@@ -75,7 +76,7 @@ def pomConfig = {
 publishing {
     publications {
         Production(MavenPublication) {
-            artifact("$buildDir/outputs/aar/" + project.name + "-release.aar")
+            artifact ("$buildDir/outputs/aar/" + project.name + "-release.aar")
             groupId project.group
             artifactId project.name
 
@@ -104,6 +105,3 @@ publishing {
     }
 }
 
-project.afterEvaluate {
-    publish.dependsOn(assembleRelease)
-}
