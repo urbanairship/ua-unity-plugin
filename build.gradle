@@ -48,7 +48,7 @@ dependencies {
     plugin "googlesamples:unity-jar-resolver:${airshipProperties.playServicesResolverSHA}@zip"
 }
 
-task preparePlugin(dependsOn: 'unity-plugin:publish') {
+task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
     doFirst {
         delete {
             "$buildDir"
@@ -58,8 +58,9 @@ task preparePlugin(dependsOn: 'unity-plugin:publish') {
     doLast {
         // Copy Android plugin
         copy {
-            from file("unity-plugin/build/m2repository")
-            into file("$buildDir/unity-plugin/Assets/UrbanAirship/m2repository")
+            from file("unity-plugin/build/outputs/aar/unity-plugin-release.aar")
+            into file("$buildDir/unity-plugin/Assets/Plugins/Android/")
+            rename("unity-plugin-release.aar", "airship-unity-plugin.aar")
         }
 
         // Copy and unpack iOS static library
@@ -154,6 +155,7 @@ task build(dependsOn: 'preparePlugin') {
                     "Assets/Plugins/iOS",
                     "Assets/Plugins/iOS/Airship",
                     "Assets/Plugins/Android/urbanairship-resources",
+                    "Assets/Plugins/Android",
                     "Assets/Scripts",
                 file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
                 "-quit"
