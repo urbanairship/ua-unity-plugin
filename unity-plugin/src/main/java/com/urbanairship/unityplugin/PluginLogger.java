@@ -10,7 +10,7 @@ import android.util.Log;
 import com.urbanairship.LoggingCore;
 
 /**
- * Cordova logger for Urban Airship.
+ * Plugin logger for Airship.
  */
 public final class PluginLogger {
 
@@ -21,9 +21,7 @@ public final class PluginLogger {
     /**
      * Private, unused constructor
      */
-    private PluginLogger() {
-    }
-
+    private PluginLogger() {}
 
     /**
      * Sets the log level.
@@ -168,6 +166,5 @@ public final class PluginLogger {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void error(@NonNull Throwable t, @NonNull String message, @Nullable Object... args) {
         logger.log(Log.ERROR, t, message, args);
-
     }
 }

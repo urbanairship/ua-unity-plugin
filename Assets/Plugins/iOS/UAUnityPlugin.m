@@ -313,7 +313,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
  *
  * @param notificationContent The UANotificationContent object representing the notification info.
  */
--(void)receivedForegroundNotification:(UANotificationContent *)notificationContent completionHandler:(void (^)(void))completionHandler {
+- (void)receivedForegroundNotification:(UANotificationContent *)notificationContent completionHandler:(void (^)(void))completionHandler {
     UA_LDEBUG(@"receivedForegroundNotification %@",notificationContent);
 
     if (self.listener) {
@@ -330,7 +330,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
  *
  * @param notificationResponse UANotificationResponse object representing the user's response
  */
--(void)receivedNotificationResponse:(UANotificationResponse *)notificationResponse completionHandler:(void (^)(void))completionHandler {
+- (void)receivedNotificationResponse:(UANotificationResponse *)notificationResponse completionHandler:(void (^)(void))completionHandler {
     UA_LDEBUG(@"receivedNotificationResponse %@",notificationResponse);
     self.storedNotification = notificationResponse.notificationContent.notificationInfo;
 
