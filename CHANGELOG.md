@@ -1,6 +1,15 @@
 UA Unity ChangeLog
 ==================
 
+Version 6.1.0 - August 6, 2019
+==============================
+- Updated Android Airship SDK to 10.1.0
+- Updated iOS Airship SDK to 11.1.0
+- Updated Jar Resolver to 1.2.124
+- Fixed build issues with Android
+- Removed setting sender ID from config. Sender ID will be pulled from the
+  google-services.json file.
+
 Version 6.0.1 - March 14, 2019
 ==============================
 Fixed a security issue within Android Urban Airship SDK, that could allow
