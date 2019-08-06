@@ -1,4 +1,4 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 using System;
 using System.IO;
@@ -47,15 +47,6 @@ namespace UrbanAirship.Editor {
 
         [SerializeField]
         public LogLevel DevelopmentLogLevel { get; set; }
-
-        [SerializeField]
-        public string GCMSenderId { get; set; }
-
-        [SerializeField]
-        public string ProductionFCMSenderId { get; set; }
-
-        [SerializeField]
-        public string DevelopmentFCMSenderId { get; set; }
 
         [SerializeField]
         public bool GenerateGoogleJsonConfig { get; set; }
@@ -114,8 +105,6 @@ namespace UrbanAirship.Editor {
             this.NotificationPresentationOptionBadge = config.NotificationPresentationOptionBadge;
             this.NotificationPresentationOptionSound = config.NotificationPresentationOptionSound;
 
-            this.ProductionFCMSenderId = config.ProductionFCMSenderId;
-            this.DevelopmentFCMSenderId = config.DevelopmentFCMSenderId;
             this.AndroidNotificationAccentColor = config.AndroidNotificationAccentColor;
             this.AndroidNotificationIcon = config.AndroidNotificationIcon;
             this.GenerateGoogleJsonConfig = config.GenerateGoogleJsonConfig;
@@ -211,12 +200,6 @@ namespace UrbanAirship.Editor {
             } else {
                 UnityEngine.Debug.Log("UAConfig: no migration needed. Version already " + Version);
                 return false;
-            }
-
-            if (GCMSenderId != null) {
-                DevelopmentFCMSenderId = GCMSenderId;
-                ProductionFCMSenderId = GCMSenderId;
-                GCMSenderId = null;
             }
 
             // migrate to new log levels
@@ -321,14 +304,6 @@ namespace UrbanAirship.Editor {
 
                 if (!String.IsNullOrEmpty (AndroidNotificationAccentColor)) {
                     xmlWriter.WriteAttributeString ("notificationAccentColor", AndroidNotificationAccentColor);
-                }
-
-                if (!String.IsNullOrEmpty (DevelopmentFCMSenderId)) {
-                    xmlWriter.WriteAttributeString ("developmentFcmSenderId", DevelopmentFCMSenderId);
-                }
-
-                if (!String.IsNullOrEmpty (ProductionFCMSenderId)) {
-                    xmlWriter.WriteAttributeString ("productionFcmSenderId", ProductionFCMSenderId);
                 }
 
                 xmlWriter.WriteEndElement ();

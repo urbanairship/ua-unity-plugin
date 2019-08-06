@@ -1,6 +1,4 @@
-/*
- Copyright 2018 Urban Airship and Contributors
-*/
+/* Copyright Airship and Contributors */
 
 package com.urbanairship.unityplugin;
 
@@ -41,7 +39,7 @@ public class UnityPlugin {
     }
 
     public String getDeepLink(boolean clear) {
-        Logger.debug("UnityPlugin getDeepLink clear " + clear);
+        PluginLogger.debug("UnityPlugin getDeepLink clear " + clear);
 
         String link = deepLink;
         if (clear) {
@@ -51,12 +49,12 @@ public class UnityPlugin {
     }
 
     public void setListener(String listener) {
-        Logger.debug("UnityPlugin setListener: " + listener);
+        PluginLogger.debug("UnityPlugin setListener: " + listener);
         this.listener = listener;
     }
 
     public String getIncomingPush(boolean clear) {
-        Logger.debug("UnityPlugin getIncomingPush clear " + clear);
+        PluginLogger.debug("UnityPlugin getIncomingPush clear " + clear);
 
         String push = getPushPayload(incomingPush);
         if (clear) {
@@ -66,22 +64,22 @@ public class UnityPlugin {
     }
 
     public boolean getUserNotificationsEnabled() {
-        Logger.debug("UnityPlugin getUserNotificationsEnabled");
+        PluginLogger.debug("UnityPlugin getUserNotificationsEnabled");
         return UAirship.shared().getPushManager().getUserNotificationsEnabled();
     }
 
     public void setUserNotificationsEnabled(boolean enabled) {
-        Logger.debug("UnityPlugin setUserNotificationsEnabled: " + enabled);
+        PluginLogger.debug("UnityPlugin setUserNotificationsEnabled: " + enabled);
         UAirship.shared().getPushManager().setUserNotificationsEnabled(enabled);
     }
 
     public String getChannelId() {
-        Logger.debug("UnityPlugin getChannelId");
+        PluginLogger.debug("UnityPlugin getChannelId");
         return UAirship.shared().getPushManager().getChannelId();
     }
 
     public void addTag(String tag) {
-        Logger.debug("UnityPlugin addTag: " + tag);
+        PluginLogger.debug("UnityPlugin addTag: " + tag);
 
         PushManager push = UAirship.shared().getPushManager();
         Set<String> tags = push.getTags();
@@ -90,7 +88,7 @@ public class UnityPlugin {
     }
 
     public void removeTag(String tag) {
-        Logger.debug("UnityPlugin removeTag: " + tag);
+        PluginLogger.debug("UnityPlugin removeTag: " + tag);
 
         PushManager push = UAirship.shared().getPushManager();
 
@@ -100,7 +98,7 @@ public class UnityPlugin {
     }
 
     public String getTags() {
-        Logger.debug("UnityPlugin getTags");
+        PluginLogger.debug("UnityPlugin getTags");
         JSONArray jsonArray = new JSONArray();
         for (String tag : UAirship.shared().getPushManager().getTags()) {
             jsonArray.put(tag);
@@ -110,12 +108,12 @@ public class UnityPlugin {
     }
 
     public void setLocationEnabled(boolean enabled) {
-        Logger.debug("UnityPlugin setLocationEnabled: " + enabled);
+        PluginLogger.debug("UnityPlugin setLocationEnabled: " + enabled);
         UAirship.shared().getLocationManager().setLocationUpdatesEnabled(enabled);
     }
 
     public boolean isLocationEnabled() {
-        Logger.debug("UnityPlugin isLocationUpdatesEnabled");
+        PluginLogger.debug("UnityPlugin isLocationUpdatesEnabled");
         return UAirship.shared().getLocationManager().isLocationUpdatesEnabled();
     }
 
@@ -125,15 +123,15 @@ public class UnityPlugin {
     }
 
     public boolean isBackgroundLocationAllowed() {
-        Logger.debug("UnityPlugin isBackgroundLocationAllowed");
+        PluginLogger.debug("UnityPlugin isBackgroundLocationAllowed");
         return UAirship.shared().getLocationManager().isBackgroundLocationAllowed();
     }
 
     public void addCustomEvent(String eventPayload) {
-        Logger.debug("UnityPlugin addCustomEvent: " + eventPayload);
+        PluginLogger.debug("UnityPlugin addCustomEvent: " + eventPayload);
 
         if (UAStringUtil.isEmpty(eventPayload)) {
-            Logger.error("Missing event payload.");
+            PluginLogger.error("Missing event payload.");
             return;
         }
 
@@ -141,10 +139,10 @@ public class UnityPlugin {
         try {
             customEventMap = JsonValue.parseString(eventPayload).getMap();
         } catch (JsonException e) {
-            Logger.error("Failed to parse event payload", e);
+            PluginLogger.error("Failed to parse event payload", e);
         }
         if (customEventMap == null) {
-            Logger.error("Event payload must define a JSON object.");
+            PluginLogger.error("Event payload must define a JSON object.");
             return;
         }
 
@@ -163,7 +161,7 @@ public class UnityPlugin {
         }
 
         if (!UAStringUtil.isEmpty(interactionType) && !UAStringUtil.isEmpty(interactionId)) {
-           eventBuilder.setInteraction(interactionType, interactionId);
+            eventBuilder.setInteraction(interactionType, interactionId);
         }
 
         if (properties != null) {
@@ -208,51 +206,51 @@ public class UnityPlugin {
             }
         }
 
-        UAirship.shared().getAnalytics().addEvent(eventBuilder.create());
+        UAirship.shared().getAnalytics().addEvent(eventBuilder.build());
     }
 
     public void associateIdentifier(String key, String identifier) {
         if (key == null) {
-            Logger.debug("UnityPlugin associateIdentifier failed, key cannot be null");
+            PluginLogger.debug("UnityPlugin associateIdentifier failed, key cannot be null");
             return;
         }
 
         if (identifier == null) {
-            Logger.debug("UnityPlugin associateIdentifier removed identifier for key: " + key);
+            PluginLogger.debug("UnityPlugin associateIdentifier removed identifier for key: " + key);
             UAirship.shared().getAnalytics().editAssociatedIdentifiers().removeIdentifier(key).apply();
         } else {
-            Logger.debug("UnityPlugin associateIdentifier with identifier: " + identifier + " for key: " + key);
+            PluginLogger.debug("UnityPlugin associateIdentifier with identifier: " + identifier + " for key: " + key);
             UAirship.shared().getAnalytics().editAssociatedIdentifiers().addIdentifier(key, identifier).apply();
         }
     }
 
     public String getNamedUserId() {
-        Logger.debug("UnityPlugin getNamedUserId");
+        PluginLogger.debug("UnityPlugin getNamedUserId");
         return UAirship.shared().getNamedUser().getId();
     }
 
     public void setNamedUserId(String namedUserId) {
-        Logger.debug("UnityPlugin setNamedUserId: " + namedUserId);
+        PluginLogger.debug("UnityPlugin setNamedUserId: " + namedUserId);
         UAirship.shared().getNamedUser().setId(namedUserId);
     }
 
     public void displayMessageCenter() {
-        Logger.debug("UnityPlugin displayMessageCenter");
+        PluginLogger.debug("UnityPlugin displayMessageCenter");
         UAirship.shared().getInbox().startInboxActivity();
     }
 
     public int getMessageCenterUnreadCount() {
-        Logger.debug("UnityPlugin getMessageCenterUnreadCount");
+        PluginLogger.debug("UnityPlugin getMessageCenterUnreadCount");
         return UAirship.shared().getInbox().getUnreadCount();
     }
 
     public int getMessageCenterCount() {
-        Logger.debug("UnityPlugin getMessageCenterCount");
+        PluginLogger.debug("UnityPlugin getMessageCenterCount");
         return UAirship.shared().getInbox().getCount();
     }
 
     public void editNamedUserTagGroups(String payload) {
-        Logger.debug("UnityPlugin editNamedUserTagGroups");
+        PluginLogger.debug("UnityPlugin editNamedUserTagGroups");
 
         TagGroupsEditor editor = UAirship.shared().getNamedUser().editTagGroups();
         applyTagGroupOperations(editor, payload);
@@ -260,7 +258,7 @@ public class UnityPlugin {
     }
 
     public void editChannelTagGroups(String payload) {
-        Logger.debug("UnityPlugin editChannelTagGroups");
+        PluginLogger.debug("UnityPlugin editChannelTagGroups");
 
         TagGroupsEditor editor = UAirship.shared().getPushManager().editTagGroups();
         applyTagGroupOperations(editor, payload);
@@ -268,7 +266,7 @@ public class UnityPlugin {
     }
 
     void onPushReceived(PushMessage message) {
-        Logger.debug("UnityPlugin push received. " + message);
+        PluginLogger.debug("UnityPlugin push received. " + message);
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnPushReceived", getPushPayload(message));
@@ -276,16 +274,16 @@ public class UnityPlugin {
     }
 
     void onPushOpened(PushMessage message) {
-        Logger.debug("UnityPlugin push opened. " + message);
+        PluginLogger.debug("UnityPlugin push opened. " + message);
 
-        if(listener != null) {
+        if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnPushOpened", getPushPayload(message));
         }
         this.incomingPush = message;
     }
 
     void onDeepLinkReceived(String deepLink) {
-        Logger.debug("UnityPlugin deepLink received: " + deepLink);
+        PluginLogger.debug("UnityPlugin deepLink received: " + deepLink);
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnDeepLinkReceived", deepLink);
@@ -293,7 +291,7 @@ public class UnityPlugin {
     }
 
     void onChannelCreated(String channelId) {
-        Logger.debug("UnityPlugin channel created: " + channelId);
+        PluginLogger.debug("UnityPlugin channel created: " + channelId);
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnChannelCreated", channelId);
@@ -301,7 +299,7 @@ public class UnityPlugin {
     }
 
     void onChannelUpdated(String channelId) {
-        Logger.debug("UnityPlugin channel updated: " + channelId);
+        PluginLogger.debug("UnityPlugin channel updated: " + channelId);
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnChannelUpdated", channelId);
@@ -318,10 +316,14 @@ public class UnityPlugin {
         List<Map<String, String>> extras = new ArrayList<>();
 
         for (String key : message.getPushBundle().keySet()) {
-            String value = null;
+            String value;
             if (!UAStringUtil.equals(key, "google.sent_time")) {
                 value = message.getPushBundle().getString(key);
             } else {
+                continue;
+            }
+
+            if (value == null) {
                 continue;
             }
 
@@ -331,15 +333,21 @@ public class UnityPlugin {
             extras.add(extra);
         }
 
-        payloadMap.put("alert", message.getAlert());
-        payloadMap.put("identifier", message.getSendId());
+        if (message.getAlert() != null) {
+            payloadMap.put("alert", message.getAlert());
+        }
+
+        if (message.getSendId() != null) {
+            payloadMap.put("identifier", message.getSendId());
+        }
+
         payloadMap.put("extras", extras);
 
         return JsonValue.wrapOpt(payloadMap).toString();
     }
 
     void setDeepLink(String deepLink) {
-        Logger.debug("UnityPlugin setDeepLink: " + deepLink);
+        PluginLogger.debug("UnityPlugin setDeepLink: " + deepLink);
 
         this.deepLink = deepLink;
     }
@@ -350,7 +358,7 @@ public class UnityPlugin {
         try {
             payloadMap = JsonValue.parseString(payload).getMap();
         } catch (JsonException e) {
-            Logger.error("Unable to apply tag group operations: ", e);
+            PluginLogger.error("Unable to apply tag group operations: ", e);
             return;
         }
 
@@ -358,14 +366,14 @@ public class UnityPlugin {
             return;
         }
 
-        for (JsonValue operation : payloadMap.opt("values").getList()) {
+        for (JsonValue operation : payloadMap.opt("values").optList()) {
             if (!operation.isJsonMap()) {
                 continue;
             }
 
-            JsonList tags = operation.getMap().opt("tags").getList();
-            String group = operation.getMap().get("tagGroup").getString();
-            String operationType = operation.getMap().get("operation").getString();
+            JsonList tags = operation.optMap().opt("tags").getList();
+            String group = operation.optMap().opt("tagGroup").getString();
+            String operationType = operation.optMap().opt("operation").getString();
 
             if (tags == null || tags.isEmpty() || UAStringUtil.isEmpty(group) || UAStringUtil.isEmpty(operationType)) {
                 continue;

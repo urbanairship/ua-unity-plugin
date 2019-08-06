@@ -1,8 +1,9 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 #import "UAUnityPlugin.h"
 #import "UnityInterface.h"
 #import "AirshipLib.h"
+#import "AirshipLocationLib.h"
 
 static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
@@ -25,8 +26,7 @@ static dispatch_once_t onceToken_;
     [UAirship shared].deepLinkDelegate = [UAUnityPlugin shared];
 
     // Check if the config specified default foreground presentation options
-    UAConfig *airshipConfig = [UAirship shared].config;
-    NSDictionary *customOptions = [airshipConfig customConfig];
+    NSDictionary *customOptions = [UAirship shared].config.customConfig;
 
     if (customOptions) {
         UNNotificationPresentationOptions options = UNNotificationPresentationOptionNone;
@@ -158,22 +158,22 @@ const char* UAUnityPlugin_getChannelId() {
 
 bool UAUnityPlugin_isLocationEnabled() {
     UA_LDEBUG(@"UnityPlugin isLocationEnabled");
-    return [UAirship location].locationUpdatesEnabled ? true : false;
+    return [UALocation sharedLocation].locationUpdatesEnabled ? true : false;
 }
 
 void UAUnityPlugin_setLocationEnabled(bool enabled) {
     UA_LDEBUG(@"UnityPlugin setLocationEnabled: %d", enabled);
-    [UAirship location].locationUpdatesEnabled = enabled;
+    [UALocation sharedLocation].locationUpdatesEnabled = enabled;
 }
 
 bool UAUnityPlugin_isBackgroundLocationAllowed() {
     UA_LDEBUG(@"UnityPlugin isBackgroundLocationAllowed");
-    return [UAirship location].backgroundLocationUpdatesAllowed ? true : false;
+    return [UALocation sharedLocation].backgroundLocationUpdatesAllowed ? true : false;
 }
 
 void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
     UA_LDEBUG(@"UnityPlugin setBackgroundLocationAllowed: %d", enabled);
-    [UAirship location].backgroundLocationUpdatesAllowed = enabled ? YES : NO;
+    [UALocation sharedLocation].backgroundLocationUpdatesAllowed = enabled ? YES : NO;
 }
 
 void UAUnityPlugin_addCustomEvent(const char *customEvent) {
@@ -313,7 +313,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
  *
  * @param notificationContent The UANotificationContent object representing the notification info.
  */
-- (void)receivedForegroundNotification:(UANotificationContent *)notificationContent completionHandler:(void(^)())completionHandler {
+- (void)receivedForegroundNotification:(UANotificationContent *)notificationContent completionHandler:(void (^)(void))completionHandler {
     UA_LDEBUG(@"receivedForegroundNotification %@",notificationContent);
 
     if (self.listener) {
@@ -330,7 +330,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
  *
  * @param notificationResponse UANotificationResponse object representing the user's response
  */
-- (void)receivedNotificationResponse:(UANotificationResponse *)notificationResponse completionHandler:(void(^)())completionHandler {
+- (void)receivedNotificationResponse:(UANotificationResponse *)notificationResponse completionHandler:(void (^)(void))completionHandler {
     UA_LDEBUG(@"receivedNotificationResponse %@",notificationResponse);
     self.storedNotification = notificationResponse.notificationContent.notificationInfo;
 

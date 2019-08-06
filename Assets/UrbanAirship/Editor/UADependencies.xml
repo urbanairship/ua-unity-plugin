@@ -18,13 +18,6 @@
       </repositories>
     </androidPackage>
 
-    <!-- Urban Airship Android Unity Plugin Support -->
-    <androidPackage spec="com.urbanairship.android:unity-plugin:__PLUGIN_VERSION__">
-      <repositories>
-        <repository>Assets/UrbanAirship/m2repository</repository>
-      </repositories>
-    </androidPackage>
-
   </androidPackages>
 
 </dependencies>

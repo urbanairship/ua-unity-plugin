@@ -1,4 +1,4 @@
-/* Copyright Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
 using System;
 using System.IO;
@@ -24,14 +24,12 @@ namespace UrbanAirship.Editor {
                 config.ProductionAppKey = EditorGUILayout.TextField ("App Key", config.ProductionAppKey);
                 config.ProductionAppSecret = EditorGUILayout.TextField ("App Secret", config.ProductionAppSecret);
                 config.ProductionLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup ("Log level:", config.ProductionLogLevel);
-                config.ProductionFCMSenderId = EditorGUILayout.TextField ("Android FCM Sender ID:", config.ProductionFCMSenderId);
             });
 
             CreateSection ("Development", () => {
                 config.DevelopmentAppKey = EditorGUILayout.TextField ("App Key", config.DevelopmentAppKey);
                 config.DevelopmentAppSecret = EditorGUILayout.TextField ("App Secret", config.DevelopmentAppSecret);
                 config.DevelopmentLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup ("Log level:", config.DevelopmentLogLevel);
-                config.DevelopmentFCMSenderId = EditorGUILayout.TextField ("Android FCM Sender ID:", config.DevelopmentFCMSenderId);
             });
 
             CreateSection ("In Production", () => {

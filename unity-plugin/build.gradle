@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.4.2'
     }
 }
 
@@ -14,7 +14,7 @@ repositories {
     jcenter()
 }
 
-group = 'com.urbanairship.android'
+group = 'com.urbanairship.unitysupport'
 version = airshipProperties.version
 description = "Urban Airship Android Unity Plugin"
 
@@ -49,61 +49,4 @@ task copyUnityClassesJar(type: Copy) {
 }
 
 preBuild.dependsOn copyUnityClassesJar
-
-// Create the pom configuration:
-def pomConfig = {
-    licenses {
-        license {
-            name 'The Apache Software License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-            distribution 'repo'
-        }
-    }
-
-    developers {
-        developer {
-            name 'Urban Airship'
-        }
-    }
-
-    scm {
-        connection 'https://github.com/urbanairship/unity-plugin.git'
-        url 'https://github.com/urbanairship/unity-plugin'
-    }
-}
-
-publishing {
-    publications {
-        Production(MavenPublication) {
-            artifact("$buildDir/outputs/aar/" + project.name + "-release.aar")
-            groupId project.group
-            artifactId project.name
-
-            pom.withXml {
-                def root = asNode()
-
-                def dependenciesNode = root.appendNode('dependencies')
-                configurations.implementation.allDependencies.each {
-                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', it.group)
-                    dependencyNode.appendNode('artifactId', it.name)
-                    dependencyNode.appendNode('version', it.version)
-                }
-
-                root.appendNode('description', project.description)
-                root.appendNode('name', project.name)
-                root.appendNode('url', 'https://github.com/urbanairship/unity-plugin')
-                root.children().last() + pomConfig
-            }
-            repositories {
-                maven {
-                    url "$buildDir/m2repository"
-                }
-            }
-        }
-    }
-}
-
-project.afterEvaluate {
-    publish.dependsOn(assembleRelease)
-}
+publish.dependsOn assemble

@@ -1,6 +1,5 @@
-/*
- Copyright 2018 Urban Airship and Contributors
-*/
+/* Copyright Airship and Contributors */
+
 
 package com.urbanairship.unityplugin;
 

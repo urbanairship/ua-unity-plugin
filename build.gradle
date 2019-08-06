@@ -30,14 +30,14 @@ configurations {
 repositories {
     ivy {
         url 'https://bintray.com'
-        layout 'pattern', {
+        patternLayout {
             artifact '/artifact/download/[organisation]/iOS/[module]/[revision]/libUAirship-[revision].[ext]'
         }
     }
 
     ivy {
         url 'https://github.com'
-        layout 'pattern', {
+        patternLayout {
             artifact '[organisation]/[module]/archive/[revision].[ext]'
         }
     }
@@ -48,18 +48,19 @@ dependencies {
     plugin "googlesamples:unity-jar-resolver:${airshipProperties.playServicesResolverSHA}@zip"
 }
 
-task preparePlugin(dependsOn: 'unity-plugin:publish') {
+task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
     doFirst {
         delete {
             "$buildDir"
         }
     }
-    
+
     doLast {
         // Copy Android plugin
         copy {
-            from file("unity-plugin/build/m2repository")
-            into file("$buildDir/unity-plugin/Assets/UrbanAirship/m2repository")
+            from file("unity-plugin/build/outputs/aar/unity-plugin-release.aar")
+            into file("$buildDir/unity-plugin/Assets/Plugins/Android/")
+            rename("unity-plugin-release.aar", "airship-unity-plugin.aar")
         }
 
         // Copy and unpack iOS static library
@@ -154,6 +155,7 @@ task build(dependsOn: 'preparePlugin') {
                     "Assets/Plugins/iOS",
                     "Assets/Plugins/iOS/Airship",
                     "Assets/Plugins/Android/urbanairship-resources",
+                    "Assets/Plugins/Android",
                     "Assets/Scripts",
                 file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
                 "-quit"
@@ -165,4 +167,8 @@ task build(dependsOn: 'preparePlugin') {
             args exportPackageOptions
         }
     }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
