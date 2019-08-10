@@ -1,6 +1,10 @@
 UA Unity ChangeLog
 ==================
 
+Version 6.1.1 - August 9, 2019
+==============================
+- Updated Android Airship SDK to 10.1.1
+
 Version 6.1.0 - August 6, 2019
 ==============================
 - Updated Android Airship SDK to 10.1.0
