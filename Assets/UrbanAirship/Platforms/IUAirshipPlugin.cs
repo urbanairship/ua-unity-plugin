@@ -53,6 +53,18 @@ namespace UrbanAirship {
 
         void DisplayMessageCenter ();
 
+        void DisplayInboxMessage (string messageId, bool overlay);
+
+        void RefreshInbox ();
+
+        string InboxMessages ();
+
+        void MarkInboxMessageRead (string messageId);
+
+        void DeleteInboxMessage (string messageId);
+
+        void SetAutoLaunchDefaultMessageCenter (bool enabled);
+
         int MessageCenterUnreadCount {
             get;
         }

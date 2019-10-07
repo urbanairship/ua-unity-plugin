@@ -2,17 +2,29 @@
 
 package com.urbanairship.unityplugin;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.unity3d.player.UnityPlayer;
 import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
+import com.urbanairship.actions.ActionRunRequest;
+import com.urbanairship.actions.OverlayRichPushMessageAction;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
 import com.urbanairship.json.JsonMap;
 import com.urbanairship.json.JsonValue;
+import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.PushManager;
 import com.urbanairship.push.PushMessage;
 import com.urbanairship.push.TagGroupsEditor;
+import com.urbanairship.richpush.RichPushMessage;
 import com.urbanairship.util.UAStringUtil;
 
 import org.json.JSONArray;
@@ -25,6 +37,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class UnityPlugin {
+
+    static final String AUTO_LAUNCH_MESSAGE_CENTER = "com.urbanairship.auto_launch_message_center";
 
     private static UnityPlugin instance = new UnityPlugin();
     private String listener;
@@ -239,6 +253,93 @@ public class UnityPlugin {
         UAirship.shared().getInbox().startInboxActivity();
     }
 
+    /**
+     * Display an inbox message in the default message center.
+     *
+     * @param messageId The id of the message to be displayed.
+     * @param overlay Display the message in an overlay.
+     */
+    public void displayInboxMessage(String messageId, boolean overlay) {
+        PluginLogger.debug("UnityPlugin displayInboxMessage %s, overlay = %s", messageId, overlay ? "true" : "false");
+        if (overlay) {
+            ActionRunRequest.createRequest(OverlayRichPushMessageAction.DEFAULT_REGISTRY_NAME)
+                    .setValue(messageId)
+                    .run();
+        } else {
+            Intent intent = new Intent(UnityPlayer.currentActivity, CustomMessageActivity.class)
+                    .setAction(MessageCenter.VIEW_MESSAGE_INTENT_ACTION)
+                    .setPackage(UnityPlayer.currentActivity.getPackageName())
+                    .setData(Uri.fromParts(MessageCenter.MESSAGE_DATA_SCHEME, messageId, null))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+            UnityPlayer.currentActivity.getApplicationContext().startActivity(intent);
+        }
+    }
+
+    /**
+     * Refresh the message center inbox.
+     *
+     * The `OnInboxUpdated` event will fire after the inbox has been successfully refreshed.
+     */
+    public void refreshInbox() {
+        PluginLogger.debug("UnityPlugin refreshInbox");
+        UAirship.shared().getInbox().fetchMessages(); // this needs to fire an event
+    }
+
+    /**
+     * Retrieves the current inbox messages.
+     */
+    public String getInboxMessages() {
+        PluginLogger.debug("UnityPlugin getInboxMessages");
+
+        return getInboxMessagesAsJSON();
+    }
+
+    /**
+     * Marks an inbox message as read.
+     *
+     * @param messageId The id of the message to be marked as read.
+     */
+    public void markInboxMessageRead(@NonNull String messageId) {
+        PluginLogger.debug("UnityPlugin markInboxMessageRead %s", messageId);
+        RichPushMessage message = UAirship.shared().getInbox().getMessage(messageId);
+
+        if (message == null) {
+            PluginLogger.debug("Message (%s) not found.", messageId);
+        } else {
+            message.markRead();
+        }
+    }
+
+    /**
+     * Deletes an inbox message.
+     *
+     * @param messageId The id of the message to be deleted.
+     */
+    public void deleteInboxMessage(@NonNull String messageId) {
+        PluginLogger.debug("UnityPlugin deleteInboxMessage %s", messageId);
+        RichPushMessage message = UAirship.shared().getInbox().getMessage(messageId);
+
+        if (message == null) {
+            PluginLogger.debug("Message (%s) not found.", messageId);
+        } else {
+            message.delete();
+        }
+    }
+
+    /**
+     * Sets the default behavior when the message center is launched from a push notification. If set to false the message center must be manually launched.
+     *
+     * @param enabled {@code true} to automatically launch the default message center, {@code false} to disable. Default is {@code true}.
+     */
+    public void setAutoLaunchDefaultMessageCenter(boolean enabled) {
+        PluginLogger.debug("UnityPlugin setAutoLaunchDefaultMessageCenter");
+        PreferenceManager.getDefaultSharedPreferences(UAirship.getApplicationContext())
+                .edit()
+                .putBoolean(AUTO_LAUNCH_MESSAGE_CENTER, enabled)
+                .apply();
+    }
+
     public int getMessageCenterUnreadCount() {
         PluginLogger.debug("UnityPlugin getMessageCenterUnreadCount");
         return UAirship.shared().getInbox().getUnreadCount();
@@ -306,6 +407,34 @@ public class UnityPlugin {
         }
     }
 
+    void onShowInbox(@Nullable String messageId) {
+        if (messageId == null) {
+            PluginLogger.debug("UnityPlugin show inbox");
+
+            if (listener != null) {
+                UnityPlayer.UnitySendMessage(listener, "OnShowInbox", "");
+            }
+        } else {
+            PluginLogger.debug("UnityPlugin show inbox message: ", messageId);
+
+            if (listener != null) {
+                UnityPlayer.UnitySendMessage(listener, "OnShowInbox", messageId);
+            }
+        }
+    }
+
+    void onInboxUpdated() {
+        JsonMap counts = JsonMap.newBuilder()
+                .put("unread", UAirship.shared().getInbox().getUnreadCount())
+                .put("total", UAirship.shared().getInbox().getCount())
+                .build();
+        PluginLogger.debug("UnityPlugin inboxUpdated (unread = %s, total = %s)", UAirship.shared().getInbox().getUnreadCount(), UAirship.shared().getInbox().getCount());
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnInboxUpdated", counts.toString());
+        }
+    }
+
     private String getPushPayload(PushMessage message) {
         if (message == null) {
             return null;
@@ -346,12 +475,40 @@ public class UnityPlugin {
         return JsonValue.wrapOpt(payloadMap).toString();
     }
 
+    public String getInboxMessagesAsJSON() {
+        List<Map<String, Object>> messages = new ArrayList<>();
+        for (RichPushMessage message : UAirship.shared().getInbox().getMessages()) {
+            Map<String, Object> messageMap = new HashMap<>();
+            messageMap.put("id", message.getMessageId());
+            messageMap.put("title", message.getTitle());
+            messageMap.put("sentDate", message.getSentDate().getTime());
+            messageMap.put("listIconUrl", message.getListIconUrl());
+            messageMap.put("isRead", message.isRead());
+            messageMap.put("isDeleted", message.isDeleted());
+
+            if (message.getExtras().keySet().size() > 0) {
+                List<String> extrasKeys = new ArrayList<>();
+                List<Object> extrasValues = new ArrayList<>();
+                Bundle extras = message.getExtras();
+
+                for (String key : extras.keySet()) {
+                    extrasKeys.add(key);
+                    extrasValues.add(extras.get(key));
+                }
+
+                messageMap.put("extrasKeys", extrasKeys);
+                messageMap.put("extrasValues", extrasValues);
+            }
+            messages.add(messageMap);
+        }
+        return JsonValue.wrapOpt(messages).toString();
+    }
+
     void setDeepLink(String deepLink) {
         PluginLogger.debug("UnityPlugin setDeepLink: " + deepLink);
 
         this.deepLink = deepLink;
     }
-
 
     private static void applyTagGroupOperations(TagGroupsEditor editor, String payload) {
         JsonMap payloadMap;

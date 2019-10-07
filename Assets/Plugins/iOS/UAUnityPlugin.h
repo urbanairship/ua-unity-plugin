@@ -51,10 +51,15 @@ void UAUnityPlugin_associateIdentifier(const char *key, const char *identifier);
 void UAUnityPlugin_setNamedUserID(const char *namedUserID);
 const char* UAUnityPlugin_getNamedUserID();
 
-
 #pragma mark -
 #pragma mark Message Center
 void UAUnityPlugin_displayMessageCenter();
+void UAUnityPlugin_displayInboxMessage(const char *messageId, bool overlay);
+void UAUnityPlugin_refreshInbox();
+const char* UAUnityPlugin_getInboxMessages();
+void UAUnityPlugin_markInboxMessageRead(const char *messageID);
+void UAUnityPlugin_deleteInboxMessage(const char *messageID);
+void UAUnityPlugin_setAutoLaunchDefaultMessageCenter(bool enabled);
 int UAUnityPlugin_getMessageCenterUnreadCount();
 int UAUnityPlugin_getMessageCenterCount();
 
@@ -64,7 +69,7 @@ int UAUnityPlugin_getMessageCenterCount();
 void UAUnityPlugin_editNamedUserTagGroups(const char *payload);
 void UAUnityPlugin_editChannelTagGroups(const char *payload);
 
-@interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UARegistrationDelegate, UADeepLinkDelegate>
+@interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UARegistrationDelegate, UADeepLinkDelegate, UAInboxDelegate>
 
 + (UAUnityPlugin *)shared;
 

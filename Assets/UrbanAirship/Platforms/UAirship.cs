@@ -7,12 +7,12 @@ using System.Linq;
 using UnityEngine;
 
 namespace UrbanAirship {
-
     /// <summary>
     /// The primary manager class for the Urban Airship plugin.
     /// </summary>
     public class UAirship {
         private IUAirshipPlugin plugin = null;
+        internal GameObject gameObject = null;
 
         /// <summary>
         /// Push received event handler.
@@ -54,7 +54,27 @@ namespace UrbanAirship {
         /// </summary>
         public event ChannelUpdateEventHandler OnChannelUpdated;
 
-        private static UAirship sharedAirship = new UAirship ();
+        /// <summary>
+        /// Inbox update event handler.
+        /// </summary>
+        public delegate void InboxUpdatedEventHandler (uint messageUnreadCount, uint messageCount);
+
+        /// <summary>
+        /// Occurs when the inbox updates.
+        /// </summary>
+        public event InboxUpdatedEventHandler OnInboxUpdated;
+
+        /// <summary>
+        /// Show inbox event handler.
+        /// </summary>
+        public delegate void ShowInboxEventHandler (string messageId);
+
+        /// <summary>
+        /// Occurs when the app needs to show the inbox.
+        /// </summary>
+        public event ShowInboxEventHandler OnShowInbox;
+
+        internal static UAirship sharedAirship = new UAirship();
 
         /// <summary>
         /// Gets the shared UAirship instance.
@@ -66,6 +86,21 @@ namespace UrbanAirship {
             }
         }
 
+        /// <summary>
+        /// Creates a UAirship instance with a test plugin.
+        /// Used only for testing.
+        /// </summary>
+        /// <param name="testPlugin">The test plugin.</param>
+        internal UAirship (object testPlugin)
+        {
+            plugin = (UrbanAirship.IUAirshipPlugin)testPlugin;
+
+            init();
+        }
+
+        /// <summary>
+        /// Creates a UAirship instance.
+        /// </summary>]
         private UAirship () {
             if (Application.isEditor) {
                 plugin = new StubbedPlugin ();
@@ -79,10 +114,17 @@ namespace UrbanAirship {
 #endif
             }
 
-            GameObject gameObject = new GameObject ("[UrbanAirshipListener]");
+            init();
+        }
+
+        /// <summary>
+        /// Initialize a UAirship instance.
+        /// </summary>]
+        private void init() { 
+            gameObject = new GameObject ("[UrbanAirshipListener]");
             gameObject.AddComponent<UrbanAirshipListener> ();
 
-            MonoBehaviour.DontDestroyOnLoad (gameObject);
+            UnityEngine.Object.DontDestroyOnLoad(gameObject);
             plugin.Listener = gameObject;
         }
 
@@ -227,6 +269,69 @@ namespace UrbanAirship {
         }
 
         /// <summary>
+        /// Displays an inbox message.
+        /// </summary>
+        /// <param name="messageId">The messageId for the message.</param>
+        /// <param name="overlay">If <c>true</c>, display the message in an overlay.</param>
+        public void DisplayInboxMessage (string messageId, bool overlay)
+        {
+            plugin.DisplayInboxMessage(messageId, overlay);
+        }
+
+        /// <summary>
+        /// Refreshes the inbox.
+        /// </summary>
+        public void RefreshInbox () {
+            plugin.RefreshInbox();
+        }
+
+        /// <summary>
+        /// Gets the inbox messages.
+        /// </summary>
+        /// <value>An enumberable list of InboxMessage objects.</value>
+        public IEnumerable<InboxMessage> InboxMessages () {
+            var inboxMessages = new List<InboxMessage>();
+
+            string inboxMessagesAsJson = plugin.InboxMessages();
+            _InboxMessage[] internalInboxMessages = JsonArray<_InboxMessage>.FromJson(inboxMessagesAsJson).values;
+
+            // Unity's JsonUtility doesn't support embedded dictionaries - constructor will create the extras dictionary
+            foreach (_InboxMessage internalInboxMessage in internalInboxMessages)
+            {
+                inboxMessages.Add(new InboxMessage(internalInboxMessage));
+            }
+            return inboxMessages;
+        }
+
+        /// <summary>
+        /// Mark an inbox message as having been read.
+        /// </summary>
+        /// <param name="messageId">The messageId for the message.</param>
+        public void MarkInboxMessageRead (string messageId)
+        {
+            plugin.MarkInboxMessageRead(messageId);
+        }
+
+        /// <summary>
+        /// Delete an inbox message.
+        /// </summary>
+        /// <param name="messageId">The messageId for the message.</param>
+        public void DeleteInboxMessage (string messageId)
+        {
+            plugin.DeleteInboxMessage(messageId);
+        }
+
+        /// <summary>
+        /// Sets the default behavior when the message center is launched from a push notification.
+        /// </summary>
+        /// <param name="enabled"><c>true</c> to automatically launch the default message center. If <c>false</c> the message center must be manually launched by the app.</param>
+
+        public void SetAutoLaunchDefaultMessageCenter (bool enabled)
+        {
+            plugin.SetAutoLaunchDefaultMessageCenter(enabled);
+        }
+
+        /// <summary>
         /// Gets the number of unread messages for the message center.
         /// </summary>
         public int MessageCenterUnreadCount {
@@ -264,7 +369,7 @@ namespace UrbanAirship {
             });
         }
 
-        private class UrbanAirshipListener : MonoBehaviour {
+        internal class UrbanAirshipListener : MonoBehaviour {
             void OnPushReceived (string payload) {
                 PushReceivedEventHandler handler = UAirship.Shared.OnPushReceived;
 
@@ -272,9 +377,9 @@ namespace UrbanAirship {
                     return;
                 }
 
-                PushMessage pushMessage = PushMessage.FromJson (payload);
+                PushMessage pushMessage = PushMessage.FromJson(payload);
                 if (pushMessage != null) {
-                    handler (pushMessage);
+                    handler(pushMessage);
                 }
             }
 
@@ -285,9 +390,9 @@ namespace UrbanAirship {
                     return;
                 }
 
-                PushMessage pushMessage = PushMessage.FromJson (payload);
+                PushMessage pushMessage = PushMessage.FromJson(payload);
                 if (pushMessage != null) {
-                    handler (pushMessage);
+                    handler(pushMessage);
                 }
             }
 
@@ -295,7 +400,7 @@ namespace UrbanAirship {
                 DeepLinkReceivedEventHandler handler = UAirship.Shared.OnDeepLinkReceived;
 
                 if (handler != null) {
-                    handler (deeplink);
+                    handler(deeplink);
                 }
             }
 
@@ -303,9 +408,148 @@ namespace UrbanAirship {
                 ChannelUpdateEventHandler handler = UAirship.Shared.OnChannelUpdated;
 
                 if (handler != null) {
-                    handler (channelId);
+                    handler(channelId);
+                }
+            }
+
+            internal void OnInboxUpdated (string counts) {
+                InboxUpdatedEventHandler handler = UAirship.Shared.OnInboxUpdated;
+
+                MessageCounts messageCounts = JsonUtility.FromJson<MessageCounts>(counts);
+
+                if (handler != null)
+                {
+                    handler(messageCounts.unread, messageCounts.total);
+                }
+
+            }
+
+            internal void OnShowInbox (string messageId) {
+                ShowInboxEventHandler handler = UAirship.Shared.OnShowInbox;
+
+                if (handler != null)
+                {
+                    if (messageId.Length == 0)
+                    {
+                        handler(null);
+                    }
+                    else
+                    {
+                        handler(messageId);
+                    }
                 }
             }
         }
+    }
+
+    public class InboxMessage
+    {
+        public readonly string id;
+        public readonly string title;
+        public readonly long sentDate;
+        public readonly bool isRead;
+        public readonly bool isDeleted;
+        public readonly Dictionary<string, string> extras;
+
+        internal InboxMessage (string id, string title, long sentDate, bool isRead, bool isDeleted, Dictionary<string, string> extras)
+        {
+            this.id = id;
+            this.title = title;
+            this.sentDate = sentDate;
+            this.isRead = isRead;
+            this.isDeleted = isDeleted;
+            this.extras = extras;
+        }
+
+        public InboxMessage (_InboxMessage _inboxMessage)
+        {
+            sentDate = _inboxMessage.sentDate;
+            id = _inboxMessage.id;
+            title = _inboxMessage.title;
+            isRead = _inboxMessage.isRead;
+            isDeleted = _inboxMessage.isDeleted;
+
+            if (_inboxMessage.extrasKeys != null && _inboxMessage.extrasKeys.Count > 0)
+            {
+                // Unity's JsonUtility doesn't support embedded dictionaries - create the extras dictionary manually
+                extras = new Dictionary<string, string>();
+                for (int index = 0; index < _inboxMessage.extrasKeys.Count; index++)
+                {
+                    extras[_inboxMessage.extrasKeys[index]] = _inboxMessage.extrasValues[index];
+                }
+            }
+        }
+
+        public override bool Equals (object other)
+        {
+            var that = other as InboxMessage;
+
+            if (that == null)
+            {
+                return false;
+            }
+
+            if (this.id != that.id)
+            {
+                return false;
+            }
+            if (this.title != that.title)
+            {
+                return false;
+            }
+            if (this.sentDate != that.sentDate)
+            {
+                return false;
+            }
+            if (this.isRead != that.isRead)
+            {
+                return false;
+            }
+            if (this.isDeleted != that.isDeleted)
+            {
+                return false;
+            }
+            if ((this.extras == null ^ that.extras == null) ||
+                ((this.extras != that.extras) &&
+                 (this.extras.Count != that.extras.Count || this.extras.Except(that.extras).Any())))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode ()
+        {
+            unchecked
+            {
+                var hashCode = (id != null ? id.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (title != null ? title.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ sentDate.GetHashCode();
+                hashCode = (hashCode * 397) ^ isRead.GetHashCode();
+                hashCode = (hashCode * 397) ^ isDeleted.GetHashCode();
+                hashCode = (hashCode * 397) ^ (extras != null ? extras.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
+
+    [Serializable]
+    public class _InboxMessage
+    {
+        public string id;
+        public string title;
+        public long sentDate;
+        public bool isRead;
+        public bool isDeleted;
+        public List<string> extrasKeys;
+        public List<string> extrasValues;
+    }
+
+    [Serializable]
+    public class MessageCounts
+    {
+        public uint unread;
+        public uint total;
     }
 }

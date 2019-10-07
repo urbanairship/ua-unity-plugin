@@ -4,9 +4,20 @@
 #import "UnityInterface.h"
 #import "AirshipLib.h"
 #import "AirshipLocationLib.h"
+#import "UAUnityMessageViewController.h"
 
 static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
+
+NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_launch_message_center";
+
+@interface UAUnityPlugin()
+@property (nonatomic, weak) UAInAppMessageHTMLAdapter *htmlAdapter;
+@property (nonatomic, assign) BOOL factoryBlockAssigned;
+@property (nonatomic, strong) UAUnityMessageViewController *messageViewController;
+
+- (BOOL)autoLaunchMessageCenter;
+@end
 
 @implementation UAUnityPlugin
 
@@ -59,9 +70,16 @@ static dispatch_once_t onceToken_;
         UnityWillPause();
     }];
 
-
     [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:kUADisplayInboxActionDefaultRegistryName];
     [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:kUALandingPageActionDefaultRegistryName];
+    
+    // Add observer for inbox updated event
+    [[NSNotificationCenter defaultCenter] addObserver:[self shared]
+                                             selector:@selector(inboxUpdated)
+                                                 name:UAInboxMessageListUpdatedNotification
+                                               object:nil];
+
+    [UAirship inbox].delegate = [self shared];
 }
 
 + (UAUnityPlugin *)shared {
@@ -77,6 +95,20 @@ static dispatch_once_t onceToken_;
     return self;
 }
 
+// getter and setter for component enabled flag
+- (BOOL)autoLaunchMessageCenter {
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:UAUnityAutoLaunchMessageCenterKey] == nil) {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:UAUnityAutoLaunchMessageCenterKey];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    
+    return [[NSUserDefaults standardUserDefaults] boolForKey:UAUnityAutoLaunchMessageCenterKey];
+}
+
+- (void)setAutoLaunchMessageCenter:(BOOL)autoLaunchMessageCenter {
+    [[NSUserDefaults standardUserDefaults] setBool:autoLaunchMessageCenter forKey:UAUnityAutoLaunchMessageCenterKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
 
 #pragma mark -
 #pragma mark Listeners
@@ -255,14 +287,57 @@ void UAUnityPlugin_displayMessageCenter() {
     [[UAirship messageCenter] display];
 }
 
+void UAUnityPlugin_displayInboxMessage(const char *messageID, bool overlay) {
+    NSString *messageIDString = [NSString stringWithUTF8String:messageID];
+    UA_LDEBUG(@"UnityPlugin displayInboxMessage %@, overlay = %@ ", messageIDString, overlay ? @"YES" : @"NO");
+    UnityWillPause();
+    if (overlay) {
+        [[UAUnityPlugin shared] displayOverlayMessage:messageIDString];
+    } else {
+        [[UAUnityPlugin shared] displayInboxMessage:messageIDString];
+    }
+}
+
+void UAUnityPlugin_refreshInbox() {
+    UA_LDEBUG(@"UnityPlugin refreshInbox");
+    UnityWillPause();
+    [[UAirship inbox].messageList retrieveMessageListWithSuccessBlock:^(){} withFailureBlock:^(){}];
+}
+
+const char* UAUnityPlugin_getInboxMessages() {
+    UA_LDEBUG(@"UnityPlugin getInboxMessages");
+    return [UAUnityPlugin convertInboxMessagesToJson:[UAirship inbox].messageList.messages];
+}
+
+void UAUnityPlugin_markInboxMessageRead(const char *messageID) {
+    NSString *messageIDString = [NSString stringWithUTF8String:messageID];
+    UA_LDEBUG(@"UnityPlugin markInboxMessageRead %@", messageIDString);
+    UAInboxMessage *message = [[UAirship inbox].messageList messageForID:messageIDString];
+    [[UAirship inbox].messageList markMessagesRead:@[message] completionHandler:nil];
+}
+
+void UAUnityPlugin_deleteInboxMessage(const char *messageID) {
+    NSString *messageIDString = [NSString stringWithUTF8String:messageID];
+    UA_LDEBUG(@"UnityPlugin deleteInboxMessage %@", messageIDString);
+    UAInboxMessage *message = [[UAirship inbox].messageList messageForID:messageIDString];
+    [[UAirship inbox].messageList markMessagesDeleted:@[message] completionHandler:nil];
+}
+
+void UAUnityPlugin_setAutoLaunchDefaultMessageCenter(bool enabled) {
+    UA_LDEBUG(@"UnityPlugin UAUnityPlugin_setAutoLaunchDefaultMessageCenter %@", enabled ? @"YES" : @"NO");
+    [UAUnityPlugin shared].autoLaunchMessageCenter = enabled;
+}
+
 int UAUnityPlugin_getMessageCenterUnreadCount() {
-    UA_LDEBUG(@"UnityPlugin getMessageCenterUnreadCount");
-    return [UAirship inbox].messageList.unreadCount;
+    int unreadCount = (int)[UAirship inbox].messageList.unreadCount;
+    UA_LDEBUG(@"UnityPlugin getMessageCenterUnreadCount: %d", unreadCount);
+    return unreadCount;
 }
 
 int UAUnityPlugin_getMessageCenterCount() {
-    UA_LDEBUG(@"UnityPlugin getMessageCenterCount");
-    return [UAirship inbox].messageList.messageCount;
+    int messageCount = (int)[UAirship inbox].messageList.messageCount;
+    UA_LDEBUG(@"UnityPlugin getMessageCenterCount: %d", messageCount);
+    return messageCount;
 }
 
 #pragma mark -
@@ -384,6 +459,42 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     completionHandler();
 }
 
+#pragma mark -
+#pragma mark UAInboxDelegate
+- (void)showMessageForID:(NSString *)messageID {
+    UA_LDEBUG(@"showMessageForID: %@", messageID);
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:UAUnityAutoLaunchMessageCenterKey]) {
+        [[UAirship messageCenter] displayMessageForID:messageID];
+    } else {
+        UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
+                         "OnShowInbox",
+                         MakeStringCopy([messageID UTF8String]));
+    }
+}
+
+- (void)showInbox {
+    UA_LDEBUG(@"showInbox");
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:UAUnityAutoLaunchMessageCenterKey]) {
+        [[UAirship messageCenter] display];
+    } else {
+        UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
+                         "OnShowInbox",
+                         MakeStringCopy([@"" UTF8String]));
+    }
+}
+
+#pragma mark -
+#pragma mark UAInboxMessageListUpdatedNotification
+- (void)inboxUpdated {
+    NSDictionary *counts = @{
+        @"unread" : @([UAirship inbox].messageList.unreadCount),
+        @"total" : @([UAirship inbox].messageList.messageCount)
+    };
+    UA_LDEBUG(@"UnityPlugin inboxUpdated(unread = %@, total = %@)", counts[@"unread"], counts[@"total"]);
+    UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
+                     "OnInboxUpdated",
+                     [UAUnityPlugin convertToJson:counts]);
+}
 
 #pragma mark -
 #pragma mark Helpers
@@ -428,6 +539,76 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 + (const char *)convertToJson:(NSObject*) obj {
     NSString *JSONString = [NSJSONSerialization stringWithObject:obj acceptingFragments:YES];
     return MakeStringCopy([JSONString UTF8String]);
+}
+
++ (const char *)convertInboxMessagesToJson:(NSArray<UAInboxMessage *> *)messages {
+    NSMutableArray<NSDictionary *> *convertedMessages = [NSMutableArray arrayWithCapacity:messages.count];
+    for (UAInboxMessage *message in messages) {
+        NSMutableDictionary *convertedMessage = [NSMutableDictionary dictionary];
+        convertedMessage[@"id"] = message.messageID;
+        convertedMessage[@"title"] = message.title;
+        
+        NSNumber *sentDate = @([message.messageSent timeIntervalSince1970] * 1000);
+        convertedMessage[@"sentDate"] = sentDate;
+
+        NSDictionary *icons = [message.rawMessageObject objectForKey:@"icons"];
+        NSString *iconUrl = [icons objectForKey:@"list_icon"];
+        convertedMessage[@"listIconUrl"] = iconUrl;
+
+        convertedMessage[@"isRead"] = message.unread ? @NO : @YES;
+        convertedMessage[@"isDeleted"] = @(message.deleted);
+        
+        if (message.extra) {
+            // Unity's JsonArray doesn't support dictionaries, so break extra up into two lists.
+            convertedMessage[@"extrasKeys"] = message.extra.allKeys;
+            convertedMessage[@"extrasValues"] = message.extra.allValues;
+        }
+
+        [convertedMessages addObject:convertedMessage];
+    }
+    return [UAUnityPlugin convertToJson:convertedMessages];
+}
+
+- (void)displayInboxMessage:(NSString *)messageId {
+    UAUnityMessageViewController *mvc = [[UAUnityMessageViewController alloc] initWithNibName:@"UAMessageCenterMessageViewController" bundle:[UAirship resources]];
+    [mvc loadMessageForID:messageId onlyIfChanged:YES onError:nil];
+
+    UINavigationController *navController =  [[UINavigationController alloc] initWithRootViewController:mvc];
+    self.messageViewController = mvc;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:navController animated:YES completion:nil];
+    });
+}
+
+- (void)displayOverlayMessage:(NSString *)messageId {
+    if (!self.factoryBlockAssigned) {
+        [[UAirship inAppMessageManager] setFactoryBlock:^id<UAInAppMessageAdapterProtocol> _Nonnull(UAInAppMessage * _Nonnull message) {
+            UAInAppMessageHTMLAdapter *adapter = [UAInAppMessageHTMLAdapter adapterForMessage:message];
+            UAInAppMessageHTMLDisplayContent *displayContent = (UAInAppMessageHTMLDisplayContent *) message.displayContent;
+            NSURL *url = [NSURL URLWithString:displayContent.url];
+
+            if ([url.scheme isEqualToString:@"message"]) {
+                self.htmlAdapter = adapter;
+            }
+
+            return adapter;
+        } forDisplayType:UAInAppMessageDisplayTypeHTML];
+
+        self.factoryBlockAssigned = YES;
+    }
+
+    [UAActionRunner runActionWithName:kUAOverlayInboxMessageActionDefaultRegistryName
+                                value:messageId
+                            situation:UASituationManualInvocation];
+}
+
+- (void)closeOverlayMessage {
+    UIViewController *vc = [self.htmlAdapter valueForKey:@"htmlViewController"];
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    [vc performSelector:NSSelectorFromString(@"dismissWithoutResolution")];
+# pragma clang diagnostic pop
 }
 
 // Helper method to create C string copy

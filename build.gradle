@@ -6,8 +6,23 @@ allprojects {
       if (unityExe == null || unityExe.isEmpty()) {
           unityExe = System.getenv("UNITY_EXE")
       }
-      if (unityExe == null || unityExe.isEmpty()) {
+      // Unity Hub installs Unity in a new Location
+      if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
+            new ByteArrayOutputStream().withStream { os ->
+                def result = exec {
+                    executable = 'bash'
+                    args = ['-c', 'find /Applications/Unity/Hub -name Unity -type f | sort | tail -1']
+                    standardOutput = os
+                }
+                unityExe = os.toString().trim()
+            }
+      }
+      // If no Unity Hub, use old location
+      if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
           unityExe ='/Applications/Unity/Unity.app/Contents/MacOS/Unity'
+      }
+      if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
+          throw new GradleException('Unable to find Unity executable.')
       }
 
       unityClassesJar = System.getProperty("UNITY_CLASSES_JAR")
@@ -90,6 +105,10 @@ task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
             into file("$buildDir/unity-plugin/Assets/")
             exclude "UrbanAirship/PluginInfo.cs"
             exclude "UrbanAirship/Editor/UADependencies.xml"
+            // exclude unit tests
+            exclude "UrbanAirship/Tests"
+            exclude "UrbanAirship/Platforms/AssemblyInfo.cs"
+            exclude "UrbanAirship/Platforms/UrbanAirship.asmdef"
         }
 
         // Copy PluginInfo.cs and replace the version placeholders
@@ -139,7 +158,6 @@ task build(dependsOn: 'preparePlugin') {
                 args addPackageOptions
             }
         }
-
 
         // Export the plugin
         def exportPackageOptions = [

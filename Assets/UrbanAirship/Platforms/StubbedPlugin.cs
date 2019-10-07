@@ -19,6 +19,12 @@ namespace UrbanAirship {
         public void AddCustomEvent (string customEvent) { }
         public void AssociateIdentifier (string key, string identifier) { }
         public void DisplayMessageCenter () { }
+        public void DisplayInboxMessage (string messageId, bool overlay) { }
+        public void RefreshInbox () { }
+        public string InboxMessages () { return null; }
+        public void MarkInboxMessageRead (string messageId) { }
+        public void DeleteInboxMessage (string messageId) { }
+        public void SetAutoLaunchDefaultMessageCenter (bool enabled) {  }
         public int MessageCenterUnreadCount { get; private set; }
         public int MessageCenterCount { get; private set; }
         public void EditNamedUserTagGroups (string payload) { }
