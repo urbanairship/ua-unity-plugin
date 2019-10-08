@@ -251,7 +251,7 @@ namespace UrbanAirship.Editor {
                 rootDict.SetInteger ("developmentLogLevel", IOSLogLevel (DevelopmentLogLevel));
             }
 
-            rootDict.SetString ("site", Enum.GetName(Site));
+            rootDict.SetString ("site", Site.ToString());
             rootDict.SetBoolean ("inProduction", InProduction);
 
             PlistElementDict customConfig = rootDict.CreateDict ("customConfig");
@@ -308,7 +308,7 @@ namespace UrbanAirship.Editor {
                     xmlWriter.WriteAttributeString ("developmentLogLevel", AndroidLogLevel (DevelopmentLogLevel));
                 }
 
-                xmlWriter.WriteAttributeString ("site", Enum.GetName(Site));
+                xmlWriter.WriteAttributeString ("site", Site.ToString());
                 xmlWriter.WriteAttributeString ("inProduction", (InProduction ? "true" : "false"));
 
                 if (!String.IsNullOrEmpty (AndroidNotificationIcon)) {
