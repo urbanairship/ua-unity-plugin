@@ -27,6 +27,11 @@ namespace UrbanAirship.Editor {
             None = 5
         }
 
+        public enum CloudSite {
+            US = 0,
+            EU = 1,
+        }
+
         private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
         private static UAConfig cachedInstance;
 
@@ -72,6 +77,9 @@ namespace UrbanAirship.Editor {
         [SerializeField]
         public String Version { get; set; }
 
+        [SerializeField]
+        public CloudSite Site { get; set; }
+
         public bool IsValid {
             get {
                 try {
@@ -88,6 +96,7 @@ namespace UrbanAirship.Editor {
             ProductionLogLevel = LogLevel.Error;
             GenerateGoogleJsonConfig = true;
             Version = PluginInfo.Version;
+            Site = CloudSite.US;
         }
 
         public UAConfig (UAConfig config) {
@@ -108,6 +117,8 @@ namespace UrbanAirship.Editor {
             this.AndroidNotificationAccentColor = config.AndroidNotificationAccentColor;
             this.AndroidNotificationIcon = config.AndroidNotificationIcon;
             this.GenerateGoogleJsonConfig = config.GenerateGoogleJsonConfig;
+
+            this.Site = config.Site;
         }
 
         public static UAConfig LoadConfig () {
@@ -240,6 +251,7 @@ namespace UrbanAirship.Editor {
                 rootDict.SetInteger ("developmentLogLevel", IOSLogLevel (DevelopmentLogLevel));
             }
 
+            rootDict.SetString ("site", Enum.GetName(Site));
             rootDict.SetBoolean ("inProduction", InProduction);
 
             PlistElementDict customConfig = rootDict.CreateDict ("customConfig");
@@ -296,6 +308,7 @@ namespace UrbanAirship.Editor {
                     xmlWriter.WriteAttributeString ("developmentLogLevel", AndroidLogLevel (DevelopmentLogLevel));
                 }
 
+                xmlWriter.WriteAttributeString ("site", Enum.GetName(Site));
                 xmlWriter.WriteAttributeString ("inProduction", (InProduction ? "true" : "false"));
 
                 if (!String.IsNullOrEmpty (AndroidNotificationIcon)) {

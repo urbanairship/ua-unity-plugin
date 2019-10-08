@@ -23,17 +23,18 @@ namespace UrbanAirship.Editor {
             CreateSection ("Production", () => {
                 config.ProductionAppKey = EditorGUILayout.TextField ("App Key", config.ProductionAppKey);
                 config.ProductionAppSecret = EditorGUILayout.TextField ("App Secret", config.ProductionAppSecret);
-                config.ProductionLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup ("Log level:", config.ProductionLogLevel);
+                config.ProductionLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup ("Log Level", config.ProductionLogLevel);
             });
 
             CreateSection ("Development", () => {
                 config.DevelopmentAppKey = EditorGUILayout.TextField ("App Key", config.DevelopmentAppKey);
                 config.DevelopmentAppSecret = EditorGUILayout.TextField ("App Secret", config.DevelopmentAppSecret);
-                config.DevelopmentLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup ("Log level:", config.DevelopmentLogLevel);
+                config.DevelopmentLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup ("Log Level", config.DevelopmentLogLevel);
             });
 
-            CreateSection ("In Production", () => {
+            CreateSection ("Common", () => {
                 config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
+                config.Site = (UAConfig.CloudSite) EditorGUILayout.EnumPopup ("Cloud Site", config.Site);
             });
 
             CreateSection ("Android Settings", () => {
