@@ -54,7 +54,7 @@ const char* UAUnityPlugin_getNamedUserID();
 #pragma mark -
 #pragma mark Message Center
 void UAUnityPlugin_displayMessageCenter();
-void UAUnityPlugin_displayInboxMessage(const char *messageId, bool overlay);
+void UAUnityPlugin_displayInboxMessage(const char *messageId);
 void UAUnityPlugin_refreshInbox();
 const char* UAUnityPlugin_getInboxMessages();
 void UAUnityPlugin_markInboxMessageRead(const char *messageID);

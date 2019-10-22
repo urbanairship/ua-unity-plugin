@@ -106,9 +106,9 @@ namespace UrbanAirship {
             Call ("displayMessageCenter");
         }
 
-        public void DisplayInboxMessage (string messageId, bool overlay)
+        public void DisplayInboxMessage (string messageId)
         {
-            Call ("displayInboxMessage", messageId, overlay);
+            Call ("displayInboxMessage", messageId);
         }
 
         public void RefreshInbox ()

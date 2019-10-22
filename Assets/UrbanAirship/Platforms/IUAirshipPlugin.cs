@@ -53,7 +53,7 @@ namespace UrbanAirship {
 
         void DisplayMessageCenter ();
 
-        void DisplayInboxMessage (string messageId, bool overlay);
+        void DisplayInboxMessage (string messageId);
 
         void RefreshInbox ();
 

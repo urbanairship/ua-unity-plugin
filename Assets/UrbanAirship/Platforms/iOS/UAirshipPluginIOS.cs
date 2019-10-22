@@ -67,7 +67,7 @@ namespace UrbanAirship {
         private static extern void UAUnityPlugin_displayMessageCenter ();
 
         [DllImport("__Internal")]
-        private static extern void UAUnityPlugin_displayInboxMessage (string messageId, bool overlay);
+        private static extern void UAUnityPlugin_displayInboxMessage (string messageId);
 
         [DllImport("__Internal")]
         private static extern void UAUnityPlugin_refreshInbox ();
@@ -179,8 +179,8 @@ namespace UrbanAirship {
             UAUnityPlugin_displayMessageCenter ();
         }
 
-        public void DisplayInboxMessage (string messageId, bool overlay) {
-            UAUnityPlugin_displayInboxMessage(messageId, overlay);
+        public void DisplayInboxMessage (string messageId) {
+            UAUnityPlugin_displayInboxMessage(messageId);
         }
 
         public void RefreshInbox () {

@@ -312,11 +312,8 @@ namespace Tests
         {
             string messageId = "AMessageId";
 
-            sharedAirship.DisplayInboxMessage(messageId, false);
-            mockPlugin.Received().DisplayInboxMessage(messageId, false);
-
-            sharedAirship.DisplayInboxMessage(messageId, true);
-            mockPlugin.Received().DisplayInboxMessage(messageId, true);
+            sharedAirship.DisplayInboxMessage(messageId);
+            mockPlugin.Received().DisplayInboxMessage(messageId);
         }
 
         [Test]

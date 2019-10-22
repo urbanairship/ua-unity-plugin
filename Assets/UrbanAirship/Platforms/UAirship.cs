@@ -272,10 +272,9 @@ namespace UrbanAirship {
         /// Displays an inbox message.
         /// </summary>
         /// <param name="messageId">The messageId for the message.</param>
-        /// <param name="overlay">If <c>true</c>, display the message in an overlay.</param>
-        public void DisplayInboxMessage (string messageId, bool overlay)
+        public void DisplayInboxMessage (string messageId)
         {
-            plugin.DisplayInboxMessage(messageId, overlay);
+            plugin.DisplayInboxMessage(messageId);
         }
 
         /// <summary>

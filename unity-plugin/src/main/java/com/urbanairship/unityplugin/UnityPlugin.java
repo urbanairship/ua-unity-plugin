@@ -13,8 +13,6 @@ import android.support.annotation.Nullable;
 import com.unity3d.player.UnityPlayer;
 import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
-import com.urbanairship.actions.ActionRunRequest;
-import com.urbanairship.actions.OverlayRichPushMessageAction;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
@@ -257,23 +255,17 @@ public class UnityPlugin {
      * Display an inbox message in the default message center.
      *
      * @param messageId The id of the message to be displayed.
-     * @param overlay Display the message in an overlay.
      */
-    public void displayInboxMessage(String messageId, boolean overlay) {
-        PluginLogger.debug("UnityPlugin displayInboxMessage %s, overlay = %s", messageId, overlay ? "true" : "false");
-        if (overlay) {
-            ActionRunRequest.createRequest(OverlayRichPushMessageAction.DEFAULT_REGISTRY_NAME)
-                    .setValue(messageId)
-                    .run();
-        } else {
-            Intent intent = new Intent(UnityPlayer.currentActivity, CustomMessageActivity.class)
-                    .setAction(MessageCenter.VIEW_MESSAGE_INTENT_ACTION)
-                    .setPackage(UnityPlayer.currentActivity.getPackageName())
-                    .setData(Uri.fromParts(MessageCenter.MESSAGE_DATA_SCHEME, messageId, null))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    public void displayInboxMessage(String messageId) {
+        PluginLogger.debug("UnityPlugin displayInboxMessage %s", messageId);
 
-            UnityPlayer.currentActivity.getApplicationContext().startActivity(intent);
-        }
+        Intent intent = new Intent(UnityPlayer.currentActivity, CustomMessageActivity.class)
+                .setAction(MessageCenter.VIEW_MESSAGE_INTENT_ACTION)
+                .setPackage(UnityPlayer.currentActivity.getPackageName())
+                .setData(Uri.fromParts(MessageCenter.MESSAGE_DATA_SCHEME, messageId, null))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        UnityPlayer.currentActivity.getApplicationContext().startActivity(intent);
     }
 
     /**

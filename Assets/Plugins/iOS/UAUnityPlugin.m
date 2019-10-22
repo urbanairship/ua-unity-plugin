@@ -287,15 +287,11 @@ void UAUnityPlugin_displayMessageCenter() {
     [[UAirship messageCenter] display];
 }
 
-void UAUnityPlugin_displayInboxMessage(const char *messageID, bool overlay) {
+void UAUnityPlugin_displayInboxMessage(const char *messageID) {
     NSString *messageIDString = [NSString stringWithUTF8String:messageID];
-    UA_LDEBUG(@"UnityPlugin displayInboxMessage %@, overlay = %@ ", messageIDString, overlay ? @"YES" : @"NO");
+    UA_LDEBUG(@"UnityPlugin displayInboxMessage %@", messageIDString);
     UnityWillPause();
-    if (overlay) {
-        [[UAUnityPlugin shared] displayOverlayMessage:messageIDString];
-    } else {
-        [[UAUnityPlugin shared] displayInboxMessage:messageIDString];
-    }
+    [[UAUnityPlugin shared] displayInboxMessage:messageIDString];
 }
 
 void UAUnityPlugin_refreshInbox() {
@@ -579,36 +575,6 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:navController animated:YES completion:nil];
     });
-}
-
-- (void)displayOverlayMessage:(NSString *)messageId {
-    if (!self.factoryBlockAssigned) {
-        [[UAirship inAppMessageManager] setFactoryBlock:^id<UAInAppMessageAdapterProtocol> _Nonnull(UAInAppMessage * _Nonnull message) {
-            UAInAppMessageHTMLAdapter *adapter = [UAInAppMessageHTMLAdapter adapterForMessage:message];
-            UAInAppMessageHTMLDisplayContent *displayContent = (UAInAppMessageHTMLDisplayContent *) message.displayContent;
-            NSURL *url = [NSURL URLWithString:displayContent.url];
-
-            if ([url.scheme isEqualToString:@"message"]) {
-                self.htmlAdapter = adapter;
-            }
-
-            return adapter;
-        } forDisplayType:UAInAppMessageDisplayTypeHTML];
-
-        self.factoryBlockAssigned = YES;
-    }
-
-    [UAActionRunner runActionWithName:kUAOverlayInboxMessageActionDefaultRegistryName
-                                value:messageId
-                            situation:UASituationManualInvocation];
-}
-
-- (void)closeOverlayMessage {
-    UIViewController *vc = [self.htmlAdapter valueForKey:@"htmlViewController"];
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    [vc performSelector:NSSelectorFromString(@"dismissWithoutResolution")];
-# pragma clang diagnostic pop
 }
 
 // Helper method to create C string copy
