@@ -12,11 +12,7 @@ static dispatch_once_t onceToken_;
 NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_launch_message_center";
 
 @interface UAUnityPlugin()
-@property (nonatomic, weak) UAInAppMessageHTMLAdapter *htmlAdapter;
-@property (nonatomic, assign) BOOL factoryBlockAssigned;
 @property (nonatomic, strong) UAUnityMessageViewController *messageViewController;
-
-- (BOOL)autoLaunchMessageCenter;
 @end
 
 @implementation UAUnityPlugin
@@ -95,7 +91,7 @@ NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_laun
     return self;
 }
 
-// getter and setter for component enabled flag
+// getter and setter for auto-launch message center flag
 - (BOOL)autoLaunchMessageCenter {
     if ([[NSUserDefaults standardUserDefaults] objectForKey:UAUnityAutoLaunchMessageCenterKey] == nil) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:UAUnityAutoLaunchMessageCenterKey];
@@ -459,7 +455,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 #pragma mark UAInboxDelegate
 - (void)showMessageForID:(NSString *)messageID {
     UA_LDEBUG(@"showMessageForID: %@", messageID);
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:UAUnityAutoLaunchMessageCenterKey]) {
+    if (self.autoLaunchMessageCenter) {
         [[UAirship messageCenter] displayMessageForID:messageID];
     } else {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
@@ -470,7 +466,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 
 - (void)showInbox {
     UA_LDEBUG(@"showInbox");
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:UAUnityAutoLaunchMessageCenterKey]) {
+    if (self.autoLaunchMessageCenter) {
         [[UAirship messageCenter] display];
     } else {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
@@ -538,7 +534,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 }
 
 + (const char *)convertInboxMessagesToJson:(NSArray<UAInboxMessage *> *)messages {
-    NSMutableArray<NSDictionary *> *convertedMessages = [NSMutableArray arrayWithCapacity:messages.count];
+    NSMutableArray<NSDictionary *> *convertedMessages = [NSMutableArray array];
     for (UAInboxMessage *message in messages) {
         NSMutableDictionary *convertedMessage = [NSMutableDictionary dictionary];
         convertedMessage[@"id"] = message.messageID;

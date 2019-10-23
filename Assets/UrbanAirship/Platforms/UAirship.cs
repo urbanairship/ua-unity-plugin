@@ -428,7 +428,7 @@ namespace UrbanAirship {
 
                 if (handler != null)
                 {
-                    if (messageId.Length == 0)
+                    if ((messageId == null) || (messageId.Length == 0))
                     {
                         handler(null);
                     }
