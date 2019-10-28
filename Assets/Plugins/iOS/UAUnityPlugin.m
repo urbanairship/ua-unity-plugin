@@ -103,7 +103,6 @@ NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_laun
 
 - (void)setAutoLaunchMessageCenter:(BOOL)autoLaunchMessageCenter {
     [[NSUserDefaults standardUserDefaults] setBool:autoLaunchMessageCenter forKey:UAUnityAutoLaunchMessageCenterKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 #pragma mark -
