@@ -106,6 +106,36 @@ namespace UrbanAirship {
             Call ("displayMessageCenter");
         }
 
+        public void DisplayInboxMessage (string messageId)
+        {
+            Call ("displayInboxMessage", messageId);
+        }
+
+        public void RefreshInbox ()
+        {
+            Call ("refreshInbox");
+        }
+
+        public string InboxMessages ()
+        {
+            return Call<string> ("getInboxMessages");
+        }
+
+        public void MarkInboxMessageRead (string messageId)
+        {
+            Call ("markInboxMessageRead", messageId);
+        }
+
+        public void DeleteInboxMessage (string messageId)
+        {
+            Call ("deleteInboxMessage", messageId);
+        }
+
+        public void SetAutoLaunchDefaultMessageCenter (bool enabled)
+        {
+            Call ("setAutoLaunchDefaultMessageCenter", enabled);
+        }
+
         public int MessageCenterUnreadCount {
             get {
                 return Call<int> ("getMessageCenterUnreadCount");

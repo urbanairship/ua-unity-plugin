@@ -13,7 +13,6 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
     }
 
     void Start () {
-
         if (!string.IsNullOrEmpty (addTagOnStart)) {
             UAirship.Shared.AddTag (addTagOnStart);
         }
@@ -22,6 +21,10 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
         UAirship.Shared.OnDeepLinkReceived += OnDeepLinkReceived;
         UAirship.Shared.OnPushOpened += OnPushOpened;
+        UAirship.Shared.OnInboxUpdated += OnInboxUpdated;
+        UAirship.Shared.OnShowInbox += OnShowInbox;
+
+        UAirship.Shared.RefreshInbox();
     }
 
     void OnDestroy () {
@@ -57,5 +60,39 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
 
     void OnDeepLinkReceived (string deeplink) {
         Debug.Log ("Received deep link: " + deeplink);
+    }
+
+    void OnInboxUpdated (uint messageUnreadCount, uint messageCount)
+    {
+        Debug.Log("Inbox updated - unread messages: " + messageUnreadCount + " total messages: " + messageCount);
+
+        IEnumerable<InboxMessage>inboxMessages = UAirship.Shared.InboxMessages();
+        foreach (InboxMessage inboxMessage in inboxMessages)
+        {
+            Debug.Log("Message id: " + inboxMessage.id + ", title: " + inboxMessage.title + ", sentDate: " + inboxMessage.sentDate + ", isRead: " + inboxMessage.isRead + ", isDeleted: " + inboxMessage.isDeleted);
+            if (inboxMessage.extras == null)
+            {
+                Debug.Log("Extras is null");
+            }
+            else
+            {
+                foreach (KeyValuePair<string, string> entry in inboxMessage.extras)
+                {
+                    Debug.Log("Message extras [" + entry.Key + "] = " + entry.Value);
+                }
+            }
+        }
+    }
+
+    void OnShowInbox (string messageId)
+    {
+        if (messageId == null)
+        {
+            Debug.Log("OnShowInbox - show inbox");
+        }
+        else
+        {
+            Debug.Log("OnShowInbox - show message: messageId = " + messageId);
+        }
     }
 }

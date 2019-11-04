@@ -8,24 +8,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
+
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.urbanairship.AirshipConfigOptions;
 import com.urbanairship.Autopilot;
-import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
 import com.urbanairship.actions.Action;
 import com.urbanairship.actions.ActionArguments;
 import com.urbanairship.actions.ActionRegistry;
 import com.urbanairship.actions.ActionResult;
 import com.urbanairship.actions.DeepLinkAction;
+import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.NotificationActionButtonInfo;
 import com.urbanairship.push.NotificationInfo;
 import com.urbanairship.push.NotificationListener;
 import com.urbanairship.push.PushListener;
 import com.urbanairship.push.PushMessage;
 import com.urbanairship.push.RegistrationListener;
+import com.urbanairship.richpush.RichPushInbox;
 
+import static com.urbanairship.unityplugin.UnityPlugin.AUTO_LAUNCH_MESSAGE_CENTER;
 
 public class UnityAutopilot extends Autopilot {
 
@@ -86,6 +91,25 @@ public class UnityAutopilot extends Autopilot {
             }
         });
 
+        airship.getMessageCenter().setOnShowMessageCenterListener(new MessageCenter.OnShowMessageCenterListener() {
+            @Override
+            public boolean onShowMessageCenter(@Nullable String messageId) {
+                if (PreferenceManager.getDefaultSharedPreferences(UAirship.getApplicationContext()).getBoolean(AUTO_LAUNCH_MESSAGE_CENTER, true)) {
+                    return false;
+                } else {
+                    UnityPlugin.shared().onShowInbox(messageId);
+                    return true;
+                }
+            }
+        });
+
+        airship.getInbox().addListener(new RichPushInbox.Listener() {
+            @Override
+            public void onInboxUpdated() {
+                UnityPlugin.shared().onInboxUpdated();
+            }
+        });
+
 
         ActionRegistry.Entry entry = airship.getActionRegistry().getEntry(DeepLinkAction.DEFAULT_REGISTRY_NAME);
         entry.setDefaultAction(new Action() {
@@ -124,8 +148,12 @@ public class UnityAutopilot extends Autopilot {
             return null;
         }
 
-        return new AirshipConfigOptions.Builder()
+        AirshipConfigOptions options = new AirshipConfigOptions.Builder()
                 .applyConfig(context, resourceId)
                 .build();
+
+        PluginLogger.setLogLevel(options.logLevel);
+
+        return options;
     }
 }
