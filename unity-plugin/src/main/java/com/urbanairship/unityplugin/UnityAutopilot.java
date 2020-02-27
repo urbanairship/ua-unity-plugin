@@ -21,13 +21,13 @@ import com.urbanairship.actions.ActionArguments;
 import com.urbanairship.actions.ActionRegistry;
 import com.urbanairship.actions.ActionResult;
 import com.urbanairship.actions.DeepLinkAction;
+import com.urbanairship.channel.AirshipChannelListener;
 import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.NotificationActionButtonInfo;
 import com.urbanairship.push.NotificationInfo;
 import com.urbanairship.push.NotificationListener;
 import com.urbanairship.push.PushListener;
 import com.urbanairship.push.PushMessage;
-import com.urbanairship.push.RegistrationListener;
 import com.urbanairship.richpush.RichPushInbox;
 
 import static com.urbanairship.unityplugin.UnityPlugin.AUTO_LAUNCH_MESSAGE_CENTER;
@@ -37,7 +37,7 @@ public class UnityAutopilot extends Autopilot {
     @Override
     public void onAirshipReady(UAirship airship) {
 
-        airship.getPushManager().addRegistrationListener(new RegistrationListener() {
+        airship.getChannel().addChannelListener(new AirshipChannelListener() {
             @Override
             public void onChannelCreated(@NonNull String channelId) {
                 UnityPlugin.shared().onChannelCreated(channelId);
@@ -46,11 +46,6 @@ public class UnityAutopilot extends Autopilot {
             @Override
             public void onChannelUpdated(@NonNull String channelId) {
                 UnityPlugin.shared().onChannelUpdated(channelId);
-
-            }
-
-            @Override
-            public void onPushTokenUpdated(@NonNull String token) {
 
             }
         });

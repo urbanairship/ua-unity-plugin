@@ -14,12 +14,12 @@ import com.unity3d.player.UnityPlayer;
 import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
+import com.urbanairship.channel.AirshipChannel;
 import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
 import com.urbanairship.json.JsonMap;
 import com.urbanairship.json.JsonValue;
 import com.urbanairship.messagecenter.MessageCenter;
-import com.urbanairship.push.PushManager;
 import com.urbanairship.push.PushMessage;
 import com.urbanairship.channel.TagGroupsEditor;
 import com.urbanairship.richpush.RichPushMessage;
@@ -87,32 +87,31 @@ public class UnityPlugin {
 
     public String getChannelId() {
         PluginLogger.debug("UnityPlugin getChannelId");
-        return UAirship.shared().getPushManager().getChannelId();
+        return UAirship.shared().getChannel().getId();
     }
 
     public void addTag(String tag) {
         PluginLogger.debug("UnityPlugin addTag: " + tag);
 
-        PushManager push = UAirship.shared().getPushManager();
-        Set<String> tags = push.getTags();
+        AirshipChannel channel = UAirship.shared().getChannel();
+        Set<String> tags = channel.getTags();
         tags.add(tag);
-        push.setTags(tags);
+        channel.setTags(tags);
     }
 
     public void removeTag(String tag) {
         PluginLogger.debug("UnityPlugin removeTag: " + tag);
 
-        PushManager push = UAirship.shared().getPushManager();
-
-        Set<String> tags = push.getTags();
+        AirshipChannel channel = UAirship.shared().getChannel();
+        Set<String> tags = channel.getTags();
         tags.remove(tag);
-        push.setTags(tags);
+        channel.setTags(tags);
     }
 
     public String getTags() {
         PluginLogger.debug("UnityPlugin getTags");
         JSONArray jsonArray = new JSONArray();
-        for (String tag : UAirship.shared().getPushManager().getTags()) {
+        for (String tag : UAirship.shared().getChannel().getTags()) {
             jsonArray.put(tag);
         }
 
@@ -248,7 +247,7 @@ public class UnityPlugin {
 
     public void displayMessageCenter() {
         PluginLogger.debug("UnityPlugin displayMessageCenter");
-        UAirship.shared().getInbox().startInboxActivity();
+        UAirship.shared().getMessageCenter().showMessageCenter();
     }
 
     /**
