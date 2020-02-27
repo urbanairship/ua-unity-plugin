@@ -21,7 +21,7 @@ import com.urbanairship.json.JsonValue;
 import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.PushManager;
 import com.urbanairship.push.PushMessage;
-import com.urbanairship.push.TagGroupsEditor;
+import com.urbanairship.channel.TagGroupsEditor;
 import com.urbanairship.richpush.RichPushMessage;
 import com.urbanairship.util.UAStringUtil;
 
@@ -353,7 +353,7 @@ public class UnityPlugin {
     public void editChannelTagGroups(String payload) {
         PluginLogger.debug("UnityPlugin editChannelTagGroups");
 
-        TagGroupsEditor editor = UAirship.shared().getPushManager().editTagGroups();
+        TagGroupsEditor editor = UAirship.shared().getChannel().editTagGroups();
         applyTagGroupOperations(editor, payload);
         editor.apply();
     }
