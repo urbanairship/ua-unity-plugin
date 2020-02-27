@@ -4,8 +4,16 @@ buildscript {
         jcenter()
     }
 
+    ext {
+        // Gradle plugins
+        gradlePluginVersion = '3.5.3'
+
+        // Androidx
+        androidxAnnotationVersion = '1.0.0'
+    }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
+        classpath "com.android.tools.build:gradle:$gradlePluginVersion"
     }
 }
 
@@ -36,8 +44,8 @@ android {
 
 dependencies {
     compileOnly files('libs/unity-classes.jar')
-    implementation "com.android.support:support-v4:${airshipProperties.androidSupportLibVersion}"
-    implementation "com.android.support:support-annotations:${airshipProperties.androidSupportLibVersion}"
+    implementation "androidx.legacy:legacy-support-v4:1.0.0"
+    implementation "androidx.annotation:annotation:$androidxAnnotationVersion"
     implementation "com.urbanairship.android:urbanairship-fcm:${airshipProperties.androidAirshipVersion}"
 }
 

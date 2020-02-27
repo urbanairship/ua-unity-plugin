@@ -43,6 +43,7 @@ configurations {
 }
 
 repositories {
+    google()
     ivy {
         url 'https://bintray.com'
         patternLayout {
