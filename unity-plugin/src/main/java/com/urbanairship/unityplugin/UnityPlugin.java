@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.unity3d.player.UnityPlayer;
-import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.channel.AirshipChannel;
@@ -129,7 +128,7 @@ public class UnityPlugin {
     }
 
     public void setBackgroundLocationAllowed(boolean allowed) {
-        Logger.debug("UnityPlugin setBackgroundLocationAllowed: " + allowed);
+        PluginLogger.debug("UnityPlugin setBackgroundLocationAllowed: " + allowed);
         UAirship.shared().getLocationManager().setBackgroundLocationAllowed(allowed);
     }
 
@@ -158,6 +157,10 @@ public class UnityPlugin {
         }
 
         String eventName = customEventMap.opt("eventName").getString();
+        if (eventName == null) {
+            return;
+        }
+
         String eventValue = customEventMap.opt("eventValue").getString();
         String transactionId = customEventMap.opt("transactionId").getString();
         String interactionType = customEventMap.opt("interactionType").getString();
@@ -191,7 +194,10 @@ public class UnityPlugin {
 
                 switch (type) {
                     case "s":
-                        eventBuilder.addProperty(name, jsonMap.opt("stringValue").getString());
+                        String stringValue = jsonMap.opt("stringValue").getString();
+                        if (stringValue != null) {
+                            eventBuilder.addProperty(name, stringValue);
+                        }
                         break;
                     case "d":
                         eventBuilder.addProperty(name, jsonMap.opt("doubleValue").getDouble(0));
@@ -200,8 +206,12 @@ public class UnityPlugin {
                         eventBuilder.addProperty(name, jsonMap.opt("boolValue").getBoolean(false));
                         break;
                     case "sa":
+                        JsonList stringArrayValue = jsonMap.opt("stringArrayValue").getList();
+                        if (stringArrayValue == null) {
+                            break;
+                        }
                         List<String> strings = new ArrayList<>();
-                        for (JsonValue jsonValue : jsonMap.opt("stringArrayValue").getList()) {
+                        for (JsonValue jsonValue : stringArrayValue) {
                             if (jsonValue.isString()) {
                                 strings.add(jsonValue.getString());
                             } else {
@@ -473,7 +483,10 @@ public class UnityPlugin {
             messageMap.put("id", message.getMessageId());
             messageMap.put("title", message.getTitle());
             messageMap.put("sentDate", message.getSentDate().getTime());
-            messageMap.put("listIconUrl", message.getListIconUrl());
+            String listIconUrl = message.getListIconUrl();
+            if (listIconUrl != null) {
+                messageMap.put("listIconUrl", listIconUrl);
+            }
             messageMap.put("isRead", message.isRead());
             messageMap.put("isDeleted", message.isDeleted());
 

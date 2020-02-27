@@ -107,9 +107,13 @@ public class UnityAutopilot extends Autopilot {
 
 
         ActionRegistry.Entry entry = airship.getActionRegistry().getEntry(DeepLinkAction.DEFAULT_REGISTRY_NAME);
+        if (entry == null) {
+            return;
+        }
         entry.setDefaultAction(new Action() {
+            @NonNull
             @Override
-            public ActionResult perform(ActionArguments arguments) {
+            public ActionResult perform(@NonNull ActionArguments arguments) {
                 String deeplink = arguments.getValue().getString();
                 if (deeplink != null) {
                     UnityPlugin.shared().setDeepLink(deeplink);
@@ -120,6 +124,9 @@ public class UnityAutopilot extends Autopilot {
                     @Override
                     public void run() {
                         Intent launch = UAirship.getPackageManager().getLaunchIntentForPackage(UAirship.getPackageName());
+                        if (launch == null) {
+                            return;
+                        }
                         launch.addCategory(Intent.CATEGORY_LAUNCHER);
                         launch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         UAirship.getApplicationContext().startActivity(launch);
@@ -130,7 +137,7 @@ public class UnityAutopilot extends Autopilot {
             }
 
             @Override
-            public boolean acceptsArguments(ActionArguments arguments) {
+            public boolean acceptsArguments(@NonNull ActionArguments arguments) {
                 return SITUATION_PUSH_OPENED == arguments.getSituation();
             }
         });
