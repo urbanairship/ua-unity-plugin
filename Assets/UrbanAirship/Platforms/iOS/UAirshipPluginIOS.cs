@@ -51,8 +51,12 @@ namespace UrbanAirship {
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_setBackgroundLocationAllowed (bool allowed);
 
+        //Analytics Function Imports
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_addCustomEvent (string customEvent);
+
+        [DllImport ("__Internal")]
+        private static extern void UAUnityPlugin_trackScreen (string screenName);
 
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_associateIdentifier (string key, string identifier);
