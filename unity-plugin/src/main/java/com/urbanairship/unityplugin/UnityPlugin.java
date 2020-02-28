@@ -221,6 +221,17 @@ public class UnityPlugin {
         UAirship.shared().getAnalytics().addEvent(eventBuilder.build());
     }
 
+    public void trackScreen(String screenName) {
+        PluginLogger.debug("UnityPlugin trackScreen: " + screenName);
+
+        if (UAStringUtil.isEmpty(screenName)) {
+            PluginLogger.error("Missing screen name");
+            return;
+        }
+
+        UAirship.shared().getAnalytics().trackScreen(screenName);
+    }
+
     public void associateIdentifier(String key, String identifier) {
         if (key == null) {
             PluginLogger.debug("UnityPlugin associateIdentifier failed, key cannot be null");
