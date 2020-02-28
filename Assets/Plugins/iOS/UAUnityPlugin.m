@@ -158,14 +158,14 @@ void UAUnityPlugin_setUserNotificationsEnabled(bool enabled) {
 
 const char* UAUnityPlugin_getTags() {
     UA_LDEBUG(@"UnityPlugin getTags");
-    return [UAUnityPlugin convertToJson:[UAirship push].tags];
+    return [UAUnityPlugin convertToJson:[UAirship channel].tags];
 }
 
 void UAUnityPlugin_addTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
 
     UA_LDEBUG(@"UnityPlugin addTag %@", tagString);
-    [[UAirship push] addTag:tagString];
+    [[UAirship channel] addTag:tagString];
     [[UAirship push] updateRegistration];
 }
 
@@ -173,13 +173,13 @@ void UAUnityPlugin_removeTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
 
     UA_LDEBUG(@"UnityPlugin removeTag %@", tagString);
-    [[UAirship push] removeTag:tagString];
+    [[UAirship channel] removeTag:tagString];
     [[UAirship push] updateRegistration];
 }
 
 const char* UAUnityPlugin_getChannelId() {
     UA_LDEBUG(@"UnityPlugin getChannelId");
-    return MakeStringCopy([[UAirship push].channelID UTF8String]);
+    return MakeStringCopy([[UAirship channel].identifier UTF8String]);
 }
 
 #pragma mark -
@@ -344,9 +344,9 @@ void UAUnityPlugin_editChannelTagGroups(const char *payload) {
     for (NSDictionary *operation in operations) {
         NSString *group = operation[@"tagGroup"];
         if ([operation[@"operation"] isEqualToString:@"add"]) {
-            [[UAirship push] addTags:operation[@"tags"] group:group];
+            [[UAirship channel] addTags:operation[@"tags"] group:group];
         } else if ([operation[@"operation"] isEqualToString:@"remove"]) {
-            [[UAirship push] removeTags:operation[@"tags"] group:group];
+            [[UAirship channel] removeTags:operation[@"tags"] group:group];
         }
     }
 
