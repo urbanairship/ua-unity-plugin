@@ -175,6 +175,10 @@ namespace UrbanAirship {
             UAUnityPlugin_addCustomEvent (customEvent);
         }
 
+        public void TrackScreen (string screenName) {
+            UAUnityPlugin_trackScreen (screenName);
+        }
+
         public void AssociateIdentifier (string key, string identifier) {
             UAUnityPlugin_associateIdentifier (key, identifier);
         }
