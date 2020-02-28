@@ -12,6 +12,7 @@ static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
 
 NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_launch_message_center";
+NSString *const kUADisplayInboxActionDefaultRegistryName = @"display_inbox_action";
 
 @interface UAUnityPlugin()
 @property (nonatomic, strong) UAUnityMessageViewController *messageViewController;
@@ -56,7 +57,7 @@ NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_laun
     }
 
     // Replace the display inbox and landing page actions with modified versions that pause the game before display
-    UAAction *dia = [[UAirship shared].actionRegistry registryEntryWithName:@"display_inbox_action"].action;
+    UAAction *dia = [[UAirship shared].actionRegistry registryEntryWithName:kUADisplayInboxActionDefaultRegistryName].action;
     UAAction *customDIA = [dia preExecution:^(UAActionArguments *args) {
         // This will ultimately trigger the OnApplicationPause event
         UnityWillPause();
@@ -68,7 +69,7 @@ NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_laun
         UnityWillPause();
     }];
 
-    [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:@"display_inbox_action"];
+    [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:kUADisplayInboxActionDefaultRegistryName];
     [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:kUALandingPageActionDefaultRegistryName];
     
     // Add observer for inbox updated event
@@ -454,7 +455,6 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 
 #pragma mark -
 #pragma mark UAMessageCenterDisplayDelegate
-
 
 - (void)displayMessageCenterForMessageID:(NSString *)messageID animated:(BOOL)animated {
     if (self.autoLaunchMessageCenter) {
