@@ -44,7 +44,6 @@ android {
 
 dependencies {
     compileOnly files('libs/unity-classes.jar')
-    implementation "androidx.legacy:legacy-support-v4:1.0.0"
     implementation "androidx.annotation:annotation:$androidxAnnotationVersion"
     implementation "com.urbanairship.android:urbanairship-fcm:${airshipProperties.androidAirshipVersion}"
 }

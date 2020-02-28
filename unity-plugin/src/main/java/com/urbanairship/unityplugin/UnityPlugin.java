@@ -92,19 +92,13 @@ public class UnityPlugin {
     public void addTag(String tag) {
         PluginLogger.debug("UnityPlugin addTag: " + tag);
 
-        AirshipChannel channel = UAirship.shared().getChannel();
-        Set<String> tags = channel.getTags();
-        tags.add(tag);
-        channel.setTags(tags);
+        UAirship.shared().getChannel().editTags().addTag(tag).apply();
     }
 
     public void removeTag(String tag) {
         PluginLogger.debug("UnityPlugin removeTag: " + tag);
 
-        AirshipChannel channel = UAirship.shared().getChannel();
-        Set<String> tags = channel.getTags();
-        tags.remove(tag);
-        channel.setTags(tags);
+        UAirship.shared().getChannel().editTags().removeTag(tag).apply();
     }
 
     public String getTags() {
@@ -384,12 +378,14 @@ public class UnityPlugin {
         this.incomingPush = message;
     }
 
-    void onDeepLinkReceived(String deepLink) {
+    boolean onDeepLinkReceived(String deepLink) {
         PluginLogger.debug("UnityPlugin deepLink received: " + deepLink);
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnDeepLinkReceived", deepLink);
+            return true;
         }
+        return false;
     }
 
     void onChannelCreated(String channelId) {

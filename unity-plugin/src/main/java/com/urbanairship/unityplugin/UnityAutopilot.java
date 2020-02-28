@@ -21,6 +21,7 @@ import com.urbanairship.actions.ActionArguments;
 import com.urbanairship.actions.ActionRegistry;
 import com.urbanairship.actions.ActionResult;
 import com.urbanairship.actions.DeepLinkAction;
+import com.urbanairship.actions.DeepLinkListener;
 import com.urbanairship.channel.AirshipChannelListener;
 import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.NotificationActionButtonInfo;
@@ -105,19 +106,14 @@ public class UnityAutopilot extends Autopilot {
             }
         });
 
-
-        ActionRegistry.Entry entry = airship.getActionRegistry().getEntry(DeepLinkAction.DEFAULT_REGISTRY_NAME);
-        if (entry == null) {
-            return;
-        }
-        entry.setDefaultAction(new Action() {
-            @NonNull
+        airship.setDeepLinkListener(new DeepLinkListener() {
             @Override
-            public ActionResult perform(@NonNull ActionArguments arguments) {
-                String deeplink = arguments.getValue().getString();
-                if (deeplink != null) {
-                    UnityPlugin.shared().setDeepLink(deeplink);
-                    UnityPlugin.shared().onDeepLinkReceived(deeplink);
+            public boolean onDeepLink(@NonNull String deepLink) {
+                boolean handled = false;
+
+                if (deepLink != null) {
+                    UnityPlugin.shared().setDeepLink(deepLink);
+                    handled = UnityPlugin.shared().onDeepLinkReceived(deepLink);
                 }
 
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -133,12 +129,7 @@ public class UnityAutopilot extends Autopilot {
                     }
                 });
 
-                return ActionResult.newResult(arguments.getValue());
-            }
-
-            @Override
-            public boolean acceptsArguments(@NonNull ActionArguments arguments) {
-                return SITUATION_PUSH_OPENED == arguments.getSituation();
+                return handled;
             }
         });
     }
