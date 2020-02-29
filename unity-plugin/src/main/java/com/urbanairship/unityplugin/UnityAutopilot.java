@@ -5,9 +5,6 @@
 package com.urbanairship.unityplugin;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
@@ -16,11 +13,6 @@ import androidx.annotation.Nullable;
 import com.urbanairship.AirshipConfigOptions;
 import com.urbanairship.Autopilot;
 import com.urbanairship.UAirship;
-import com.urbanairship.actions.Action;
-import com.urbanairship.actions.ActionArguments;
-import com.urbanairship.actions.ActionRegistry;
-import com.urbanairship.actions.ActionResult;
-import com.urbanairship.actions.DeepLinkAction;
 import com.urbanairship.actions.DeepLinkListener;
 import com.urbanairship.channel.AirshipChannelListener;
 import com.urbanairship.messagecenter.MessageCenter;
@@ -109,27 +101,12 @@ public class UnityAutopilot extends Autopilot {
         airship.setDeepLinkListener(new DeepLinkListener() {
             @Override
             public boolean onDeepLink(@NonNull String deepLink) {
-                boolean handled = false;
-
-                if (deepLink != null) {
-                    UnityPlugin.shared().setDeepLink(deepLink);
-                    handled = UnityPlugin.shared().onDeepLinkReceived(deepLink);
+                 if (deepLink == null) {
+                     return false;
                 }
 
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent launch = UAirship.getPackageManager().getLaunchIntentForPackage(UAirship.getPackageName());
-                        if (launch == null) {
-                            return;
-                        }
-                        launch.addCategory(Intent.CATEGORY_LAUNCHER);
-                        launch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        UAirship.getApplicationContext().startActivity(launch);
-                    }
-                });
-
-                return handled;
+                UnityPlugin.shared().setDeepLink(deepLink);
+                return UnityPlugin.shared().onDeepLinkReceived(deepLink);
             }
         });
     }
