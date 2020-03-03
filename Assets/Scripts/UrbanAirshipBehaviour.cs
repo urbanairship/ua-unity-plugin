@@ -24,6 +24,8 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         UAirship.Shared.OnInboxUpdated += OnInboxUpdated;
         UAirship.Shared.OnShowInbox += OnShowInbox;
 
+        UAirship.Shared.TrackScreen("Main Camera");
+
         UAirship.Shared.RefreshInbox();
     }
 
