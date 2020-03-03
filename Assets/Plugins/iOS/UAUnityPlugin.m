@@ -247,7 +247,7 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
 
 void UAUnityPlugin_trackScreen(const char *screenName) {
     NSString *screenNameString = [NSString stringWithUTF8String:screenName];
-    UA_LDEBUG(@"UnityPlugin trackScreen");
+    UA_LDEBUG(@"UnityPlugin trackScreen: %@, screenNameString");
 
     [[UAirship shared].analytics trackScreen:screenNameString];
 }

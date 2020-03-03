@@ -222,12 +222,12 @@ public class UnityPlugin {
     }
 
     public void trackScreen(String screenName) {
-        PluginLogger.debug("UnityPlugin trackScreen: " + screenName);
-
         if (UAStringUtil.isEmpty(screenName)) {
             PluginLogger.error("Missing screen name");
             return;
         }
+
+        PluginLogger.debug("UnityPlugin trackScreen: " + screenName);
 
         UAirship.shared().getAnalytics().trackScreen(screenName);
     }
