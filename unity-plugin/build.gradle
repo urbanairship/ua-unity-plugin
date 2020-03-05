@@ -7,9 +7,6 @@ buildscript {
     ext {
         // Gradle plugins
         gradlePluginVersion = '3.5.3'
-
-        // Androidx
-        androidxAnnotationVersion = '1.0.0'
     }
 
     dependencies {
@@ -44,7 +41,7 @@ android {
 
 dependencies {
     compileOnly files('libs/unity-classes.jar')
-    implementation "androidx.annotation:annotation:$androidxAnnotationVersion"
+    implementation "androidx.annotation:annotation:$airshipProperties.androidxAnnotationVersion"
     implementation "com.urbanairship.android:urbanairship-fcm:${airshipProperties.androidAirshipVersion}"
 }
 
