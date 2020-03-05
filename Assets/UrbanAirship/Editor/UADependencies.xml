@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <dependencies>
-
+    
   <!-- Android -->
   <androidPackages>
 
@@ -19,5 +19,15 @@
     </androidPackage>
 
   </androidPackages>
+
+  <!-- iOS -->
+  
+  <iosPods>
+      
+    <!-- iosPod -->
+    <iosPod name="Airship" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
+    <iosPod name="Airship/Location" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
+  
+  </iosPods>
 
 </dependencies>

@@ -2,8 +2,9 @@
 
 #if __has_include("AirshipLib.h")
 #import "AirshipLib.h"
+#import "AirshipMessageCenterLib.h"
 #else
-@import AirshipKit;
+@import Airship;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

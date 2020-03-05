@@ -47,7 +47,7 @@ repositories {
     ivy {
         url 'https://bintray.com'
         patternLayout {
-            artifact '/artifact/download/[organisation]/iOS/[module]/[revision]/libUAirship-[revision].[ext]'
+            artifact '/artifact/download/[organisation]/iOS/[module]/[revision]/Airship.[ext]'
         }
     }
 

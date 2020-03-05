@@ -3,13 +3,16 @@
 #import "UAUnityPlugin.h"
 #import "UnityInterface.h"
 #import "AirshipLib.h"
-#import "AirshipLocationLib.h"
+#import "AirshipMessageCenterLib.h"
 #import "UAUnityMessageViewController.h"
+
+#import "UALandingPageAction.h"
 
 static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
 
 NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_launch_message_center";
+NSString *const UADisplayInboxActionDefaultRegistryName = @"display_inbox_action";
 
 @interface UAUnityPlugin()
 @property (nonatomic, strong) UAUnityMessageViewController *messageViewController;
@@ -54,7 +57,7 @@ NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_laun
     }
 
     // Replace the display inbox and landing page actions with modified versions that pause the game before display
-    UAAction *dia = [[UAirship shared].actionRegistry registryEntryWithName:kUADisplayInboxActionDefaultRegistryName].action;
+    UAAction *dia = [[UAirship shared].actionRegistry registryEntryWithName:UADisplayInboxActionDefaultRegistryName].action;
     UAAction *customDIA = [dia preExecution:^(UAActionArguments *args) {
         // This will ultimately trigger the OnApplicationPause event
         UnityWillPause();
@@ -66,7 +69,7 @@ NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_laun
         UnityWillPause();
     }];
 
-    [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:kUADisplayInboxActionDefaultRegistryName];
+    [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:UADisplayInboxActionDefaultRegistryName];
     [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:kUALandingPageActionDefaultRegistryName];
     
     // Add observer for inbox updated event
@@ -75,7 +78,7 @@ NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_laun
                                                  name:UAInboxMessageListUpdatedNotification
                                                object:nil];
 
-    [UAirship inbox].delegate = [self shared];
+    [UAMessageCenter shared].displayDelegate = [self shared];
 }
 
 + (UAUnityPlugin *)shared {
@@ -156,14 +159,14 @@ void UAUnityPlugin_setUserNotificationsEnabled(bool enabled) {
 
 const char* UAUnityPlugin_getTags() {
     UA_LDEBUG(@"UnityPlugin getTags");
-    return [UAUnityPlugin convertToJson:[UAirship push].tags];
+    return [UAUnityPlugin convertToJson:[UAirship channel].tags];
 }
 
 void UAUnityPlugin_addTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
 
     UA_LDEBUG(@"UnityPlugin addTag %@", tagString);
-    [[UAirship push] addTag:tagString];
+    [[UAirship channel] addTag:tagString];
     [[UAirship push] updateRegistration];
 }
 
@@ -171,13 +174,13 @@ void UAUnityPlugin_removeTag(const char* tag) {
     NSString *tagString = [NSString stringWithUTF8String:tag];
 
     UA_LDEBUG(@"UnityPlugin removeTag %@", tagString);
-    [[UAirship push] removeTag:tagString];
+    [[UAirship channel] removeTag:tagString];
     [[UAirship push] updateRegistration];
 }
 
 const char* UAUnityPlugin_getChannelId() {
     UA_LDEBUG(@"UnityPlugin getChannelId");
-    return MakeStringCopy([[UAirship push].channelID UTF8String]);
+    return MakeStringCopy([[UAirship channel].identifier UTF8String]);
 }
 
 #pragma mark -
@@ -185,22 +188,22 @@ const char* UAUnityPlugin_getChannelId() {
 
 bool UAUnityPlugin_isLocationEnabled() {
     UA_LDEBUG(@"UnityPlugin isLocationEnabled");
-    return [UALocation sharedLocation].locationUpdatesEnabled ? true : false;
+    return [UAirship shared].locationProvider.locationUpdatesEnabled ? true : false;
 }
 
 void UAUnityPlugin_setLocationEnabled(bool enabled) {
     UA_LDEBUG(@"UnityPlugin setLocationEnabled: %d", enabled);
-    [UALocation sharedLocation].locationUpdatesEnabled = enabled;
+   [UAirship shared].locationProvider.locationUpdatesEnabled = enabled;
 }
 
 bool UAUnityPlugin_isBackgroundLocationAllowed() {
     UA_LDEBUG(@"UnityPlugin isBackgroundLocationAllowed");
-    return [UALocation sharedLocation].backgroundLocationUpdatesAllowed ? true : false;
+    return [UAirship shared].locationProvider.backgroundLocationUpdatesAllowed ? true : false;
 }
 
 void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
     UA_LDEBUG(@"UnityPlugin setBackgroundLocationAllowed: %d", enabled);
-    [UALocation sharedLocation].backgroundLocationUpdatesAllowed = enabled ? YES : NO;
+    [UAirship shared].locationProvider.backgroundLocationUpdatesAllowed = enabled ? YES : NO;
 }
 
 
@@ -290,7 +293,7 @@ const char* UAUnityPlugin_getNamedUserID() {
 void UAUnityPlugin_displayMessageCenter() {
     UA_LDEBUG(@"UnityPlugin displayMessageCenter");
     UnityWillPause();
-    [[UAirship messageCenter] display];
+    [[UAMessageCenter shared] display];
 }
 
 void UAUnityPlugin_displayInboxMessage(const char *messageID) {
@@ -303,26 +306,26 @@ void UAUnityPlugin_displayInboxMessage(const char *messageID) {
 void UAUnityPlugin_refreshInbox() {
     UA_LDEBUG(@"UnityPlugin refreshInbox");
     UnityWillPause();
-    [[UAirship inbox].messageList retrieveMessageListWithSuccessBlock:^(){} withFailureBlock:^(){}];
+    [[UAMessageCenter shared].messageList retrieveMessageListWithSuccessBlock:^(){} withFailureBlock:^(){}];
 }
 
 const char* UAUnityPlugin_getInboxMessages() {
     UA_LDEBUG(@"UnityPlugin getInboxMessages");
-    return [UAUnityPlugin convertInboxMessagesToJson:[UAirship inbox].messageList.messages];
+    return [UAUnityPlugin convertInboxMessagesToJson:[UAMessageCenter shared].messageList.messages];
 }
 
 void UAUnityPlugin_markInboxMessageRead(const char *messageID) {
     NSString *messageIDString = [NSString stringWithUTF8String:messageID];
     UA_LDEBUG(@"UnityPlugin markInboxMessageRead %@", messageIDString);
-    UAInboxMessage *message = [[UAirship inbox].messageList messageForID:messageIDString];
-    [[UAirship inbox].messageList markMessagesRead:@[message] completionHandler:nil];
+    UAInboxMessage *message = [[UAMessageCenter shared].messageList messageForID:messageIDString];
+    [[UAMessageCenter shared].messageList markMessagesRead:@[message] completionHandler:nil];
 }
 
 void UAUnityPlugin_deleteInboxMessage(const char *messageID) {
     NSString *messageIDString = [NSString stringWithUTF8String:messageID];
     UA_LDEBUG(@"UnityPlugin deleteInboxMessage %@", messageIDString);
-    UAInboxMessage *message = [[UAirship inbox].messageList messageForID:messageIDString];
-    [[UAirship inbox].messageList markMessagesDeleted:@[message] completionHandler:nil];
+    UAInboxMessage *message = [[UAMessageCenter shared].messageList messageForID:messageIDString];
+    [[UAMessageCenter shared].messageList markMessagesDeleted:@[message] completionHandler:nil];
 }
 
 void UAUnityPlugin_setAutoLaunchDefaultMessageCenter(bool enabled) {
@@ -331,13 +334,13 @@ void UAUnityPlugin_setAutoLaunchDefaultMessageCenter(bool enabled) {
 }
 
 int UAUnityPlugin_getMessageCenterUnreadCount() {
-    int unreadCount = (int)[UAirship inbox].messageList.unreadCount;
+    int unreadCount = (int)[UAMessageCenter shared].messageList.unreadCount;
     UA_LDEBUG(@"UnityPlugin getMessageCenterUnreadCount: %d", unreadCount);
     return unreadCount;
 }
 
 int UAUnityPlugin_getMessageCenterCount() {
-    int messageCount = (int)[UAirship inbox].messageList.messageCount;
+    int messageCount = (int)[UAMessageCenter shared].messageList.messageCount;
     UA_LDEBUG(@"UnityPlugin getMessageCenterCount: %d", messageCount);
     return messageCount;
 }
@@ -353,9 +356,9 @@ void UAUnityPlugin_editChannelTagGroups(const char *payload) {
     for (NSDictionary *operation in operations) {
         NSString *group = operation[@"tagGroup"];
         if ([operation[@"operation"] isEqualToString:@"add"]) {
-            [[UAirship push] addTags:operation[@"tags"] group:group];
+            [[UAirship channel] addTags:operation[@"tags"] group:group];
         } else if ([operation[@"operation"] isEqualToString:@"remove"]) {
-            [[UAirship push] removeTags:operation[@"tags"] group:group];
+            [[UAirship channel] removeTags:operation[@"tags"] group:group];
         }
     }
 
@@ -486,26 +489,31 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
 }
 
 #pragma mark -
-#pragma mark UAInboxDelegate
-- (void)showMessageForID:(NSString *)messageID {
-    UA_LDEBUG(@"showMessageForID: %@", messageID);
+#pragma mark UAMessageCenterDisplayDelegate
+
+- (void)displayMessageCenterForMessageID:(NSString *)messageID animated:(BOOL)animated {
     if (self.autoLaunchMessageCenter) {
-        [[UAirship messageCenter] displayMessageForID:messageID];
+        [[UAMessageCenter shared].defaultUI displayMessageCenterForMessageID:messageID animated:true];
     } else {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
-                         "OnShowInbox",
-                         MakeStringCopy([messageID UTF8String]));
+        "OnShowInbox",
+        MakeStringCopy([messageID UTF8String]));
     }
 }
 
-- (void)showInbox {
-    UA_LDEBUG(@"showInbox");
+- (void)displayMessageCenterAnimated:(BOOL)animated {
     if (self.autoLaunchMessageCenter) {
-        [[UAirship messageCenter] display];
+        [[UAMessageCenter shared].defaultUI displayMessageCenterAnimated:animated];
     } else {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
-                         "OnShowInbox",
-                         MakeStringCopy([@"" UTF8String]));
+        "OnShowInbox",
+        MakeStringCopy([@"" UTF8String]));
+    }
+}
+
+- (void)dismissMessageCenterAnimated:(BOOL)animated {
+    if (self.autoLaunchMessageCenter) {
+        [[UAMessageCenter shared].defaultUI dismissMessageCenterAnimated:animated];
     }
 }
 
@@ -513,8 +521,8 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
 #pragma mark UAInboxMessageListUpdatedNotification
 - (void)inboxUpdated {
     NSDictionary *counts = @{
-        @"unread" : @([UAirship inbox].messageList.unreadCount),
-        @"total" : @([UAirship inbox].messageList.messageCount)
+        @"unread" : @([UAMessageCenter shared].messageList.unreadCount),
+        @"total" : @([UAMessageCenter shared].messageList.messageCount)
     };
     UA_LDEBUG(@"UnityPlugin inboxUpdated(unread = %@, total = %@)", counts[@"unread"], counts[@"total"]);
     UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
@@ -596,7 +604,7 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
 }
 
 - (void)displayInboxMessage:(NSString *)messageId {
-    UAUnityMessageViewController *mvc = [[UAUnityMessageViewController alloc] initWithNibName:@"UAMessageCenterMessageViewController" bundle:[UAirship resources]];
+    UAUnityMessageViewController *mvc = [[UAUnityMessageViewController alloc] initWithNibName:@"UAMessageCenterMessageViewController" bundle:[UAMessageCenterResources bundle]];
     [mvc loadMessageForID:messageId onlyIfChanged:YES onError:nil];
 
     UINavigationController *navController =  [[UINavigationController alloc] initWithRootViewController:mvc];
