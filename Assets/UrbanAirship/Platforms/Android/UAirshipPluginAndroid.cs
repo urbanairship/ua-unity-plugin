@@ -98,6 +98,10 @@ namespace UrbanAirship {
             Call ("addCustomEvent", customEvent);
         }
 
+        public void TrackScreen (string screenName) {
+            Call ("trackScreen", screenName);
+        }
+
         public void AssociateIdentifier (string key, string identifier) {
             Call ("associateIdentifier", key, identifier);
         }

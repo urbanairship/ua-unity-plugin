@@ -17,6 +17,7 @@ namespace UrbanAirship {
         public void AddTag (string tag) { }
         public void RemoveTag (string tag) { }
         public void AddCustomEvent (string customEvent) { }
+        public void TrackScreen(string screenName) { }
         public void AssociateIdentifier (string key, string identifier) { }
         public void DisplayMessageCenter () { }
         public void DisplayInboxMessage (string messageId) { }
