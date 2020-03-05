@@ -29,5 +29,6 @@ namespace UrbanAirship {
         public int MessageCenterCount { get; private set; }
         public void EditNamedUserTagGroups (string payload) { }
         public void EditChannelTagGroups (string payload) { }
+        public void EditChannelAttributes (string payload) { }
     }
 }

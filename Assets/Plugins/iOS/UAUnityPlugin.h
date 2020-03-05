@@ -69,6 +69,11 @@ int UAUnityPlugin_getMessageCenterCount();
 void UAUnityPlugin_editNamedUserTagGroups(const char *payload);
 void UAUnityPlugin_editChannelTagGroups(const char *payload);
 
+#pragma mark -
+#pragma mark Attributes
+
+void UAUnityPlugin_editChannelAttributes(const char *payload);
+
 @interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UARegistrationDelegate, UADeepLinkDelegate, UAInboxDelegate>
 
 + (UAUnityPlugin *)shared;

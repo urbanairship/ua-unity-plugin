@@ -368,6 +368,30 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     [[UAirship namedUser] updateTags];
 }
 
+#pragma mark -
+#pragma mark Attributes
+
+void UAUnityPlugin_editChannelAttributes(const char *payload) {
+    UA_LDEBUG(@"UnityPlugin editChannelAttributes");
+    id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
+    id operations = payloadMap[@"values"];
+    UAAttributeMutations *mutations = [UAAttributeMutations mutations];
+
+    for (NSDictionary *operation in operations) {
+        NSString *key = operation[@"key"];
+        if ([operation[@"action"] isEqualToString:@"set"]) {
+            if ([operation[@"value"] isKindOfClass [NSString class]]) {
+                [mutations setString:(NSString)operation[@"value"] forAttribute:key];
+            } else if ([operation[@"value"] isKindOfClass [NSNumber class]]) {
+                [mutations setNumber:(NSNumber)operation[@"value"] forAttribute:key];
+            }
+        } else if ([operation[@"action"] isEqualToString:@"remove"]) {
+            [mutations removeAttribute:key];
+        }
+    }
+
+    [[UAirship channel] applyAttributeMutations:mutations];
+}
 
 #pragma mark -
 #pragma mark Actions!

@@ -156,6 +156,11 @@ namespace UrbanAirship {
             Call ("editChannelTagGroups", payload);
         }
 
+        public void EditChannelAttributes(string payload)
+        {
+            Call("editChannelAttributes", payload);
+        }
+
         private void Call (string method, params object[] args) {
             if (androidPlugin != null) {
                 androidPlugin.Call (method, args);

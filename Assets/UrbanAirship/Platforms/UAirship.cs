@@ -368,6 +368,16 @@ namespace UrbanAirship {
             });
         }
 
+        /// <summary>
+        /// Returns an editor for channel attributes.
+        /// </summary>
+        /// <returns>A AttributeEditor for channel attributes.</returns>
+        public AttributeEditor EditChannelAttributes() {
+            return new AttributeEditor((string payload) => {
+                plugin.EditChannelAttributes(payload);
+            });
+        }
+
         internal class UrbanAirshipListener : MonoBehaviour {
             void OnPushReceived (string payload) {
                 PushReceivedEventHandler handler = UAirship.Shared.OnPushReceived;

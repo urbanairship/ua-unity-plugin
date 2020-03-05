@@ -96,6 +96,9 @@ namespace UrbanAirship {
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_editChannelTagGroups (string payload);
 
+        [DllImport("__Internal")]
+        private static extern void UAUnityPlugin_editChannelAttributes (string payload);
+
         public bool UserNotificationsEnabled {
             get {
                 return UAUnityPlugin_getUserNotificationsEnabled ();
@@ -225,6 +228,10 @@ namespace UrbanAirship {
 
         public void EditChannelTagGroups (string payload) {
             UAUnityPlugin_editChannelTagGroups (payload);
+        }
+
+        public void EditChannelAttributes (string payload) {
+            UAUnityPlugin_editChannelAttributes (payload);
         }
     }
 }

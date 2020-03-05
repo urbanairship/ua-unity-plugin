@@ -14,6 +14,7 @@ import com.unity3d.player.UnityPlayer;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.channel.AirshipChannel;
+import com.urbanairship.channel.AttributeEditor;
 import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
 import com.urbanairship.json.JsonMap;
@@ -361,6 +362,14 @@ public class UnityPlugin {
         editor.apply();
     }
 
+    public void editChannelAttributes(String payload) {
+        PluginLogger.debug("UnityPlugin editChannelAttributes");
+
+        AttributeEditor editor = UAirship.shared().getChannel().editAttributes();
+        applyAttributeOperations(editor, payload);
+        editor.apply();
+    }
+
     void onPushReceived(PushMessage message) {
         PluginLogger.debug("UnityPlugin push received. " + message);
 
@@ -549,6 +558,53 @@ public class UnityPlugin {
                     break;
                 case "remove":
                     editor.removeTags(group, tagSet);
+                    break;
+            }
+        }
+    }
+
+    private static void applyAttributeOperations(AttributeEditor editor, String payload) {
+        JsonMap payloadMap;
+        try {
+            payloadMap = JsonValue.parseString(payload).getMap();
+        } catch (JsonException e) {
+            PluginLogger.error("Unable to apply attribute operations: ", e);
+            return;
+        }
+
+        if (payloadMap == null || !payloadMap.opt("values").isJsonList()) {
+            return;
+        }
+
+        for (JsonValue operation : payloadMap.opt("values").optList()) {
+            if (!operation.isJsonMap()) {
+                continue;
+            }
+
+            String action = operation.optMap().opt("action").getString();
+            String key = operation.optMap().opt("key").getString();
+            Object value = operation.optMap().opt("value").getValue();
+
+            if (value == null || UAStringUtil.isEmpty(key) || UAStringUtil.isEmpty(action)) {
+                continue;
+            }
+
+            switch (action) {
+                case "set":
+                    if (value instanceof String) {
+                        editor.setAttribute(key, (String)value);
+                    } else if (value instanceof Integer) {
+                        editor.setAttribute(key, (int)value);
+                    } else if (value instanceof Long) {
+                        editor.setAttribute(key, (long)value);
+                    } else if (value instanceof Float) {
+                        editor.setAttribute(key, (float)value);
+                    } else if (value instanceof Double) {
+                        editor.setAttribute(key, (double)value);
+                    }
+                    break;
+                case "remove":
+                    editor.removeAttribute(key);
                     break;
             }
         }

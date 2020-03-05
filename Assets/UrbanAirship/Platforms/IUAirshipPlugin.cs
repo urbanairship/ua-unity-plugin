@@ -76,5 +76,7 @@ namespace UrbanAirship {
         void EditNamedUserTagGroups (string payload);
 
         void EditChannelTagGroups (string payload);
+
+        void EditChannelAttributes(string payload);
     }
 }
