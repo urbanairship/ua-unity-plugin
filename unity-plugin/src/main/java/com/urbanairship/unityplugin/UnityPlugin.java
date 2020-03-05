@@ -7,21 +7,20 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.unity3d.player.UnityPlayer;
-import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
+import com.urbanairship.channel.AirshipChannel;
 import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
 import com.urbanairship.json.JsonMap;
 import com.urbanairship.json.JsonValue;
 import com.urbanairship.messagecenter.MessageCenter;
-import com.urbanairship.push.PushManager;
 import com.urbanairship.push.PushMessage;
-import com.urbanairship.push.TagGroupsEditor;
+import com.urbanairship.channel.TagGroupsEditor;
 import com.urbanairship.richpush.RichPushMessage;
 import com.urbanairship.util.UAStringUtil;
 
@@ -87,32 +86,25 @@ public class UnityPlugin {
 
     public String getChannelId() {
         PluginLogger.debug("UnityPlugin getChannelId");
-        return UAirship.shared().getPushManager().getChannelId();
+        return UAirship.shared().getChannel().getId();
     }
 
     public void addTag(String tag) {
         PluginLogger.debug("UnityPlugin addTag: " + tag);
 
-        PushManager push = UAirship.shared().getPushManager();
-        Set<String> tags = push.getTags();
-        tags.add(tag);
-        push.setTags(tags);
+        UAirship.shared().getChannel().editTags().addTag(tag).apply();
     }
 
     public void removeTag(String tag) {
         PluginLogger.debug("UnityPlugin removeTag: " + tag);
 
-        PushManager push = UAirship.shared().getPushManager();
-
-        Set<String> tags = push.getTags();
-        tags.remove(tag);
-        push.setTags(tags);
+        UAirship.shared().getChannel().editTags().removeTag(tag).apply();
     }
 
     public String getTags() {
         PluginLogger.debug("UnityPlugin getTags");
         JSONArray jsonArray = new JSONArray();
-        for (String tag : UAirship.shared().getPushManager().getTags()) {
+        for (String tag : UAirship.shared().getChannel().getTags()) {
             jsonArray.put(tag);
         }
 
@@ -130,7 +122,7 @@ public class UnityPlugin {
     }
 
     public void setBackgroundLocationAllowed(boolean allowed) {
-        Logger.debug("UnityPlugin setBackgroundLocationAllowed: " + allowed);
+        PluginLogger.debug("UnityPlugin setBackgroundLocationAllowed: " + allowed);
         UAirship.shared().getLocationManager().setBackgroundLocationAllowed(allowed);
     }
 
@@ -159,6 +151,10 @@ public class UnityPlugin {
         }
 
         String eventName = customEventMap.opt("eventName").getString();
+        if (eventName == null) {
+            return;
+        }
+
         String eventValue = customEventMap.opt("eventValue").getString();
         String transactionId = customEventMap.opt("transactionId").getString();
         String interactionType = customEventMap.opt("interactionType").getString();
@@ -192,7 +188,10 @@ public class UnityPlugin {
 
                 switch (type) {
                     case "s":
-                        eventBuilder.addProperty(name, jsonMap.opt("stringValue").getString());
+                        String stringValue = jsonMap.opt("stringValue").getString();
+                        if (stringValue != null) {
+                            eventBuilder.addProperty(name, stringValue);
+                        }
                         break;
                     case "d":
                         eventBuilder.addProperty(name, jsonMap.opt("doubleValue").getDouble(0));
@@ -201,8 +200,12 @@ public class UnityPlugin {
                         eventBuilder.addProperty(name, jsonMap.opt("boolValue").getBoolean(false));
                         break;
                     case "sa":
+                        JsonList stringArrayValue = jsonMap.opt("stringArrayValue").getList();
+                        if (stringArrayValue == null) {
+                            break;
+                        }
                         List<String> strings = new ArrayList<>();
-                        for (JsonValue jsonValue : jsonMap.opt("stringArrayValue").getList()) {
+                        for (JsonValue jsonValue : stringArrayValue) {
                             if (jsonValue.isString()) {
                                 strings.add(jsonValue.getString());
                             } else {
@@ -219,6 +222,17 @@ public class UnityPlugin {
         }
 
         UAirship.shared().getAnalytics().addEvent(eventBuilder.build());
+    }
+
+    public void trackScreen(String screenName) {
+        if (UAStringUtil.isEmpty(screenName)) {
+            PluginLogger.error("Missing screen name");
+            return;
+        }
+
+        PluginLogger.debug("UnityPlugin trackScreen: " + screenName);
+
+        UAirship.shared().getAnalytics().trackScreen(screenName);
     }
 
     public void associateIdentifier(String key, String identifier) {
@@ -248,7 +262,7 @@ public class UnityPlugin {
 
     public void displayMessageCenter() {
         PluginLogger.debug("UnityPlugin displayMessageCenter");
-        UAirship.shared().getInbox().startInboxActivity();
+        UAirship.shared().getMessageCenter().showMessageCenter();
     }
 
     /**
@@ -353,7 +367,7 @@ public class UnityPlugin {
     public void editChannelTagGroups(String payload) {
         PluginLogger.debug("UnityPlugin editChannelTagGroups");
 
-        TagGroupsEditor editor = UAirship.shared().getPushManager().editTagGroups();
+        TagGroupsEditor editor = UAirship.shared().getChannel().editTagGroups();
         applyTagGroupOperations(editor, payload);
         editor.apply();
     }
@@ -375,12 +389,14 @@ public class UnityPlugin {
         this.incomingPush = message;
     }
 
-    void onDeepLinkReceived(String deepLink) {
+    boolean onDeepLinkReceived(String deepLink) {
         PluginLogger.debug("UnityPlugin deepLink received: " + deepLink);
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnDeepLinkReceived", deepLink);
+            return true;
         }
+        return false;
     }
 
     void onChannelCreated(String channelId) {
@@ -474,7 +490,10 @@ public class UnityPlugin {
             messageMap.put("id", message.getMessageId());
             messageMap.put("title", message.getTitle());
             messageMap.put("sentDate", message.getSentDate().getTime());
-            messageMap.put("listIconUrl", message.getListIconUrl());
+            String listIconUrl = message.getListIconUrl();
+            if (listIconUrl != null) {
+                messageMap.put("listIconUrl", listIconUrl);
+            }
             messageMap.put("isRead", message.isRead());
             messageMap.put("isDeleted", message.isDeleted());
 

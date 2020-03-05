@@ -251,6 +251,14 @@ namespace UrbanAirship {
         }
 
         /// <summary>
+        /// Adds a screen tracking event to analytics.
+        /// </summary>
+        /// <param name="screenName">The screen name.</param>
+        public void TrackScreen(string screenName) {
+            plugin.TrackScreen(screenName);
+        }
+
+        /// <summary>
         /// Associate a custom identifier.
         /// Previous identifiers will be replaced by the new identifiers each time AssociateIdentifier is called.
         /// It is a set operation.

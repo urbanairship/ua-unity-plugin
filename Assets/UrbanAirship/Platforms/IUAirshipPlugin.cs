@@ -49,6 +49,8 @@ namespace UrbanAirship {
 
         void AddCustomEvent (string customEvent);
 
+        void TrackScreen (string screenName);
+
         void AssociateIdentifier (string key, string identifier);
 
         void DisplayMessageCenter ();

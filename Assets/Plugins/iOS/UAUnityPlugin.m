@@ -206,6 +206,10 @@ void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
     [UAirship shared].locationProvider.backgroundLocationUpdatesAllowed = enabled ? YES : NO;
 }
 
+
+#pragma mark -
+#pragma mark Analytics
+
 void UAUnityPlugin_addCustomEvent(const char *customEvent) {
     NSString *customEventString = [NSString stringWithUTF8String:customEvent];
     UA_LDEBUG(@"UnityPlugin addCustomEvent");
@@ -242,6 +246,13 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
     }
 
     [[UAirship shared].analytics addEvent:ce];
+}
+
+void UAUnityPlugin_trackScreen(const char *screenName) {
+    NSString *screenNameString = [NSString stringWithUTF8String:screenName];
+    UA_LDEBUG(@"UnityPlugin trackScreen: %@", screenNameString);
+
+    [[UAirship shared].analytics trackScreen:screenNameString];
 }
 
 void UAUnityPlugin_associateIdentifier(const char *key, const char *identifier) {

@@ -43,6 +43,7 @@ configurations {
 }
 
 repositories {
+    google()
     ivy {
         url 'https://bintray.com'
         patternLayout {
@@ -60,7 +61,7 @@ repositories {
 
 dependencies {
     plugin "urbanairship:urbanairship-sdk:${airshipProperties.iosAirshipVersion}@zip"
-    plugin "googlesamples:unity-jar-resolver:${airshipProperties.playServicesResolverSHA}@zip"
+    plugin "googlesamples:unity-jar-resolver:${airshipProperties.playServicesResolver}@zip"
 }
 
 task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
@@ -128,7 +129,7 @@ task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
             include "UrbanAirship/Editor/UADependencies.xml"
             filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
             filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion) }
-            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_SUPPORT_LIB_VERSION__"), airshipProperties.androidSupportLibVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_ANNOTATIONS_VERSION__"), airshipProperties.androidxAnnotationVersion) }
             filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
         }
     }
