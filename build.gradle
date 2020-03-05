@@ -45,13 +45,6 @@ configurations {
 repositories {
     google()
     ivy {
-        url 'https://bintray.com'
-        patternLayout {
-            artifact '/artifact/download/[organisation]/iOS/[module]/[revision]/Airship.[ext]'
-        }
-    }
-
-    ivy {
         url 'https://github.com'
         patternLayout {
             artifact '[organisation]/[module]/archive/[revision].[ext]'
@@ -60,7 +53,6 @@ repositories {
 }
 
 dependencies {
-    plugin "urbanairship:urbanairship-sdk:${airshipProperties.iosAirshipVersion}@zip"
     plugin "googlesamples:unity-jar-resolver:${airshipProperties.playServicesResolver}@zip"
 }
 
@@ -77,17 +69,6 @@ task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
             from file("unity-plugin/build/outputs/aar/unity-plugin-release.aar")
             into file("$buildDir/unity-plugin/Assets/Plugins/Android/")
             rename("unity-plugin-release.aar", "airship-unity-plugin.aar")
-        }
-
-        // Copy and unpack iOS static library
-        copy {
-            def zipPath = project.configurations.plugin.find {it.name.startsWith("urbanairship") }
-            def zipFile = file(zipPath)
-            def outputDir = file("${buildDir}/unity-plugin/Assets/Plugins/iOS/")
-
-            from zipTree(zipFile)
-            into outputDir
-            include "Airship/**"
         }
 
         // Copy unity jar resolver
@@ -172,7 +153,6 @@ task build(dependsOn: 'preparePlugin') {
                     "Assets/PlayServicesResolver",
                     "Assets/UrbanAirship",
                     "Assets/Plugins/iOS",
-                    "Assets/Plugins/iOS/Airship",
                     "Assets/Plugins/Android/urbanairship-resources",
                     "Assets/Plugins/Android",
                     "Assets/Scripts",
