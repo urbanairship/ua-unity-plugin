@@ -25,8 +25,8 @@
   <iosPods>
       
     <!-- iosPod -->
-    <iosPod name="Airship" version="13.1" minTargetSdk="11.0" />
-    <iosPod name="Airship/Location" version="13.1" minTargetSdk="11.0" />
+    <iosPod name="Airship" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
+    <iosPod name="Airship/Location" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
   
   </iosPods>
 
