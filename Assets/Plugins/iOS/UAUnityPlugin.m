@@ -71,7 +71,7 @@ NSString *const UADisplayInboxActionDefaultRegistryName = @"display_inbox_action
 
     [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:UADisplayInboxActionDefaultRegistryName];
     [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:kUALandingPageActionDefaultRegistryName];
-    
+
     // Add observer for inbox updated event
     [[NSNotificationCenter defaultCenter] addObserver:[self shared]
                                              selector:@selector(inboxUpdated)
@@ -100,7 +100,7 @@ NSString *const UADisplayInboxActionDefaultRegistryName = @"display_inbox_action
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:UAUnityAutoLaunchMessageCenterKey];
         return YES;
     }
-    
+
     return [[NSUserDefaults standardUserDefaults] boolForKey:UAUnityAutoLaunchMessageCenterKey];
 }
 
@@ -392,16 +392,20 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
     UAAttributeMutations *mutations = [UAAttributeMutations mutations];
 
     for (NSDictionary *operation in operations) {
-        NSString *action = [operation[@"action"];
+        NSString *action = operation[@"action"];
         NSString *key = operation[@"key"];
         NSString *value = operation[@"value"];
-        NSString *type = property[@"type"];
+        NSString *type = operation[@"type"];
 
         if ([action isEqualToString:@"Set"]) {
-            if ([type isEqualToString:@"Number"]) {
-                NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
-                f.numberStyle = NSNumberFormatterDecimalStyle;
-                [mutations setNumber:[f numberFromString:value] forAttribute:key];
+            if ([type isEqualToString:@"Double"]) {
+                [mutations setNumber:@(value.doubleValue) forAttribute:key];
+            } else if ([type isEqualToString:@"Float"]) {
+                [mutations setNumber:@(value.floatValue) forAttribute:key];
+            } else if ([type isEqualToString:@"Long"]) {
+                [mutations setNumber:@(value.longLongValue) forAttribute:key];
+            } else if ([type isEqualToString:@"Integer"]) {
+                [mutations setNumber:@(value.intValue) forAttribute:key];
             } else if ([type isEqualToString:@"String"]) {
                 [mutations setString:value forAttribute:key];
             }
@@ -587,7 +591,7 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
         NSMutableDictionary *convertedMessage = [NSMutableDictionary dictionary];
         convertedMessage[@"id"] = message.messageID;
         convertedMessage[@"title"] = message.title;
-        
+
         NSNumber *sentDate = @([message.messageSent timeIntervalSince1970] * 1000);
         convertedMessage[@"sentDate"] = sentDate;
 
@@ -597,7 +601,7 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
 
         convertedMessage[@"isRead"] = message.unread ? @NO : @YES;
         convertedMessage[@"isDeleted"] = @(message.deleted);
-        
+
         if (message.extra) {
             // Unity's JsonArray doesn't support dictionaries, so break extra up into two lists.
             convertedMessage[@"extrasKeys"] = message.extra.allKeys;
