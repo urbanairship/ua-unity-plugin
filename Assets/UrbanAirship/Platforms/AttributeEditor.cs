@@ -19,7 +19,7 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Sets a string attribute.    
+        /// Sets a string attribute.
         /// </summary>
         /// <returns>The AttributeEditor</returns>
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
@@ -28,12 +28,12 @@ namespace UrbanAirship {
         	if (IsInvalidField(key)) {
         		return this;
         	}
-            operations.Add(AttributeMutation.NewSetAttributeMutation(key, value));
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.String));
             return this;
         }
 
         /// <summary>
-        /// Sets an integer number attribute.    
+        /// Sets an integer number attribute.
         /// </summary>
         /// <returns>The AttributeEditor</returns>
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
@@ -42,12 +42,12 @@ namespace UrbanAirship {
         	if (IsInvalidField(key)) {
         		return this;
         	}
-            operations.Add(AttributeMutation.NewSetAttributeMutation(key, value));
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Number));
             return this;
         }
 
         /// <summary>
-        /// Sets an long number attribute.    
+        /// Sets an long number attribute.
         /// </summary>
         /// <returns>The AttributeEditor</returns>
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
@@ -56,12 +56,12 @@ namespace UrbanAirship {
         	if (IsInvalidField(key)) {
         		return this;
         	}
-            operations.Add(AttributeMutation.NewSetAttributeMutation(key, value));
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Number));
             return this;
         }
 
         /// <summary>
-        /// Sets a float number attribute.    
+        /// Sets a float number attribute.
         /// </summary>
         /// <returns>The AttributeEditor</returns>
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
@@ -70,12 +70,15 @@ namespace UrbanAirship {
         	if (IsInvalidField(key)) {
         		return this;
         	}
-            operations.Add(AttributeMutation.NewSetAttributeMutation(key, value));
+            if (float.IsNaN(value) || float.IsInfinity(value)) {
+            	throw new FormatException("Infinity or NaN: " + value);
+        	}
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Number));
             return this;
         }
 
         /// <summary>
-        /// Sets a double number attribute.    
+        /// Sets a double number attribute.
         /// </summary>
         /// <returns>The AttributeEditor</returns>
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
@@ -84,12 +87,15 @@ namespace UrbanAirship {
         	if (IsInvalidField(key)) {
         		return this;
         	}
-            operations.Add(AttributeMutation.NewSetAttributeMutation(key, value));
+            if (double.IsNaN(value) || double.IsInfinity(value)) {
+                throw new FormatException("Infinity or NaN: " + value);
+        	}
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Number));
             return this;
         }
 
         /// <summary>
-        /// Removes an attribute.   
+        /// Removes an attribute.
         /// </summary>
         /// <returns>The AttributeEditor</returns>
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
@@ -99,7 +105,7 @@ namespace UrbanAirship {
             {
                 return this;
             }
-            operations.Add(AttributeMutation.newRemoveAttributeMutation(key));
+            operations.Add(new AttributeMutation(AttributeAction.Remove, key, null, AttributeType.None));
             return this;
         }
 
@@ -128,10 +134,22 @@ namespace UrbanAirship {
             }
         }
 
+
+        internal enum AttributeType {
+            None,
+            Number,
+            String
+        }
+
+
+        internal enum AttributeAction {
+            Set,
+            Remove
+        }
+
         [Serializable]
         internal class AttributeMutation {
-        	private static string ATTRIBUTE_ACTION_REMOVE = "remove";
-    		private static string ATTRIBUTE_ACTION_SET = "set";
+
 
 #pragma warning disable
             // Used for JSON encoding/decoding
@@ -143,45 +161,17 @@ namespace UrbanAirship {
             private string key;
 
             [SerializeField]
-            private object value;
+            private string value;
+
+            [SerializeField]
+            private string type;
 #pragma warning restore
 
-            public AttributeMutation (string action, string key, object value) {
-                this.action = action;
+            public AttributeMutation (AttributeAction action, string key, object value, AttributeType type) {
+                this.action = action.ToString();
                 this.key = key;
-                this.value = value;
-            }
-
-            public static AttributeMutation NewSetAttributeMutation(string key, string stringValue) {
-        		return new AttributeMutation(ATTRIBUTE_ACTION_SET, key, stringValue);
-        	}
-
-        	public static AttributeMutation NewSetAttributeMutation(string key, int number) {
-        		return new AttributeMutation(ATTRIBUTE_ACTION_SET, key, number);
-        	}
-
-        	public static AttributeMutation NewSetAttributeMutation(string key, long number) {
-        		return new AttributeMutation(ATTRIBUTE_ACTION_SET, key, number);
-        	}
-
-        	public static AttributeMutation NewSetAttributeMutation(string key, float number) {
-				if (float.IsNaN(number) || float.IsInfinity(number)) {
-            		throw new FormatException("Infinity or NaN: " + number);
-        		}
-
-        		return new AttributeMutation(ATTRIBUTE_ACTION_SET, key, number);
-        	}
-
-        	public static AttributeMutation NewSetAttributeMutation(string key, double number) {
-        		if (double.IsNaN(number) || double.IsInfinity(number)) {
-            		throw new FormatException("Infinity or NaN: " + number);
-        		}
-
-        		return new AttributeMutation(ATTRIBUTE_ACTION_SET, key, number);
-        	}
-
-            public static AttributeMutation newRemoveAttributeMutation(string key) {
-                return new AttributeMutation(ATTRIBUTE_ACTION_REMOVE, key, null);
+                this.value = value == null ? null : value.ToString();
+                this.type = type.ToString();
             }
         }
     }
