@@ -34,10 +34,16 @@ namespace UrbanAirship.Editor {
             PBXProject proj = new PBXProject ();
             proj.ReadFromString (File.ReadAllText (projectPath));
 
+#if UNITY_2019_3_OR_NEWER
+            string[] targets = {
+                proj.GetUnityMainTargetGuid ()
+            };
+#else
             string[] targets = {
                 proj.TargetGuidByName (PBXProject.GetUnityTargetName ()),
                 proj.TargetGuidByName (PBXProject.GetUnityTestTargetName ())
             };
+#endif
 
             string airshipConfig = Path.Combine (buildPath, "AirshipConfig.plist");
             if (File.Exists (airshipConfig)) {
