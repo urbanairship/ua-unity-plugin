@@ -34,26 +34,16 @@ namespace UrbanAirship.Editor {
             PBXProject proj = new PBXProject ();
             proj.ReadFromString (File.ReadAllText (projectPath));
 
-            string[] frameworks = {
-                "CFNetwork.framework",
-                "CoreGraphics.framework",
-                "Foundation.framework",
-                "MobileCoreServices.framework",
-                "Security.framework",
-                "SystemConfiguration.framework",
-                "UIKit.framework",
-                "CoreTelephony.framework",
-                "CoreLocation.framework",
-                "CoreData.framework",
-                "UserNotifications.framework",
-                "WebKit.framework",
-                "StoreKit.framework"
+#if UNITY_2019_3_OR_NEWER
+            string[] targets = {
+                proj.GetUnityMainTargetGuid ()
             };
-
+#else
             string[] targets = {
                 proj.TargetGuidByName (PBXProject.GetUnityTargetName ()),
                 proj.TargetGuidByName (PBXProject.GetUnityTestTargetName ())
             };
+#endif
 
             string airshipConfig = Path.Combine (buildPath, "AirshipConfig.plist");
             if (File.Exists (airshipConfig)) {
@@ -64,13 +54,7 @@ namespace UrbanAirship.Editor {
             string airshipGUID = proj.AddFile ("AirshipConfig.plist", "AirshipConfig.plist", PBXSourceTree.Source);
 
             foreach (string target in targets) {
-                proj.AddBuildProperty (target, "OTHER_LDFLAGS", "$(inherited)");
-                proj.AddBuildProperty (target, "OTHER_LDFLAGS", "-ObjC -lz -lsqlite3");
                 proj.AddFileToBuild (target, airshipGUID);
-
-                foreach (string framework in frameworks) {
-                    proj.AddFrameworkToProject (target, framework, false);
-                }
             }
 
             File.WriteAllText (projectPath, proj.WriteToString ());
