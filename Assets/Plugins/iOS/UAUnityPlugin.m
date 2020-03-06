@@ -13,6 +13,7 @@ static dispatch_once_t onceToken_;
 
 NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_launch_message_center";
 NSString *const UADisplayInboxActionDefaultRegistryName = @"display_inbox_action";
+NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
 
 @interface UAUnityPlugin()
 @property (nonatomic, strong) UAUnityMessageViewController *messageViewController;
@@ -29,6 +30,9 @@ NSString *const UADisplayInboxActionDefaultRegistryName = @"display_inbox_action
 + (void)performTakeOff:(NSNotification *)notification {
     UA_LDEBUG(@"UnityPlugin taking off");
     [UAirship takeOff];
+
+    NSString *version = [NSBundle mainBundle].infoDictionary[UAUnityPluginVersionKey] ?: @"0.0.0";
+    [[UAirship analytics] registerSDKExtension:UASDKExtensionUnity version:version];
 
     // UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
     [UAirship push].pushNotificationDelegate = [UAUnityPlugin shared];
