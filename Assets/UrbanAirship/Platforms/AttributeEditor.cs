@@ -42,7 +42,7 @@ namespace UrbanAirship {
         	if (IsInvalidField(key)) {
         		return this;
         	}
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Number));
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Integer));
             return this;
         }
 
@@ -56,7 +56,7 @@ namespace UrbanAirship {
         	if (IsInvalidField(key)) {
         		return this;
         	}
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Number));
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Long));
             return this;
         }
 
@@ -73,7 +73,7 @@ namespace UrbanAirship {
             if (float.IsNaN(value) || float.IsInfinity(value)) {
             	throw new FormatException("Infinity or NaN: " + value);
         	}
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Number));
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Float));
             return this;
         }
 
@@ -90,7 +90,7 @@ namespace UrbanAirship {
             if (double.IsNaN(value) || double.IsInfinity(value)) {
                 throw new FormatException("Infinity or NaN: " + value);
         	}
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Number));
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Double));
             return this;
         }
 
@@ -137,7 +137,10 @@ namespace UrbanAirship {
 
         internal enum AttributeType {
             None,
-            Number,
+            Integer,
+            Long,
+            Float,
+            Double,
             String
         }
 

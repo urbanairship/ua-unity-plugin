@@ -392,14 +392,20 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
     UAAttributeMutations *mutations = [UAAttributeMutations mutations];
 
     for (NSDictionary *operation in operations) {
+        NSString *action = [operation[@"action"];
         NSString *key = operation[@"key"];
-        if ([operation[@"action"] isEqualToString:@"set"]) {
-            if ([operation[@"value"] isKindOfClass [NSString class]]) {
-                [mutations setString:(NSString)operation[@"value"] forAttribute:key];
-            } else if ([operation[@"value"] isKindOfClass [NSNumber class]]) {
-                [mutations setNumber:(NSNumber)operation[@"value"] forAttribute:key];
+        NSString *value = operation[@"value"];
+        NSString *type = property[@"type"];
+
+        if ([action isEqualToString:@"Set"]) {
+            if ([type isEqualToString:@"Number"]) {
+                NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
+                f.numberStyle = NSNumberFormatterDecimalStyle;
+                [mutations setNumber:[f numberFromString:value] forAttribute:key];
+            } else if ([type isEqualToString:@"String"]) {
+                [mutations setString:value forAttribute:key];
             }
-        } else if ([operation[@"action"] isEqualToString:@"remove"]) {
+        } else if ([action isEqualToString:@"Remove"]) {
             [mutations removeAttribute:key];
         }
     }

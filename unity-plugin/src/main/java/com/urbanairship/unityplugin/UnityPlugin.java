@@ -594,27 +594,28 @@ public class UnityPlugin {
 
             String action = operation.optMap().opt("action").getString();
             String key = operation.optMap().opt("key").getString();
-            Object value = operation.optMap().opt("value").getValue();
+            String value = operation.optMap().opt("value").getString();
+            String type = operation.optMap().opt("type").getString();
 
             if (value == null || UAStringUtil.isEmpty(key) || UAStringUtil.isEmpty(action)) {
                 continue;
             }
 
             switch (action) {
-                case "set":
-                    if (value instanceof String) {
-                        editor.setAttribute(key, (String)value);
-                    } else if (value instanceof Integer) {
-                        editor.setAttribute(key, (int)value);
-                    } else if (value instanceof Long) {
-                        editor.setAttribute(key, (long)value);
-                    } else if (value instanceof Float) {
-                        editor.setAttribute(key, (float)value);
-                    } else if (value instanceof Double) {
-                        editor.setAttribute(key, (double)value);
+                case "Set":
+                    if (type.equals("String")) {
+                        editor.setAttribute(key, value);
+                    } else if (type.equals("Integer")) {
+                        editor.setAttribute(key, Integer.valueOf(value));
+                    } else if (type.equals("Long")) {
+                        editor.setAttribute(key, Long.valueOf(value));
+                    } else if (type.equals("Float")) {
+                        editor.setAttribute(key, Float.valueOf(value));
+                    } else if (type.equals("Double")) {
+                        editor.setAttribute(key, Double.valueOf(value));
                     }
                     break;
-                case "remove":
+                case "Remove":
                     editor.removeAttribute(key);
                     break;
             }
