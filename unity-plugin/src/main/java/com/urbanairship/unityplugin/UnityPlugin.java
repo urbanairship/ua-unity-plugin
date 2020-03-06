@@ -13,15 +13,14 @@ import androidx.annotation.Nullable;
 import com.unity3d.player.UnityPlayer;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
-import com.urbanairship.channel.AirshipChannel;
 import com.urbanairship.channel.AttributeEditor;
+import com.urbanairship.channel.TagGroupsEditor;
 import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
 import com.urbanairship.json.JsonMap;
 import com.urbanairship.json.JsonValue;
 import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.PushMessage;
-import com.urbanairship.channel.TagGroupsEditor;
 import com.urbanairship.richpush.RichPushMessage;
 import com.urbanairship.util.UAStringUtil;
 
@@ -32,7 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class UnityPlugin {
 
@@ -577,43 +575,51 @@ public class UnityPlugin {
     private static void applyAttributeOperations(AttributeEditor editor, String payload) {
         JsonMap payloadMap;
         try {
-            payloadMap = JsonValue.parseString(payload).getMap();
+            payloadMap = JsonValue.parseString(payload).optMap();
         } catch (JsonException e) {
             PluginLogger.error("Unable to apply attribute operations: ", e);
             return;
         }
 
-        if (payloadMap == null || !payloadMap.opt("values").isJsonList()) {
-            return;
-        }
-
         for (JsonValue operation : payloadMap.opt("values").optList()) {
-            if (!operation.isJsonMap()) {
-                continue;
-            }
-
             String action = operation.optMap().opt("action").getString();
             String key = operation.optMap().opt("key").getString();
             String value = operation.optMap().opt("value").getString();
             String type = operation.optMap().opt("type").getString();
 
-            if (value == null || UAStringUtil.isEmpty(key) || UAStringUtil.isEmpty(action)) {
+            if (UAStringUtil.isEmpty(key) || UAStringUtil.isEmpty(action)) {
+                PluginLogger.error("Invalid attribute operation %s ", operation);
                 continue;
             }
 
             switch (action) {
                 case "Set":
-                    if (type.equals("String")) {
-                        editor.setAttribute(key, value);
-                    } else if (type.equals("Integer")) {
-                        editor.setAttribute(key, Integer.valueOf(value));
-                    } else if (type.equals("Long")) {
-                        editor.setAttribute(key, Long.valueOf(value));
-                    } else if (type.equals("Float")) {
-                        editor.setAttribute(key, Float.valueOf(value));
-                    } else if (type.equals("Double")) {
-                        editor.setAttribute(key, Double.valueOf(value));
+                    if (UAStringUtil.isEmpty(type) || UAStringUtil.isEmpty(value)) {
+                        PluginLogger.error("Invalid set operation: %s", operation);
+                        continue;
                     }
+
+                    switch (type) {
+                        case "String":
+                            editor.setAttribute(key, value);
+                            break;
+                        case "Integer":
+                            editor.setAttribute(key, Integer.valueOf(value));
+                            break;
+                        case "Long":
+                            editor.setAttribute(key, Long.valueOf(value));
+                            break;
+                        case "Float":
+                            editor.setAttribute(key, Float.valueOf(value));
+                            break;
+                        case "Double":
+                            editor.setAttribute(key, Double.valueOf(value));
+                            break;
+                        default:
+                            PluginLogger.error("Unexpected type: " + operation);
+                            continue;
+                    }
+
                     break;
                 case "Remove":
                     editor.removeAttribute(key);
