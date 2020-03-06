@@ -2,25 +2,25 @@ import java.util.regex.Pattern
 
 allprojects {
   ext {
+      airshipProperties = new Properties()
+      airshipProperties.load(new FileInputStream("airship.properties"))
+
       unityExe = System.getProperty("UNITY_EXE")
       if (unityExe == null || unityExe.isEmpty()) {
           unityExe = System.getenv("UNITY_EXE")
       }
-      // Unity Hub installs Unity in a new Location
+
       if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
             new ByteArrayOutputStream().withStream { os ->
                 def result = exec {
                     executable = 'bash'
-                    args = ['-c', 'find /Applications/Unity/Hub -name Unity -type f | sort | tail -1']
+                    args = ['-c', "find /Applications/Unity/Hub/Editor/" + airshipProperties.unityVersion + " -name Unity -type f | sort | tail -1"]
                     standardOutput = os
                 }
                 unityExe = os.toString().trim()
             }
       }
-      // If no Unity Hub, use old location
-      if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
-          unityExe ='/Applications/Unity/Unity.app/Contents/MacOS/Unity'
-      }
+
       if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
           throw new GradleException('Unable to find Unity executable.')
       }
@@ -29,12 +29,21 @@ allprojects {
       if (unityClassesJar == null || unityClassesJar.isEmpty()) {
           unityClassesJar = System.getenv("UNITY_CLASSES_JAR")
       }
-      if (unityClassesJar == null || unityClassesJar.isEmpty()) {
-          unityClassesJar ='/Applications/Unity/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar'
+
+      if (unityClassesJar == null || unityClassesJar.isEmpty() || !file(unityClassesJar).exists()) {
+            new ByteArrayOutputStream().withStream { os ->
+                def result = exec {
+                    executable = 'bash'
+                    args = ['-c', "find /Applications/Unity/Hub/Editor/" + airshipProperties.unityVersion + "/PlaybackEngines/AndroidPlayer -name classes.jar -type f | sort | tail -1"]
+                    standardOutput = os
+                }
+                unityClassesJar = os.toString().trim()
+            }
       }
 
-      airshipProperties = new Properties()
-      airshipProperties.load(new FileInputStream("airship.properties"))
+      if (unityClassesJar == null || unityClassesJar.isEmpty() || !file(unityClassesJar).exists()) {
+          throw new GradleException('Unable to find Unity classes.jar.')
+      }
   }
 }
 
