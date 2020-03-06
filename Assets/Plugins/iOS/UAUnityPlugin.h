@@ -2,6 +2,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AirshipLib.h"
+#import "AirshipMessageCenterLib.h"
 
 extern void UnitySendMessage(const char *, const char *, const char *);
 
@@ -69,7 +70,7 @@ int UAUnityPlugin_getMessageCenterCount();
 void UAUnityPlugin_editNamedUserTagGroups(const char *payload);
 void UAUnityPlugin_editChannelTagGroups(const char *payload);
 
-@interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UARegistrationDelegate, UADeepLinkDelegate, UAInboxDelegate>
+@interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UARegistrationDelegate, UADeepLinkDelegate,  UAMessageCenterDisplayDelegate>
 
 + (UAUnityPlugin *)shared;
 
