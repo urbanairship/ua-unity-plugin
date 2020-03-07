@@ -11,6 +11,8 @@ namespace UrbanAirship {
         public bool LocationEnabled { get; set; }
         public bool BackgroundLocationAllowed { get; set; }
         public string NamedUserId { get; set; }
+        public TimeSpan InAppAutomationDisplayInterval { get; set; }
+        public bool InAppAutomationPaused { get; set; }
         public GameObject Listener { set; private get; }
         public string GetDeepLink (bool clear) { return null; }
         public string GetIncomingPush (bool clear) { return null; }

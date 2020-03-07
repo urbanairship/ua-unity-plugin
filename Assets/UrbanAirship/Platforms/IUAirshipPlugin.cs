@@ -1,5 +1,6 @@
 /* Copyright Airship and Contributors */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -78,5 +79,15 @@ namespace UrbanAirship {
         void EditNamedUserTagGroups (string payload);
 
         void EditChannelTagGroups (string payload);
+
+        TimeSpan InAppAutomationDisplayInterval {
+            get;
+            set;
+        }
+
+        bool InAppAutomationPaused {
+            get;
+            set;
+        }
     }
 }

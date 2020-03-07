@@ -120,7 +120,7 @@ namespace UrbanAirship {
         /// <summary>
         /// Initialize a UAirship instance.
         /// </summary>]
-        private void init() { 
+        private void init() {
             gameObject = new GameObject ("[UrbanAirshipListener]");
             gameObject.AddComponent<UrbanAirshipListener> ();
 
@@ -199,6 +199,32 @@ namespace UrbanAirship {
             }
             set {
                 plugin.NamedUserId = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the In-App automation display interval.
+        /// </summary>
+        /// <value>The display interval.</value>
+        public TimeSpan InAppAutomationDisplayInterval {
+            get {
+                return plugin.InAppAutomationDisplayInterval;
+            }
+            set {
+                plugin.InAppAutomationDisplayInterval = value;
+            }
+        }
+
+        /// <summary>
+        /// Pauses/resumes In-App automation.
+        /// </summary>
+        /// <value><c>true</c> if paused, otherwise <c>false</c></value>
+        public bool InAppAutomationPaused {
+             get {
+                return plugin.InAppAutomationPaused;
+            }
+            set {
+                plugin.InAppAutomationPaused = value;
             }
         }
 

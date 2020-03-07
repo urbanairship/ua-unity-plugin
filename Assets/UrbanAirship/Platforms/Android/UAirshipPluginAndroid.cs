@@ -72,6 +72,24 @@ namespace UrbanAirship {
             }
         }
 
+        public TimeSpan InAppAutomationDisplayInterval {
+            get {
+                return TimeSpan.FromSeconds (Call<double> ("getInAppAutomationDisplayInterval"));
+            }
+            set {
+                Call ("setInAppAutomationDisplayInterval", value.TotalSeconds);
+            }
+        }
+
+        public bool InAppAutomationPaused {
+             get {
+                return Call<bool> ("isInAppAutomationPaused");
+            }
+            set {
+                Call ("setInAppAutomationPaused", value);
+            }
+        }
+
         public GameObject Listener {
             set {
                 Call ("setListener", value.name);

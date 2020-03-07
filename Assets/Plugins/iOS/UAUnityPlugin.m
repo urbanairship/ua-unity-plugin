@@ -4,6 +4,8 @@
 #import "UnityInterface.h"
 #import "AirshipLib.h"
 #import "AirshipMessageCenterLib.h"
+#import "AirshipAutomationLib.h"
+
 #import "UAUnityMessageViewController.h"
 
 #import "UALandingPageAction.h"
@@ -71,7 +73,7 @@ NSString *const UADisplayInboxActionDefaultRegistryName = @"display_inbox_action
 
     [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:UADisplayInboxActionDefaultRegistryName];
     [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:kUALandingPageActionDefaultRegistryName];
-    
+
     // Add observer for inbox updated event
     [[NSNotificationCenter defaultCenter] addObserver:[self shared]
                                              selector:@selector(inboxUpdated)
@@ -100,7 +102,7 @@ NSString *const UADisplayInboxActionDefaultRegistryName = @"display_inbox_action
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:UAUnityAutoLaunchMessageCenterKey];
         return YES;
     }
-    
+
     return [[NSUserDefaults standardUserDefaults] boolForKey:UAUnityAutoLaunchMessageCenterKey];
 }
 
@@ -193,7 +195,7 @@ bool UAUnityPlugin_isLocationEnabled() {
 
 void UAUnityPlugin_setLocationEnabled(bool enabled) {
     UA_LDEBUG(@"UnityPlugin setLocationEnabled: %d", enabled);
-   [UAirship shared].locationProvider.locationUpdatesEnabled = enabled;
+    [UAirship shared].locationProvider.locationUpdatesEnabled = enabled;
 }
 
 bool UAUnityPlugin_isBackgroundLocationAllowed() {
@@ -206,6 +208,25 @@ void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
     [UAirship shared].locationProvider.backgroundLocationUpdatesAllowed = enabled ? YES : NO;
 }
 
+double UAUnityPlugin_getInAppAutomationDisplayInterval() {
+    UA_LDEBUG(@"UnityPlugin getInAppAutomationDisplayInterval");
+    return [UAInAppMessageManager shared].displayInterval;
+}
+
+void UAUnityPlugin_setInAppAutomationDisplayInterval(double value) {
+    UA_LDEBUG(@"UnityPlugin setBackgroundLocationAllowed %f", value);
+    [UAInAppMessageManager shared].displayInterval = value;
+}
+
+bool UAUnityPlugin_isInAppAutomationPaused() {
+    UA_LDEBUG(@"UnityPlugin isInAppAutomationPaused");
+    return [UAInAppMessageManager shared].paused;
+}
+
+void UAUnityPlugin_setInAppAutomationPaused(bool paused) {
+    UA_LDEBUG(@"UnityPlugin setInAppAutomationPaused: %d", paused);
+    [UAInAppMessageManager shared].paused = paused;
+}
 
 #pragma mark -
 #pragma mark Analytics
