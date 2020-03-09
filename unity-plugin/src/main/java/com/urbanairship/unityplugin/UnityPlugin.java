@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class UnityPlugin {
 
@@ -377,6 +379,29 @@ public class UnityPlugin {
         AttributeEditor editor = UAirship.shared().getChannel().editAttributes();
         applyAttributeOperations(editor, payload);
         editor.apply();
+    }
+
+    public boolean isInAppAutomationPaused() {
+        PluginLogger.debug("UnityPlugin isInAppAutomationPaused");
+        return UAirship.shared().getInAppMessagingManager().isPaused();
+    }
+
+    public void setInAppAutomationPaused(boolean paused) {
+        PluginLogger.debug("UnityPlugin setInAppAutomationPaused %s", paused);
+        UAirship.shared().getInAppMessagingManager().setPaused(paused);
+    }
+
+    public double getInAppAutomationDisplayInterval() {
+        PluginLogger.debug("UnityPlugin getInAppAutomationDisplayInterval");
+        long milliseconds = UAirship.shared().getInAppMessagingManager().getDisplayInterval();
+        return milliseconds / 1000.0;
+    }
+
+    public void setInAppAutomationDisplayInterval(double seconds) {
+        PluginLogger.debug("UnityPlugin setInAppAutomationDisplayInterval %s", seconds);
+
+        long milliseconds = (long) (seconds * 1000.0);
+        UAirship.shared().getInAppMessagingManager().setDisplayInterval(milliseconds, TimeUnit.MILLISECONDS);
     }
 
     void onPushReceived(PushMessage message) {

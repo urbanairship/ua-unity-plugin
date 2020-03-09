@@ -66,7 +66,7 @@ namespace UrbanAirship.Editor {
 
             PlistElementDict rootDict = plist.root;
             rootDict.CreateArray ("UIBackgroundModes").AddString ("remote-notification");
-
+            rootDict.SetString ("UAUnityPluginVersion", UrbanAirship.PluginInfo.Version);
             File.WriteAllText (plistPath, plist.WriteToString ());
         }
 #endif

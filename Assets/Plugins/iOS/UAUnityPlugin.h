@@ -65,6 +65,14 @@ int UAUnityPlugin_getMessageCenterUnreadCount();
 int UAUnityPlugin_getMessageCenterCount();
 
 #pragma mark -
+#pragma mark In-app
+
+double UAUnityPlugin_getInAppAutomationDisplayInterval();
+void UAUnityPlugin_setInAppAutomationDisplayInterval(double value);
+bool UAUnityPlugin_isInAppAutomationPaused();
+void UAUnityPlugin_setInAppAutomationPaused(bool paused);
+
+#pragma mark -
 #pragma mark Tag Groups
 
 void UAUnityPlugin_editNamedUserTagGroups(const char *payload);

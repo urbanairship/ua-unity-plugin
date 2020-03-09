@@ -202,6 +202,32 @@ namespace UrbanAirship {
         }
 
         /// <summary>
+        /// Gets or sets the In-App automation display interval.
+        /// </summary>
+        /// <value>The display interval.</value>
+        public TimeSpan InAppAutomationDisplayInterval {
+            get {
+                return plugin.InAppAutomationDisplayInterval;
+            }
+            set {
+                plugin.InAppAutomationDisplayInterval = value;
+            }
+        }
+
+        /// <summary>
+        /// Pauses/resumes In-App automation.
+        /// </summary>
+        /// <value><c>true</c> if paused, otherwise <c>false</c></value>
+        public bool InAppAutomationPaused {
+             get {
+                return plugin.InAppAutomationPaused;
+            }
+            set {
+                plugin.InAppAutomationPaused = value;
+            }
+        }
+
+        /// <summary>
         /// Gets the last received deep link.
         /// </summary>
         /// <returns>The deep link.</returns>

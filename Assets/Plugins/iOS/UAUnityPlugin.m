@@ -4,6 +4,8 @@
 #import "UnityInterface.h"
 #import "AirshipLib.h"
 #import "AirshipMessageCenterLib.h"
+#import "AirshipAutomationLib.h"
+
 #import "UAUnityMessageViewController.h"
 
 #import "UALandingPageAction.h"
@@ -13,6 +15,7 @@ static dispatch_once_t onceToken_;
 
 NSString *const UAUnityAutoLaunchMessageCenterKey = @"com.urbanairship.auto_launch_message_center";
 NSString *const UADisplayInboxActionDefaultRegistryName = @"display_inbox_action";
+NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
 
 @interface UAUnityPlugin()
 @property (nonatomic, strong) UAUnityMessageViewController *messageViewController;
@@ -29,6 +32,9 @@ NSString *const UADisplayInboxActionDefaultRegistryName = @"display_inbox_action
 + (void)performTakeOff:(NSNotification *)notification {
     UA_LDEBUG(@"UnityPlugin taking off");
     [UAirship takeOff];
+
+    NSString *version = [NSBundle mainBundle].infoDictionary[UAUnityPluginVersionKey] ?: @"0.0.0";
+    [[UAirship analytics] registerSDKExtension:UASDKExtensionUnity version:version];
 
     // UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
     [UAirship push].pushNotificationDelegate = [UAUnityPlugin shared];
@@ -193,7 +199,7 @@ bool UAUnityPlugin_isLocationEnabled() {
 
 void UAUnityPlugin_setLocationEnabled(bool enabled) {
     UA_LDEBUG(@"UnityPlugin setLocationEnabled: %d", enabled);
-   [UAirship shared].locationProvider.locationUpdatesEnabled = enabled;
+    [UAirship shared].locationProvider.locationUpdatesEnabled = enabled;
 }
 
 bool UAUnityPlugin_isBackgroundLocationAllowed() {
@@ -206,6 +212,25 @@ void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
     [UAirship shared].locationProvider.backgroundLocationUpdatesAllowed = enabled ? YES : NO;
 }
 
+double UAUnityPlugin_getInAppAutomationDisplayInterval() {
+    UA_LDEBUG(@"UnityPlugin getInAppAutomationDisplayInterval");
+    return [UAInAppMessageManager shared].displayInterval;
+}
+
+void UAUnityPlugin_setInAppAutomationDisplayInterval(double value) {
+    UA_LDEBUG(@"UnityPlugin setBackgroundLocationAllowed %f", value);
+    [UAInAppMessageManager shared].displayInterval = value;
+}
+
+bool UAUnityPlugin_isInAppAutomationPaused() {
+    UA_LDEBUG(@"UnityPlugin isInAppAutomationPaused");
+    return [UAInAppMessageManager shared].paused;
+}
+
+void UAUnityPlugin_setInAppAutomationPaused(bool paused) {
+    UA_LDEBUG(@"UnityPlugin setInAppAutomationPaused: %d", paused);
+    [UAInAppMessageManager shared].paused = paused;
+}
 
 #pragma mark -
 #pragma mark Analytics
