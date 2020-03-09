@@ -397,7 +397,17 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
         NSString *value = operation[@"value"];
         NSString *type = operation[@"type"];
 
+        if (!action.length || !key.length) {
+            UA_LERR(@"Invalid attribute operation %@", operation);
+            continue;
+        }
+
         if ([action isEqualToString:@"Set"]) {
+            if (!value.length || !type.length) {
+                UA_LERR(@"Invalid set operation %@", operation);
+                continue;
+            }
+
             if ([type isEqualToString:@"Double"]) {
                 [mutations setNumber:@(value.doubleValue) forAttribute:key];
             } else if ([type isEqualToString:@"Float"]) {

@@ -17,7 +17,7 @@ namespace UrbanAirship {
         public void AddTag (string tag) { }
         public void RemoveTag (string tag) { }
         public void AddCustomEvent (string customEvent) { }
-        public void TrackScreen(string screenName) { }
+        public void TrackScreen (string screenName) { }
         public void AssociateIdentifier (string key, string identifier) { }
         public void DisplayMessageCenter () { }
         public void DisplayInboxMessage (string messageId) { }
@@ -25,7 +25,7 @@ namespace UrbanAirship {
         public string InboxMessages () { return null; }
         public void MarkInboxMessageRead (string messageId) { }
         public void DeleteInboxMessage (string messageId) { }
-        public void SetAutoLaunchDefaultMessageCenter (bool enabled) {  }
+        public void SetAutoLaunchDefaultMessageCenter (bool enabled) { }
         public int MessageCenterUnreadCount { get; private set; }
         public int MessageCenterCount { get; private set; }
         public void EditNamedUserTagGroups (string payload) { }

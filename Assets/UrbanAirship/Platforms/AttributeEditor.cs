@@ -7,11 +7,11 @@ using UnityEngine;
 
 namespace UrbanAirship {
 
-	/// <summary>
+    /// <summary>
     /// An editor for channel attributes
     /// </summary>
     public class AttributeEditor {
-    	private Action<string> onApply;
+        private Action<string> onApply;
         private IList<AttributeMutation> operations = new List<AttributeMutation> ();
 
         internal AttributeEditor (Action<string> onApply) {
@@ -25,10 +25,10 @@ namespace UrbanAirship {
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
         /// <param name="value">The attribute string greater than one character and less than 1024 characters in length.</param>
         public AttributeEditor SetAttribute (string key, string value) {
-        	if (IsInvalidField(key)) {
-        		return this;
-        	}
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.String));
+            if (IsInvalidField (key) || IsInvalidField(value)) {
+                return this;
+            }
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value, AttributeType.String));
             return this;
         }
 
@@ -39,10 +39,10 @@ namespace UrbanAirship {
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
         /// <param name="value">The number attribute.</param>
         public AttributeEditor SetAttribute (string key, int value) {
-        	if (IsInvalidField(key)) {
-        		return this;
-        	}
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Integer));
+            if (IsInvalidField (key)) {
+                return this;
+            }
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value, AttributeType.Integer));
             return this;
         }
 
@@ -53,10 +53,10 @@ namespace UrbanAirship {
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
         /// <param name="value">The number attribute.</param>
         public AttributeEditor SetAttribute (string key, long value) {
-        	if (IsInvalidField(key)) {
-        		return this;
-        	}
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Long));
+            if (IsInvalidField (key)) {
+                return this;
+            }
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value, AttributeType.Long));
             return this;
         }
 
@@ -67,13 +67,13 @@ namespace UrbanAirship {
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
         /// <param name="value">The number attribute.</param>
         public AttributeEditor SetAttribute (string key, float value) {
-        	if (IsInvalidField(key)) {
-        		return this;
-        	}
-            if (float.IsNaN(value) || float.IsInfinity(value)) {
-            	throw new FormatException("Infinity or NaN: " + value);
-        	}
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Float));
+            if (IsInvalidField (key)) {
+                return this;
+            }
+            if (float.IsNaN (value) || float.IsInfinity (value)) {
+                throw new FormatException ("Infinity or NaN: " + value);
+            }
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value, AttributeType.Float));
             return this;
         }
 
@@ -84,13 +84,13 @@ namespace UrbanAirship {
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
         /// <param name="value">The number attribute.</param>
         public AttributeEditor SetAttribute (string key, double value) {
-        	if (IsInvalidField(key)) {
-        		return this;
-        	}
-            if (double.IsNaN(value) || double.IsInfinity(value)) {
-                throw new FormatException("Infinity or NaN: " + value);
-        	}
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, value, AttributeType.Double));
+            if (IsInvalidField (key)) {
+                return this;
+            }
+            if (double.IsNaN (value) || double.IsInfinity (value)) {
+                throw new FormatException ("Infinity or NaN: " + value);
+            }
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value, AttributeType.Double));
             return this;
         }
 
@@ -99,28 +99,24 @@ namespace UrbanAirship {
         /// </summary>
         /// <returns>The AttributeEditor</returns>
         /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
-        public AttributeEditor RemoveAttribute(string key)
-        {
-            if (IsInvalidField(key))
-            {
+        public AttributeEditor RemoveAttribute (string key) {
+            if (IsInvalidField (key)) {
                 return this;
             }
-            operations.Add(new AttributeMutation(AttributeAction.Remove, key, null, AttributeType.None));
+            operations.Add (new AttributeMutation (AttributeAction.Remove, key, null, AttributeType.None));
             return this;
         }
 
-        private bool IsInvalidField(string key) {
-        	if (key == null || key.Length == 0) {
-        		//Logger.error("Attribute fields cannot be empty.");
-            	return true;
-        	}
+        private bool IsInvalidField (string key) {
+            if (key == null || key.Length == 0) {
+                return true;
+            }
 
-        	if (key.Length > 1024) {
-        		//Logger.error("Attribute field inputs cannot be greater than %s characters in length", 1024);
-        		return true;
-        	}
+            if (key.Length > 1024) {
+                return true;
+            }
 
-        	return false;
+            return false;
         }
 
         /// <summary>
@@ -134,7 +130,6 @@ namespace UrbanAirship {
             }
         }
 
-
         internal enum AttributeType {
             None,
             Integer,
@@ -144,7 +139,6 @@ namespace UrbanAirship {
             String
         }
 
-
         internal enum AttributeAction {
             Set,
             Remove
@@ -152,7 +146,6 @@ namespace UrbanAirship {
 
         [Serializable]
         internal class AttributeMutation {
-
 
 #pragma warning disable
             // Used for JSON encoding/decoding
@@ -171,10 +164,10 @@ namespace UrbanAirship {
 #pragma warning restore
 
             public AttributeMutation (AttributeAction action, string key, object value, AttributeType type) {
-                this.action = action.ToString();
+                this.action = action.ToString ();
                 this.key = key;
-                this.value = value == null ? null : value.ToString();
-                this.type = type.ToString();
+                this.value = value == null ? null : value.ToString ();
+                this.type = type.ToString ();
             }
         }
     }

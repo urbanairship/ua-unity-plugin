@@ -110,33 +110,27 @@ namespace UrbanAirship {
             Call ("displayMessageCenter");
         }
 
-        public void DisplayInboxMessage (string messageId)
-        {
+        public void DisplayInboxMessage (string messageId) {
             Call ("displayInboxMessage", messageId);
         }
 
-        public void RefreshInbox ()
-        {
+        public void RefreshInbox () {
             Call ("refreshInbox");
         }
 
-        public string InboxMessages ()
-        {
+        public string InboxMessages () {
             return Call<string> ("getInboxMessages");
         }
 
-        public void MarkInboxMessageRead (string messageId)
-        {
+        public void MarkInboxMessageRead (string messageId) {
             Call ("markInboxMessageRead", messageId);
         }
 
-        public void DeleteInboxMessage (string messageId)
-        {
+        public void DeleteInboxMessage (string messageId) {
             Call ("deleteInboxMessage", messageId);
         }
 
-        public void SetAutoLaunchDefaultMessageCenter (bool enabled)
-        {
+        public void SetAutoLaunchDefaultMessageCenter (bool enabled) {
             Call ("setAutoLaunchDefaultMessageCenter", enabled);
         }
 
@@ -160,9 +154,8 @@ namespace UrbanAirship {
             Call ("editChannelTagGroups", payload);
         }
 
-        public void EditChannelAttributes(string payload)
-        {
-            Call("editChannelAttributes", payload);
+        public void EditChannelAttributes (string payload) {
+            Call ("editChannelAttributes", payload);
         }
 
         private void Call (string method, params object[] args) {
