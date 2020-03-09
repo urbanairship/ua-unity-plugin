@@ -11,14 +11,7 @@ allprojects {
       }
 
       if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
-            new ByteArrayOutputStream().withStream { os ->
-                def result = exec {
-                    executable = 'bash'
-                    args = ['-c', "find /Applications/Unity/Hub/Editor/" + airshipProperties.unityVersion + " -name Unity -type f | tail -1"]
-                    standardOutput = os
-                }
-                unityExe = os.toString().trim()
-            }
+          unityExe = "/Applications/Unity/Hub/Editor/$airshipProperties.unityVersion/Unity.app/Contents/MacOS/Unity"
       }
 
       if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
@@ -31,14 +24,7 @@ allprojects {
       }
 
       if (unityClassesJar == null || unityClassesJar.isEmpty() || !file(unityClassesJar).exists()) {
-            new ByteArrayOutputStream().withStream { os ->
-                def result = exec {
-                    executable = 'bash'
-                    args = ['-c', "find /Applications/Unity/Hub/Editor/" + airshipProperties.unityVersion + "/PlaybackEngines/AndroidPlayer -name classes.jar -type f | tail -1"]
-                    standardOutput = os
-                }
-                unityClassesJar = os.toString().trim()
-            }
+          unityClassesJar = "/Applications/Unity/Hub/Editor/$airshipProperties.unityVersion/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar"
       }
 
       if (unityClassesJar == null || unityClassesJar.isEmpty() || !file(unityClassesJar).exists()) {
