@@ -36,6 +36,8 @@ android {
     defaultConfig {
         minSdkVersion airshipProperties.androidMinSdkVersion.toInteger()
         targetSdkVersion airshipProperties.androidTargetSdkVersion.toInteger()
+
+        buildConfigField "String", "PLUGIN_VERSION", "\"${airshipProperties.version}\""
     }
 }
 

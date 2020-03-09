@@ -14,6 +14,7 @@ import com.urbanairship.AirshipConfigOptions;
 import com.urbanairship.Autopilot;
 import com.urbanairship.UAirship;
 import com.urbanairship.actions.DeepLinkListener;
+import com.urbanairship.analytics.Analytics;
 import com.urbanairship.channel.AirshipChannelListener;
 import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.NotificationActionButtonInfo;
@@ -29,6 +30,8 @@ public class UnityAutopilot extends Autopilot {
 
     @Override
     public void onAirshipReady(UAirship airship) {
+
+        airship.getAnalytics().registerSDKExtension(Analytics.EXTENSION_UNITY, BuildConfig.PLUGIN_VERSION);
 
         airship.getChannel().addChannelListener(new AirshipChannelListener() {
             @Override
