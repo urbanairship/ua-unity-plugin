@@ -65,7 +65,7 @@ int UAUnityPlugin_getMessageCenterUnreadCount();
 int UAUnityPlugin_getMessageCenterCount();
 
 #pragma mark -
-#pragma mark In App
+#pragma mark In-app
 
 double UAUnityPlugin_getInAppAutomationDisplayInterval();
 void UAUnityPlugin_setInAppAutomationDisplayInterval(double value);
