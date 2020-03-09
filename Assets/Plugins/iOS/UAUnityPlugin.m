@@ -579,13 +579,13 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
 #pragma mark Data Collection
 
 void UAUnityPlugin_setDataCollectionEnabled(bool enabled) {
-    [UAirship shared].dataCollectionEnabled = enabled;
-    UA_LDEBUG(@"UAUnityPlugin_setDataCollectionEnabled %@",[UAUnityPlugin shared].dataCollectionEnabled);
+    [[UAirship shared] setDataCollectionEnabled:enabled];
+    UA_LDEBUG(@"UAUnityPlugin_setDataCollectionEnabled %@", @([UAirship shared].dataCollectionEnabled));
 }
 
 void UAUnityPlugin_setPushTokenRegistrationEnabled(bool enabled) {
     [[UAPush shared] setPushTokenRegistrationEnabled:enabled];
-    UA_LDEBUG(@"UAUnityPlugin_setPushTokenRegistrationEnabled %@",[UAUnityPlugin shared].pushTokenRegistrationEnabled);
+    UA_LDEBUG(@"UAUnityPlugin_setPushTokenRegistrationEnabled %@",@([UAPush shared].pushTokenRegistrationEnabled));
 }
 
 
