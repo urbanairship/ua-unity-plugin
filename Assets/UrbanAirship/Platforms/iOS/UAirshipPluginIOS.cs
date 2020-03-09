@@ -100,6 +100,18 @@ namespace UrbanAirship {
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_editChannelTagGroups (string payload);
 
+        [DllImport ("__Internal")]
+        private static extern double UAUnityPlugin_getInAppAutomationDisplayInterval ();
+
+        [DllImport ("__Internal")]
+        private static extern void UAUnityPlugin_setInAppAutomationDisplayInterval (double seconds);
+
+        [DllImport ("__Internal")]
+        private static extern bool UAUnityPlugin_isInAppAutomationPaused ();
+
+        [DllImport ("__Internal")]
+        private static extern void UAUnityPlugin_setInAppAutomationPaused (bool paused);
+
         public bool UserNotificationsEnabled {
             get {
                 return UAUnityPlugin_getUserNotificationsEnabled ();
@@ -146,6 +158,24 @@ namespace UrbanAirship {
 
             set {
                 UAUnityPlugin_setNamedUserID (value);
+            }
+        }
+
+        public TimeSpan InAppAutomationDisplayInterval {
+            get {
+                return TimeSpan.FromSeconds (UAUnityPlugin_getInAppAutomationDisplayInterval ());
+            }
+            set {
+                UAUnityPlugin_setInAppAutomationDisplayInterval (value.TotalSeconds);
+            }
+        }
+
+        public bool InAppAutomationPaused {
+             get {
+                return UAUnityPlugin_isInAppAutomationPaused ();
+            }
+            set {
+                UAUnityPlugin_setInAppAutomationPaused (value);
             }
         }
 
