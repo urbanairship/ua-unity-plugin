@@ -166,3 +166,10 @@ task build(dependsOn: 'preparePlugin') {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+
+task getUnityVersion() {
+    doLast {
+        println airshipProperties.unityVersion
+    }
+}
