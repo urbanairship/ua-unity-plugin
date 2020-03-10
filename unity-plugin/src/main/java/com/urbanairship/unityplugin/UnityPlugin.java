@@ -13,14 +13,14 @@ import androidx.annotation.Nullable;
 import com.unity3d.player.UnityPlayer;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
-import com.urbanairship.channel.AirshipChannel;
+import com.urbanairship.channel.AttributeEditor;
+import com.urbanairship.channel.TagGroupsEditor;
 import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
 import com.urbanairship.json.JsonMap;
 import com.urbanairship.json.JsonValue;
 import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.PushMessage;
-import com.urbanairship.channel.TagGroupsEditor;
 import com.urbanairship.richpush.RichPushMessage;
 import com.urbanairship.util.UAStringUtil;
 
@@ -373,6 +373,14 @@ public class UnityPlugin {
         editor.apply();
     }
 
+    public void editChannelAttributes(String payload) {
+        PluginLogger.debug("UnityPlugin editChannelAttributes");
+
+        AttributeEditor editor = UAirship.shared().getChannel().editAttributes();
+        applyAttributeOperations(editor, payload);
+        editor.apply();
+    }
+
     public boolean isInAppAutomationPaused() {
         PluginLogger.debug("UnityPlugin isInAppAutomationPaused");
         return UAirship.shared().getInAppMessagingManager().isPaused();
@@ -584,6 +592,62 @@ public class UnityPlugin {
                     break;
                 case "remove":
                     editor.removeTags(group, tagSet);
+                    break;
+            }
+        }
+    }
+
+    private static void applyAttributeOperations(AttributeEditor editor, String payload) {
+        JsonMap payloadMap;
+        try {
+            payloadMap = JsonValue.parseString(payload).optMap();
+        } catch (JsonException e) {
+            PluginLogger.error("Unable to apply attribute operations: ", e);
+            return;
+        }
+
+        for (JsonValue operation : payloadMap.opt("values").optList()) {
+            String action = operation.optMap().opt("action").getString();
+            String key = operation.optMap().opt("key").getString();
+            String value = operation.optMap().opt("value").getString();
+            String type = operation.optMap().opt("type").getString();
+
+            if (UAStringUtil.isEmpty(key) || UAStringUtil.isEmpty(action)) {
+                PluginLogger.error("Invalid attribute operation %s ", operation);
+                continue;
+            }
+
+            switch (action) {
+                case "Set":
+                    if (UAStringUtil.isEmpty(type) || UAStringUtil.isEmpty(value)) {
+                        PluginLogger.error("Invalid set operation: %s", operation);
+                        continue;
+                    }
+
+                    switch (type) {
+                        case "String":
+                            editor.setAttribute(key, value);
+                            break;
+                        case "Integer":
+                            editor.setAttribute(key, Integer.valueOf(value));
+                            break;
+                        case "Long":
+                            editor.setAttribute(key, Long.valueOf(value));
+                            break;
+                        case "Float":
+                            editor.setAttribute(key, Float.valueOf(value));
+                            break;
+                        case "Double":
+                            editor.setAttribute(key, Double.valueOf(value));
+                            break;
+                        default:
+                            PluginLogger.error("Unexpected type: " + operation);
+                            continue;
+                    }
+
+                    break;
+                case "Remove":
+                    editor.removeAttribute(key);
                     break;
             }
         }

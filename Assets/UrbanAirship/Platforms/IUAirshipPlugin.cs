@@ -80,6 +80,8 @@ namespace UrbanAirship {
 
         void EditChannelTagGroups (string payload);
 
+        void EditChannelAttributes (string payload);
+
         TimeSpan InAppAutomationDisplayInterval {
             get;
             set;
@@ -89,5 +91,6 @@ namespace UrbanAirship {
             get;
             set;
         }
+
     }
 }

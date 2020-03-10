@@ -70,22 +70,22 @@ namespace UrbanAirship {
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_displayMessageCenter ();
 
-        [DllImport("__Internal")]
+        [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_displayInboxMessage (string messageId);
 
-        [DllImport("__Internal")]
+        [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_refreshInbox ();
 
-        [DllImport("__Internal")]
+        [DllImport ("__Internal")]
         private static extern string UAUnityPlugin_getInboxMessages ();
 
-        [DllImport("__Internal")]
+        [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_markInboxMessageRead (string messageId);
 
-        [DllImport("__Internal")]
+        [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_deleteInboxMessage (string messageId);
 
-        [DllImport("__Internal")]
+        [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_setAutoLaunchDefaultMessageCenter (bool enabled);
 
         [DllImport ("__Internal")]
@@ -99,6 +99,9 @@ namespace UrbanAirship {
 
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_editChannelTagGroups (string payload);
+
+        [DllImport ("__Internal")]
+        private static extern void UAUnityPlugin_editChannelAttributes (string payload);
 
         [DllImport ("__Internal")]
         private static extern double UAUnityPlugin_getInAppAutomationDisplayInterval ();
@@ -171,7 +174,7 @@ namespace UrbanAirship {
         }
 
         public bool InAppAutomationPaused {
-             get {
+            get {
                 return UAUnityPlugin_isInAppAutomationPaused ();
             }
             set {
@@ -218,31 +221,27 @@ namespace UrbanAirship {
         }
 
         public void DisplayInboxMessage (string messageId) {
-            UAUnityPlugin_displayInboxMessage(messageId);
+            UAUnityPlugin_displayInboxMessage (messageId);
         }
 
         public void RefreshInbox () {
             UAUnityPlugin_refreshInbox ();
         }
 
-        public string InboxMessages ()
-        {
-            return UAUnityPlugin_getInboxMessages();
+        public string InboxMessages () {
+            return UAUnityPlugin_getInboxMessages ();
         }
 
-        public void MarkInboxMessageRead (string messageId)
-        {
-            UAUnityPlugin_markInboxMessageRead(messageId);
+        public void MarkInboxMessageRead (string messageId) {
+            UAUnityPlugin_markInboxMessageRead (messageId);
         }
 
-        public void DeleteInboxMessage (string messageId)
-        {
-            UAUnityPlugin_deleteInboxMessage(messageId);
+        public void DeleteInboxMessage (string messageId) {
+            UAUnityPlugin_deleteInboxMessage (messageId);
         }
 
-        public void SetAutoLaunchDefaultMessageCenter (bool enabled)
-        {
-            UAUnityPlugin_setAutoLaunchDefaultMessageCenter(enabled);
+        public void SetAutoLaunchDefaultMessageCenter (bool enabled) {
+            UAUnityPlugin_setAutoLaunchDefaultMessageCenter (enabled);
         }
 
         public int MessageCenterUnreadCount {
@@ -263,6 +262,10 @@ namespace UrbanAirship {
 
         public void EditChannelTagGroups (string payload) {
             UAUnityPlugin_editChannelTagGroups (payload);
+        }
+
+        public void EditChannelAttributes (string payload) {
+            UAUnityPlugin_editChannelAttributes (payload);
         }
     }
 }

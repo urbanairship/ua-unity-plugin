@@ -407,6 +407,50 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     [[UAirship namedUser] updateTags];
 }
 
+#pragma mark -
+#pragma mark Attributes
+
+void UAUnityPlugin_editChannelAttributes(const char *payload) {
+    UA_LDEBUG(@"UnityPlugin editChannelAttributes");
+    id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
+    id operations = payloadMap[@"values"];
+    UAAttributeMutations *mutations = [UAAttributeMutations mutations];
+
+    for (NSDictionary *operation in operations) {
+        NSString *action = operation[@"action"];
+        NSString *key = operation[@"key"];
+        NSString *value = operation[@"value"];
+        NSString *type = operation[@"type"];
+
+        if (!action.length || !key.length) {
+            UA_LERR(@"Invalid attribute operation %@", operation);
+            continue;
+        }
+
+        if ([action isEqualToString:@"Set"]) {
+            if (!value.length || !type.length) {
+                UA_LERR(@"Invalid set operation %@", operation);
+                continue;
+            }
+
+            if ([type isEqualToString:@"Double"]) {
+                [mutations setNumber:@(value.doubleValue) forAttribute:key];
+            } else if ([type isEqualToString:@"Float"]) {
+                [mutations setNumber:@(value.floatValue) forAttribute:key];
+            } else if ([type isEqualToString:@"Long"]) {
+                [mutations setNumber:@(value.longLongValue) forAttribute:key];
+            } else if ([type isEqualToString:@"Integer"]) {
+                [mutations setNumber:@(value.intValue) forAttribute:key];
+            } else if ([type isEqualToString:@"String"]) {
+                [mutations setString:value forAttribute:key];
+            }
+        } else if ([action isEqualToString:@"Remove"]) {
+            [mutations removeAttribute:key];
+        }
+    }
+
+    [[UAirship channel] applyAttributeMutations:mutations];
+}
 
 #pragma mark -
 #pragma mark Actions!
@@ -582,7 +626,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
         NSMutableDictionary *convertedMessage = [NSMutableDictionary dictionary];
         convertedMessage[@"id"] = message.messageID;
         convertedMessage[@"title"] = message.title;
-        
+
         NSNumber *sentDate = @([message.messageSent timeIntervalSince1970] * 1000);
         convertedMessage[@"sentDate"] = sentDate;
 
@@ -592,7 +636,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 
         convertedMessage[@"isRead"] = message.unread ? @NO : @YES;
         convertedMessage[@"isDeleted"] = @(message.deleted);
-        
+
         if (message.extra) {
             // Unity's JsonArray doesn't support dictionaries, so break extra up into two lists.
             convertedMessage[@"extrasKeys"] = message.extra.allKeys;
