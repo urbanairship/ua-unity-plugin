@@ -3,12 +3,12 @@
 
 set -ex
 
+./gradlew clean
+
 IMAGE_NAME="gableroux/unity3d:$(./gradlew -q getUnityVersion)-android"
 
 export UNITY_CLASSES_JAR=/opt/Unity/Editor/Data/PlaybackEngines/AndroidPlayer/Variations/mono/Development/Classes/classes.jar
 export UNITY_EXE=/opt/Unity/Editor/Unity
-
-./gradlew clean
 
 docker pull $IMAGE_NAME
 
