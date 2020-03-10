@@ -15,6 +15,7 @@ docker pull $IMAGE_NAME
 docker run \
   -e UNITY_USERNAME \
   -e UNITY_PASSWORD \
+  -e UNITY_SERIAL \
   -e UNITY_CLASSES_JAR \
   -e UNITY_EXE \
   -w /project/ \
