@@ -1,7 +1,7 @@
 
 #!/usr/bin/env bash
 
-set -e
+set -ex
 
 IMAGE_NAME="gableroux/unity3d:$(./gradlew -q getUnityVersion)-android"
 
