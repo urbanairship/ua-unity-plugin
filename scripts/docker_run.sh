@@ -21,5 +21,5 @@ docker run \
   -w /project/ \
   -v $(pwd):/project/ \
   $IMAGE_NAME \
-  /bin/bash -c "./scripts/docker_activate_license.sh && ./gradlew build -x docs:build && cp -r  build/* /project/build"
+  /bin/bash -c "./scripts/docker_activate_license.sh && ./gradlew build -x docs:build"
 
