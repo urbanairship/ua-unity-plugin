@@ -4,32 +4,6 @@ allprojects {
   ext {
       airshipProperties = new Properties()
       airshipProperties.load(new FileInputStream("airship.properties"))
-
-      unityExe = System.getProperty("UNITY_EXE")
-      if (unityExe == null || unityExe.isEmpty()) {
-          unityExe = System.getenv("UNITY_EXE")
-      }
-
-      if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
-          unityExe = "/Applications/Unity/Hub/Editor/$airshipProperties.unityVersion/Unity.app/Contents/MacOS/Unity"
-      }
-
-      if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
-          throw new GradleException('Unable to find Unity executable.')
-      }
-
-      unityClassesJar = System.getProperty("UNITY_CLASSES_JAR")
-      if (unityClassesJar == null || unityClassesJar.isEmpty()) {
-          unityClassesJar = System.getenv("UNITY_CLASSES_JAR")
-      }
-
-      if (unityClassesJar == null || unityClassesJar.isEmpty() || !file(unityClassesJar).exists()) {
-          unityClassesJar = "/Applications/Unity/Hub/Editor/$airshipProperties.unityVersion/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar"
-      }
-
-      if (unityClassesJar == null || unityClassesJar.isEmpty() || !file(unityClassesJar).exists()) {
-          throw new GradleException('Unable to find Unity classes.jar.')
-      }
   }
 }
 
@@ -131,7 +105,7 @@ task build(dependsOn: 'preparePlugin') {
 
             exec {
                 workingDir "$buildDir/unity-plugin"
-                executable "${unityExe}"
+                executable "${getUnityExePath()}"
                 args addPackageOptions
             }
         }
@@ -157,7 +131,7 @@ task build(dependsOn: 'preparePlugin') {
 
         exec {
             workingDir "$buildDir/unity-plugin"
-            executable "${unityExe}"
+            executable "${getUnityExePath()}"
             args exportPackageOptions
         }
     }
@@ -165,4 +139,28 @@ task build(dependsOn: 'preparePlugin') {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+
+task getUnityVersion() {
+    doLast {
+        println airshipProperties.unityVersion
+    }
+}
+
+def getUnityExePath() {
+    def unityExe = System.getProperty("UNITY_EXE")
+    if (unityExe == null || unityExe.isEmpty()) {
+        unityExe = System.getenv("UNITY_EXE")
+    }
+
+    if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
+        unityExe = "/Applications/Unity/Hub/Editor/$airshipProperties.unityVersion/Unity.app/Contents/MacOS/Unity"
+    }
+
+    if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
+        throw new GradleException('Unable to find Unity executable.')
+    }
+
+    return unityExe
 }
