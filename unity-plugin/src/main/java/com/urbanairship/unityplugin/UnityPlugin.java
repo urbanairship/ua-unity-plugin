@@ -658,8 +658,17 @@ public class UnityPlugin {
         UAirship.shared().setDataCollectionEnabled(enabled);
     }
 
+    public boolean isDataCollectionEnabled() {
+        PluginLogger.debug("UnityPlugin isDataCollectionEnabled");
+        return UAirship.shared().isDataCollectionEnabled();
+    }
+
     public void setPushTokenRegistrationEnabled(boolean enabled) {
         PluginLogger.debug("UnityPlugin setPushTokenRegistrationEnabled: " + enabled);
         UAirship.shared().getPushManager().setPushTokenRegistrationEnabled(enabled);
+    }
+    public public boolean isPushTokenRegistrationEnabled() {
+        PluginLogger.debug("UnityPlugin isPushTokenRegistrationEnabled");
+        return UAirship.shared().getPushManager().isPushTokenRegistrationEnabled();
     }
 }

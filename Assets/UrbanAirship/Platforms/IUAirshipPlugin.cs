@@ -40,6 +40,16 @@ namespace UrbanAirship {
             set;
         }
 
+        bool DataCollectionEnabled {
+            get;
+            set;
+        }
+
+        bool PushTokenRegistrationEnabled {
+            get;
+            set;
+        }
+
         string GetDeepLink (bool clear);
 
         string GetIncomingPush (bool clear);

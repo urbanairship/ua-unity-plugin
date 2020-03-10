@@ -406,6 +406,32 @@ namespace UrbanAirship {
             });
         }
 
+        /// <summary>
+        /// Determines whether the data collection is enabled.
+        /// </summary>
+        /// <value><c>true</c> if data collection is enabled; otherwise, <c>false</c>.</value>
+        public bool DataCollectionEnabled {
+             get {
+                return plugin.DataCollectionEnabled;
+             }
+             set {
+                plugin.DataCollectionEnabled = value;
+             }
+        }
+
+        /// <summary>
+        /// Determines whether push token registration is enabled.
+        // </summary>
+        /// <value><c>true</c> if push token registration enabled; otherwise, <c>false</c>.</value>
+        public bool PushTokenRegistrationEnabled {
+            get {
+                return plugin.PushTokenRegistrationEnabled;
+            }
+            set {
+                plugin.PushTokenRegistrationEnabled = value;
+            }
+        }
+
         internal class UrbanAirshipListener : MonoBehaviour {
             void OnPushReceived (string payload) {
                 PushReceivedEventHandler handler = UAirship.Shared.OnPushReceived;

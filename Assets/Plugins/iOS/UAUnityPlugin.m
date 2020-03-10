@@ -580,14 +580,23 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
 
 void UAUnityPlugin_setDataCollectionEnabled(bool enabled) {
     [[UAirship shared] setDataCollectionEnabled:enabled];
-    UA_LDEBUG(@"UAUnityPlugin_setDataCollectionEnabled %@", @([UAirship shared].dataCollectionEnabled));
+    UA_LDEBUG(@"UAUnityPlugin setDataCollectionEnabled %@", @([UAirship shared].dataCollectionEnabled));
+}
+
+bool UAUnityPlugin_isDataCollectionEnabled() {
+    UA_LDEBUG(@"UnityPlugin isDataCollectionEnabled");
+    return [UAirship shared].dataCollectionEnabled ? true : false;
 }
 
 void UAUnityPlugin_setPushTokenRegistrationEnabled(bool enabled) {
     [[UAPush shared] setPushTokenRegistrationEnabled:enabled];
-    UA_LDEBUG(@"UAUnityPlugin_setPushTokenRegistrationEnabled %@",@([UAPush shared].pushTokenRegistrationEnabled));
+    UA_LDEBUG(@"UAUnityPlugin setPushTokenRegistrationEnabled %@",@([UAPush shared].pushTokenRegistrationEnabled));
 }
 
+bool UAUnityPlugin_isPushTokenRegistrationEnabled() {
+    UA_LDEBUG(@"UnityPlugin isPushTokenRegistrationEnabled");
+    return [UAPush shared].pushTokenRegistrationEnabled ? true : false;
+}
 
 #pragma mark -
 #pragma mark Helpers
