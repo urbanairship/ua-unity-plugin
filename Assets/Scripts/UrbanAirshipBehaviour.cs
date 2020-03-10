@@ -9,6 +9,8 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
     public string addTagOnStart;
 
     void Awake () {
+        UAirship.Shared.DataCollectionEnabled = true;
+        UAirship.Shared.PushTokenRegistrationEnabled = true;
         UAirship.Shared.UserNotificationsEnabled = true;
     }
 

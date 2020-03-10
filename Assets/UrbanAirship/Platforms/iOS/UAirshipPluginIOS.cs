@@ -114,6 +114,17 @@ namespace UrbanAirship {
 
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_setInAppAutomationPaused (bool paused);
+        [DllImport ("__Internal")]
+        private static extern bool UAUnityPlugin_isDataCollectionEnabled ();
+
+        [DllImport ("__Internal")]
+        private static extern void UAUnityPlugin_setDataCollectionEnabled (bool enabled);
+
+        [DllImport ("__Internal")]
+        private static extern bool UAUnityPlugin_isPushTokenRegistrationEnabled ();
+
+        [DllImport ("__Internal")]
+        private static extern void UAUnityPlugin_setPushTokenRegistrationEnabled (bool enabled);
 
         public bool UserNotificationsEnabled {
             get {
@@ -266,6 +277,24 @@ namespace UrbanAirship {
 
         public void EditChannelAttributes (string payload) {
             UAUnityPlugin_editChannelAttributes (payload);
+        }
+
+        public bool DataCollectionEnabled {
+            get {
+                return UAUnityPlugin_isDataCollectionEnabled();
+            }
+            set {
+                UAUnityPlugin_setDataCollectionEnabled(value);
+            }
+        }
+
+        public bool PushTokenRegistrationEnabled {
+            get {
+                return UAUnityPlugin_isPushTokenRegistrationEnabled();
+            }
+            set {
+                UAUnityPlugin_setPushTokenRegistrationEnabled(value);
+            }
         }
     }
 }
