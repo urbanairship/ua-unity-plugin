@@ -67,9 +67,5 @@ def getUnityClassesPath() {
         path = "/Applications/Unity/Hub/Editor/$airshipProperties.unityVersion/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar"
     }
 
-    if (path == null || path.isEmpty() || !file(path).exists()) {
-        throw new GradleException('Unable to find Unity classes.jar.')
-    }
-
     return path
 }
