@@ -667,7 +667,8 @@ public class UnityPlugin {
         PluginLogger.debug("UnityPlugin setPushTokenRegistrationEnabled: " + enabled);
         UAirship.shared().getPushManager().setPushTokenRegistrationEnabled(enabled);
     }
-    public public boolean isPushTokenRegistrationEnabled() {
+
+    public boolean isPushTokenRegistrationEnabled() {
         PluginLogger.debug("UnityPlugin isPushTokenRegistrationEnabled");
         return UAirship.shared().getPushManager().isPushTokenRegistrationEnabled();
     }
