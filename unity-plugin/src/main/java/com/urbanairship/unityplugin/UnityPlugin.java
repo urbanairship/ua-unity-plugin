@@ -652,4 +652,14 @@ public class UnityPlugin {
             }
         }
     }
+
+    public void setDataCollectionEnabled(boolean enabled) {
+        PluginLogger.debug("UnityPlugin setDataCollectionEnabled: " + enabled);
+        UAirship.shared().setDataCollectionEnabled(enabled);
+    }
+
+    public void setPushTokenRegistrationEnabled(boolean enabled) {
+        PluginLogger.debug("UnityPlugin setPushTokenRegistrationEnabled: " + enabled);
+        UAirship.shared().getPushManager().setPushTokenRegistrationEnabled(enabled);
+    }
 }

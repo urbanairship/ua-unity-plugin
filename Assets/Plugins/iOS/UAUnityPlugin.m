@@ -576,6 +576,20 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
 }
 
 #pragma mark -
+#pragma mark Data Collection
+
+void UAUnityPlugin_setDataCollectionEnabled(bool enabled) {
+    [UAirship shared].dataCollectionEnabled = enabled;
+    UA_LDEBUG(@"UAUnityPlugin_setDataCollectionEnabled %@",[UAUnityPlugin shared].dataCollectionEnabled);
+}
+
+void UAUnityPlugin_setPushTokenRegistrationEnabled(bool enabled) {
+    [[UAPush shared] setPushTokenRegistrationEnabled:enabled];
+    UA_LDEBUG(@"UAUnityPlugin_setPushTokenRegistrationEnabled %@",[UAUnityPlugin shared].pushTokenRegistrationEnabled);
+}
+
+
+#pragma mark -
 #pragma mark Helpers
 
 + (NSString *)stringOrNil:(NSString *)string {

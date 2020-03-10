@@ -83,6 +83,11 @@ void UAUnityPlugin_editChannelTagGroups(const char *payload);
 
 void UAUnityPlugin_editChannelAttributes(const char *payload);
 
+#pragma mark -
+#pragma mark Data Collection
+void UAUnityPlugin_setDataCollectionEnabled(bool enabled);
+void UAUnityPlugin_setPushTokenRegistrationEnabled(bool enabled);
+
 @interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UARegistrationDelegate, UADeepLinkDelegate,  UAMessageCenterDisplayDelegate>
 
 + (UAUnityPlugin *)shared;

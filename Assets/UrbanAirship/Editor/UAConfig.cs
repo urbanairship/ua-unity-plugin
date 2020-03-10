@@ -69,6 +69,9 @@ namespace UrbanAirship.Editor {
         public bool InProduction { get; set; }
 
         [SerializeField]
+        public bool DataCollectionOptInEnabled { get; set; }
+
+        [SerializeField]
         public String AndroidNotificationIcon { get; set; }
 
         [SerializeField]
@@ -109,6 +112,8 @@ namespace UrbanAirship.Editor {
             this.DevelopmentLogLevel = config.DevelopmentLogLevel;
 
             this.InProduction = config.InProduction;
+
+            this.DataCollectionOptInEnabled = config.DataCollectionOptInEnabled;
 
             this.NotificationPresentationOptionAlert = config.NotificationPresentationOptionAlert;
             this.NotificationPresentationOptionBadge = config.NotificationPresentationOptionBadge;
@@ -253,6 +258,7 @@ namespace UrbanAirship.Editor {
 
             rootDict.SetString ("site", Site.ToString());
             rootDict.SetBoolean ("inProduction", InProduction);
+            rootDict.SetBoolean ("dataCollectionOptInEnabled", DataCollectionOptInEnabled);
 
             PlistElementDict customConfig = rootDict.CreateDict ("customConfig");
             customConfig.SetBoolean ("notificationPresentationOptionAlert", NotificationPresentationOptionAlert);
@@ -310,6 +316,7 @@ namespace UrbanAirship.Editor {
 
                 xmlWriter.WriteAttributeString ("site", Site.ToString());
                 xmlWriter.WriteAttributeString ("inProduction", (InProduction ? "true" : "false"));
+                xmlWriter.WriteAttributeString ("dataCollectionOptInEnabled", (DataCollectionOptInEnabled ? "true" : "false"));
 
                 if (!String.IsNullOrEmpty (AndroidNotificationIcon)) {
                     xmlWriter.WriteAttributeString ("notificationIcon", AndroidNotificationIcon);

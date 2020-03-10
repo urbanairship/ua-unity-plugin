@@ -35,6 +35,7 @@ namespace UrbanAirship.Editor {
             CreateSection ("Common", () => {
                 config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
                 config.Site = (UAConfig.CloudSite) EditorGUILayout.EnumPopup ("Cloud Site", config.Site);
+                config.DataCollectionOptInEnabled = EditorGUILayout.Toggle ("Data collection enabled", config.DataCollectionOptInEnabled);
             });
 
             CreateSection ("Android Settings", () => {
