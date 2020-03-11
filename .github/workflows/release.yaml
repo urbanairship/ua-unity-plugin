@@ -64,7 +64,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/urbanairship-${{ steps.get_version.outputs.VERSION }}.unitypackage
           asset_name: urbanairship-${{ steps.get_version.outputs.VERSION }}.unitypackage
-          asset_content_type: application/x-gzip
+          asset_content_type: application/octet-stream
 
       - name: Upload Docs
         run: |
