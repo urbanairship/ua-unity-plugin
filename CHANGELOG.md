@@ -1,5 +1,14 @@
 # Unity Plugin ChangeLog
 
+## Version 7.0.0 - March 11, 2020
+- Updated Android Airship SDK to 12.2.2.
+- Updated iOS Airship SDK to 13.1.0.
+- Added screen tracking.
+- Added support for channel attributes.
+- Added properties to control data collection.
+- Added In-App Automation properties to pause/resume message displays and set the display interval.
+- Added additional Message Center accessors.
+
 ## Version 6.2.0 - October 9, 2019
 - Updated Android Airship SDK to 10.1.3.
 - Updated Android Airship SDK to 11.1.2.
