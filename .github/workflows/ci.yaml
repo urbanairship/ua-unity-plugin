@@ -11,7 +11,10 @@ jobs:
         id: get_release_notes_quotes
         run: |
           VERSION=$(./gradlew -q getPluginVersion)
-          NOTES=$(awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md)
+          NOTES="$(awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md)"
+          NOTES="${NOTES//'%'/'%25'}"
+          NOTES="${NOTES//$'\n'/'%0A'}"
+          NOTES="${NOTES//$'\r'/'%0D'}"
           echo ::set-output name=NOTES::"$NOTES"
       - name: Get Release Notes
         id: get_release_notes
@@ -20,5 +23,15 @@ jobs:
           NOTES=$(awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md)
           echo ::set-output name=NOTES::$NOTES
       - run: |
-          echo ${{ steps.get_release_notes.outputs.NOTES }}
-          echo ${{ steps.get_release_notes_quotes.outputs.NOTES }}
+          echo "${{ steps.get_release_notes.outputs.NOTES }}"
+          echo "${{ steps.get_release_notes_quotes.outputs.NOTES }}"
+      - name: Create Github Release
+        uses: actions/create-release@v1.0.1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: test
+          release_name: Test
+          body: ${{ steps.get_release_notes_quotes.outputs.NOTES }}
+          draft: true
