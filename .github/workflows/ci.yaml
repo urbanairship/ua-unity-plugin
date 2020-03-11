@@ -7,9 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build
-        env:
-          UNITY_USERNAME: ${{ secrets.UNITY_USERNAME }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-        run: ./scripts/docker_run.sh
+      - name: Get Release Notes
+        id: get_release_notes_quotes
+        run: |
+          VERSION=$(./gradlew -q getPluginVersion)
+          NOTES=$(awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md)
+          echo ::set-output name=NOTES::"$NOTES"
+      - name: Get Release Notes
+        id: get_release_notes
+        run: |
+          VERSION=$(./gradlew -q getPluginVersion)
+          NOTES=$(awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md)
+          echo ::set-output name=NOTES::$NOTES
+      - run: |
+          echo ${{ steps.get_release_notes.outputs.NOTES }}
+          echo ${{ steps.get_release_notes_quotes.outputs.NOTES }}
