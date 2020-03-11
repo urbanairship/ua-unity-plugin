@@ -148,6 +148,13 @@ task getUnityVersion() {
     }
 }
 
+task getPluginVersion() {
+    doLast {
+        println airshipProperties.version
+    }
+}
+
+
 def getUnityExePath() {
     def unityExe = System.getProperty("UNITY_EXE")
     if (unityExe == null || unityExe.isEmpty()) {

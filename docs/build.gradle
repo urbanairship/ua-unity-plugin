@@ -15,4 +15,18 @@ task build {
             include "doxy-boot.js", "header.html", "footer.html"
         }
     }
+    finalizedBy 'packageDocs'
+}
+
+task packageDocs(type: Tar, dependsOn: 'build') {
+    into ('./') {
+        from 'build/html'
+    }
+
+    archiveName = "${airshipProperties.version}.tar.gz"
+    compression = Compression.GZIP
+
+    destinationDir file('build')
+    extension 'tar.gz'
+    compression = Compression.GZIP
 }
