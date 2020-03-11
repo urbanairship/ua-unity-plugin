@@ -6,8 +6,8 @@ set -x
 VERSION=$1
 
 upload() {
-  echo -e "Uploading $1 into ${VERSION}n"
-    curl -T $1 -H "X-Bintray-Package:unity-plugin" -H "X-Bintray-Version:${VERSION}" \
+  echo -e "Uploading $1 into ${VERSION}"
+  curl -T $1 -H "X-Bintray-Package:unity-plugin" -H "X-Bintray-Version:${VERSION}" \
     -H "X-Bintray-Publish:0" -u $BINTRAY_API_KEY https://api.bintray.com/content/urbanairship/unity/unity-plugin/${VERSION}/
 }
 

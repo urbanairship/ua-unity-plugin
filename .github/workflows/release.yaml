@@ -47,7 +47,7 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         run: ./scripts/docker_run.sh
 
-      - name: Github Release
+      - name: Create Github Release
         uses: actions/create-release@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
