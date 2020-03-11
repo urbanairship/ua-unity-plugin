@@ -49,12 +49,13 @@ jobs:
 
       - name: Create Github Release
         uses: actions/create-release@v1.0.1
+        id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
           release_name: Release ${{ steps.get_version.outputs.VERSION }}
-          body: ${{ steps.get_release_notes.outputs.NOTES }}
+          body: "${{ steps.get_release_notes.outputs.NOTES }}"
           draft: false
           prerelease: false
 
