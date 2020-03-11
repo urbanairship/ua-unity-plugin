@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Get Version
         id: get_version
-        run: echo ::set-output name=VERSION::6.2.0
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
       - name: Verify Version
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
