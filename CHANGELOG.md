@@ -1,5 +1,12 @@
 # Unity Plugin ChangeLog
 
+## Version 3.0.1 - March 23, 2020
+Patch addressing a regression in iOS SDK 13.1.0 causing channel tag loss
+when upgrading from iOS SDK versions prior to 13.0.1. Apps upgrading from Unity plugin
+6.2.0 or below should avoid plugin version 7.0.0 in favor of version 7.0.1.
+
+- Updated iOS SDK to 13.1.1
+
 ## Version 7.0.0 - March 11, 2020
 - Updated Android Airship SDK to 12.2.2.
 - Updated iOS Airship SDK to 13.1.0.
