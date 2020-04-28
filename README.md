@@ -5,7 +5,7 @@ A Unity plugin that integrates the iOS and Android Airship SDK.
 ### Requirements
  - Unity 5+
  - iOS: Xcode 11+
- - iOS: Minimum deployment target iOS 11+
+ - iOS: Minimum deployment target must be iOS 11+
  - Android: Android SDK installed and updated (requires Android MinSdkVersion = 16)
  - Android: Using Android SDK manager, install 28+. If Custom Gradle Template is used, the gradle template needs to be configured to use API VERSION 28+.
 
