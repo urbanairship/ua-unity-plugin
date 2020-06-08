@@ -69,14 +69,14 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
         UnityWillPause();
     }];
 
-    UAAction *lpa = [[UAirship shared].actionRegistry registryEntryWithName:kUALandingPageActionDefaultRegistryName].action;
+    UAAction *lpa = [[UAirship shared].actionRegistry registryEntryWithName:UALandingPageActionDefaultRegistryName].action;
     UAAction *customLPA = [lpa preExecution:^(UAActionArguments *args) {
         // This will ultimately trigger the OnApplicationPause event
         UnityWillPause();
     }];
 
     [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:UADisplayInboxActionDefaultRegistryName];
-    [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:kUALandingPageActionDefaultRegistryName];
+    [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:UALandingPageActionDefaultRegistryName];
 
     // Add observer for inbox updated event
     [[NSNotificationCenter defaultCenter] addObserver:[self shared]
@@ -251,24 +251,27 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
     ce.interactionType = [UAUnityPlugin stringOrNil:obj[@"interactionType"]];
     ce.transactionID = [UAUnityPlugin stringOrNil:obj[@"transactionID"]];
 
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+       
     for (id property in obj[@"properties"]) {
         NSString *name = [UAUnityPlugin stringOrNil:property[@"name"]];
         id value;
+           
         NSString *type = property[@"type"];
         if ([type isEqualToString:@"s"]) {
             value = property[@"stringValue"];
-            [ce setStringProperty:value forKey:name];
         } else if ([type isEqualToString:@"d"]) {
             value = property[@"doubleValue"];
-            [ce setNumberProperty:value forKey:name];
         } else if ([type isEqualToString:@"b"]) {
             value = property[@"boolValue"];
-            [ce setBoolProperty:value forKey:name];
         } else if ([type isEqualToString:@"sa"]) {
             value = property[@"stringArrayValue"];
-            [ce setStringArrayProperty:value forKey:name];
         }
+           
+        [properties setValue:value forKey:name];
     }
+
+    ce.properties = properties.copy;
 
     [[UAirship shared].analytics addEvent:ce];
 }
