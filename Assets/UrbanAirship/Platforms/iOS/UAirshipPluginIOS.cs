@@ -103,6 +103,9 @@ namespace UrbanAirship {
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_editChannelAttributes (string payload);
 
+        [DllImport("__Internal")]
+        private static extern void UAUnityPlugin_editNamedUserAttributes (string payload);
+
         [DllImport ("__Internal")]
         private static extern double UAUnityPlugin_getInAppAutomationDisplayInterval ();
 
@@ -277,6 +280,11 @@ namespace UrbanAirship {
 
         public void EditChannelAttributes (string payload) {
             UAUnityPlugin_editChannelAttributes (payload);
+        }
+
+        public void EditNamedUserAttributes (string payload)
+        {
+            UAUnityPlugin_editNamedUserAttributes (payload);
         }
 
         public bool DataCollectionEnabled {
