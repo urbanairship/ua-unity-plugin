@@ -16,13 +16,13 @@ import com.urbanairship.UAirship;
 import com.urbanairship.actions.DeepLinkListener;
 import com.urbanairship.analytics.Analytics;
 import com.urbanairship.channel.AirshipChannelListener;
+import com.urbanairship.messagecenter.InboxListener;
 import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.NotificationActionButtonInfo;
 import com.urbanairship.push.NotificationInfo;
 import com.urbanairship.push.NotificationListener;
 import com.urbanairship.push.PushListener;
 import com.urbanairship.push.PushMessage;
-import com.urbanairship.richpush.RichPushInbox;
 
 import static com.urbanairship.unityplugin.UnityPlugin.AUTO_LAUNCH_MESSAGE_CENTER;
 
@@ -82,7 +82,7 @@ public class UnityAutopilot extends Autopilot {
             }
         });
 
-        airship.getMessageCenter().setOnShowMessageCenterListener(new MessageCenter.OnShowMessageCenterListener() {
+        MessageCenter.shared().setOnShowMessageCenterListener(new MessageCenter.OnShowMessageCenterListener() {
             @Override
             public boolean onShowMessageCenter(@Nullable String messageId) {
                 if (PreferenceManager.getDefaultSharedPreferences(UAirship.getApplicationContext()).getBoolean(AUTO_LAUNCH_MESSAGE_CENTER, true)) {
@@ -94,7 +94,7 @@ public class UnityAutopilot extends Autopilot {
             }
         });
 
-        airship.getInbox().addListener(new RichPushInbox.Listener() {
+        MessageCenter.shared().getInbox().addListener(new InboxListener() {
             @Override
             public void onInboxUpdated() {
                 UnityPlugin.shared().onInboxUpdated();
