@@ -45,6 +45,9 @@ dependencies {
     compileOnly files('libs/unity-classes.jar')
     implementation "androidx.annotation:annotation:$airshipProperties.androidxAnnotationVersion"
     implementation "com.urbanairship.android:urbanairship-fcm:${airshipProperties.androidAirshipVersion}"
+    implementation "com.urbanairship.android:urbanairship-message-center:${airshipProperties.androidAirshipVersion}"
+    implementation "com.urbanairship.android:urbanairship-automation:${airshipProperties.androidAirshipVersion}"
+    implementation "com.urbanairship.android:urbanairship-location:${airshipProperties.androidAirshipVersion}"
 }
 
 task copyUnityClassesJar(type: Copy) {

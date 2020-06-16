@@ -15,13 +15,15 @@ import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.channel.AttributeEditor;
 import com.urbanairship.channel.TagGroupsEditor;
+import com.urbanairship.iam.InAppMessageManager;
 import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
 import com.urbanairship.json.JsonMap;
 import com.urbanairship.json.JsonValue;
+import com.urbanairship.location.AirshipLocationManager;
+import com.urbanairship.messagecenter.Message;
 import com.urbanairship.messagecenter.MessageCenter;
 import com.urbanairship.push.PushMessage;
-import com.urbanairship.richpush.RichPushMessage;
 import com.urbanairship.util.UAStringUtil;
 
 import org.json.JSONArray;
@@ -31,7 +33,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class UnityPlugin {
@@ -114,22 +115,22 @@ public class UnityPlugin {
 
     public void setLocationEnabled(boolean enabled) {
         PluginLogger.debug("UnityPlugin setLocationEnabled: " + enabled);
-        UAirship.shared().getLocationManager().setLocationUpdatesEnabled(enabled);
+        AirshipLocationManager.shared().setLocationUpdatesEnabled(enabled);
     }
 
     public boolean isLocationEnabled() {
         PluginLogger.debug("UnityPlugin isLocationUpdatesEnabled");
-        return UAirship.shared().getLocationManager().isLocationUpdatesEnabled();
+        return AirshipLocationManager.shared().isLocationUpdatesEnabled();
     }
 
     public void setBackgroundLocationAllowed(boolean allowed) {
         PluginLogger.debug("UnityPlugin setBackgroundLocationAllowed: " + allowed);
-        UAirship.shared().getLocationManager().setBackgroundLocationAllowed(allowed);
+        AirshipLocationManager.shared().setBackgroundLocationAllowed(allowed);
     }
 
     public boolean isBackgroundLocationAllowed() {
         PluginLogger.debug("UnityPlugin isBackgroundLocationAllowed");
-        return UAirship.shared().getLocationManager().isBackgroundLocationAllowed();
+        return AirshipLocationManager.shared().isBackgroundLocationAllowed();
     }
 
     public void addCustomEvent(String eventPayload) {
@@ -263,7 +264,7 @@ public class UnityPlugin {
 
     public void displayMessageCenter() {
         PluginLogger.debug("UnityPlugin displayMessageCenter");
-        UAirship.shared().getMessageCenter().showMessageCenter();
+        MessageCenter.shared().showMessageCenter();
     }
 
     /**
@@ -290,7 +291,7 @@ public class UnityPlugin {
      */
     public void refreshInbox() {
         PluginLogger.debug("UnityPlugin refreshInbox");
-        UAirship.shared().getInbox().fetchMessages(); // this needs to fire an event
+        MessageCenter.shared().getInbox().fetchMessages(); // this needs to fire an event
     }
 
     /**
@@ -309,7 +310,7 @@ public class UnityPlugin {
      */
     public void markInboxMessageRead(@NonNull String messageId) {
         PluginLogger.debug("UnityPlugin markInboxMessageRead %s", messageId);
-        RichPushMessage message = UAirship.shared().getInbox().getMessage(messageId);
+        Message message = MessageCenter.shared().getInbox().getMessage(messageId);
 
         if (message == null) {
             PluginLogger.debug("Message (%s) not found.", messageId);
@@ -325,7 +326,7 @@ public class UnityPlugin {
      */
     public void deleteInboxMessage(@NonNull String messageId) {
         PluginLogger.debug("UnityPlugin deleteInboxMessage %s", messageId);
-        RichPushMessage message = UAirship.shared().getInbox().getMessage(messageId);
+        Message message = MessageCenter.shared().getInbox().getMessage(messageId);
 
         if (message == null) {
             PluginLogger.debug("Message (%s) not found.", messageId);
@@ -349,12 +350,12 @@ public class UnityPlugin {
 
     public int getMessageCenterUnreadCount() {
         PluginLogger.debug("UnityPlugin getMessageCenterUnreadCount");
-        return UAirship.shared().getInbox().getUnreadCount();
+        return MessageCenter.shared().getInbox().getUnreadCount();
     }
 
     public int getMessageCenterCount() {
         PluginLogger.debug("UnityPlugin getMessageCenterCount");
-        return UAirship.shared().getInbox().getCount();
+        return MessageCenter.shared().getInbox().getCount();
     }
 
     public void editNamedUserTagGroups(String payload) {
@@ -383,17 +384,17 @@ public class UnityPlugin {
 
     public boolean isInAppAutomationPaused() {
         PluginLogger.debug("UnityPlugin isInAppAutomationPaused");
-        return UAirship.shared().getInAppMessagingManager().isPaused();
+        return InAppMessageManager.shared().isPaused();
     }
 
     public void setInAppAutomationPaused(boolean paused) {
         PluginLogger.debug("UnityPlugin setInAppAutomationPaused %s", paused);
-        UAirship.shared().getInAppMessagingManager().setPaused(paused);
+        InAppMessageManager.shared().setPaused(paused);
     }
 
     public double getInAppAutomationDisplayInterval() {
         PluginLogger.debug("UnityPlugin getInAppAutomationDisplayInterval");
-        long milliseconds = UAirship.shared().getInAppMessagingManager().getDisplayInterval();
+        long milliseconds = InAppMessageManager.shared().getDisplayInterval();
         return milliseconds / 1000.0;
     }
 
@@ -401,7 +402,7 @@ public class UnityPlugin {
         PluginLogger.debug("UnityPlugin setInAppAutomationDisplayInterval %s", seconds);
 
         long milliseconds = (long) (seconds * 1000.0);
-        UAirship.shared().getInAppMessagingManager().setDisplayInterval(milliseconds, TimeUnit.MILLISECONDS);
+        InAppMessageManager.shared().setDisplayInterval(milliseconds, TimeUnit.MILLISECONDS);
     }
 
     void onPushReceived(PushMessage message) {
@@ -465,10 +466,10 @@ public class UnityPlugin {
 
     void onInboxUpdated() {
         JsonMap counts = JsonMap.newBuilder()
-                .put("unread", UAirship.shared().getInbox().getUnreadCount())
-                .put("total", UAirship.shared().getInbox().getCount())
+                .put("unread", MessageCenter.shared().getInbox().getUnreadCount())
+                .put("total", MessageCenter.shared().getInbox().getCount())
                 .build();
-        PluginLogger.debug("UnityPlugin inboxUpdated (unread = %s, total = %s)", UAirship.shared().getInbox().getUnreadCount(), UAirship.shared().getInbox().getCount());
+        PluginLogger.debug("UnityPlugin inboxUpdated (unread = %s, total = %s)", MessageCenter.shared().getInbox().getUnreadCount(), MessageCenter.shared().getInbox().getCount());
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnInboxUpdated", counts.toString());
@@ -517,7 +518,7 @@ public class UnityPlugin {
 
     public String getInboxMessagesAsJSON() {
         List<Map<String, Object>> messages = new ArrayList<>();
-        for (RichPushMessage message : UAirship.shared().getInbox().getMessages()) {
+        for (Message message : MessageCenter.shared().getInbox().getMessages()) {
             Map<String, Object> messageMap = new HashMap<>();
             messageMap.put("id", message.getMessageId());
             messageMap.put("title", message.getTitle());
