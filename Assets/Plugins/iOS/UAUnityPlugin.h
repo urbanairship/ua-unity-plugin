@@ -82,6 +82,7 @@ void UAUnityPlugin_editChannelTagGroups(const char *payload);
 #pragma mark Attributes
 
 void UAUnityPlugin_editChannelAttributes(const char *payload);
+void UAUnityPlugin_editNamedUserAttributes(const char *payload);
 
 #pragma mark -
 #pragma mark Data Collection

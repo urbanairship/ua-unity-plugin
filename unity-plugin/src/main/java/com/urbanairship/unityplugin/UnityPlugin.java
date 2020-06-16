@@ -382,6 +382,14 @@ public class UnityPlugin {
         editor.apply();
     }
 
+    public void editNamedUserAttributes(String payload) {
+        PluginLogger.debug("UnityPlugin editNamedUserAttributes");
+
+        AttributeEditor editor = UAirship.shared().getNamedUser().editAttributes();
+        applyAttributeOperations(editor, payload);
+        editor.apply();
+    }
+
     public boolean isInAppAutomationPaused() {
         PluginLogger.debug("UnityPlugin isInAppAutomationPaused");
         return InAppMessageManager.shared().isPaused();

@@ -33,6 +33,7 @@ namespace UrbanAirship {
         public void EditNamedUserTagGroups (string payload) { }
         public void EditChannelTagGroups (string payload) { }
         public void EditChannelAttributes (string payload) { }
+        public void EditNamedUserAttributes (string payload) { }
         public bool DataCollectionEnabled { get; set; }
         public bool PushTokenRegistrationEnabled { get; set; }
     }

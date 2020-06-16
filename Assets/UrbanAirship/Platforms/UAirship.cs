@@ -407,6 +407,17 @@ namespace UrbanAirship {
         }
 
         /// <summary>
+        /// Returns an editor for named user attributes.
+        /// </summary>
+        /// <returns>A AttributeEditor for named user attributes.</returns>
+        public AttributeEditor EditNamedUserAttributes ()
+        {
+            return new AttributeEditor((string payload) => {
+                plugin.EditNamedUserAttributes(payload);
+            });
+        }
+
+        /// <summary>
         /// Determines whether the data collection is enabled.
         /// </summary>
         /// <value><c>true</c> if data collection is enabled; otherwise, <c>false</c>.</value>

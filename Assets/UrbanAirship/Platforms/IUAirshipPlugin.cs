@@ -92,6 +92,8 @@ namespace UrbanAirship {
 
         void EditChannelAttributes (string payload);
 
+        void EditNamedUserAttributes (string payload);
+
         TimeSpan InAppAutomationDisplayInterval {
             get;
             set;
