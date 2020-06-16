@@ -95,6 +95,27 @@ namespace UrbanAirship {
         }
 
         /// <summary>
+        /// Sets a date attribute.
+        /// </summary>
+        /// <returns>The AttributeEditor</returns>
+        /// <param name="key">The attribute key greater than one character and less than 1024 characters in length.</param>
+        /// <param name="value">The date attribute value.</param>
+        public AttributeEditor SetAttribute(string key, DateTime value)
+        {
+            if (IsInvalidField(key))
+            {
+                return this;
+            }
+
+            // Pass date to the plugin as seconds since the epoch
+            System.DateTime epochStart = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+            int valueInSecondsSinceEpoch = (int)(value - epochStart).TotalSeconds;
+
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, valueInSecondsSinceEpoch, AttributeType.Date));
+            return this;
+        }
+
+        /// <summary>
         /// Removes an attribute.
         /// </summary>
         /// <returns>The AttributeEditor</returns>
@@ -136,7 +157,8 @@ namespace UrbanAirship {
             Long,
             Float,
             Double,
-            String
+            String,
+            Date
         }
 
         internal enum AttributeAction {

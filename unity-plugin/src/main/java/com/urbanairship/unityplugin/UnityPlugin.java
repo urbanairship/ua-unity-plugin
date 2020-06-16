@@ -29,6 +29,7 @@ import com.urbanairship.util.UAStringUtil;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -648,6 +649,9 @@ public class UnityPlugin {
                             break;
                         case "Double":
                             editor.setAttribute(key, Double.valueOf(value));
+                            break;
+                        case "Date":
+                            editor.setAttribute(key, new Date(Long.valueOf(value) * 1000));
                             break;
                         default:
                             PluginLogger.error("Unexpected type: " + operation);

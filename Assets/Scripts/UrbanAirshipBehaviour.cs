@@ -1,5 +1,6 @@
 /* Copyright Airship and Contributors */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,6 +30,13 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         UAirship.Shared.TrackScreen("Main Camera");
 
         UAirship.Shared.RefreshInbox();
+
+        UAirship.Shared.EditChannelAttributes().SetAttribute("teststring", "a_string").Apply();
+        UAirship.Shared.EditChannelAttributes().SetAttribute("testint", (int) 1).Apply();
+        UAirship.Shared.EditChannelAttributes().SetAttribute("testlong", (long) 1000).Apply();
+        UAirship.Shared.EditChannelAttributes().SetAttribute("testfloat", (float)5.99).Apply();
+        UAirship.Shared.EditChannelAttributes().SetAttribute("testdouble", (double)5555.999).Apply();
+        UAirship.Shared.EditChannelAttributes().SetAttribute("testdate", DateTime.UtcNow).Apply();
     }
 
     void OnDestroy () {
