@@ -4,6 +4,28 @@
   <!-- Android -->
   <androidPackages>
 
+    <!-- Urban Airship Message Center -->
+    <androidPackage spec="com.urbanairship.android:urbanairship-message-center:__ANDROID_AIRSHIP_VERSION__">
+      <repositories>
+        <repository>https://urbanairship.bintray.com/android</repository>
+      </repositories>
+    </androidPackage>
+
+    <!-- Urban Airship Automation -->
+    <androidPackage spec="com.urbanairship.android:urbanairship-automation:__ANDROID_AIRSHIP_VERSION__">
+      <repositories>
+        <repository>https://urbanairship.bintray.com/android</repository>
+      </repositories>
+    </androidPackage>
+
+    <!-- Urban Airship Location -->
+    <androidPackage spec="com.urbanairship.android:urbanairship-location:__ANDROID_AIRSHIP_VERSION__">
+      <repositories>
+        <repository>https://urbanairship.bintray.com/android</repository>
+      </repositories>
+    </androidPackage>
+
+
     <!-- Support Library v4 -->
     <androidPackage spec="com.android.support:support-v4:__ANDROID_SUPPORT_LIB_VERSION__">
       <androidSdkPackageIds>
