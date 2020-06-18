@@ -695,7 +695,7 @@ bool UAUnityPlugin_isPushTokenRegistrationEnabled() {
             } else if ([type isEqualToString:@"String"]) {
                 [mutations setString:value forAttribute:key];
             } else if ([type isEqualToString:@"Date"]) {
-                NSDate *date = [NSDate dateWithTimeIntervalSince1970:[value doubleValue]];
+                NSDate *date = [NSDate dateWithTimeIntervalSince1970:(NSTimeInterval)([value doubleValue] / 1000.0)];
                 [mutations setDate:date forAttribute:key];
             }
         } else if ([action isEqualToString:@"Remove"]) {

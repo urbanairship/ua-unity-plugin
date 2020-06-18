@@ -651,7 +651,7 @@ public class UnityPlugin {
                             editor.setAttribute(key, Double.valueOf(value));
                             break;
                         case "Date":
-                            editor.setAttribute(key, new Date(Long.valueOf(value) * 1000));
+                            editor.setAttribute(key, new Date(Double.valueOf(value).longValue()));
                             break;
                         default:
                             PluginLogger.error("Unexpected type: " + operation);

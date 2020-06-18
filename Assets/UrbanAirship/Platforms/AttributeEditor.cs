@@ -109,9 +109,9 @@ namespace UrbanAirship {
 
             // Pass date to the plugin as seconds since the epoch
             System.DateTime epochStart = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
-            int valueInSecondsSinceEpoch = (int)(value - epochStart).TotalSeconds;
+            double valueInMillisecondsSinceEpoch = (value - epochStart).TotalMilliseconds;
 
-            operations.Add(new AttributeMutation(AttributeAction.Set, key, valueInSecondsSinceEpoch, AttributeType.Date));
+            operations.Add(new AttributeMutation(AttributeAction.Set, key, valueInMillisecondsSinceEpoch, AttributeType.Date));
             return this;
         }
 
