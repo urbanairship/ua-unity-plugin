@@ -214,22 +214,22 @@ void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
 
 double UAUnityPlugin_getInAppAutomationDisplayInterval() {
     UA_LDEBUG(@"UnityPlugin getInAppAutomationDisplayInterval");
-    return [UAInAppMessageManager shared].displayInterval;
+    return [UAInAppAutomation shared].inAppMessageManager.displayInterval;
 }
 
 void UAUnityPlugin_setInAppAutomationDisplayInterval(double value) {
     UA_LDEBUG(@"UnityPlugin setBackgroundLocationAllowed %f", value);
-    [UAInAppMessageManager shared].displayInterval = value;
+    [UAInAppAutomation shared].inAppMessageManager.displayInterval = value;
 }
 
 bool UAUnityPlugin_isInAppAutomationPaused() {
     UA_LDEBUG(@"UnityPlugin isInAppAutomationPaused");
-    return [UAInAppMessageManager shared].paused;
+    return [UAInAppAutomation shared].paused;
 }
 
 void UAUnityPlugin_setInAppAutomationPaused(bool paused) {
     UA_LDEBUG(@"UnityPlugin setInAppAutomationPaused: %d", paused);
-    [UAInAppMessageManager shared].paused = paused;
+    [UAInAppAutomation shared].paused = paused;
 }
 
 #pragma mark -
@@ -653,14 +653,16 @@ bool UAUnityPlugin_isPushTokenRegistrationEnabled() {
 }
 
 - (void)displayInboxMessage:(NSString *)messageId {
-    UAUnityMessageViewController *mvc = [[UAUnityMessageViewController alloc] initWithNibName:@"UAMessageCenterMessageViewController" bundle:[UAMessageCenterResources bundle]];
-    [mvc loadMessageForID:messageId onlyIfChanged:YES onError:nil];
-
-    UINavigationController *navController =  [[UINavigationController alloc] initWithRootViewController:mvc];
+    UAUnityMessageViewController *mvc = [[UAUnityMessageViewController alloc] init];
+    mvc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    mvc.modalPresentationStyle = UIModalPresentationFullScreen;
+    
+    [mvc loadMessageForID:messageId];
+    
     self.messageViewController = mvc;
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:navController animated:YES completion:nil];
+        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:mvc animated:YES completion:nil];
     });
 }
 

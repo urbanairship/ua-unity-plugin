@@ -9,7 +9,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UAUnityMessageViewController : UAMessageCenterMessageViewController
+@interface UAUnityMessageViewController : UINavigationController
+
+- (void)loadMessageForID:(nullable NSString *)messageID;
 
 @end
 

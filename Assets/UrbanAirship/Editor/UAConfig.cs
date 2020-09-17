@@ -69,6 +69,15 @@ namespace UrbanAirship.Editor {
         public bool InProduction { get; set; }
 
         [SerializeField]
+        public String UrlAllowList { get; set; }
+
+        [SerializeField]
+        public String UrlAllowListScopeOpenURL { get; set; }
+
+        [SerializeField]
+        public String UrlAllowListScopeJavaScriptInterface { get; set; }
+
+        [SerializeField]
         public bool DataCollectionOptInEnabled { get; set; }
 
         [SerializeField]
@@ -112,6 +121,10 @@ namespace UrbanAirship.Editor {
             this.DevelopmentLogLevel = config.DevelopmentLogLevel;
 
             this.InProduction = config.InProduction;
+
+            this.UrlAllowList = config.UrlAllowList;
+            this.UrlAllowListScopeOpenURL = config.UrlAllowListScopeOpenURL;
+            this.UrlAllowListScopeJavaScriptInterface = config.UrlAllowListScopeJavaScriptInterface;
 
             this.DataCollectionOptInEnabled = config.DataCollectionOptInEnabled;
 
@@ -258,6 +271,24 @@ namespace UrbanAirship.Editor {
 
             rootDict.SetString ("site", Site.ToString());
             rootDict.SetBoolean ("inProduction", InProduction);
+
+            PlistElementArray urlAllowListConfig = rootDict.CreateArray("URLAllowList");
+            foreach (string url in UrlAllowList.Split(',')) {
+                urlAllowListConfig.AddString(url);
+            }
+
+            PlistElementArray urlAllowListScopeOpenURLConfig = rootDict.CreateArray("URLAllowListScopeOpenURL");
+            foreach (string url in UrlAllowListScopeOpenURL.Split(','))
+            {
+                urlAllowListScopeOpenURLConfig.AddString(url);
+            }
+
+            PlistElementArray urlAllowListScopeJavaScriptInterfaceConfig = rootDict.CreateArray("URLAllowListScopeJavaScriptInterface");
+            foreach (string url in UrlAllowListScopeJavaScriptInterface.Split(','))
+            {
+                urlAllowListScopeJavaScriptInterfaceConfig.AddString(url);
+            }
+
             rootDict.SetBoolean ("dataCollectionOptInEnabled", DataCollectionOptInEnabled);
 
             PlistElementDict customConfig = rootDict.CreateDict ("customConfig");
@@ -305,7 +336,6 @@ namespace UrbanAirship.Editor {
                     xmlWriter.WriteAttributeString ("productionAppKey", ProductionAppKey);
                     xmlWriter.WriteAttributeString ("productionAppSecret", ProductionAppSecret);
                     xmlWriter.WriteAttributeString ("productionLogLevel", AndroidLogLevel (ProductionLogLevel));
-
                 }
 
                 if (!String.IsNullOrEmpty (DevelopmentAppKey) && !String.IsNullOrEmpty (DevelopmentAppSecret)) {
@@ -316,6 +346,9 @@ namespace UrbanAirship.Editor {
 
                 xmlWriter.WriteAttributeString ("site", Site.ToString());
                 xmlWriter.WriteAttributeString ("inProduction", (InProduction ? "true" : "false"));
+                xmlWriter.WriteAttributeString ("urlAllowList", UrlAllowList.ToString());
+                xmlWriter.WriteAttributeString ("urlAllowListScopeOpenURL", UrlAllowListScopeOpenURL.ToString());
+                xmlWriter.WriteAttributeString ("urlAllowListScopeJavaScriptInterface", UrlAllowListScopeJavaScriptInterface.ToString());
                 xmlWriter.WriteAttributeString ("dataCollectionOptInEnabled", (DataCollectionOptInEnabled ? "true" : "false"));
 
                 if (!String.IsNullOrEmpty (AndroidNotificationIcon)) {

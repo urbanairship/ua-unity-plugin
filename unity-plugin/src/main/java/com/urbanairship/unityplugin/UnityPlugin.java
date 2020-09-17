@@ -13,9 +13,10 @@ import androidx.annotation.Nullable;
 import com.unity3d.player.UnityPlayer;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
+import com.urbanairship.channel.AirshipChannel;
 import com.urbanairship.channel.AttributeEditor;
 import com.urbanairship.channel.TagGroupsEditor;
-import com.urbanairship.iam.InAppMessageManager;
+import com.urbanairship.automation.InAppAutomation;
 import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
 import com.urbanairship.json.JsonMap;
@@ -207,16 +208,7 @@ public class UnityPlugin {
                         if (stringArrayValue == null) {
                             break;
                         }
-                        List<String> strings = new ArrayList<>();
-                        for (JsonValue jsonValue : stringArrayValue) {
-                            if (jsonValue.isString()) {
-                                strings.add(jsonValue.getString());
-                            } else {
-                                strings.add(jsonValue.toString());
-                            }
-                        }
-
-                        eventBuilder.addProperty(name, strings);
+                        eventBuilder.addProperty(name, JsonValue.wrapOpt(stringArrayValue));
                         break;
                     default:
                         continue;
@@ -393,17 +385,17 @@ public class UnityPlugin {
 
     public boolean isInAppAutomationPaused() {
         PluginLogger.debug("UnityPlugin isInAppAutomationPaused");
-        return InAppMessageManager.shared().isPaused();
+        return InAppAutomation.shared().isPaused();
     }
 
     public void setInAppAutomationPaused(boolean paused) {
         PluginLogger.debug("UnityPlugin setInAppAutomationPaused %s", paused);
-        InAppMessageManager.shared().setPaused(paused);
+        InAppAutomation.shared().setPaused(paused);
     }
 
     public double getInAppAutomationDisplayInterval() {
         PluginLogger.debug("UnityPlugin getInAppAutomationDisplayInterval");
-        long milliseconds = InAppMessageManager.shared().getDisplayInterval();
+        long milliseconds = InAppAutomation.shared().getInAppMessageManager().getDisplayInterval();
         return milliseconds / 1000.0;
     }
 
@@ -411,7 +403,7 @@ public class UnityPlugin {
         PluginLogger.debug("UnityPlugin setInAppAutomationDisplayInterval %s", seconds);
 
         long milliseconds = (long) (seconds * 1000.0);
-        InAppMessageManager.shared().setDisplayInterval(milliseconds, TimeUnit.MILLISECONDS);
+        InAppAutomation.shared().getInAppMessageManager().setDisplayInterval(milliseconds, TimeUnit.MILLISECONDS);
     }
 
     void onPushReceived(PushMessage message) {

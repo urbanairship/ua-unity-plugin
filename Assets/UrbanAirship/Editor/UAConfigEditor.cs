@@ -35,6 +35,9 @@ namespace UrbanAirship.Editor {
             CreateSection ("Common", () => {
                 config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
                 config.Site = (UAConfig.CloudSite) EditorGUILayout.EnumPopup ("Cloud Site", config.Site);
+                config.UrlAllowList = EditorGUILayout.TextField ("URL Allow List", config.UrlAllowList);
+                config.UrlAllowListScopeOpenURL = EditorGUILayout.TextField ("URL Allow List Scope Open", config.UrlAllowListScopeOpenURL);
+                config.UrlAllowListScopeJavaScriptInterface = EditorGUILayout.TextField ("URL Allow List Scope JavaScript Interface", config.UrlAllowListScopeJavaScriptInterface);
                 config.DataCollectionOptInEnabled = EditorGUILayout.Toggle ("Data Collection Opt-In", config.DataCollectionOptInEnabled);
                 GUILayout.Label ("When data collection opt-in is enabled, data collection will be disabled by default until the app enables it by calling " +
                 "`UAirship.Shared.DataCollectionEnabled = true`. When disabled, the device will stop collection and sending data for named user, events, tags " +
