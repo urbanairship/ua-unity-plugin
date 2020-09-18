@@ -2,11 +2,6 @@ name: CI
 
 on: [pull_request]
 
-env:
-  UNITY_USERNAME: ${{ secrets.UNITY_USERNAME }}
-  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-  UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -23,11 +18,12 @@ jobs:
           sudo apt-get install doxygen
           ./gradlew docs:build
         
-      - name: Unity - Activate
-        uses: webbertakken/unity-activate@v1.2
-        
       # Build
       - name: Build project
+        env:
+          UNITY_USERNAME: ${{ secrets.UNITY_USERNAME }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         uses: webbertakken/unity-builder@v0.10
         with:
           unityVersion: 2019.2.11f1
@@ -38,8 +34,3 @@ jobs:
         with:
           name: Build
           path: build
-
-      # Return License
-      - name: Return license
-        uses: webbertakken/unity-return-license@v1
-        if: always()
