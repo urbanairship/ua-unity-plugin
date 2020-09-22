@@ -24,13 +24,4 @@ jobs:
           UNITY_USERNAME: ${{ secrets.UNITY_USERNAME }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-        uses: webbertakken/unity-builder@v0.10
-        with:
-          unityVersion: 2019.2.11f1
-          targetPlatform: WebGL
-
-      # Output
-      - uses: actions/upload-artifact@v1
-        with:
-          name: Build
-          path: build
+        run: ./scripts/docker_run.sh
