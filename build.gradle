@@ -120,6 +120,7 @@ task build(dependsOn: 'preparePlugin') {
                 "-logFile", "$buildDir/package.log",
                 "-exportPackage",
                     "Assets/PlayServicesResolver",
+                    "Assets/ExternalDependencyManager",
                     "Assets/UrbanAirship",
                     "Assets/Plugins/iOS",
                     "Assets/Plugins/Android/urbanairship-resources",
