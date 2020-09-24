@@ -3,42 +3,38 @@
 #import "UAUnityMessageViewController.h"
 
 @interface UAUnityMessageViewController() <UAMessageCenterMessageViewDelegate>
-@property (nonatomic, copy) NSString *pendingMessageID;
 @property (nonatomic, strong) UADefaultMessageCenterMessageViewController *airshipMessageViewController;
 @end
 
 @implementation UAUnityMessageViewController
 
-- (void) viewDidLoad {
-    [super viewDidLoad];
-    
-    self.airshipMessageViewController = [[UADefaultMessageCenterMessageViewController alloc]
+- (instancetype)init {
+    self = [super init];
+
+    if (self) {
+        self.airshipMessageViewController = [[UADefaultMessageCenterMessageViewController alloc]
                                          initWithNibName:@"UADefaultMessageCenterMessageViewController"
                                          bundle:[UAMessageCenterResources bundle]];
-    self.airshipMessageViewController.delegate = self;
-    
-    UIBarButtonItem *done = [[UIBarButtonItem alloc]
-                             initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                             target:self
-                             action:@selector(dismissMessageViewController:)];
-    
-    self.airshipMessageViewController.navigationItem.leftBarButtonItem = done;
-    
-    self.viewControllers = @[self.airshipMessageViewController];
+        self.airshipMessageViewController.delegate = self;
 
-    if (self.pendingMessageID) {
-        [self.airshipMessageViewController loadMessageForID:self.pendingMessageID];
-        self.pendingMessageID = nil;
+        UIBarButtonItem *done = [[UIBarButtonItem alloc]
+                                initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                target:self
+                                action:@selector(dismissMessageViewController:)];
+
+        self.airshipMessageViewController.navigationItem.rightBarButtonItem = done;
+
+        self.viewControllers = @[self.airshipMessageViewController];
+
+        self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        self.modalPresentationStyle = UIModalPresentationFullScreen;
     }
+
+    return self;
 }
 
 - (void)loadMessageForID:(NSString *)messageID {
-    if (self.airshipMessageViewController) {
-        [self.airshipMessageViewController loadMessageForID:messageID];
-        self.pendingMessageID = nil;
-    } else {
-        self.pendingMessageID = messageID;
-    }
+    [self.airshipMessageViewController loadMessageForID:messageID];
 }
 
 #pragma mark UAMessageCenterMessageViewDelegate

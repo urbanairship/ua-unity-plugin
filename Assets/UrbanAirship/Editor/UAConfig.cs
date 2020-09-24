@@ -272,21 +272,28 @@ namespace UrbanAirship.Editor {
             rootDict.SetString ("site", Site.ToString());
             rootDict.SetBoolean ("inProduction", InProduction);
 
-            PlistElementArray urlAllowListConfig = rootDict.CreateArray("URLAllowList");
-            foreach (string url in UrlAllowList.Split(',')) {
-                urlAllowListConfig.AddString(url);
+            if (UrlAllowList != null) {
+                PlistElementArray urlAllowListConfig = rootDict.CreateArray("URLAllowList");
+                foreach (string url in UrlAllowList.Split(','))
+                {
+                    urlAllowListConfig.AddString(url);
+                }
             }
 
-            PlistElementArray urlAllowListScopeOpenURLConfig = rootDict.CreateArray("URLAllowListScopeOpenURL");
-            foreach (string url in UrlAllowListScopeOpenURL.Split(','))
-            {
-                urlAllowListScopeOpenURLConfig.AddString(url);
+            if (UrlAllowListScopeOpenURL != null) {
+                PlistElementArray urlAllowListScopeOpenURLConfig = rootDict.CreateArray("URLAllowListScopeOpenURL");
+                foreach (string url in UrlAllowListScopeOpenURL.Split(','))
+                {
+                    urlAllowListScopeOpenURLConfig.AddString(url);
+                }
             }
 
-            PlistElementArray urlAllowListScopeJavaScriptInterfaceConfig = rootDict.CreateArray("URLAllowListScopeJavaScriptInterface");
-            foreach (string url in UrlAllowListScopeJavaScriptInterface.Split(','))
-            {
-                urlAllowListScopeJavaScriptInterfaceConfig.AddString(url);
+            if (UrlAllowListScopeJavaScriptInterface != null) {
+                PlistElementArray urlAllowListScopeJavaScriptInterfaceConfig = rootDict.CreateArray("URLAllowListScopeJavaScriptInterface");
+                foreach (string url in UrlAllowListScopeJavaScriptInterface.Split(','))
+                {
+                    urlAllowListScopeJavaScriptInterfaceConfig.AddString(url);
+                }
             }
 
             rootDict.SetBoolean ("dataCollectionOptInEnabled", DataCollectionOptInEnabled);

@@ -35,15 +35,18 @@ namespace UrbanAirship.Editor {
             CreateSection ("Common", () => {
                 config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
                 config.Site = (UAConfig.CloudSite) EditorGUILayout.EnumPopup ("Cloud Site", config.Site);
-                config.UrlAllowList = EditorGUILayout.TextField ("URL Allow List", config.UrlAllowList);
-                config.UrlAllowListScopeOpenURL = EditorGUILayout.TextField ("URL Allow List Scope Open", config.UrlAllowListScopeOpenURL);
-                config.UrlAllowListScopeJavaScriptInterface = EditorGUILayout.TextField ("URL Allow List Scope JavaScript Interface", config.UrlAllowListScopeJavaScriptInterface);
                 config.DataCollectionOptInEnabled = EditorGUILayout.Toggle ("Data Collection Opt-In", config.DataCollectionOptInEnabled);
                 GUILayout.Label ("When data collection opt-in is enabled, data collection will be disabled by default until the app enables it by calling " +
                 "`UAirship.Shared.DataCollectionEnabled = true`. When disabled, the device will stop collection and sending data for named user, events, tags " +
                 "attributes, associated identifiers, and location from the device. Push notifications will continue to work only if " +
                 "`UAirship.Shared.PushTokenRegistrationEnabled = true` is called, otherwise it will default to the current state of DataCollectionEnabled.",
                 EditorStyles.wordWrappedMiniLabel);
+            });
+
+            CreateSection ("URL Allow List", () => {
+                config.UrlAllowList = EditorGUILayout.TextField ("Scope All", config.UrlAllowList);
+                config.UrlAllowListScopeOpenURL = EditorGUILayout.TextField ("Scope Open", config.UrlAllowListScopeOpenURL);
+                config.UrlAllowListScopeJavaScriptInterface = EditorGUILayout.TextField ("Scope JS Interface", config.UrlAllowListScopeJavaScriptInterface);
             });
 
             CreateSection ("Android Settings", () => {

@@ -252,11 +252,11 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
     ce.transactionID = [UAUnityPlugin stringOrNil:obj[@"transactionID"]];
 
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-       
+
     for (id property in obj[@"properties"]) {
         NSString *name = [UAUnityPlugin stringOrNil:property[@"name"]];
         id value;
-           
+
         NSString *type = property[@"type"];
         if ([type isEqualToString:@"s"]) {
             value = property[@"stringValue"];
@@ -267,7 +267,7 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
         } else if ([type isEqualToString:@"sa"]) {
             value = property[@"stringArrayValue"];
         }
-           
+
         [properties setValue:value forKey:name];
     }
 
@@ -417,7 +417,7 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
     UA_LDEBUG(@"UnityPlugin editChannelAttributes");
     id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
-  
+
     UAAttributeMutations *mutations = [[UAUnityPlugin shared] mutationsWithOperations:operations];
 
     [[UAirship channel] applyAttributeMutations:mutations];
@@ -427,9 +427,9 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
     UA_LDEBUG(@"UnityPlugin editNamedUserAttributes");
     id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
-    
+
     UAAttributeMutations *mutations = [[UAUnityPlugin shared] mutationsWithOperations:operations];
-    
+
     [[UAirship namedUser] applyAttributeMutations:mutations];
 }
 
@@ -654,11 +654,7 @@ bool UAUnityPlugin_isPushTokenRegistrationEnabled() {
 
 - (void)displayInboxMessage:(NSString *)messageId {
     UAUnityMessageViewController *mvc = [[UAUnityMessageViewController alloc] init];
-    mvc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-    mvc.modalPresentationStyle = UIModalPresentationFullScreen;
-    
     [mvc loadMessageForID:messageId];
-    
     self.messageViewController = mvc;
 
     dispatch_async(dispatch_get_main_queue(), ^{
