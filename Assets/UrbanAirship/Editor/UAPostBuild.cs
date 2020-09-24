@@ -55,6 +55,7 @@ namespace UrbanAirship.Editor {
 
             foreach (string target in targets) {
                 proj.AddFileToBuild (target, airshipGUID);
+                proj.AddBuildProperty(target, "CLANG_ENABLE_MODULES", "YES");
             }
 
             File.WriteAllText (projectPath, proj.WriteToString ());

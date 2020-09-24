@@ -1,8 +1,13 @@
 /* Copyright Airship and Contributors */
 
 #import <Foundation/Foundation.h>
+#if __has_include("AirshipLib.h")
 #import "AirshipLib.h"
 #import "AirshipMessageCenterLib.h"
+#import "AirshipAutomationLib.h"
+#else
+@import Airship;
+#endif
 
 extern void UnitySendMessage(const char *, const char *, const char *);
 
