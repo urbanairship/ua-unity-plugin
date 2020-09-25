@@ -32,7 +32,6 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
 
     // UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
     [UAirship push].pushNotificationDelegate = [UAUnityPlugin shared];
-    [UAirship push].registrationDelegate = [UAUnityPlugin shared];
     [UAirship shared].deepLinkDelegate = [UAUnityPlugin shared];
 
     // Check if the config specified default foreground presentation options
@@ -56,26 +55,15 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
         [UAirship push].defaultPresentationOptions = options;
     }
 
-    // Replace the display inbox and landing page actions with modified versions that pause the game before display
-    UAAction *dia = [[UAirship shared].actionRegistry registryEntryWithName:UADisplayInboxActionDefaultRegistryName].action;
-    UAAction *customDIA = [dia preExecution:^(UAActionArguments *args) {
-        // This will ultimately trigger the OnApplicationPause event
-        UnityWillPause();
-    }];
-
-    UAAction *lpa = [[UAirship shared].actionRegistry registryEntryWithName:UALandingPageActionDefaultRegistryName].action;
-    UAAction *customLPA = [lpa preExecution:^(UAActionArguments *args) {
-        // This will ultimately trigger the OnApplicationPause event
-        UnityWillPause();
-    }];
-
-    [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:UADisplayInboxActionDefaultRegistryName];
-    [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:UALandingPageActionDefaultRegistryName];
-
     // Add observer for inbox updated event
     [[NSNotificationCenter defaultCenter] addObserver:[self shared]
                                              selector:@selector(inboxUpdated)
                                                  name:UAInboxMessageListUpdatedNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:[self shared]
+                                             selector:@selector(channelRegistrationSucceeded:)
+                                                 name:UAChannelUpdatedEvent
                                                object:nil];
 
     [UAMessageCenter shared].displayDelegate = [self shared];
@@ -467,24 +455,12 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 }
 
 #pragma mark -
-#pragma mark UARegistrationDelegate
+#pragma mark Channel Registration Events
 
 
-/**
- * Called when the device channel registers with Urban Airship. Successful
- * registrations could be disabling push, enabling push, or updating the device
- * registration settings.
- *
- * The device token will only be available once the application successfully
- * registers with APNS.
- *
- * When registration finishes in the background, any async tasks that are triggered
- * from this call should request a background task.
- * @param channelID The channel ID string.
- * @param deviceToken The device token string.
- */
-- (void)registrationSucceededForChannelID:(NSString *)channelID deviceToken:(NSString *)deviceToken {
-    UA_LDEBUG(@"registrationSucceededForChannelID: %@", channelID);
+- (void)channelUpdated:(NSNotification *)notification {
+    NSString *channelID = notification.userInfo[UAChannelUpdatedEventChannelKey];
+    UA_LDEBUG(@"channelUpdated: %@", channelID);
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                          "OnChannelUpdated",
