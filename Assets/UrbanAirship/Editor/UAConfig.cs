@@ -271,8 +271,10 @@ namespace UrbanAirship.Editor {
 
             rootDict.SetString ("site", Site.ToString());
             rootDict.SetBoolean ("inProduction", InProduction);
+            rootDict.SetBoolean ("dataCollectionOptInEnabled", DataCollectionOptInEnabled);
 
-            if (UrlAllowList != null) {
+            if (!String.IsNullOrEmpty(UrlAllowList))
+            {
                 PlistElementArray urlAllowListConfig = rootDict.CreateArray("URLAllowList");
                 foreach (string url in UrlAllowList.Split(','))
                 {
@@ -280,7 +282,8 @@ namespace UrbanAirship.Editor {
                 }
             }
 
-            if (UrlAllowListScopeOpenURL != null) {
+            if (!String.IsNullOrEmpty(UrlAllowListScopeOpenURL))
+            {
                 PlistElementArray urlAllowListScopeOpenURLConfig = rootDict.CreateArray("URLAllowListScopeOpenURL");
                 foreach (string url in UrlAllowListScopeOpenURL.Split(','))
                 {
@@ -288,15 +291,14 @@ namespace UrbanAirship.Editor {
                 }
             }
 
-            if (UrlAllowListScopeJavaScriptInterface != null) {
+            if (!String.IsNullOrEmpty(UrlAllowListScopeJavaScriptInterface))
+            {
                 PlistElementArray urlAllowListScopeJavaScriptInterfaceConfig = rootDict.CreateArray("URLAllowListScopeJavaScriptInterface");
                 foreach (string url in UrlAllowListScopeJavaScriptInterface.Split(','))
                 {
                     urlAllowListScopeJavaScriptInterfaceConfig.AddString(url);
                 }
             }
-
-            rootDict.SetBoolean ("dataCollectionOptInEnabled", DataCollectionOptInEnabled);
 
             PlistElementDict customConfig = rootDict.CreateDict ("customConfig");
             customConfig.SetBoolean ("notificationPresentationOptionAlert", NotificationPresentationOptionAlert);
@@ -353,10 +355,22 @@ namespace UrbanAirship.Editor {
 
                 xmlWriter.WriteAttributeString ("site", Site.ToString());
                 xmlWriter.WriteAttributeString ("inProduction", (InProduction ? "true" : "false"));
-                xmlWriter.WriteAttributeString ("urlAllowList", UrlAllowList.ToString());
-                xmlWriter.WriteAttributeString ("urlAllowListScopeOpenURL", UrlAllowListScopeOpenURL.ToString());
-                xmlWriter.WriteAttributeString ("urlAllowListScopeJavaScriptInterface", UrlAllowListScopeJavaScriptInterface.ToString());
                 xmlWriter.WriteAttributeString ("dataCollectionOptInEnabled", (DataCollectionOptInEnabled ? "true" : "false"));
+
+                if (!String.IsNullOrEmpty(UrlAllowList))
+                {
+                    xmlWriter.WriteAttributeString ("urlAllowList", UrlAllowList.ToString());
+                }
+
+                if (!String.IsNullOrEmpty(UrlAllowListScopeOpenURL))
+                {
+                    xmlWriter.WriteAttributeString ("urlAllowListScopeOpenURL", UrlAllowListScopeOpenURL.ToString());
+                }
+
+                if (!String.IsNullOrEmpty(UrlAllowListScopeJavaScriptInterface))
+                {
+                    xmlWriter.WriteAttributeString ("urlAllowListScopeJavaScriptInterface", UrlAllowListScopeJavaScriptInterface.ToString());
+                }
 
                 if (!String.IsNullOrEmpty (AndroidNotificationIcon)) {
                     xmlWriter.WriteAttributeString ("notificationIcon", AndroidNotificationIcon);
