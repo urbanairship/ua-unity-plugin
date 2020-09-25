@@ -12,17 +12,15 @@
     self = [super init];
 
     if (self) {
-        self.airshipMessageViewController = [[UADefaultMessageCenterMessageViewController alloc]
-                                         initWithNibName:@"UADefaultMessageCenterMessageViewController"
-                                         bundle:[UAMessageCenterResources bundle]];
+        self.airshipMessageViewController = [[UADefaultMessageCenterMessageViewController alloc] initWithNibName:@"UADefaultMessageCenterMessageViewController"
+                                                                                                          bundle:[UAMessageCenterResources bundle]];
         self.airshipMessageViewController.delegate = self;
 
-        UIBarButtonItem *done = [[UIBarButtonItem alloc]
-                                initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                target:self
-                                action:@selector(dismissMessageViewController:)];
+        UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                                                              target:self
+                                                                              action:@selector(inboxMessageDone:)];
 
-        self.airshipMessageViewController.navigationItem.rightBarButtonItem = done;
+        self.airshipMessageViewController.navigationItem.leftBarButtonItem = done;
 
         self.viewControllers = @[self.airshipMessageViewController];
 
@@ -31,6 +29,10 @@
     }
 
     return self;
+}
+
+- (void)inboxMessageDone:(id)sender {
+    [self dismissViewControllerAnimated:true completion:nil];
 }
 
 - (void)loadMessageForID:(NSString *)messageID {
@@ -154,3 +156,4 @@
 }
 
 @end
+
