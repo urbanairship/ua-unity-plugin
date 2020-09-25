@@ -123,7 +123,7 @@ task build(dependsOn: 'preparePlugin') {
                     "Assets/ExternalDependencyManager",
                     "Assets/UrbanAirship",
                     "Assets/Plugins/iOS",
-                    "Assets/Plugins/Android/urbanairship-resources",
+                    "Assets/Plugins/Android/urbanairship-resources.androidlib",
                     "Assets/Plugins/Android",
                     "Assets/Scripts",
                 file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,

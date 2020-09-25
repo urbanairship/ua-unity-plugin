@@ -310,9 +310,9 @@ namespace UrbanAirship.Editor {
 #endif
 
         private void GenerateFirebaseConfig () {
-            string res = "Assets/Plugins/Android/urbanairship-resources/res/values";
+            string res = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/values";
             string json = "Assets/google-services.json";
-            string xml = "Assets/Plugins/Android/urbanairship-resources/res/values/values.xml";
+            string xml = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/values/values.xml";
 
             if (!GenerateGoogleJsonConfig) {
                 File.Delete (xml);
@@ -327,12 +327,12 @@ namespace UrbanAirship.Editor {
         }
 
         private void GenerateAndroidAirshipConfig () {
-            string res = "Assets/Plugins/Android/urbanairship-resources/res";
+            string res = "Assets/Plugins/Android/urbanairship-resources.androidlib/res";
             if (!Directory.Exists (res)) {
                 Directory.CreateDirectory (res);
             }
 
-            string xml = "Assets/Plugins/Android/urbanairship-resources/res/xml";
+            string xml = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/xml";
             if (!Directory.Exists (xml)) {
                 Directory.CreateDirectory (xml);
             }

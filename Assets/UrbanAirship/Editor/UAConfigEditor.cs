@@ -58,7 +58,7 @@ namespace UrbanAirship.Editor {
 
                 GUILayout.Label ("Notification icon must be the name of a drawable in the project, e.g., " +
                     "app_icon, ic_dialog_alert. Drawables can be added " +
-                    "in either the Assets/Plugins/Android/urbanairship-resources/res/drawable* directory or by " +
+                    "in either the Assets/Plugins/Android/urbanairship-resources.androidlib/res/drawable* directory or by " +
                     "providing a new Android library project.", EditorStyles.wordWrappedMiniLabel);
             });
 
