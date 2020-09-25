@@ -1,6 +1,17 @@
 # Unity Plugin ChangeLog
 
-## Version 3.0.1 - March 23, 2020
+## Version 8.0.0 - September 25, 2020
+
+Major release that updates Airship Android SDK to 14.0.1 and iOS SDK to 14.1.2. Starting with SDK 14, all landing page and external urls are tested against a URL allow list. The easiest way to go back to previous behavior is to add the wildcard symbol * in the Scope Open in URL Allow List in the Airship Config window.
+
+### Changes
+- Xcode 12 is now required.
+- Updated to latest iOS and Android SDK.
+- Added config for URL allow lists.
+- Fixed Android build issues with latest Unity.
+
+
+## Version 7.0.1 - March 23, 2020
 Patch addressing a regression in iOS SDK 13.1.0 causing channel tag loss
 when upgrading from iOS SDK versions prior to 13.0.1. Apps upgrading from Unity plugin
 6.2.0 or below should avoid plugin version 7.0.0 in favor of version 7.0.1.

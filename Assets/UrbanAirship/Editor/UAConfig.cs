@@ -69,6 +69,15 @@ namespace UrbanAirship.Editor {
         public bool InProduction { get; set; }
 
         [SerializeField]
+        public String UrlAllowList { get; set; }
+
+        [SerializeField]
+        public String UrlAllowListScopeOpenURL { get; set; }
+
+        [SerializeField]
+        public String UrlAllowListScopeJavaScriptInterface { get; set; }
+
+        [SerializeField]
         public bool DataCollectionOptInEnabled { get; set; }
 
         [SerializeField]
@@ -112,6 +121,10 @@ namespace UrbanAirship.Editor {
             this.DevelopmentLogLevel = config.DevelopmentLogLevel;
 
             this.InProduction = config.InProduction;
+
+            this.UrlAllowList = config.UrlAllowList;
+            this.UrlAllowListScopeOpenURL = config.UrlAllowListScopeOpenURL;
+            this.UrlAllowListScopeJavaScriptInterface = config.UrlAllowListScopeJavaScriptInterface;
 
             this.DataCollectionOptInEnabled = config.DataCollectionOptInEnabled;
 
@@ -260,6 +273,33 @@ namespace UrbanAirship.Editor {
             rootDict.SetBoolean ("inProduction", InProduction);
             rootDict.SetBoolean ("dataCollectionOptInEnabled", DataCollectionOptInEnabled);
 
+            if (!String.IsNullOrEmpty(UrlAllowList))
+            {
+                PlistElementArray urlAllowListConfig = rootDict.CreateArray("URLAllowList");
+                foreach (string url in UrlAllowList.Split(','))
+                {
+                    urlAllowListConfig.AddString(url);
+                }
+            }
+
+            if (!String.IsNullOrEmpty(UrlAllowListScopeOpenURL))
+            {
+                PlistElementArray urlAllowListScopeOpenURLConfig = rootDict.CreateArray("URLAllowListScopeOpenURL");
+                foreach (string url in UrlAllowListScopeOpenURL.Split(','))
+                {
+                    urlAllowListScopeOpenURLConfig.AddString(url);
+                }
+            }
+
+            if (!String.IsNullOrEmpty(UrlAllowListScopeJavaScriptInterface))
+            {
+                PlistElementArray urlAllowListScopeJavaScriptInterfaceConfig = rootDict.CreateArray("URLAllowListScopeJavaScriptInterface");
+                foreach (string url in UrlAllowListScopeJavaScriptInterface.Split(','))
+                {
+                    urlAllowListScopeJavaScriptInterfaceConfig.AddString(url);
+                }
+            }
+
             PlistElementDict customConfig = rootDict.CreateDict ("customConfig");
             customConfig.SetBoolean ("notificationPresentationOptionAlert", NotificationPresentationOptionAlert);
             customConfig.SetBoolean ("notificationPresentationOptionBadge", NotificationPresentationOptionBadge);
@@ -270,9 +310,9 @@ namespace UrbanAirship.Editor {
 #endif
 
         private void GenerateFirebaseConfig () {
-            string res = "Assets/Plugins/Android/urbanairship-resources/res/values";
+            string res = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/values";
             string json = "Assets/google-services.json";
-            string xml = "Assets/Plugins/Android/urbanairship-resources/res/values/values.xml";
+            string xml = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/values/values.xml";
 
             if (!GenerateGoogleJsonConfig) {
                 File.Delete (xml);
@@ -287,12 +327,12 @@ namespace UrbanAirship.Editor {
         }
 
         private void GenerateAndroidAirshipConfig () {
-            string res = "Assets/Plugins/Android/urbanairship-resources/res";
+            string res = "Assets/Plugins/Android/urbanairship-resources.androidlib/res";
             if (!Directory.Exists (res)) {
                 Directory.CreateDirectory (res);
             }
 
-            string xml = "Assets/Plugins/Android/urbanairship-resources/res/xml";
+            string xml = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/xml";
             if (!Directory.Exists (xml)) {
                 Directory.CreateDirectory (xml);
             }
@@ -305,7 +345,6 @@ namespace UrbanAirship.Editor {
                     xmlWriter.WriteAttributeString ("productionAppKey", ProductionAppKey);
                     xmlWriter.WriteAttributeString ("productionAppSecret", ProductionAppSecret);
                     xmlWriter.WriteAttributeString ("productionLogLevel", AndroidLogLevel (ProductionLogLevel));
-
                 }
 
                 if (!String.IsNullOrEmpty (DevelopmentAppKey) && !String.IsNullOrEmpty (DevelopmentAppSecret)) {
@@ -317,6 +356,21 @@ namespace UrbanAirship.Editor {
                 xmlWriter.WriteAttributeString ("site", Site.ToString());
                 xmlWriter.WriteAttributeString ("inProduction", (InProduction ? "true" : "false"));
                 xmlWriter.WriteAttributeString ("dataCollectionOptInEnabled", (DataCollectionOptInEnabled ? "true" : "false"));
+
+                if (!String.IsNullOrEmpty(UrlAllowList))
+                {
+                    xmlWriter.WriteAttributeString ("urlAllowList", UrlAllowList.ToString());
+                }
+
+                if (!String.IsNullOrEmpty(UrlAllowListScopeOpenURL))
+                {
+                    xmlWriter.WriteAttributeString ("urlAllowListScopeOpenURL", UrlAllowListScopeOpenURL.ToString());
+                }
+
+                if (!String.IsNullOrEmpty(UrlAllowListScopeJavaScriptInterface))
+                {
+                    xmlWriter.WriteAttributeString ("urlAllowListScopeJavaScriptInterface", UrlAllowListScopeJavaScriptInterface.ToString());
+                }
 
                 if (!String.IsNullOrEmpty (AndroidNotificationIcon)) {
                     xmlWriter.WriteAttributeString ("notificationIcon", AndroidNotificationIcon);

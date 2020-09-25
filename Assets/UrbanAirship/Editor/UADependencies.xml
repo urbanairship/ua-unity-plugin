@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <dependencies>
-    
+
   <!-- Android -->
   <androidPackages>
 
@@ -25,14 +25,6 @@
       </repositories>
     </androidPackage>
 
-
-    <!-- Support Library v4 -->
-    <androidPackage spec="com.android.support:support-v4:__ANDROID_SUPPORT_LIB_VERSION__">
-      <androidSdkPackageIds>
-        <androidSdkPackageId>extra-google-m2repository</androidSdkPackageId>
-      </androidSdkPackageIds>
-    </androidPackage>
-
     <!-- Urban Airship FCM -->
     <androidPackage spec="com.urbanairship.android:urbanairship-fcm:__ANDROID_AIRSHIP_VERSION__">
       <repositories>
@@ -43,13 +35,13 @@
   </androidPackages>
 
   <!-- iOS -->
-  
+
   <iosPods>
-      
+
     <!-- iosPod -->
     <iosPod name="Airship" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
     <iosPod name="Airship/Location" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
-  
+
   </iosPods>
 
 </dependencies>

@@ -43,6 +43,12 @@ namespace UrbanAirship.Editor {
                 EditorStyles.wordWrappedMiniLabel);
             });
 
+            CreateSection ("URL Allow List", () => {
+                config.UrlAllowList = EditorGUILayout.TextField ("Scope All", config.UrlAllowList);
+                config.UrlAllowListScopeOpenURL = EditorGUILayout.TextField ("Scope Open", config.UrlAllowListScopeOpenURL);
+                config.UrlAllowListScopeJavaScriptInterface = EditorGUILayout.TextField ("Scope JS Interface", config.UrlAllowListScopeJavaScriptInterface);
+            });
+
             CreateSection ("Android Settings", () => {
                 config.GenerateGoogleJsonConfig = EditorGUILayout.Toggle ("Process google-service", config.GenerateGoogleJsonConfig);
                 config.AndroidNotificationAccentColor = EditorGUILayout.TextField ("Notification Accent Color", config.AndroidNotificationAccentColor);
@@ -52,7 +58,7 @@ namespace UrbanAirship.Editor {
 
                 GUILayout.Label ("Notification icon must be the name of a drawable in the project, e.g., " +
                     "app_icon, ic_dialog_alert. Drawables can be added " +
-                    "in either the Assets/Plugins/Android/urbanairship-resources/res/drawable* directory or by " +
+                    "in either the Assets/Plugins/Android/urbanairship-resources.androidlib/res/drawable* directory or by " +
                     "providing a new Android library project.", EditorStyles.wordWrappedMiniLabel);
             });
 

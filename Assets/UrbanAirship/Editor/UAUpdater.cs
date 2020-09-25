@@ -18,6 +18,7 @@ namespace UrbanAirship.Editor {
         private static string[] obsoleteDirectories = {
             "Assets/Plugins/Android/urbanairship-plugin-lib",
             "Assets/Plugins/Android/urbanairship-sdk",
+            "Assets/Plugins/Android/urbanairship-resources",
             "Assets/UrbanAirship/Editor/m2repository",
             "Assets/Plugins/iOS/Airship"
         };
@@ -41,7 +42,7 @@ namespace UrbanAirship.Editor {
 
             foreach (string dir in drawables) {
                 string name = Path.GetDirectoryName (dir);
-                Directory.Move (dir, Path.Combine ("Assets/Plugins/Android/urbanairship-resources/res", name));
+                Directory.Move (dir, Path.Combine ("Assets/Plugins/Android/urbanairship-resources.androidlib/res", name));
                 refreshAssets = true;
             }
 

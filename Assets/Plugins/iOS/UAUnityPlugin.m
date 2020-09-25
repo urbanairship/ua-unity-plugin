@@ -2,13 +2,7 @@
 
 #import "UAUnityPlugin.h"
 #import "UnityInterface.h"
-#import "AirshipLib.h"
-#import "AirshipMessageCenterLib.h"
-#import "AirshipAutomationLib.h"
-
 #import "UAUnityMessageViewController.h"
-
-#import "UALandingPageAction.h"
 
 static UAUnityPlugin *shared_;
 static dispatch_once_t onceToken_;
@@ -38,7 +32,6 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
 
     // UAPush delegate and UAActionRegistry need to be set at load so that cold start launches get deeplinks
     [UAirship push].pushNotificationDelegate = [UAUnityPlugin shared];
-    [UAirship push].registrationDelegate = [UAUnityPlugin shared];
     [UAirship shared].deepLinkDelegate = [UAUnityPlugin shared];
 
     // Check if the config specified default foreground presentation options
@@ -62,26 +55,15 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
         [UAirship push].defaultPresentationOptions = options;
     }
 
-    // Replace the display inbox and landing page actions with modified versions that pause the game before display
-    UAAction *dia = [[UAirship shared].actionRegistry registryEntryWithName:UADisplayInboxActionDefaultRegistryName].action;
-    UAAction *customDIA = [dia preExecution:^(UAActionArguments *args) {
-        // This will ultimately trigger the OnApplicationPause event
-        UnityWillPause();
-    }];
-
-    UAAction *lpa = [[UAirship shared].actionRegistry registryEntryWithName:UALandingPageActionDefaultRegistryName].action;
-    UAAction *customLPA = [lpa preExecution:^(UAActionArguments *args) {
-        // This will ultimately trigger the OnApplicationPause event
-        UnityWillPause();
-    }];
-
-    [[UAirship shared].actionRegistry updateAction:customDIA forEntryWithName:UADisplayInboxActionDefaultRegistryName];
-    [[UAirship shared].actionRegistry updateAction:customLPA forEntryWithName:UALandingPageActionDefaultRegistryName];
-
     // Add observer for inbox updated event
     [[NSNotificationCenter defaultCenter] addObserver:[self shared]
                                              selector:@selector(inboxUpdated)
                                                  name:UAInboxMessageListUpdatedNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:[self shared]
+                                             selector:@selector(channelRegistrationSucceeded:)
+                                                 name:UAChannelUpdatedEvent
                                                object:nil];
 
     [UAMessageCenter shared].displayDelegate = [self shared];
@@ -214,22 +196,22 @@ void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
 
 double UAUnityPlugin_getInAppAutomationDisplayInterval() {
     UA_LDEBUG(@"UnityPlugin getInAppAutomationDisplayInterval");
-    return [UAInAppMessageManager shared].displayInterval;
+    return [UAInAppAutomation shared].inAppMessageManager.displayInterval;
 }
 
 void UAUnityPlugin_setInAppAutomationDisplayInterval(double value) {
     UA_LDEBUG(@"UnityPlugin setBackgroundLocationAllowed %f", value);
-    [UAInAppMessageManager shared].displayInterval = value;
+    [UAInAppAutomation shared].inAppMessageManager.displayInterval = value;
 }
 
 bool UAUnityPlugin_isInAppAutomationPaused() {
     UA_LDEBUG(@"UnityPlugin isInAppAutomationPaused");
-    return [UAInAppMessageManager shared].paused;
+    return [UAInAppAutomation shared].paused;
 }
 
 void UAUnityPlugin_setInAppAutomationPaused(bool paused) {
     UA_LDEBUG(@"UnityPlugin setInAppAutomationPaused: %d", paused);
-    [UAInAppMessageManager shared].paused = paused;
+    [UAInAppAutomation shared].paused = paused;
 }
 
 #pragma mark -
@@ -252,11 +234,11 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
     ce.transactionID = [UAUnityPlugin stringOrNil:obj[@"transactionID"]];
 
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-       
+
     for (id property in obj[@"properties"]) {
         NSString *name = [UAUnityPlugin stringOrNil:property[@"name"]];
         id value;
-           
+
         NSString *type = property[@"type"];
         if ([type isEqualToString:@"s"]) {
             value = property[@"stringValue"];
@@ -267,7 +249,7 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
         } else if ([type isEqualToString:@"sa"]) {
             value = property[@"stringArrayValue"];
         }
-           
+
         [properties setValue:value forKey:name];
     }
 
@@ -417,7 +399,7 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
     UA_LDEBUG(@"UnityPlugin editChannelAttributes");
     id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
-  
+
     UAAttributeMutations *mutations = [[UAUnityPlugin shared] mutationsWithOperations:operations];
 
     [[UAirship channel] applyAttributeMutations:mutations];
@@ -427,9 +409,9 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
     UA_LDEBUG(@"UnityPlugin editNamedUserAttributes");
     id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
-    
+
     UAAttributeMutations *mutations = [[UAUnityPlugin shared] mutationsWithOperations:operations];
-    
+
     [[UAirship namedUser] applyAttributeMutations:mutations];
 }
 
@@ -473,24 +455,12 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 }
 
 #pragma mark -
-#pragma mark UARegistrationDelegate
+#pragma mark Channel Registration Events
 
 
-/**
- * Called when the device channel registers with Urban Airship. Successful
- * registrations could be disabling push, enabling push, or updating the device
- * registration settings.
- *
- * The device token will only be available once the application successfully
- * registers with APNS.
- *
- * When registration finishes in the background, any async tasks that are triggered
- * from this call should request a background task.
- * @param channelID The channel ID string.
- * @param deviceToken The device token string.
- */
-- (void)registrationSucceededForChannelID:(NSString *)channelID deviceToken:(NSString *)deviceToken {
-    UA_LDEBUG(@"registrationSucceededForChannelID: %@", channelID);
+- (void)channelUpdated:(NSNotification *)notification {
+    NSString *channelID = notification.userInfo[UAChannelUpdatedEventChannelKey];
+    UA_LDEBUG(@"channelUpdated: %@", channelID);
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                          "OnChannelUpdated",
@@ -653,14 +623,12 @@ bool UAUnityPlugin_isPushTokenRegistrationEnabled() {
 }
 
 - (void)displayInboxMessage:(NSString *)messageId {
-    UAUnityMessageViewController *mvc = [[UAUnityMessageViewController alloc] initWithNibName:@"UAMessageCenterMessageViewController" bundle:[UAMessageCenterResources bundle]];
-    [mvc loadMessageForID:messageId onlyIfChanged:YES onError:nil];
-
-    UINavigationController *navController =  [[UINavigationController alloc] initWithRootViewController:mvc];
+    UAUnityMessageViewController *mvc = [[UAUnityMessageViewController alloc] init];
+    [mvc loadMessageForID:messageId];
     self.messageViewController = mvc;
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:navController animated:YES completion:nil];
+        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:mvc animated:YES completion:nil];
     });
 }
 

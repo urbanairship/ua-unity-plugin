@@ -1,8 +1,19 @@
 /* Copyright Airship and Contributors */
 
 #import <Foundation/Foundation.h>
-#import "AirshipLib.h"
-#import "AirshipMessageCenterLib.h"
+#if __has_include("UAirship.h")
+#import "UAirship.h"
+#import "UAMessageCenter.h"
+#import "UAPush.h"
+#import "UAInboxMessage.h"
+#import "UAAnalytics.h"
+#import "UAInboxMessageList.h"
+#import "UAInAppAutomation.h"
+#import "UADefaultMessageCenterUI.h"
+#import "UAAssociatedIdentifiers.h"
+#else
+@import Airship;
+#endif
 
 extern void UnitySendMessage(const char *, const char *, const char *);
 
@@ -91,7 +102,7 @@ void UAUnityPlugin_setDataCollectionEnabled(bool enabled);
 bool UAUnityPlugin_isPushTokenRegistrationEnabled();
 void UAUnityPlugin_setPushTokenRegistrationEnabled(bool enabled);
 
-@interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UARegistrationDelegate, UADeepLinkDelegate,  UAMessageCenterDisplayDelegate>
+@interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UADeepLinkDelegate,  UAMessageCenterDisplayDelegate>
 
 + (UAUnityPlugin *)shared;
 
