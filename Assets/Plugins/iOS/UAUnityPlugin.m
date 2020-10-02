@@ -62,7 +62,7 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
                                                object:nil];
 
     [[NSNotificationCenter defaultCenter] addObserver:[self shared]
-                                             selector:@selector(channelRegistrationSucceeded:)
+                                             selector:@selector(channelUpdated:)
                                                  name:UAChannelUpdatedEvent
                                                object:nil];
 
