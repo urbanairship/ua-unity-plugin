@@ -1,5 +1,13 @@
 # Unity Plugin ChangeLog
 
+## Version 8.1.0 - January 07, 2020
+
+Minor release that adds support for In-App Automation message limits and segments.
+
+### Changes
+- Updated iOS SDK to 14.2.1
+- Updated Android SDK to 14.1.1
+
 ## Version 8.0.1 - October 1, 2020
 
 Patch release fixing a crash related to channel update events in the iOS plugin. Apps currently
