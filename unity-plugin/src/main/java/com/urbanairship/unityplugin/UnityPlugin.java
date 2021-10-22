@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.unity3d.player.UnityPlayer;
 import com.urbanairship.UAirship;
+import com.urbanairship.PrivacyManager;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.channel.AirshipChannel;
 import com.urbanairship.channel.AttributeEditor;
@@ -21,15 +22,17 @@ import com.urbanairship.json.JsonException;
 import com.urbanairship.json.JsonList;
 import com.urbanairship.json.JsonMap;
 import com.urbanairship.json.JsonValue;
-import com.urbanairship.location.AirshipLocationManager;
 import com.urbanairship.messagecenter.Message;
 import com.urbanairship.messagecenter.MessageCenter;
+import com.urbanairship.preferencecenter.PreferenceCenter;
 import com.urbanairship.push.PushMessage;
 import com.urbanairship.util.UAStringUtil;
 
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,6 +48,20 @@ public class UnityPlugin {
     private String listener;
     private PushMessage incomingPush;
     private String deepLink;
+
+    private static final Map<String, Integer> featuresMap = new HashMap<>();
+    static {
+        featuresMap.put("FEATURE_NONE", PrivacyManager.FEATURE_NONE);
+        featuresMap.put("FEATURE_IN_APP_AUTOMATION", PrivacyManager.FEATURE_IN_APP_AUTOMATION);
+        featuresMap.put("FEATURE_MESSAGE_CENTER", PrivacyManager.FEATURE_MESSAGE_CENTER);
+        featuresMap.put("FEATURE_PUSH", PrivacyManager.FEATURE_PUSH);
+        featuresMap.put("FEATURE_CHAT", PrivacyManager.FEATURE_CHAT);
+        featuresMap.put("FEATURE_ANALYTICS", PrivacyManager.FEATURE_ANALYTICS);
+        featuresMap.put("FEATURE_TAGS_AND_ATTRIBUTES", PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES);
+        featuresMap.put("FEATURE_CONTACTS", PrivacyManager.FEATURE_CONTACTS);
+        featuresMap.put("FEATURE_LOCATION", PrivacyManager.FEATURE_LOCATION);
+        featuresMap.put("FEATURE_ALL", PrivacyManager.FEATURE_ALL);
+    }
 
     UnityPlugin() {
     }
@@ -113,26 +130,6 @@ public class UnityPlugin {
         }
 
         return jsonArray.toString();
-    }
-
-    public void setLocationEnabled(boolean enabled) {
-        PluginLogger.debug("UnityPlugin setLocationEnabled: " + enabled);
-        AirshipLocationManager.shared().setLocationUpdatesEnabled(enabled);
-    }
-
-    public boolean isLocationEnabled() {
-        PluginLogger.debug("UnityPlugin isLocationUpdatesEnabled");
-        return AirshipLocationManager.shared().isLocationUpdatesEnabled();
-    }
-
-    public void setBackgroundLocationAllowed(boolean allowed) {
-        PluginLogger.debug("UnityPlugin setBackgroundLocationAllowed: " + allowed);
-        AirshipLocationManager.shared().setBackgroundLocationAllowed(allowed);
-    }
-
-    public boolean isBackgroundLocationAllowed() {
-        PluginLogger.debug("UnityPlugin isBackgroundLocationAllowed");
-        return AirshipLocationManager.shared().isBackgroundLocationAllowed();
     }
 
     public void addCustomEvent(String eventPayload) {
@@ -676,5 +673,122 @@ public class UnityPlugin {
     public boolean isPushTokenRegistrationEnabled() {
         PluginLogger.debug("UnityPlugin isPushTokenRegistrationEnabled");
         return UAirship.shared().getPushManager().isPushTokenRegistrationEnabled();
+    }
+
+    public void openPreferenceCenter(String preferenceCenterId) {
+        PluginLogger.debug("UnityPlugin openPreferenceCenter");
+        PreferenceCenter.shared().open(preferenceCenterId);
+    }
+
+    public void setEnabledFeatures(String features[]) {
+        PluginLogger.debug("UnityPlugin setEnabledFeatures");
+        for (String feature: features) {
+            PluginLogger.debug(feature);
+        }
+        ArrayList<String> featuresList = new ArrayList<>();
+        Collections.addAll(featuresList, features);
+        if (isValidFeature(featuresList)) {
+            UAirship.shared().getPrivacyManager().setEnabledFeatures(stringToFeature(featuresList));
+        }
+    }
+
+    public void enableFeatures(String features[]) {
+        PluginLogger.debug("UnityPlugin enableFeatures");
+        for (String feature: features) {
+            PluginLogger.debug(feature);
+        }
+        ArrayList<String> featuresList = new ArrayList<>();
+        Collections.addAll(featuresList, features);
+        if (isValidFeature(featuresList)) {
+            UAirship.shared().getPrivacyManager().enable(stringToFeature(featuresList));
+        }
+    }
+
+    public void disableFeatures(String features[]) {
+        PluginLogger.debug("UnityPlugin disableFeatures");
+        for (String feature: features) {
+            PluginLogger.debug(feature);
+        }
+        ArrayList<String> featuresList = new ArrayList<>();
+        Collections.addAll(featuresList, features);
+        if (isValidFeature(featuresList)) {
+            UAirship.shared().getPrivacyManager().disable(stringToFeature(featuresList));
+        }
+    }
+
+    public boolean isFeatureEnabled(String feature) {
+        PluginLogger.debug("UnityPlugin isFeatureEnabled");
+        ArrayList<String> featuresList = new ArrayList<>();
+        featuresList.add(feature);
+        if (isValidFeature(featuresList)) {
+            return UAirship.shared().getPrivacyManager().isEnabled(stringToFeature(featuresList));
+        } else {
+            return false;
+        }
+    }
+
+    public String[] getEnabledFeatures() {
+        PluginLogger.debug("UnityPlugin getEnabledFeatures");
+        return featureToString(UAirship.shared().getPrivacyManager().getEnabledFeatures());
+    }
+
+    /**
+     * Helper method to check the features array is valid.
+     * @param features The ArrayList of features to check.
+     * @return {@code true} if the provided features are valid, otherwise {@code false}.
+     */
+    private boolean isValidFeature(ArrayList<String> features) {
+        if (features == null || features.size() == 0) {
+            PluginLogger.error("No features provided");
+            return false;
+        }
+
+        for (int i = 0; i < features.size(); i++) {
+            if (!featuresMap.containsKey(features.get(i))) {
+                PluginLogger.error("Invalid feature name : " + features.get(i));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Helper method to parse a String features array into {@link PrivacyManager.Feature} int array.
+     * @param features The String features to parse.
+     * @return The {@link PrivacyManager.Feature} int array.
+     */
+    private @NonNull int[] stringToFeature(@NonNull ArrayList<String> features) {
+        int[] intFeatures = new int[features.size()];
+
+        for (int i = 0; i < features.size(); i++) {
+            intFeatures[i] = featuresMap.get(features.get(i));
+        }
+        return intFeatures;
+    }
+
+    /**
+     * Helper method to parse a {@link PrivacyManager.Feature} int array into a String array.
+     * @param features The {@link PrivacyManager.Feature} int array to parse.
+     * @return An array of features  as String.
+     */
+    private @NonNull String[] featureToString(int features) {
+        List<String> stringFeatures = new ArrayList<>();
+
+        if (features == PrivacyManager.FEATURE_ALL) {
+            stringFeatures.add("FEATURE_ALL");
+        } else if (features == PrivacyManager.FEATURE_NONE) {
+            stringFeatures.add("FEATURE_NONE");
+        } else {
+            for (String feature : featuresMap.keySet()) {
+                int intFeature = featuresMap.get(feature);
+                if (((intFeature & features) != 0) && (intFeature != PrivacyManager.FEATURE_ALL)) {
+                    stringFeatures.add(feature);
+                }
+            }
+        }
+
+        String[] featureArray = new String[stringFeatures.size()];
+        featureArray = stringFeatures.toArray(featureArray);
+        return featureArray;
     }
 }

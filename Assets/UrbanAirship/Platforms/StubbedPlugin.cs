@@ -8,8 +8,6 @@ namespace UrbanAirship {
         public bool UserNotificationsEnabled { get; set; }
         public string Tags { get { return null; } }
         public string ChannelId { get { return null; } }
-        public bool LocationEnabled { get; set; }
-        public bool BackgroundLocationAllowed { get; set; }
         public string NamedUserId { get; set; }
         public TimeSpan InAppAutomationDisplayInterval { get; set; }
         public bool InAppAutomationPaused { get; set; }
@@ -34,6 +32,12 @@ namespace UrbanAirship {
         public void EditChannelTagGroups (string payload) { }
         public void EditChannelAttributes (string payload) { }
         public void EditNamedUserAttributes (string payload) { }
+        public void OpenPreferenceCenter (string preferenceCenterId) { }
+        public void SetEnabledFeatures (string[] enabledFeatures) { }
+        public void EnableFeatures (string[] enabledFeatures) { }
+        public void DisableFeatures (string[] disabledFeatures) { }
+        public bool IsFeatureEnabled (string feature) { return false; }
+        public string[] GetEnabledFeatures () { return null; }
         public bool DataCollectionEnabled { get; set; }
         public bool PushTokenRegistrationEnabled { get; set; }
     }

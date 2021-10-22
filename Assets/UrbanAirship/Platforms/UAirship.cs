@@ -163,32 +163,6 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Determines whether location is enabled.
-        /// </summary>
-        /// <value><c>true</c> if location is enabled; otherwise, <c>false</c>.</value>
-        public bool LocationEnabled {
-            get {
-                return plugin.LocationEnabled;
-            }
-            set {
-                plugin.LocationEnabled = value;
-            }
-        }
-
-        /// <summary>
-        /// Determine whether background location is allowed.
-        /// </summary>
-        /// <value><c>true</c> if background location is allowed; otherwise, <c>false</c>.</value>
-        public bool BackgroundLocationAllowed {
-            get {
-                return plugin.BackgroundLocationAllowed;
-            }
-            set {
-                plugin.BackgroundLocationAllowed = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the named user identifier.
         /// </summary>
         /// <value>The named user identifier.</value>
@@ -415,6 +389,55 @@ namespace UrbanAirship {
             return new AttributeEditor((string payload) => {
                 plugin.EditNamedUserAttributes(payload);
             });
+        }
+
+        /// <summary>
+        /// Opens the Preference Center with the specified ID.
+        /// </summary>
+        /// <param name="preferenceCenterId">The Preference Center's ID</param>
+        public void OpenPreferenceCenter (string preferenceCenterId) {
+            plugin.OpenPreferenceCenter (preferenceCenterId);
+        }
+
+        /// <summary>
+        /// Sets the enabled SDK features
+        /// </summary>
+        /// <param name="enabledFeatures">The features to enable</param>
+        public void SetEnabledFeatures (string[] enabledFeatures) {
+            plugin.SetEnabledFeatures (enabledFeatures);
+        }
+
+        /// <summary>
+        /// Enables the specified SDK features
+        /// </summary>
+        /// <param name="enabledFeatures">The features to enable</param>
+        public void EnableFeatures (string[] enabledFeatures) {
+            plugin.EnableFeatures (enabledFeatures);
+        }
+
+        /// <summary>
+        /// Disables the specified SDK features
+        /// </summary>
+        /// <param name="disabledFeatures">The features to disable</param>
+        public void DisableFeatures (string[] disabledFeatures) {
+            plugin.DisableFeatures (disabledFeatures);
+        }
+
+        /// <summary>
+        /// Returns a boolean if the specified SDK feature is enabled
+        /// </summary>
+        /// <param name="feature">The feature name</param>
+        /// <value><c>true</c> if feature is enabled, otherwise <c>false</c></value>
+        public bool IsFeatureEnabled (string feature) {
+            return plugin.IsFeatureEnabled (feature);
+        }
+
+        /// <summary>
+        /// Gets the enabled SDK features
+        /// </summary>
+        /// <value>The features enabled</value>
+        public string[] GetEnabledFeatures () {
+            return plugin.GetEnabledFeatures ();
         }
 
         /// <summary>

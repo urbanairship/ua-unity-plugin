@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace UrbanAirship {
@@ -41,24 +42,6 @@ namespace UrbanAirship {
         public string ChannelId {
             get {
                 return Call<string> ("getChannelId");
-            }
-        }
-
-        public bool LocationEnabled {
-            get {
-                return Call<bool> ("isLocationEnabled");
-            }
-            set {
-                Call ("setLocationEnabled", value);
-            }
-        }
-
-        public bool BackgroundLocationAllowed {
-            get {
-                return Call<bool> ("isBackgroundLocationAllowed");
-            }
-            set {
-                Call ("setBackgroundLocationAllowed", value);
             }
         }
 
@@ -178,6 +161,43 @@ namespace UrbanAirship {
 
         public void EditNamedUserAttributes (string payload) {
             Call ("editNamedUserAttributes", payload);
+        }
+
+        public void OpenPreferenceCenter (string preferenceCenterId) {
+            Call ("openPreferenceCenter", preferenceCenterId);
+        }
+
+        public void SetEnabledFeatures (string[] enabledFeatures) {
+            Call ("setEnabledFeatures", MakeJavaArray(enabledFeatures));
+        }
+
+        public void EnableFeatures (string[] enabledFeatures) {
+            Call ("enableFeatures", MakeJavaArray(enabledFeatures));
+        }
+
+        public void DisableFeatures (string[] disabledFeatures) {
+            Call ("disableFeatures", MakeJavaArray(disabledFeatures));
+        }
+
+        public bool IsFeatureEnabled (string feature) {
+            return Call<bool> ("isFeatureEnabled", feature);
+        }
+
+        public string[] GetEnabledFeatures () {
+            return Call<string[]> ("getEnabledFeatures");
+        }
+
+        /// Internal method to make a Java Array with an array of String values, to be used with the 
+        /// "setEnabledFeatures" method.
+        private AndroidJavaObject MakeJavaArray(string [] values) {
+            Debug.Log("MakeJavaArray is called");
+            AndroidJavaClass arrayClass  = new AndroidJavaClass("java.lang.reflect.Array");
+            AndroidJavaObject arrayObject = arrayClass.CallStatic<AndroidJavaObject>("newInstance", new AndroidJavaClass("java.lang.String"), values.Count());
+            for (int i=0; i<values.Count(); ++i) {
+                arrayClass.CallStatic("set", arrayObject, i, new AndroidJavaObject("java.lang.String", values[i]));
+            }
+
+            return arrayObject;
         }
 
         private void Call (string method, params object[] args) {
