@@ -38,7 +38,5 @@ namespace UrbanAirship {
         public void DisableFeatures (string[] disabledFeatures) { }
         public bool IsFeatureEnabled (string feature) { return false; }
         public string[] GetEnabledFeatures () { return null; }
-        public bool DataCollectionEnabled { get; set; }
-        public bool PushTokenRegistrationEnabled { get; set; }
     }
 }

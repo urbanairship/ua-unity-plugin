@@ -35,12 +35,6 @@ namespace UrbanAirship.Editor {
             CreateSection ("Common", () => {
                 config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
                 config.Site = (UAConfig.CloudSite) EditorGUILayout.EnumPopup ("Cloud Site", config.Site);
-                config.DataCollectionOptInEnabled = EditorGUILayout.Toggle ("Data Collection Opt-In", config.DataCollectionOptInEnabled);
-                GUILayout.Label ("When data collection opt-in is enabled, data collection will be disabled by default until the app enables it by calling " +
-                "`UAirship.Shared.DataCollectionEnabled = true`. When disabled, the device will stop collection and sending data for named user, events, tags " +
-                "attributes, associated identifiers, and location from the device. Push notifications will continue to work only if " +
-                "`UAirship.Shared.PushTokenRegistrationEnabled = true` is called, otherwise it will default to the current state of DataCollectionEnabled.",
-                EditorStyles.wordWrappedMiniLabel);
             });
 
             CreateSection ("URL Allow List", () => {

@@ -12,7 +12,7 @@
 #import "UADefaultMessageCenterUI.h"
 #import "UAAssociatedIdentifiers.h"
 #else
-@import Airship;
+@import AirshipKit;
 #endif
 
 extern void UnitySendMessage(const char *, const char *, const char *);
@@ -40,15 +40,6 @@ void UAUnityPlugin_addTag(const char* tag);
 void UAUnityPlugin_removeTag(const char* tag);
 
 const char* UAUnityPlugin_getChannelId();
-
-#pragma mark -
-#pragma mark UA Location Functions
-
-bool UAUnityPlugin_isLocationEnabled();
-void UAUnityPlugin_setLocationEnabled(bool enabled);
-
-bool UAUnityPlugin_isBackgroundLocationAllowed();
-void UAUnityPlugin_setBackgroundLocationAllowed(bool allowed);
 
 #pragma mark -
 #pragma mark Custom Events
@@ -97,10 +88,23 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload);
 
 #pragma mark -
 #pragma mark Data Collection
-bool UAUnityPlugin_isDataCollectionEnabled();
-void UAUnityPlugin_setDataCollectionEnabled(bool enabled);
-bool UAUnityPlugin_isPushTokenRegistrationEnabled();
-void UAUnityPlugin_setPushTokenRegistrationEnabled(bool enabled);
+void UAUnityPlugin_enableFeature(NSString *feature);
+void UAUnityPlugin_setEnabledFeatures(NSArray* features);
+void UAUnityPlugin_disableFeatures(NSArray* features);
+void UAUnityPlugin_enableFeatures(NSArray* features);
+bool UAUnityPlugin_isFeatureEnabled(NSString *feature);
+NSArray* UAUnityPlugin_getEnabledFeatures();
+
+#pragma mark -
+#pragma mark Preference Center
+
+void UAUnityPlugin_openPreferenceCenter(NSString *preferenceCenterId);
+
+#pragma mark -
+#pragma mark Helpers
+bool isValidFeature(NSArray *features);
+UAFeatures stringToFeature(NSArray *features);
+NSArray * featureToString(UAFeatures features);
 
 @interface UAUnityPlugin : NSObject <UAPushNotificationDelegate, UADeepLinkDelegate,  UAMessageCenterDisplayDelegate>
 

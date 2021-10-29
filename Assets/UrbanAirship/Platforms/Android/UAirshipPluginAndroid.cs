@@ -212,24 +212,6 @@ namespace UrbanAirship {
             }
             return default (T);
         }
-
-        public bool DataCollectionEnabled {
-            get {
-                return Call<bool> ("isDataCollectionEnabled");
-            }
-            set {
-                Call ("setDataCollectionEnabled", value);
-            }
-        }
-
-        public bool PushTokenRegistrationEnabled {
-            get {
-                return Call<bool> ("isPushTokenRegistrationEnabled");
-            }
-            set {
-                Call ("setPushTokenRegistrationEnabled", value);
-            }
-        }
     }
 }
 

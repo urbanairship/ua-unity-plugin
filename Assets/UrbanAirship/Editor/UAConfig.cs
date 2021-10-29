@@ -78,9 +78,6 @@ namespace UrbanAirship.Editor {
         public String UrlAllowListScopeJavaScriptInterface { get; set; }
 
         [SerializeField]
-        public bool DataCollectionOptInEnabled { get; set; }
-
-        [SerializeField]
         public String AndroidNotificationIcon { get; set; }
 
         [SerializeField]
@@ -125,8 +122,6 @@ namespace UrbanAirship.Editor {
             this.UrlAllowList = config.UrlAllowList;
             this.UrlAllowListScopeOpenURL = config.UrlAllowListScopeOpenURL;
             this.UrlAllowListScopeJavaScriptInterface = config.UrlAllowListScopeJavaScriptInterface;
-
-            this.DataCollectionOptInEnabled = config.DataCollectionOptInEnabled;
 
             this.NotificationPresentationOptionAlert = config.NotificationPresentationOptionAlert;
             this.NotificationPresentationOptionBadge = config.NotificationPresentationOptionBadge;
@@ -271,7 +266,6 @@ namespace UrbanAirship.Editor {
 
             rootDict.SetString ("site", Site.ToString());
             rootDict.SetBoolean ("inProduction", InProduction);
-            rootDict.SetBoolean ("dataCollectionOptInEnabled", DataCollectionOptInEnabled);
 
             if (!String.IsNullOrEmpty(UrlAllowList))
             {
@@ -355,7 +349,6 @@ namespace UrbanAirship.Editor {
 
                 xmlWriter.WriteAttributeString ("site", Site.ToString());
                 xmlWriter.WriteAttributeString ("inProduction", (InProduction ? "true" : "false"));
-                xmlWriter.WriteAttributeString ("dataCollectionOptInEnabled", (DataCollectionOptInEnabled ? "true" : "false"));
 
                 if (!String.IsNullOrEmpty(UrlAllowList))
                 {
