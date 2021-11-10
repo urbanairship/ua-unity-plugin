@@ -88,12 +88,11 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload);
 
 #pragma mark -
 #pragma mark Data Collection
-void UAUnityPlugin_enableFeature(NSString *feature);
-void UAUnityPlugin_setEnabledFeatures(NSArray* features);
-void UAUnityPlugin_disableFeatures(NSArray* features);
-void UAUnityPlugin_enableFeatures(NSArray* features);
-bool UAUnityPlugin_isFeatureEnabled(NSString *feature);
-NSArray* UAUnityPlugin_getEnabledFeatures();
+void UAUnityPlugin_setEnabledFeatures(const char *features);
+void UAUnityPlugin_enableFeatures(const char *features);
+void UAUnityPlugin_disableFeatures(const char *features);
+bool UAUnityPlugin_isFeatureEnabled(const char *feature);
+const char* UAUnityPlugin_getEnabledFeatures();
 
 #pragma mark -
 #pragma mark Preference Center

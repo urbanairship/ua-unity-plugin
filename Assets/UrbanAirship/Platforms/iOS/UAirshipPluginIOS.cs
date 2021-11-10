@@ -97,19 +97,19 @@ namespace UrbanAirship {
         private static extern void UAUnityPlugin_openPreferenceCenter (string preferenceCenterId);
 
         [DllImport("__Internal")]
-        private static extern void UAUnityPlugin_setEnabledFeatures (string[] enabledFeatures);
+        private static extern void UAUnityPlugin_setEnabledFeatures (string enabledFeatures);
 
         [DllImport("__Internal")]
-        private static extern void UAUnityPlugin_enableFeatures (string[] enabledFeatures);
+        private static extern void UAUnityPlugin_enableFeatures (string enabledFeatures);
 
         [DllImport("__Internal")]
-        private static extern void UAUnityPlugin_disableFeatures (string[] disabledFeatures);
+        private static extern void UAUnityPlugin_disableFeatures (string disabledFeatures);
 
         [DllImport("__Internal")]
         private static extern bool UAUnityPlugin_isFeatureEnabled (string feature);
 
         [DllImport("__Internal")]
-        private static extern string[] UAUnityPlugin_getEnabledFeatures ();
+        private static extern string UAUnityPlugin_getEnabledFeatures ();
 
         [DllImport ("__Internal")]
         private static extern double UAUnityPlugin_getInAppAutomationDisplayInterval ();
@@ -269,18 +269,18 @@ namespace UrbanAirship {
         }
 
         public void SetEnabledFeatures (string[] enabledFeatures)
-        {
-            UAUnityPlugin_setEnabledFeatures (enabledFeatures);
+        {            
+            UAUnityPlugin_setEnabledFeatures (String.Join(",", enabledFeatures));
         }
 
         public void EnableFeatures (string[] enabledFeatures)
         {
-            UAUnityPlugin_enableFeatures (enabledFeatures);
+            UAUnityPlugin_enableFeatures (String.Join(",", enabledFeatures));
         }
 
         public void DisableFeatures (string[] disabledFeatures)
         {
-            UAUnityPlugin_disableFeatures (disabledFeatures);
+            UAUnityPlugin_disableFeatures (String.Join(",", disabledFeatures));
         }
 
         public bool IsFeatureEnabled (string feature) {
@@ -288,7 +288,7 @@ namespace UrbanAirship {
         }
 
         public string[] GetEnabledFeatures () {
-            return UAUnityPlugin_getEnabledFeatures ();
+            return UAUnityPlugin_getEnabledFeatures().Split(',');
         }
     }
 }

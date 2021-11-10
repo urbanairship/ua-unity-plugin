@@ -39,7 +39,11 @@
   <iosPods>
 
     <!-- iosPod -->
-    <iosPod name="Airship" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
+    <iosPod name="Airship/Core" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
+    <iosPod name="Airship/MessageCenter" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
+    <iosPod name="Airship/Automation" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
+    <iosPod name="Airship/ExtendedActions" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
+    <iosPod name="Airship/PreferenceCenter" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
 
   </iosPods>
 

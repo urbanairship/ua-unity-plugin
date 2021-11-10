@@ -506,59 +506,59 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 #pragma mark -
 #pragma mark Data Collection
 
-void UAUnityPlugin_enableFeature(NSString *feature) {
-    NSArray *featuresArray = [NSArray arrayWithObject:feature];
-    if ([[UAUnityPlugin shared] isValidFeature:featuresArray]) {
-        [UAirship shared].privacyManager.enabledFeatures = featuresArray;
-        UA_LDEBUG(@"UAUnityPlugin enableFeature %@", feature);
+bool UAUnityPlugin_isFeatureEnabled(const char *feature) {
+    NSString *featureString = [NSString stringWithUTF8String:feature];
+    NSArray *featureArray = [NSArray arrayWithObject:featureString];
+    if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
+        UA_LDEBUG(@"UAUnityPlugin isFeatureEnabled %@", featureString);
+        return [[UAirship shared].privacyManager isEnabled:[[UAUnityPlugin shared] stringToFeature:featureArray]];
     } else {
-        UA_LERR(@"UAUnityPlugin Invalid feature %@", feature);
+        UA_LERR(@"UAUnityPlugin Invalid feature %@", featureString);
+        return false;
     }
 }
 
-bool UAUnityPlugin_isFeatureEnabled(NSString *feature) {
-    NSArray *featuresArray = [NSArray arrayWithObject:feature];
-    if ([[UAUnityPlugin shared] isValidFeature:featuresArray]) {
-        UA_LDEBUG(@"UAUnityPlugin isFeatureEnabled %@", feature);
-        return [[UAirship shared].privacyManager isEnabled:featuresArray];
-    } else {
-        UA_LERR(@"UAUnityPlugin Invalid feature %@", feature);
-        return NO;
-    }
-}
-
-void UAUnityPlugin_disableFeatures(NSArray *features) {
-    UA_LDEBUG(@"UAUnityPlugin trydisableFeatures");
-    if ([[UAUnityPlugin shared] isValidFeature:features]) {
+void UAUnityPlugin_disableFeatures(const char *features) {
+    NSString *featureString = [NSString stringWithUTF8String:features];
+    NSArray *featureArray = [featureString componentsSeparatedByString: @","];
+    if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
         UA_LDEBUG(@"UAUnityPlugin disableFeatures");
-        [[UAirship shared].privacyManager disableFeatures:[[UAUnityPlugin shared] stringToFeature:features]];
+        [[UAirship shared].privacyManager disableFeatures:[[UAUnityPlugin shared] stringToFeature:featureArray]];
     } else {
         UA_LERR(@"UAUnityPlugin Invalid features, cancelling disableFeatures");
     }
 }
 
-void UAUnityPlugin_enableFeatures(NSArray *features) {
-    UA_LDEBUG(@"UAUnityPlugin tryenableFeatures");
-    if ([[UAUnityPlugin shared] isValidFeature:features]) {
+void UAUnityPlugin_enableFeatures(const char *features) {
+    NSString *featureString = [NSString stringWithUTF8String:features];
+    NSArray *featureArray = [featureString componentsSeparatedByString: @","];
+    if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
         UA_LDEBUG(@"UAUnityPlugin enableFeatures");
-        [[UAirship shared].privacyManager enableFeatures:[[UAUnityPlugin shared] stringToFeature:features]];
+        [[UAirship shared].privacyManager enableFeatures:[[UAUnityPlugin shared] stringToFeature:featureArray]];
     } else {
         UA_LERR(@"UAUnityPlugin Invalid features, cancelling enableFeatures");
     }
 }
 
-void UAUnityPlugin_setEnabledFeatures(NSArray *features) {
-    if ([[UAUnityPlugin shared] isValidFeature:features]) {
+void UAUnityPlugin_setEnabledFeatures(const char *features) {
+    NSString *featureString = [NSString stringWithUTF8String:features];
+    NSArray *featureArray = [featureString componentsSeparatedByString: @","];
+    if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
         UA_LDEBUG(@"UAUnityPlugin setEnabledFeatures");
-        [[UAirship shared].privacyManager setEnabledFeatures:[[UAUnityPlugin shared] stringToFeature:features]];
+        [[UAirship shared].privacyManager setEnabledFeatures:[[UAUnityPlugin shared] stringToFeature:featureArray]];
     } else {
         UA_LERR(@"UAUnityPlugin Invalid features, cancelling setEnabledFeatures");
     }
 }
 
-NSArray* UAUnityPlugin_getEnabledFeatures() {
+const char* UAUnityPlugin_getEnabledFeatures() {
     UA_LDEBUG(@"UAUnityPlugin getEnabledFeatures");
-    return [[UAUnityPlugin shared] featureToString:[[UAirship shared].privacyManager enabledFeatures]];
+    NSError *error = nil;
+    NSArray *featureArray = [[UAUnityPlugin shared] featureToString:[[UAirship shared].privacyManager enabledFeatures]];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:featureArray options:NSJSONWritingPrettyPrinted error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+    return MakeStringCopy([jsonString UTF8String]);
 }
 
 #pragma mark -
@@ -708,11 +708,12 @@ char* MakeStringCopy (const char* string) {
 
 // Helper method to check if features are authorized
 - (BOOL)isValidFeature:(NSArray *)features {
+    UA_LDEBUG(@"checking isValidFeature");
+    NSLog(@"%@", features);
     if (!features || [features count] == 0) {
         return NO;
     }
     NSDictionary *authorizedFeatures = [self authorizedFeatures];
-
     for (NSString *feature in features) {
         if (![authorizedFeatures objectForKey:feature]) {
             return NO;
