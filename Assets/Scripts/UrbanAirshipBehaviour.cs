@@ -10,15 +10,18 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
     public string addTagOnStart;
 
     void Awake () {
-        UAirship.Shared.DataCollectionEnabled = true;
-        UAirship.Shared.PushTokenRegistrationEnabled = true;
         UAirship.Shared.UserNotificationsEnabled = true;
     }
 
     void Start () {
+        UAirship.Shared.EditChannelAttributes().SetAttribute("teststring", "a_string").Apply();
+
         if (!string.IsNullOrEmpty (addTagOnStart)) {
             UAirship.Shared.AddTag (addTagOnStart);
         }
+
+        string[] allenable = new string[] { "FEATURE_ALL" };
+        UAirship.Shared.SetEnabledFeatures(allenable);
 
         UAirship.Shared.OnPushReceived += OnPushReceived;
         UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
