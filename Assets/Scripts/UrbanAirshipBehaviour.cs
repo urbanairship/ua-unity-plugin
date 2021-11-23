@@ -14,8 +14,6 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
     }
 
     void Start () {
-        UAirship.Shared.EditChannelAttributes().SetAttribute("teststring", "a_string").Apply();
-
         if (!string.IsNullOrEmpty (addTagOnStart)) {
             UAirship.Shared.AddTag (addTagOnStart);
         }
