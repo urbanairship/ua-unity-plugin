@@ -36,7 +36,8 @@ namespace UrbanAirship {
         public void SetEnabledFeatures (string[] enabledFeatures) { }
         public void EnableFeatures (string[] enabledFeatures) { }
         public void DisableFeatures (string[] disabledFeatures) { }
-        public bool IsFeatureEnabled (string feature) { return false; }
+        public bool IsEnabled (string[] features) { return false; }
+        public bool IsAnyEnabled (string[] features) { return false; }
         public string[] GetEnabledFeatures () { return null; }
     }
 }

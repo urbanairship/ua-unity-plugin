@@ -662,9 +662,6 @@ public class UnityPlugin {
 
     public void setEnabledFeatures(String features[]) {
         PluginLogger.debug("UnityPlugin setEnabledFeatures");
-        for (String feature: features) {
-            PluginLogger.debug(feature);
-        }
         ArrayList<String> featuresList = new ArrayList<>();
         Collections.addAll(featuresList, features);
         if (isValidFeature(featuresList)) {
@@ -674,9 +671,6 @@ public class UnityPlugin {
 
     public void enableFeatures(String features[]) {
         PluginLogger.debug("UnityPlugin enableFeatures");
-        for (String feature: features) {
-            PluginLogger.debug(feature);
-        }
         ArrayList<String> featuresList = new ArrayList<>();
         Collections.addAll(featuresList, features);
         if (isValidFeature(featuresList)) {
@@ -686,9 +680,6 @@ public class UnityPlugin {
 
     public void disableFeatures(String features[]) {
         PluginLogger.debug("UnityPlugin disableFeatures");
-        for (String feature: features) {
-            PluginLogger.debug(feature);
-        }
         ArrayList<String> featuresList = new ArrayList<>();
         Collections.addAll(featuresList, features);
         if (isValidFeature(featuresList)) {
@@ -696,12 +687,23 @@ public class UnityPlugin {
         }
     }
 
-    public boolean isFeatureEnabled(String feature) {
-        PluginLogger.debug("UnityPlugin isFeatureEnabled");
+    public boolean isEnabled(String features[]) {
+        PluginLogger.debug("UnityPlugin isEnabled");
         ArrayList<String> featuresList = new ArrayList<>();
-        featuresList.add(feature);
+        Collections.addAll(featuresList, features);
         if (isValidFeature(featuresList)) {
             return UAirship.shared().getPrivacyManager().isEnabled(stringToFeature(featuresList));
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isAnyEnabled(String features[]) {
+        PluginLogger.debug("UnityPlugin isAnyEnabled");
+        ArrayList<String> featuresList = new ArrayList<>();
+        Collections.addAll(featuresList, features);
+        if (isValidFeature(featuresList)) {
+            return UAirship.shared().getPrivacyManager().isAnyEnabled(stringToFeature(featuresList));
         } else {
             return false;
         }

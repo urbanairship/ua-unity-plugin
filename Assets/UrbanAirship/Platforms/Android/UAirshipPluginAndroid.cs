@@ -179,8 +179,12 @@ namespace UrbanAirship {
             Call ("disableFeatures", MakeJavaArray(disabledFeatures));
         }
 
-        public bool IsFeatureEnabled (string feature) {
-            return Call<bool> ("isFeatureEnabled", feature);
+        public bool IsEnabled (string[] features) {
+            return Call<bool> ("isEnabled", MakeJavaArray(features));
+        }
+
+        public bool IsAnyEnabled (string[] features) {
+            return Call<bool> ("isAnyEnabled", MakeJavaArray(features));
         }
 
         public string[] GetEnabledFeatures () {
@@ -190,7 +194,6 @@ namespace UrbanAirship {
         /// Internal method to make a Java Array with an array of String values, to be used with the 
         /// "setEnabledFeatures" method.
         private AndroidJavaObject MakeJavaArray(string [] values) {
-            Debug.Log("MakeJavaArray is called");
             AndroidJavaClass arrayClass  = new AndroidJavaClass("java.lang.reflect.Array");
             AndroidJavaObject arrayObject = arrayClass.CallStatic<AndroidJavaObject>("newInstance", new AndroidJavaClass("java.lang.String"), values.Count());
             for (int i=0; i<values.Count(); ++i) {

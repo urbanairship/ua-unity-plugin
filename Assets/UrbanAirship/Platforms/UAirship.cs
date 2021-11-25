@@ -424,12 +424,21 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Returns a boolean if the specified SDK feature is enabled
+        /// Returns a boolean if the specified SDK features are enabled
         /// </summary>
-        /// <param name="feature">The feature name</param>
+        /// <param name="features">The features to check</param>
         /// <value><c>true</c> if feature is enabled, otherwise <c>false</c></value>
-        public bool IsFeatureEnabled (string feature) {
-            return plugin.IsFeatureEnabled (feature);
+        public bool IsEnabled (string[] features) {
+            return plugin.IsEnabled (features);
+        }
+
+        /// <summary>
+        /// Returns a boolean if any of the specified SDK feature are enabled
+        /// </summary>
+        /// <param name="features">The features to check</param>
+        /// <value><c>true</c> if any of these features is enabled, otherwise <c>false</c></value>
+        public bool IsAnyEnabled (string[] features) {
+            return plugin.IsAnyEnabled (features);
         }
 
         /// <summary>

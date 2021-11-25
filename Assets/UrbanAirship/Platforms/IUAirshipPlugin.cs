@@ -82,7 +82,9 @@ namespace UrbanAirship {
 
         void DisableFeatures (string[] disabledFeatures);
 
-        bool IsFeatureEnabled (string feature);
+        bool IsEnabled (string[] features);
+
+        bool IsAnyEnabled (string[] features);
 
         string[] GetEnabledFeatures ();
 
