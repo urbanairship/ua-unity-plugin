@@ -78,6 +78,9 @@ namespace UrbanAirship.Editor {
         public String UrlAllowListScopeJavaScriptInterface { get; set; }
 
         [SerializeField]
+        public String EnabledFeatures { get; set; }
+
+        [SerializeField]
         public String AndroidNotificationIcon { get; set; }
 
         [SerializeField]
@@ -122,6 +125,8 @@ namespace UrbanAirship.Editor {
             this.UrlAllowList = config.UrlAllowList;
             this.UrlAllowListScopeOpenURL = config.UrlAllowListScopeOpenURL;
             this.UrlAllowListScopeJavaScriptInterface = config.UrlAllowListScopeJavaScriptInterface;
+
+            this.EnabledFeatures = config.EnabledFeatures;
 
             this.NotificationPresentationOptionAlert = config.NotificationPresentationOptionAlert;
             this.NotificationPresentationOptionBadge = config.NotificationPresentationOptionBadge;
@@ -294,6 +299,15 @@ namespace UrbanAirship.Editor {
                 }
             }
 
+            if (!String.IsNullOrEmpty(EnabledFeatures))
+            {
+                PlistElementArray enabledFeaturesConfig = rootDict.CreateArray("enabledFeatures");
+                foreach (string feature in EnabledFeatures.Split(','))
+                {
+                    enabledFeaturesConfig.AddString(feature);
+                }
+            }
+
             PlistElementDict customConfig = rootDict.CreateDict ("customConfig");
             customConfig.SetBoolean ("notificationPresentationOptionAlert", NotificationPresentationOptionAlert);
             customConfig.SetBoolean ("notificationPresentationOptionBadge", NotificationPresentationOptionBadge);
@@ -363,6 +377,11 @@ namespace UrbanAirship.Editor {
                 if (!String.IsNullOrEmpty(UrlAllowListScopeJavaScriptInterface))
                 {
                     xmlWriter.WriteAttributeString ("urlAllowListScopeJavaScriptInterface", UrlAllowListScopeJavaScriptInterface.ToString());
+                }
+
+                if (!String.IsNullOrEmpty(EnabledFeatures))
+                {
+                    xmlWriter.WriteAttributeString ("enabledFeatures", EnabledFeatures.ToString());
                 }
 
                 if (!String.IsNullOrEmpty (AndroidNotificationIcon)) {

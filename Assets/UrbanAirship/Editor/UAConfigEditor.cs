@@ -43,6 +43,10 @@ namespace UrbanAirship.Editor {
                 config.UrlAllowListScopeJavaScriptInterface = EditorGUILayout.TextField ("Scope JS Interface", config.UrlAllowListScopeJavaScriptInterface);
             });
 
+            CreateSection ("Data Collection", () => {
+                config.EnabledFeatures = EditorGUILayout.TextField ("Enabled Features", config.EnabledFeatures);
+            });
+
             CreateSection ("Android Settings", () => {
                 config.GenerateGoogleJsonConfig = EditorGUILayout.Toggle ("Process google-service", config.GenerateGoogleJsonConfig);
                 config.AndroidNotificationAccentColor = EditorGUILayout.TextField ("Notification Accent Color", config.AndroidNotificationAccentColor);

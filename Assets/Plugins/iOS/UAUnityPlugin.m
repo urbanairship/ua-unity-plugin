@@ -506,16 +506,20 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 #pragma mark -
 #pragma mark Data Collection
 
-bool UAUnityPlugin_isFeatureEnabled(const char *feature) {
-    NSString *featureString = [NSString stringWithUTF8String:feature];
-    NSArray *featureArray = [NSArray arrayWithObject:featureString];
+bool UAUnityPlugin_isEnabled(const char *features) {
+    NSString *featureString = [NSString stringWithUTF8String:features];
+    NSArray *featureArray = [featureString componentsSeparatedByString: @","];
     if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
-        UA_LDEBUG(@"UAUnityPlugin isFeatureEnabled %@", featureString);
+        UA_LDEBUG(@"UAUnityPlugin isEnabled %@", featureString);
         return [[UAirship shared].privacyManager isEnabled:[[UAUnityPlugin shared] stringToFeature:featureArray]];
     } else {
         UA_LERR(@"UAUnityPlugin Invalid feature %@", featureString);
         return false;
     }
+}
+
+bool UAUnityPlugin_isAnyEnabled() {
+   return [[UAirship shared].privacyManager isAnyFeatureEnabled];
 }
 
 void UAUnityPlugin_disableFeatures(const char *features) {
@@ -566,7 +570,7 @@ const char* UAUnityPlugin_getEnabledFeatures() {
 
 void UAUnityPlugin_openPreferenceCenter(NSString *preferenceCenterId) {
     UA_LDEBUG(@"UAUnityPlugin openPreferenceCenter");
-    //[[UAPreferenceCenter shared] openPreferenceCenter:preferenceCenterId];
+    [[UAPreferenceCenter shared] openPreferenceCenter:preferenceCenterId];
 }
 
 
