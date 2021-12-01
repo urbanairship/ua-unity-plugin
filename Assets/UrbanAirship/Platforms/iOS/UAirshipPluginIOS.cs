@@ -106,10 +106,10 @@ namespace UrbanAirship {
         private static extern void UAUnityPlugin_disableFeatures (string disabledFeatures);
 
         [DllImport("__Internal")]
-        private static extern bool UAUnityPlugin_isEnabled (string features);
+        private static extern bool UAUnityPlugin_isFeatureEnabled (string features);
         
         [DllImport("__Internal")]
-        private static extern bool UAUnityPlugin_isAnyEnabled ();
+        private static extern bool UAUnityPlugin_isAnyFeatureEnabled ();
 
         [DllImport("__Internal")]
         private static extern string UAUnityPlugin_getEnabledFeatures ();
@@ -286,13 +286,13 @@ namespace UrbanAirship {
             UAUnityPlugin_disableFeatures (String.Join(",", disabledFeatures));
         }
 
-        public bool IsEnabled (string[] features) {
-            return UAUnityPlugin_isEnabled (String.Join(",", features));
+        public bool IsFeatureEnabled (string[] features) {
+            return UAUnityPlugin_isFeatureEnabled (String.Join(",", features));
         }
 
-        public bool IsAnyEnabled (string[] features) {
+        public bool IsAnyFeatureEnabled (string[] features) {
             //iOS method doesn't take any parameter
-            return UAUnityPlugin_isAnyEnabled ();
+            return UAUnityPlugin_isAnyFeatureEnabled ();
         }
 
         public string[] GetEnabledFeatures () {

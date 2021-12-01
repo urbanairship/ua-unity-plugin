@@ -179,12 +179,12 @@ namespace UrbanAirship {
             Call ("disableFeatures", MakeJavaArray(disabledFeatures));
         }
 
-        public bool IsEnabled (string[] features) {
-            return Call<bool> ("isEnabled", MakeJavaArray(features));
+        public bool IsFeatureEnabled (string[] features) {
+            return Call<bool> ("isFeatureEnabled", MakeJavaArray(features));
         }
 
-        public bool IsAnyEnabled (string[] features) {
-            return Call<bool> ("isAnyEnabled", MakeJavaArray(features));
+        public bool IsAnyFeatureEnabled (string[] features) {
+            return Call<bool> ("isAnyFeatureEnabled", MakeJavaArray(features));
         }
 
         public string[] GetEnabledFeatures () {

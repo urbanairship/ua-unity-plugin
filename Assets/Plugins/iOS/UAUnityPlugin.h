@@ -92,7 +92,7 @@ void UAUnityPlugin_setEnabledFeatures(const char *features);
 void UAUnityPlugin_enableFeatures(const char *features);
 void UAUnityPlugin_disableFeatures(const char *features);
 bool UAUnityPlugin_isFeatureEnabled(const char *feature);
-bool UAUnityPlugin_isAnyEnabled();
+bool UAUnityPlugin_isAnyFeatureEnabled();
 const char* UAUnityPlugin_getEnabledFeatures();
 
 #pragma mark -

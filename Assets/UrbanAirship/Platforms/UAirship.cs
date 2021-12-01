@@ -428,8 +428,8 @@ namespace UrbanAirship {
         /// </summary>
         /// <param name="features">The features to check</param>
         /// <value><c>true</c> if feature is enabled, otherwise <c>false</c></value>
-        public bool IsEnabled (string[] features) {
-            return plugin.IsEnabled (features);
+        public bool IsFeatureEnabled (string[] features) {
+            return plugin.IsFeatureEnabled (features);
         }
 
         /// <summary>
@@ -437,8 +437,8 @@ namespace UrbanAirship {
         /// </summary>
         /// <param name="features">The features to check</param>
         /// <value><c>true</c> if any of these features is enabled, otherwise <c>false</c></value>
-        public bool IsAnyEnabled (string[] features) {
-            return plugin.IsAnyEnabled (features);
+        public bool IsAnyFeatureEnabled (string[] features) {
+            return plugin.IsAnyFeatureEnabled (features);
         }
 
         /// <summary>

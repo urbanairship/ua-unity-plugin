@@ -687,8 +687,8 @@ public class UnityPlugin {
         }
     }
 
-    public boolean isEnabled(String features[]) {
-        PluginLogger.debug("UnityPlugin isEnabled");
+    public boolean isFeatureEnabled(String features[]) {
+        PluginLogger.debug("UnityPlugin isFeatureEnabled");
         ArrayList<String> featuresList = new ArrayList<>();
         Collections.addAll(featuresList, features);
         if (isValidFeature(featuresList)) {
@@ -698,8 +698,8 @@ public class UnityPlugin {
         }
     }
 
-    public boolean isAnyEnabled(String features[]) {
-        PluginLogger.debug("UnityPlugin isAnyEnabled");
+    public boolean isAnyFeatureEnabled(String features[]) {
+        PluginLogger.debug("UnityPlugin isAnyFeatureEnabled");
         ArrayList<String> featuresList = new ArrayList<>();
         Collections.addAll(featuresList, features);
         if (isValidFeature(featuresList)) {
