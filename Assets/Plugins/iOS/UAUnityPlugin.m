@@ -22,13 +22,12 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
                                                           object:nil
                                                            queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-        [UAirship takeOffWithLaunchOptions:note.userInfo];
+        [UAUnityPlugin performTakeOffWithLaunchOptions:note.userInfo];
     }];
 }
-
-+ (void)performTakeOff:(NSNotification *)notification {
++ (void)performTakeOffWithLaunchOptions:(NSDictionary *)launchOptions {
     UA_LDEBUG(@"UnityPlugin taking off");
-    [UAUnityPlugin load];
+    [UAirship takeOffWithLaunchOptions: launchOptions];
 
     NSString *version = [NSBundle mainBundle].infoDictionary[UAUnityPluginVersionKey] ?: @"0.0.0";
     [[UAirship analytics] registerSDKExtension:UASDKExtensionUnity version:version];
