@@ -163,32 +163,6 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Determines whether location is enabled.
-        /// </summary>
-        /// <value><c>true</c> if location is enabled; otherwise, <c>false</c>.</value>
-        public bool LocationEnabled {
-            get {
-                return plugin.LocationEnabled;
-            }
-            set {
-                plugin.LocationEnabled = value;
-            }
-        }
-
-        /// <summary>
-        /// Determine whether background location is allowed.
-        /// </summary>
-        /// <value><c>true</c> if background location is allowed; otherwise, <c>false</c>.</value>
-        public bool BackgroundLocationAllowed {
-            get {
-                return plugin.BackgroundLocationAllowed;
-            }
-            set {
-                plugin.BackgroundLocationAllowed = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the named user identifier.
         /// </summary>
         /// <value>The named user identifier.</value>
@@ -418,29 +392,61 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Determines whether the data collection is enabled.
+        /// Opens the Preference Center with the specified ID.
         /// </summary>
-        /// <value><c>true</c> if data collection is enabled; otherwise, <c>false</c>.</value>
-        public bool DataCollectionEnabled {
-             get {
-                return plugin.DataCollectionEnabled;
-             }
-             set {
-                plugin.DataCollectionEnabled = value;
-             }
+        /// <param name="preferenceCenterId">The Preference Center's ID</param>
+        public void OpenPreferenceCenter (string preferenceCenterId) {
+            plugin.OpenPreferenceCenter (preferenceCenterId);
         }
 
         /// <summary>
-        /// Determines whether push token registration is enabled.
-        // </summary>
-        /// <value><c>true</c> if push token registration enabled; otherwise, <c>false</c>.</value>
-        public bool PushTokenRegistrationEnabled {
-            get {
-                return plugin.PushTokenRegistrationEnabled;
-            }
-            set {
-                plugin.PushTokenRegistrationEnabled = value;
-            }
+        /// Sets the enabled SDK features
+        /// </summary>
+        /// <param name="enabledFeatures">The features to enable</param>
+        public void SetEnabledFeatures (string[] enabledFeatures) {
+            plugin.SetEnabledFeatures (enabledFeatures);
+        }
+
+        /// <summary>
+        /// Enables the specified SDK features
+        /// </summary>
+        /// <param name="enabledFeatures">The features to enable</param>
+        public void EnableFeatures (string[] enabledFeatures) {
+            plugin.EnableFeatures (enabledFeatures);
+        }
+
+        /// <summary>
+        /// Disables the specified SDK features
+        /// </summary>
+        /// <param name="disabledFeatures">The features to disable</param>
+        public void DisableFeatures (string[] disabledFeatures) {
+            plugin.DisableFeatures (disabledFeatures);
+        }
+
+        /// <summary>
+        /// Returns a boolean if the specified SDK features are enabled
+        /// </summary>
+        /// <param name="features">The features to check</param>
+        /// <value><c>true</c> if feature is enabled, otherwise <c>false</c></value>
+        public bool IsFeatureEnabled (string[] features) {
+            return plugin.IsFeatureEnabled (features);
+        }
+
+        /// <summary>
+        /// Returns a boolean if any of the specified SDK feature are enabled
+        /// </summary>
+        /// <param name="features">The features to check</param>
+        /// <value><c>true</c> if any of these features is enabled, otherwise <c>false</c></value>
+        public bool IsAnyFeatureEnabled (string[] features) {
+            return plugin.IsAnyFeatureEnabled (features);
+        }
+
+        /// <summary>
+        /// Gets the enabled SDK features
+        /// </summary>
+        /// <value>The features enabled</value>
+        public string[] GetEnabledFeatures () {
+            return plugin.GetEnabledFeatures ();
         }
 
         internal class UrbanAirshipListener : MonoBehaviour {
@@ -586,6 +592,19 @@ namespace UrbanAirship {
                 return hashCode;
             }
         }
+    }
+
+    public static class Features {
+        public const string FEATURE_NONE = "FEATURE_NONE";
+        public const string FEATURE_IN_APP_AUTOMATION = "FEATURE_IN_APP_AUTOMATION";
+        public const string FEATURE_MESSAGE_CENTER = "FEATURE_MESSAGE_CENTER";
+        public const string FEATURE_PUSH = "FEATURE_PUSH";
+        public const string FEATURE_CHAT = "FEATURE_CHAT";
+        public const string FEATURE_ANALYTICS = "FEATURE_ANALYTICS";
+        public const string FEATURE_TAGS_AND_ATTRIBUTES = "FEATURE_TAGS_AND_ATTRIBUTES";
+        public const string FEATURE_CONTACTS = "FEATURE_CONTACTS";
+        public const string FEATURE_LOCATION = "FEATURE_LOCATION";
+        public const string FEATURE_ALL = "FEATURE_ALL";
     }
 
     [Serializable]

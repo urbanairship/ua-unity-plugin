@@ -38,19 +38,6 @@ namespace UrbanAirship {
         [DllImport ("__Internal")]
         private static extern string UAUnityPlugin_getChannelId ();
 
-        //Location Function Imports
-        [DllImport ("__Internal")]
-        private static extern bool UAUnityPlugin_isLocationEnabled ();
-
-        [DllImport ("__Internal")]
-        private static extern void UAUnityPlugin_setLocationEnabled (bool enabled);
-
-        [DllImport ("__Internal")]
-        private static extern bool UAUnityPlugin_isBackgroundLocationAllowed ();
-
-        [DllImport ("__Internal")]
-        private static extern void UAUnityPlugin_setBackgroundLocationAllowed (bool allowed);
-
         // Analytics Function Imports
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_addCustomEvent (string customEvent);
@@ -106,6 +93,27 @@ namespace UrbanAirship {
         [DllImport("__Internal")]
         private static extern void UAUnityPlugin_editNamedUserAttributes (string payload);
 
+        [DllImport("__Internal")]
+        private static extern void UAUnityPlugin_openPreferenceCenter (string preferenceCenterId);
+
+        [DllImport("__Internal")]
+        private static extern void UAUnityPlugin_setEnabledFeatures (string enabledFeatures);
+
+        [DllImport("__Internal")]
+        private static extern void UAUnityPlugin_enableFeatures (string enabledFeatures);
+
+        [DllImport("__Internal")]
+        private static extern void UAUnityPlugin_disableFeatures (string disabledFeatures);
+
+        [DllImport("__Internal")]
+        private static extern bool UAUnityPlugin_isFeatureEnabled (string features);
+        
+        [DllImport("__Internal")]
+        private static extern bool UAUnityPlugin_isAnyFeatureEnabled ();
+
+        [DllImport("__Internal")]
+        private static extern string UAUnityPlugin_getEnabledFeatures ();
+
         [DllImport ("__Internal")]
         private static extern double UAUnityPlugin_getInAppAutomationDisplayInterval ();
 
@@ -117,17 +125,6 @@ namespace UrbanAirship {
 
         [DllImport ("__Internal")]
         private static extern void UAUnityPlugin_setInAppAutomationPaused (bool paused);
-        [DllImport ("__Internal")]
-        private static extern bool UAUnityPlugin_isDataCollectionEnabled ();
-
-        [DllImport ("__Internal")]
-        private static extern void UAUnityPlugin_setDataCollectionEnabled (bool enabled);
-
-        [DllImport ("__Internal")]
-        private static extern bool UAUnityPlugin_isPushTokenRegistrationEnabled ();
-
-        [DllImport ("__Internal")]
-        private static extern void UAUnityPlugin_setPushTokenRegistrationEnabled (bool enabled);
 
         public bool UserNotificationsEnabled {
             get {
@@ -147,24 +144,6 @@ namespace UrbanAirship {
         public string ChannelId {
             get {
                 return UAUnityPlugin_getChannelId ();
-            }
-        }
-
-        public bool LocationEnabled {
-            get {
-                return UAUnityPlugin_isLocationEnabled ();
-            }
-            set {
-                UAUnityPlugin_setLocationEnabled (value);
-            }
-        }
-
-        public bool BackgroundLocationAllowed {
-            get {
-                return UAUnityPlugin_isBackgroundLocationAllowed ();
-            }
-            set {
-                UAUnityPlugin_setBackgroundLocationAllowed (value);
             }
         }
 
@@ -287,22 +266,37 @@ namespace UrbanAirship {
             UAUnityPlugin_editNamedUserAttributes (payload);
         }
 
-        public bool DataCollectionEnabled {
-            get {
-                return UAUnityPlugin_isDataCollectionEnabled();
-            }
-            set {
-                UAUnityPlugin_setDataCollectionEnabled(value);
-            }
+        public void OpenPreferenceCenter (string preferenceCenterId)
+        {
+            UAUnityPlugin_openPreferenceCenter (preferenceCenterId);
         }
 
-        public bool PushTokenRegistrationEnabled {
-            get {
-                return UAUnityPlugin_isPushTokenRegistrationEnabled();
-            }
-            set {
-                UAUnityPlugin_setPushTokenRegistrationEnabled(value);
-            }
+        public void SetEnabledFeatures (string[] enabledFeatures)
+        {            
+            UAUnityPlugin_setEnabledFeatures (String.Join(",", enabledFeatures));
+        }
+
+        public void EnableFeatures (string[] enabledFeatures)
+        {
+            UAUnityPlugin_enableFeatures (String.Join(",", enabledFeatures));
+        }
+
+        public void DisableFeatures (string[] disabledFeatures)
+        {
+            UAUnityPlugin_disableFeatures (String.Join(",", disabledFeatures));
+        }
+
+        public bool IsFeatureEnabled (string[] features) {
+            return UAUnityPlugin_isFeatureEnabled (String.Join(",", features));
+        }
+
+        public bool IsAnyFeatureEnabled (string[] features) {
+            //iOS method doesn't take any parameter
+            return UAUnityPlugin_isAnyFeatureEnabled ();
+        }
+
+        public string[] GetEnabledFeatures () {
+            return UAUnityPlugin_getEnabledFeatures().Split(',');
         }
     }
 }

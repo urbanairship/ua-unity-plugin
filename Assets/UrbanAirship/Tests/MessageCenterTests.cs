@@ -61,34 +61,6 @@ namespace Tests
         }
 
         [Test]
-        public void TestLocationEnabled ()
-        {
-            sharedAirship.LocationEnabled = true;
-            mockPlugin.Received().LocationEnabled = true;
-        }
-
-        [Test]
-        public void TestLocationDisabled ()
-        {
-            sharedAirship.LocationEnabled = false;
-            mockPlugin.Received().LocationEnabled = false;
-        }
-
-        [Test]
-        public void BackgroundLocationAllowed ()
-        {
-            sharedAirship.BackgroundLocationAllowed = true;
-            mockPlugin.Received().BackgroundLocationAllowed = true;
-        }
-
-        [Test]
-        public void BackgroundLocationNotAllowed ()
-        {
-            sharedAirship.BackgroundLocationAllowed = false;
-            mockPlugin.Received().BackgroundLocationAllowed = false;
-        }
-
-        [Test]
         public void TestGetNamedUserId ()
         {
             var expectedNamedUserId = "JohnDoe";

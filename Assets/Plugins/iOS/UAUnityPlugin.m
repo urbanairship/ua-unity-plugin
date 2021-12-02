@@ -19,13 +19,15 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
 
 + (void)load {
     UA_LDEBUG(@"UnityPlugin class loaded");
-    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    [center addObserver:[UAUnityPlugin class] selector:@selector(performTakeOff:) name:UIApplicationDidFinishLaunchingNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
+                                                          object:nil
+                                                           queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [UAUnityPlugin performTakeOffWithLaunchOptions:note.userInfo];
+    }];
 }
-
-+ (void)performTakeOff:(NSNotification *)notification {
++ (void)performTakeOffWithLaunchOptions:(NSDictionary *)launchOptions {
     UA_LDEBUG(@"UnityPlugin taking off");
-    [UAirship takeOff];
+    [UAirship takeOffWithLaunchOptions: launchOptions];
 
     NSString *version = [NSBundle mainBundle].infoDictionary[UAUnityPluginVersionKey] ?: @"0.0.0";
     [[UAirship analytics] registerSDKExtension:UASDKExtensionUnity version:version];
@@ -63,7 +65,7 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
 
     [[NSNotificationCenter defaultCenter] addObserver:[self shared]
                                              selector:@selector(channelUpdated:)
-                                                 name:UAChannelUpdatedEvent
+                                                 name:UAChannel.channelUpdatedEvent
                                                object:nil];
 
     [UAMessageCenter shared].displayDelegate = [self shared];
@@ -171,29 +173,6 @@ const char* UAUnityPlugin_getChannelId() {
     return MakeStringCopy([[UAirship channel].identifier UTF8String]);
 }
 
-#pragma mark -
-#pragma mark UA Location Functions
-
-bool UAUnityPlugin_isLocationEnabled() {
-    UA_LDEBUG(@"UnityPlugin isLocationEnabled");
-    return [UAirship shared].locationProvider.locationUpdatesEnabled ? true : false;
-}
-
-void UAUnityPlugin_setLocationEnabled(bool enabled) {
-    UA_LDEBUG(@"UnityPlugin setLocationEnabled: %d", enabled);
-    [UAirship shared].locationProvider.locationUpdatesEnabled = enabled;
-}
-
-bool UAUnityPlugin_isBackgroundLocationAllowed() {
-    UA_LDEBUG(@"UnityPlugin isBackgroundLocationAllowed");
-    return [UAirship shared].locationProvider.backgroundLocationUpdatesAllowed ? true : false;
-}
-
-void UAUnityPlugin_setBackgroundLocationAllowed(bool enabled) {
-    UA_LDEBUG(@"UnityPlugin setBackgroundLocationAllowed: %d", enabled);
-    [UAirship shared].locationProvider.backgroundLocationUpdatesAllowed = enabled ? YES : NO;
-}
-
 double UAUnityPlugin_getInAppAutomationDisplayInterval() {
     UA_LDEBUG(@"UnityPlugin getInAppAutomationDisplayInterval");
     return [UAInAppAutomation shared].inAppMessageManager.displayInterval;
@@ -220,7 +199,7 @@ void UAUnityPlugin_setInAppAutomationPaused(bool paused) {
 void UAUnityPlugin_addCustomEvent(const char *customEvent) {
     NSString *customEventString = [NSString stringWithUTF8String:customEvent];
     UA_LDEBUG(@"UnityPlugin addCustomEvent");
-    id obj = [NSJSONSerialization objectWithString:customEventString];
+    id obj = [UAJSONUtils objectWithString:customEventString];
 
     UACustomEvent *ce = [UACustomEvent eventWithName:[UAUnityPlugin stringOrNil:obj[@"eventName"]]];
 
@@ -255,14 +234,14 @@ void UAUnityPlugin_addCustomEvent(const char *customEvent) {
 
     ce.properties = properties.copy;
 
-    [[UAirship shared].analytics addEvent:ce];
+    [[UAAnalytics shared] addEvent:ce];
 }
 
 void UAUnityPlugin_trackScreen(const char *screenName) {
     NSString *screenNameString = [NSString stringWithUTF8String:screenName];
     UA_LDEBUG(@"UnityPlugin trackScreen: %@", screenNameString);
 
-    [[UAirship shared].analytics trackScreen:screenNameString];
+    [[UAAnalytics shared] trackScreen:screenNameString];
 }
 
 void UAUnityPlugin_associateIdentifier(const char *key, const char *identifier) {
@@ -281,9 +260,9 @@ void UAUnityPlugin_associateIdentifier(const char *key, const char *identifier) 
         UA_LDEBUG(@"UnityPlugin associateIdentifier with identifier: %@ for key: %@", identifierString, keyString);
     }
 
-    UAAssociatedIdentifiers *identifiers = [[UAirship shared].analytics currentAssociatedDeviceIdentifiers];
+    UAAssociatedIdentifiers *identifiers = [UAirship.analytics currentAssociatedDeviceIdentifiers];
     [identifiers setIdentifier:identifierString forKey:keyString];
-    [[UAirship shared].analytics associateDeviceIdentifiers:identifiers];
+    [UAirship.analytics associateDeviceIdentifiers:identifiers];
 }
 
 void UAUnityPlugin_setNamedUserID(const char *namedUserID) {
@@ -360,7 +339,7 @@ int UAUnityPlugin_getMessageCenterCount() {
 
 void UAUnityPlugin_editChannelTagGroups(const char *payload) {
     UA_LDEBUG(@"UnityPlugin editChannelTagGroups");
-    id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
+    id payloadMap = [UAJSONUtils objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
 
     for (NSDictionary *operation in operations) {
@@ -377,7 +356,7 @@ void UAUnityPlugin_editChannelTagGroups(const char *payload) {
 
 void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
     UA_LDEBUG(@"UnityPlugin editNamedUserTagGroups");
-    id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
+    id payloadMap = [UAJSONUtils objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
 
     for (NSDictionary *operation in operations) {
@@ -397,7 +376,7 @@ void UAUnityPlugin_editNamedUserTagGroups(const char *payload) {
 
 void UAUnityPlugin_editChannelAttributes(const char *payload) {
     UA_LDEBUG(@"UnityPlugin editChannelAttributes");
-    id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
+    id payloadMap = [UAJSONUtils objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
 
     UAAttributeMutations *mutations = [[UAUnityPlugin shared] mutationsWithOperations:operations];
@@ -407,7 +386,7 @@ void UAUnityPlugin_editChannelAttributes(const char *payload) {
 
 void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
     UA_LDEBUG(@"UnityPlugin editNamedUserAttributes");
-    id payloadMap = [NSJSONSerialization objectWithString:[NSString stringWithUTF8String:payload]];
+    id payloadMap = [UAJSONUtils objectWithString:[NSString stringWithUTF8String:payload]];
     id operations = payloadMap[@"values"];
 
     UAAttributeMutations *mutations = [[UAUnityPlugin shared] mutationsWithOperations:operations];
@@ -423,15 +402,15 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 /**
  * Called when a push notification is received while the app is running in the foreground.
  *
- * @param notificationContent The UANotificationContent object representing the notification info.
+ * @param userInfo The NSDictionary object representing the notification info.
  */
-- (void)receivedForegroundNotification:(UANotificationContent *)notificationContent completionHandler:(void (^)(void))completionHandler {
-    UA_LDEBUG(@"receivedForegroundNotification %@",notificationContent);
+- (void)receivedForegroundNotification:(NSDictionary *)userInfo completionHandler:(void (^)(void))completionHandler {
+    UA_LDEBUG(@"receivedForegroundNotification %@",userInfo);
 
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                      "OnPushReceived",
-                     [UAUnityPlugin convertPushToJson:notificationContent.notificationInfo]);
+                     [UAUnityPlugin convertPushToJson:userInfo]);
         completionHandler();
     }
 }
@@ -440,16 +419,16 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 /**
  * Called when the app is started or resumed because a user opened a notification.
  *
- * @param notificationResponse UANotificationResponse object representing the user's response
+ * @param notificationResponse UNNotificationResponse object representing the user's response
  */
-- (void)receivedNotificationResponse:(UANotificationResponse *)notificationResponse completionHandler:(void (^)(void))completionHandler {
+- (void)receivedNotificationResponse:(UNNotificationResponse *)notificationResponse completionHandler:(void (^)(void))completionHandler {
     UA_LDEBUG(@"receivedNotificationResponse %@",notificationResponse);
-    self.storedNotification = notificationResponse.notificationContent.notificationInfo;
+    self.storedNotification = notificationResponse.notification.request.content.userInfo;
 
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                          "OnPushOpened",
-                         [UAUnityPlugin convertPushToJson:notificationResponse.notificationContent.notificationInfo]);
+                         [UAUnityPlugin convertPushToJson:notificationResponse.notification.request.content.userInfo]);
         completionHandler();
     }
 }
@@ -459,7 +438,7 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 
 
 - (void)channelUpdated:(NSNotification *)notification {
-    NSString *channelID = notification.userInfo[UAChannelUpdatedEventChannelKey];
+    NSString *channelID = notification.userInfo[UAChannel.channelUpdatedEvent];
     UA_LDEBUG(@"channelUpdated: %@", channelID);
     if (self.listener) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
@@ -529,25 +508,74 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 #pragma mark -
 #pragma mark Data Collection
 
-void UAUnityPlugin_setDataCollectionEnabled(bool enabled) {
-    [[UAirship shared] setDataCollectionEnabled:enabled];
-    UA_LDEBUG(@"UAUnityPlugin setDataCollectionEnabled %@", @([UAirship shared].dataCollectionEnabled));
+bool UAUnityPlugin_isEnabled(const char *features) {
+    NSString *featureString = [NSString stringWithUTF8String:features];
+    NSArray *featureArray = [featureString componentsSeparatedByString: @","];
+    if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
+        UA_LDEBUG(@"UAUnityPlugin isEnabled %@", featureString);
+        return [[UAirship shared].privacyManager isEnabled:[[UAUnityPlugin shared] stringToFeature:featureArray]];
+    } else {
+        UA_LERR(@"UAUnityPlugin Invalid feature %@", featureString);
+        return false;
+    }
 }
 
-bool UAUnityPlugin_isDataCollectionEnabled() {
-    UA_LDEBUG(@"UnityPlugin isDataCollectionEnabled");
-    return [UAirship shared].dataCollectionEnabled ? true : false;
+bool UAUnityPlugin_isAnyEnabled() {
+   return [[UAirship shared].privacyManager isAnyFeatureEnabled];
 }
 
-void UAUnityPlugin_setPushTokenRegistrationEnabled(bool enabled) {
-    [[UAPush shared] setPushTokenRegistrationEnabled:enabled];
-    UA_LDEBUG(@"UAUnityPlugin setPushTokenRegistrationEnabled %@",@([UAPush shared].pushTokenRegistrationEnabled));
+void UAUnityPlugin_disableFeatures(const char *features) {
+    NSString *featureString = [NSString stringWithUTF8String:features];
+    NSArray *featureArray = [featureString componentsSeparatedByString: @","];
+    if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
+        UA_LDEBUG(@"UAUnityPlugin disableFeatures");
+        [[UAirship shared].privacyManager disableFeatures:[[UAUnityPlugin shared] stringToFeature:featureArray]];
+    } else {
+        UA_LERR(@"UAUnityPlugin Invalid features, cancelling disableFeatures");
+    }
 }
 
-bool UAUnityPlugin_isPushTokenRegistrationEnabled() {
-    UA_LDEBUG(@"UnityPlugin isPushTokenRegistrationEnabled");
-    return [UAPush shared].pushTokenRegistrationEnabled ? true : false;
+void UAUnityPlugin_enableFeatures(const char *features) {
+    NSString *featureString = [NSString stringWithUTF8String:features];
+    NSArray *featureArray = [featureString componentsSeparatedByString: @","];
+    if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
+        UA_LDEBUG(@"UAUnityPlugin enableFeatures");
+        [[UAirship shared].privacyManager enableFeatures:[[UAUnityPlugin shared] stringToFeature:featureArray]];
+    } else {
+        UA_LERR(@"UAUnityPlugin Invalid features, cancelling enableFeatures");
+    }
 }
+
+void UAUnityPlugin_setEnabledFeatures(const char *features) {
+    NSString *featureString = [NSString stringWithUTF8String:features];
+    NSArray *featureArray = [featureString componentsSeparatedByString: @","];
+    if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
+        UA_LDEBUG(@"UAUnityPlugin setEnabledFeatures");
+        [[UAirship shared].privacyManager setEnabledFeatures:[[UAUnityPlugin shared] stringToFeature:featureArray]];
+    } else {
+        UA_LERR(@"UAUnityPlugin Invalid features, cancelling setEnabledFeatures");
+    }
+}
+
+const char* UAUnityPlugin_getEnabledFeatures() {
+    UA_LDEBUG(@"UAUnityPlugin getEnabledFeatures");
+    NSError *error = nil;
+    NSArray *featureArray = [[UAUnityPlugin shared] featureToString:[[UAirship shared].privacyManager enabledFeatures]];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:featureArray options:NSJSONWritingPrettyPrinted error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+    return MakeStringCopy([jsonString UTF8String]);
+}
+
+#pragma mark -
+#pragma mark Preference Center
+
+void UAUnityPlugin_openPreferenceCenter(NSString *preferenceCenterId) {
+    UA_LDEBUG(@"UAUnityPlugin openPreferenceCenter");
+    [[UAPreferenceCenter shared] openPreferenceCenter:preferenceCenterId];
+}
+
+
 
 #pragma mark -
 #pragma mark Helpers
@@ -568,7 +596,7 @@ bool UAUnityPlugin_isPushTokenRegistrationEnabled() {
 
         id value = push[key];
         if (![value isKindOfClass:[NSString class]]) {
-            value = [NSJSONSerialization stringWithObject:value acceptingFragments:YES];
+            value = [UAJSONUtils stringWithObject:value];
         }
 
         if (!value) {
@@ -590,7 +618,7 @@ bool UAUnityPlugin_isPushTokenRegistrationEnabled() {
 }
 
 + (const char *)convertToJson:(NSObject*) obj {
-    NSString *JSONString = [NSJSONSerialization stringWithObject:obj acceptingFragments:YES];
+    NSString *JSONString = [UAJSONUtils stringWithObject:obj];
     return MakeStringCopy([JSONString UTF8String]);
 }
 
@@ -682,6 +710,77 @@ char* MakeStringCopy (const char* string) {
     char* res = (char*)malloc(strlen(string) + 1);
     strcpy(res, string);
     return res;
+}
+
+// Helper method to check if features are authorized
+- (BOOL)isValidFeature:(NSArray *)features {
+    UA_LDEBUG(@"checking isValidFeature");
+    NSLog(@"%@", features);
+    if (!features || [features count] == 0) {
+        return NO;
+    }
+    NSDictionary *authorizedFeatures = [self authorizedFeatures];
+    for (NSString *feature in features) {
+        if (![authorizedFeatures objectForKey:feature]) {
+            return NO;
+        }
+    }
+    return YES;
+}
+
+// Helper method to convert features as int
+- (UAFeatures)stringToFeature:(NSArray *)features {
+    NSDictionary *authorizedFeatures = [self authorizedFeatures];
+
+    NSNumber *objectFeature = authorizedFeatures[[features objectAtIndex:0]];
+    UAFeatures convertedFeatures = [objectFeature longValue];
+
+    if ([features count] > 1) {
+        int i;
+        for (i = 1; i < [features count]; i++) {
+            NSNumber *objectFeature = authorizedFeatures[[features objectAtIndex:i]];
+            convertedFeatures |= [objectFeature longValue];
+        }
+    }
+    return convertedFeatures;
+}
+
+// Helper method to convert features to string.
+- (NSArray *)featureToString:(UAFeatures)features {
+    NSMutableArray *convertedFeatures = [[NSMutableArray alloc] init];
+
+    NSDictionary *authorizedFeatures = [self authorizedFeatures];
+
+    if (features == UAFeaturesAll) {
+        [convertedFeatures addObject:@"FEATURE_ALL"];
+    } else if (features == UAFeaturesNone) {
+        [convertedFeatures addObject:@"FEATURE_NONE"];
+    } else {
+        for (NSString *feature in authorizedFeatures) {
+            NSNumber *objectFeature = authorizedFeatures[feature];
+            long longFeature = [objectFeature longValue];
+            if ((longFeature & features) && (longFeature != UAFeaturesAll)) {
+                [convertedFeatures addObject:feature];
+            }
+        }
+    }
+    return convertedFeatures;
+}
+
+// Dictionary of authorized features
+- (NSDictionary *)authorizedFeatures {
+    NSMutableDictionary *authorizedFeatures = [[NSMutableDictionary alloc] init];
+    [authorizedFeatures setValue:@(UAFeaturesNone) forKey:@"FEATURE_NONE"];
+    [authorizedFeatures setValue:@(UAFeaturesInAppAutomation) forKey:@"FEATURE_IN_APP_AUTOMATION"];
+    [authorizedFeatures setValue:@(UAFeaturesMessageCenter) forKey:@"FEATURE_MESSAGE_CENTER"];
+    [authorizedFeatures setValue:@(UAFeaturesPush) forKey:@"FEATURE_PUSH"];
+    [authorizedFeatures setValue:@(UAFeaturesChat) forKey:@"FEATURE_CHAT"];
+    [authorizedFeatures setValue:@(UAFeaturesAnalytics) forKey:@"FEATURE_ANALYTICS"];
+    [authorizedFeatures setValue:@(UAFeaturesTagsAndAttributes) forKey:@"FEATURE_TAGS_AND_ATTRIBUTES"];
+    [authorizedFeatures setValue:@(UAFeaturesContacts) forKey:@"FEATURE_CONTACTS"];
+    [authorizedFeatures setValue:@(UAFeaturesLocation) forKey:@"FEATURE_LOCATION"];
+    [authorizedFeatures setValue:@(UAFeaturesAll) forKey:@"FEATURE_ALL"];
+    return authorizedFeatures;
 }
 
 @end

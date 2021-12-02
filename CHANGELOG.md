@@ -1,5 +1,16 @@
 # Unity Plugin ChangeLog
 
+## Version 9.0.0 - December 2, 2021
+
+Major release that updates Airship Android SDK to 16.1.0 and iOS SDK to 16.1.1. This version adds the Privacy Manager and the Preference Center. The Location module
+is removed.
+
+### Changes
+- Updated Android Airship SDK to 16.1.0
+- Updated iOS Airship SDK to 16.1.1
+- Added Privacy Manager support
+- Removed the Location module
+
 ## Version 8.1.0 - January 15, 2020
 
 Minor release that adds support for In-App Automation message limits and segments.

@@ -78,7 +78,7 @@ namespace UrbanAirship.Editor {
         public String UrlAllowListScopeJavaScriptInterface { get; set; }
 
         [SerializeField]
-        public bool DataCollectionOptInEnabled { get; set; }
+        public String EnabledFeatures { get; set; }
 
         [SerializeField]
         public String AndroidNotificationIcon { get; set; }
@@ -126,7 +126,7 @@ namespace UrbanAirship.Editor {
             this.UrlAllowListScopeOpenURL = config.UrlAllowListScopeOpenURL;
             this.UrlAllowListScopeJavaScriptInterface = config.UrlAllowListScopeJavaScriptInterface;
 
-            this.DataCollectionOptInEnabled = config.DataCollectionOptInEnabled;
+            this.EnabledFeatures = config.EnabledFeatures;
 
             this.NotificationPresentationOptionAlert = config.NotificationPresentationOptionAlert;
             this.NotificationPresentationOptionBadge = config.NotificationPresentationOptionBadge;
@@ -271,7 +271,6 @@ namespace UrbanAirship.Editor {
 
             rootDict.SetString ("site", Site.ToString());
             rootDict.SetBoolean ("inProduction", InProduction);
-            rootDict.SetBoolean ("dataCollectionOptInEnabled", DataCollectionOptInEnabled);
 
             if (!String.IsNullOrEmpty(UrlAllowList))
             {
@@ -297,6 +296,15 @@ namespace UrbanAirship.Editor {
                 foreach (string url in UrlAllowListScopeJavaScriptInterface.Split(','))
                 {
                     urlAllowListScopeJavaScriptInterfaceConfig.AddString(url);
+                }
+            }
+
+            if (!String.IsNullOrEmpty(EnabledFeatures))
+            {
+                PlistElementArray enabledFeaturesConfig = rootDict.CreateArray("enabledFeatures");
+                foreach (string feature in EnabledFeatures.Split(','))
+                {
+                    enabledFeaturesConfig.AddString(feature);
                 }
             }
 
@@ -355,7 +363,6 @@ namespace UrbanAirship.Editor {
 
                 xmlWriter.WriteAttributeString ("site", Site.ToString());
                 xmlWriter.WriteAttributeString ("inProduction", (InProduction ? "true" : "false"));
-                xmlWriter.WriteAttributeString ("dataCollectionOptInEnabled", (DataCollectionOptInEnabled ? "true" : "false"));
 
                 if (!String.IsNullOrEmpty(UrlAllowList))
                 {
@@ -370,6 +377,11 @@ namespace UrbanAirship.Editor {
                 if (!String.IsNullOrEmpty(UrlAllowListScopeJavaScriptInterface))
                 {
                     xmlWriter.WriteAttributeString ("urlAllowListScopeJavaScriptInterface", UrlAllowListScopeJavaScriptInterface.ToString());
+                }
+
+                if (!String.IsNullOrEmpty(EnabledFeatures))
+                {
+                    xmlWriter.WriteAttributeString ("enabledFeatures", EnabledFeatures.ToString());
                 }
 
                 if (!String.IsNullOrEmpty (AndroidNotificationIcon)) {

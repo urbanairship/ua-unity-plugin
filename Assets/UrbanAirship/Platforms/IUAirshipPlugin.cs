@@ -21,32 +21,12 @@ namespace UrbanAirship {
             get;
         }
 
-        bool LocationEnabled {
-            get;
-            set;
-        }
-
-        bool BackgroundLocationAllowed {
-            get;
-            set;
-        }
-
         string NamedUserId {
             get;
             set;
         }
 
         GameObject Listener {
-            set;
-        }
-
-        bool DataCollectionEnabled {
-            get;
-            set;
-        }
-
-        bool PushTokenRegistrationEnabled {
-            get;
             set;
         }
 
@@ -93,6 +73,20 @@ namespace UrbanAirship {
         void EditChannelAttributes (string payload);
 
         void EditNamedUserAttributes (string payload);
+
+        void OpenPreferenceCenter (string preferenceCenterId);
+
+        void SetEnabledFeatures (string[] enabledFeatures);
+
+        void EnableFeatures (string[] enabledFeatures);
+
+        void DisableFeatures (string[] disabledFeatures);
+
+        bool IsFeatureEnabled (string[] features);
+
+        bool IsAnyFeatureEnabled (string[] features);
+
+        string[] GetEnabledFeatures ();
 
         TimeSpan InAppAutomationDisplayInterval {
             get;
