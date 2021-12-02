@@ -19,13 +19,16 @@ NSString *const UAUnityPluginVersionKey = @"UAUnityPluginVersion";
 
 + (void)load {
     UA_LDEBUG(@"UnityPlugin class loaded");
-    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    [center addObserver:[UAUnityPlugin class] selector:@selector(performTakeOff:) name:UIApplicationDidFinishLaunchingNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification
+                                                          object:nil
+                                                           queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [UAirship takeOffWithLaunchOptions:note.userInfo];
+    }];
 }
 
 + (void)performTakeOff:(NSNotification *)notification {
     UA_LDEBUG(@"UnityPlugin taking off");
-    [UAirship takeOff:nil launchOptions:nil];
+    [UAUnityPlugin load];
 
     NSString *version = [NSBundle mainBundle].infoDictionary[UAUnityPluginVersionKey] ?: @"0.0.0";
     [[UAirship analytics] registerSDKExtension:UASDKExtensionUnity version:version];
@@ -506,11 +509,11 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 #pragma mark -
 #pragma mark Data Collection
 
-bool UAUnityPlugin_isFeatureEnabled(const char *features) {
+bool UAUnityPlugin_isEnabled(const char *features) {
     NSString *featureString = [NSString stringWithUTF8String:features];
     NSArray *featureArray = [featureString componentsSeparatedByString: @","];
     if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
-        UA_LDEBUG(@"UAUnityPlugin isFeatureEnabled %@", featureString);
+        UA_LDEBUG(@"UAUnityPlugin isEnabled %@", featureString);
         return [[UAirship shared].privacyManager isEnabled:[[UAUnityPlugin shared] stringToFeature:featureArray]];
     } else {
         UA_LERR(@"UAUnityPlugin Invalid feature %@", featureString);
@@ -518,7 +521,7 @@ bool UAUnityPlugin_isFeatureEnabled(const char *features) {
     }
 }
 
-bool UAUnityPlugin_isAnyFeatureEnabled() {
+bool UAUnityPlugin_isAnyEnabled() {
    return [[UAirship shared].privacyManager isAnyFeatureEnabled];
 }
 
