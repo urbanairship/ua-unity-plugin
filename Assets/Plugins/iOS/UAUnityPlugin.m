@@ -508,11 +508,11 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 #pragma mark -
 #pragma mark Data Collection
 
-bool UAUnityPlugin_isEnabled(const char *features) {
+bool UAUnityPlugin_isFeatureEnabled(const char *features) {
     NSString *featureString = [NSString stringWithUTF8String:features];
     NSArray *featureArray = [featureString componentsSeparatedByString: @","];
     if ([[UAUnityPlugin shared] isValidFeature:featureArray]) {
-        UA_LDEBUG(@"UAUnityPlugin isEnabled %@", featureString);
+        UA_LDEBUG(@"UAUnityPlugin isFeatureEnabled %@", featureString);
         return [[UAirship shared].privacyManager isEnabled:[[UAUnityPlugin shared] stringToFeature:featureArray]];
     } else {
         UA_LERR(@"UAUnityPlugin Invalid feature %@", featureString);
@@ -520,7 +520,7 @@ bool UAUnityPlugin_isEnabled(const char *features) {
     }
 }
 
-bool UAUnityPlugin_isAnyEnabled() {
+bool UAUnityPlugin_isAnyFeatureEnabled() {
    return [[UAirship shared].privacyManager isAnyFeatureEnabled];
 }
 
