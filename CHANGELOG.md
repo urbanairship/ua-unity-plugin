@@ -1,5 +1,12 @@
 # Unity Plugin ChangeLog
 
+## Version 9.0.1 - March 1, 2022
+
+Patch release that fixes an iOS error related to a wrong method name.
+
+### Changes
+- Fix iOS plugin build error
+
 ## Version 9.0.0 - December 2, 2021
 
 Major release that updates Airship Android SDK to 16.1.0 and iOS SDK to 16.1.1. This version adds the Privacy Manager and the Preference Center. The Location module
