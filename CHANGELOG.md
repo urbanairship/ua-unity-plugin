@@ -1,5 +1,12 @@
 # Unity Plugin ChangeLog
 
+## Version 9.0.2 - March 15, 2022
+
+Patch release that fixes an iOS crash related to push registration.
+
+### Changes
+- Fix iOS crash during registration
+
 ## Version 9.0.1 - March 1, 2022
 
 Patch release that fixes an iOS error related to a wrong method name.
