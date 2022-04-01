@@ -1,5 +1,12 @@
 # Unity Plugin ChangeLog
 
+## Version 9.0.3 - April 1, 2022
+
+Patch release that fixes an other iOS crash related to channel update event.
+
+### Changes
+- Fix iOS crash when channel is updated
+
 ## Version 9.0.2 - March 15, 2022
 
 Patch release that fixes an iOS crash related to push registration.
