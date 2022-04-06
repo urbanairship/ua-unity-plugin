@@ -438,9 +438,9 @@ void UAUnityPlugin_editNamedUserAttributes(const char *payload) {
 
 
 - (void)channelUpdated:(NSNotification *)notification {
-    NSString *channelID = notification.userInfo[UAChannel.channelUpdatedEvent];
+    NSString *channelID = notification.userInfo[UAChannel.channelIdentifierKey];
     UA_LDEBUG(@"channelUpdated: %@", channelID);
-    if (self.listener && !channelID) {
+    if (self.listener && channelID) {
         UnitySendMessage(MakeStringCopy([self.listener UTF8String]),
                          "OnChannelUpdated",
                          MakeStringCopy([channelID UTF8String]));
