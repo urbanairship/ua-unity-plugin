@@ -2,15 +2,7 @@
 
 #import <Foundation/Foundation.h>
 #if __has_include("UAirship.h")
-#import "UAirship.h"
-#import "UAMessageCenter.h"
-#import "UAPush.h"
-#import "UAInboxMessage.h"
-#import "UAAnalytics.h"
-#import "UAInboxMessageList.h"
-#import "UAInAppAutomation.h"
-#import "UADefaultMessageCenterUI.h"
-#import "UAAssociatedIdentifiers.h"
+#import "AirshipLib.h"
 #else
 @import AirshipKit;
 #endif
