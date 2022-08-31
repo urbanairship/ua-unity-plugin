@@ -1,5 +1,13 @@
 # Unity Plugin ChangeLog
 
+## Version 9.2.0 - August 31, 2022
+
+Minor release that updates to the latest SDK versions.
+
+### Changes
+- Updated Android Airship SDK to 16.7.1
+- Updated iOS Airship SDK to 16.9.2
+
 ## Version 9.1.0 - May 11, 2022
 
 Minor release that updates to the latest SDK versions.
