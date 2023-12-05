@@ -1,12 +1,12 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     ext {
         // Gradle plugins
-        gradlePluginVersion = '3.5.3'
+        gradlePluginVersion = '7.1.2'
     }
 
     dependencies {
@@ -16,7 +16,7 @@ buildscript {
 
 repositories {
     google()
-    jcenter()
+    mavenCentral()
 }
 
 group = 'com.urbanairship.unitysupport'
