@@ -19,9 +19,20 @@ jobs:
           ./gradlew docs:build
         
       # Build
-      - name: Build project
+      - name: Build Android
+        uses: game-ci/unity-builder@v4
         env:
-          UNITY_USERNAME: ${{ secrets.UNITY_USERNAME }}
+          UNITY_EMAIL: ${{ secrets.UNITY_USERNAME }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-        run: ./scripts/docker_run.sh
+        with:
+          targetPlatform: Android
+
+      - name: Build iOS
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_USERNAME }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: iOS
