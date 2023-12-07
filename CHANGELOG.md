@@ -1,5 +1,14 @@
 # Unity Plugin ChangeLog
 
+## Version 9.3.0 - December 12, 2022
+
+Minor release that updates Airship Android SDK to 16.11.1 and iOS SDK to 16.12.5 and adds support for Xcode 15.
+
+### Changes
+- Updated Android Airship SDK to 16.11.1
+- Updated iOS Airship SDK to 16.12.5
+- Add support for Xcode 15
+
 ## Version 9.2.0 - September 15, 2022
 
 Minor release that updates to the latest SDK versions.

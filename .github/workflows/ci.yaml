@@ -28,7 +28,7 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
           targetPlatform: Android
-          projectPath: project/
+          projectPath: ua-unity-plugin/
 
       - name: Build iOS
         uses: game-ci/unity-builder@v4
@@ -38,4 +38,4 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
           targetPlatform: iOS
-          projectPath: project/
+          projectPath: ua-unity-plugin/
