@@ -23,7 +23,10 @@ jobs:
         run: pwd
         
       - name: Show directory
-        run: ls
+        run: ls ..
+
+      - name: Show directory
+        run: ls ../..
         
       # Build
       - name: Build Android
