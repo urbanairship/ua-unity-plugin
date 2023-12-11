@@ -18,6 +18,9 @@ jobs:
         run: |
           sudo apt-get install doxygen
           ./gradlew docs:build
+
+      - name: Show directory
+        run: ls
         
       # Build
       - name: Build Android
@@ -29,6 +32,9 @@ jobs:
         with:
           targetPlatform: Android
           projectPath: ua-unity-plugin/
+
+      - name: Show directory again
+        run: ls
 
       - name: Build iOS
         uses: game-ci/unity-builder@v4
