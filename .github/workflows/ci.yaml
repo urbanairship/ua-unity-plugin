@@ -21,6 +21,9 @@ jobs:
 
       - name: Show directory
         run: ls
+
+      - name: build
+        run: ./gradlew build
         
       # Build
       - name: Build Android
