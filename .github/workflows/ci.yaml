@@ -19,11 +19,11 @@ jobs:
           sudo apt-get install doxygen
           ./gradlew docs:build
 
+      - name: Position
+        run: pwd
+        
       - name: Show directory
         run: ls
-
-      - name: build
-        run: ./gradlew build
         
       # Build
       - name: Build Android
@@ -34,10 +34,16 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
           targetPlatform: Android
-          projectPath: ua-unity-plugin/
+          projectPath: ua-unity-plugin/ua-unity-plugin
 
+      - name: Position again
+        run: pwd
+        
       - name: Show directory again
         run: ls
+
+      - name: normal build
+        run: ./gradlew build
 
       - name: Build iOS
         uses: game-ci/unity-builder@v4
