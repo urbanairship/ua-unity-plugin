@@ -3,6 +3,7 @@
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
+[Ll]ogs/
 
 */bin/*
 */jar/*
@@ -18,3 +19,4 @@ reports/
 .gradle
 build/
 unity-classes.jar
+*.meta
