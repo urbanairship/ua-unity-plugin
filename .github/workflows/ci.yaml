@@ -39,6 +39,7 @@ jobs:
           targetPlatform: iOS
 
       - name: check directory
+        if: always()
         run: |
           ls -R Assets/Editor/
              
