@@ -38,3 +38,9 @@ jobs:
         with:
           allowDirtyBuild: true
           targetPlatform: iOS
+
+      - name: check directory
+        if: always()
+        run: |
+          ls -R build/
+             
