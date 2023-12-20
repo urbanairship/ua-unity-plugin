@@ -4,7 +4,7 @@ on: [pull_request]
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -43,4 +43,10 @@ jobs:
         if: always()
         run: |
           ls -R build/
+
+      - name: generate unity package
+        if: always()
+        run: |
+          ./gradlew build
+          ls build/
              
