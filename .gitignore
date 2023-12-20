@@ -4,6 +4,8 @@
 [Tt]emp/
 [Oo]bj/
 [Ll]ogs/
+UserSettings/
+Packages/packages-lock.json
 
 */bin/*
 */jar/*

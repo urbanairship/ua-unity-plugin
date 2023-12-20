@@ -37,3 +37,8 @@ jobs:
           UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
         with:
           targetPlatform: iOS
+
+      - name: check directory
+        run: |
+          ls -R Assets/Editor/
+             
