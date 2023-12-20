@@ -4,9 +4,12 @@
 [Tt]emp/
 [Oo]bj/
 [Ll]ogs/
-UserSettings/
+[Aa]rtifacts/
+[Cc]odeCoverage/
 Packages/packages-lock.json
 Assets/Editor/Editor/
+UserSettings/
+ProjectSettings/
 
 */bin/*
 */jar/*
