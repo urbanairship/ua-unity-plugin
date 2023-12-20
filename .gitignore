@@ -9,7 +9,7 @@
 Packages/packages-lock.json
 Assets/Editor/Editor/
 UserSettings/
-ProjectSettings/
+ProjectSettings/ProjectSettings.asset
 
 */bin/*
 */jar/*
