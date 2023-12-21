@@ -45,8 +45,8 @@ jobs:
         if: always()
         run: |
           pwd
-          ls /home/runner/work/_actions/
-          echo "$UNITY_PATH"
+          ls -R /home/runner/work/_actions/
+          echo $UNITY_PATH
 
       - name: generate unity package
         if: always()
