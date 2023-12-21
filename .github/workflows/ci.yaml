@@ -36,16 +36,16 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Build
-          path: build
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: Build
+      #     path: build
 
       - name: check directory
         if: always()
         run: |
           ls -R build/
-          ls -R /opt/
+          ls -R /home/runner/work/_actions/game-ci/unity-builder/v4/dist/BlankProject
 
       - name: generate unity package
         if: always()
