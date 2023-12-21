@@ -4,7 +4,7 @@ on: [pull_request]
 
 jobs:
   ci:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -16,7 +16,7 @@ jobs:
 
       - name: Build Docs
         run: |
-          brew install doxygen
+          sudo apt-get install doxygen
           ./gradlew docs:build
         
       # Build
@@ -42,7 +42,7 @@ jobs:
       - name: check directory
         if: always()
         run: |
-          ls -R build/
+          ls -R /opt/Unity/Editor/
 
       - name: generate unity package
         if: always()
