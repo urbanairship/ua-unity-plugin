@@ -44,7 +44,8 @@ jobs:
       - name: check directory
         if: always()
         run: |
-          ls -R /home/runner/work/_actions/game-ci/unity-builder/v4/dist/opt/unity/
+          pwd
+          ls -R /home/runner/work/_actions/game-ci/unity-builder/v4/dist/opt/
 
       - name: generate unity package
         if: always()
