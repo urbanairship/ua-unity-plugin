@@ -42,7 +42,7 @@ jobs:
       - name: check directory
         if: always()
         run: |
-          ls -R /opt/Unity/Editor/
+          ls -R /opt/Unity/
 
       - name: generate unity package
         if: always()
