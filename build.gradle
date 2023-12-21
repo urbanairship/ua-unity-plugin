@@ -168,7 +168,7 @@ def getUnityExePath() {
     if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
         unityExe = "/Applications/Unity/Hub/Editor/$airshipProperties.unityVersion/Unity.app/Contents/MacOS/Unity"
     } else {
-        unityExe = "/opt/Unity/Editor/Unity"
+        unityExe = "/opt/unity/editors/Editor/Unity"
     }
 
     if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {

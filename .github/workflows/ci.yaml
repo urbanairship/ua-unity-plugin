@@ -39,7 +39,7 @@ jobs:
       - name: check directory
         if: always()
         run: |
-          ls -R ~/Unity/
+          ls -R /opt/unity/
 
       - name: generate unity package
         if: always()
