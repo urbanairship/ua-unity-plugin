@@ -167,8 +167,10 @@ def getUnityExePath() {
 
     if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
         unityExe = "/Applications/Unity/Hub/Editor/$airshipProperties.unityVersion/Unity.app/Contents/MacOS/Unity"
-    } else {
-        unityExe = "/opt/unity/Editor/Unity"
+    }
+
+    if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
+        unityExe = "/home/runner/work/_actions/game-ci/unity-builder/v4/dist/opt/unity/Editor/Unity"
     }
 
     if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
