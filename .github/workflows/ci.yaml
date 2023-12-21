@@ -45,7 +45,7 @@ jobs:
         if: always()
         run: |
           pwd
-          ls -R /home/runner/work/_actions/game-ci/unity-builder/v4/dist/opt/
+          ls /home/runner/work/
 
       - name: generate unity package
         if: always()
