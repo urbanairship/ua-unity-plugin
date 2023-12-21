@@ -5,6 +5,13 @@ on: [pull_request]
 jobs:
   ci:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - iOS # Build an iOS player.
+          - Android # Build an Android .apk standalone app.
+
     steps:
       - uses: actions/checkout@v2
 
@@ -20,29 +27,19 @@ jobs:
           ./gradlew docs:build
         
       # Build
-      - name: Build Android
+      - name: Build
         uses: game-ci/unity-builder@v4
         env:
           UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
         with:
-          targetPlatform: Android
-
-      - name: Build iOS
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
-        with:
-          allowDirtyBuild: true
-          targetPlatform: iOS
+          targetPlatform: ${{ matrix.targetPlatform }}
 
       - name: check directory
         if: always()
         run: |
-          ls -R /opt/Unity/
+          ls -R ~/Unity/
 
       - name: generate unity package
         if: always()
