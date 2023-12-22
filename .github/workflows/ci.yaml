@@ -36,6 +36,17 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
 
+      - uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
+        with:
+          unityVersion: 2022.3.15f1
+          packageMode: true
+          projectPath: build/
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
       # - uses: actions/upload-artifact@v3
       #   with:
       #     name: Build
@@ -45,12 +56,12 @@ jobs:
         if: always()
         run: |
           pwd
-          ls -R / | grep unity
+          ls build/
           
 
-      - name: generate unity package
-        if: always()
-        run: |
-          ./gradlew build
-          ls build/
+      # - name: generate unity package
+      #   if: always()
+      #   run: |
+      #     ./gradlew build
+      #     ls build/
              
