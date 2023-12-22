@@ -170,10 +170,6 @@ def getUnityExePath() {
     }
 
     if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
-        unityExe = "/home/runner/work/_actions/game-ci/unity-builder/v4/dist/opt/unity/Editor/Unity"
-    }
-
-    if (unityExe == null || unityExe.isEmpty() || !file(unityExe).exists()) {
         throw new GradleException('Unable to find Unity executable.')
     }
 
