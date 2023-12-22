@@ -22,6 +22,7 @@ reports/
 *.iml
 .idea/
 .gradle
-build/
+*/build/*
+!build/*.unitypackage
 unity-classes.jar
 *.meta
