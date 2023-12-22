@@ -43,8 +43,6 @@ jobs:
           UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
         with:
           unityVersion: 2022.3.15f1
-          packageMode: true
-          projectPath: build/
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
       # - uses: actions/upload-artifact@v3
