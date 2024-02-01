@@ -11,6 +11,8 @@ buildscript {
 
     dependencies {
         classpath "com.android.tools.build:gradle:$gradlePluginVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
+        classpath 'com.android.tools.lint:lint-kotlin:26.2.1'
     }
 }
 
