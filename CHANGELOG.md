@@ -1,5 +1,12 @@
 # Unity Plugin ChangeLog
 
+## Version 9.2.1 - February 5, 2024
+
+Patch release that fixes an issue with decimal attribute values on certain locales. Apps that make use of attributes with decimal values should update.
+
+### Changes
+- Fixed decimal attribute values for locales that use a comma as the decimal separator.
+
 ## Version 9.2.0 - September 15, 2022
 
 Minor release that updates to the latest SDK versions.

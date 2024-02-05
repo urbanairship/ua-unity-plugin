@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using UnityEngine;
 
@@ -51,8 +52,8 @@ namespace UrbanAirship {
         /// </summary>
         /// <value>The event value.</value>
         public decimal EventValue {
-            get { return Decimal.Parse (eventValue); }
-            set { eventValue = value.ToString (); }
+            get { return Decimal.Parse(eventValue, CultureInfo.InvariantCulture); }
+            set { eventValue = value.ToString(CultureInfo.InvariantCulture); }
         }
 
         /// <summary>
