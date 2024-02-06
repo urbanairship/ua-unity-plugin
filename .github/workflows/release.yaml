@@ -33,9 +33,9 @@ jobs:
 
       - name: Build
         env:
-          UNITY_USERNAME: ${{ secrets.UNITY_USERNAME }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_USERNAME: ${{ secrets.ULRICH_UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
         run: ./scripts/docker_run.sh
 
       - name: Create Github Release
@@ -60,10 +60,10 @@ jobs:
           asset_name: urbanairship-${{ steps.get_version.outputs.VERSION }}.unitypackage
           asset_content_type: application/octet-stream
 
-      - name: Bintray Release
-        env:
-          BINTRAY_AUTH: ${{ secrets.BINTRAY_AUTH }}
-        run: bash ./scripts/deploy_bintray.sh ${{ steps.get_version.outputs.VERSION }}
+#      - name: Bintray Release
+#        env:
+#          BINTRAY_AUTH: ${{ secrets.BINTRAY_AUTH }}
+#        run: bash ./scripts/deploy_bintray.sh ${{ steps.get_version.outputs.VERSION }}
 
   docs:
     runs-on: ubuntu-latest
