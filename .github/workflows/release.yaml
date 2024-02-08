@@ -69,10 +69,10 @@ jobs:
           asset_name: urbanairship-${{ steps.get_version.outputs.VERSION }}.unitypackage
           asset_content_type: application/octet-stream
 
-      - name: Bintray Release
-        env:
-          BINTRAY_AUTH: ${{ secrets.BINTRAY_AUTH }}
-        run: bash ./scripts/deploy_bintray.sh ${{ steps.get_version.outputs.VERSION }}
+#      - name: Bintray Release
+#        env:
+#          BINTRAY_AUTH: ${{ secrets.BINTRAY_AUTH }}
+#        run: bash ./scripts/deploy_bintray.sh ${{ steps.get_version.outputs.VERSION }}
 
   docs:
     runs-on: ubuntu-latest

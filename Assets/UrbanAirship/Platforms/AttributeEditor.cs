@@ -1,6 +1,7 @@
 /* Copyright Airship and Contributors */
 
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -42,7 +43,7 @@ namespace UrbanAirship {
             if (IsInvalidField (key)) {
                 return this;
             }
-            operations.Add (new AttributeMutation (AttributeAction.Set, key, value, AttributeType.Integer));
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Integer));
             return this;
         }
 
@@ -56,7 +57,7 @@ namespace UrbanAirship {
             if (IsInvalidField (key)) {
                 return this;
             }
-            operations.Add (new AttributeMutation (AttributeAction.Set, key, value, AttributeType.Long));
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Long));
             return this;
         }
 
@@ -73,7 +74,7 @@ namespace UrbanAirship {
             if (float.IsNaN (value) || float.IsInfinity (value)) {
                 throw new FormatException ("Infinity or NaN: " + value);
             }
-            operations.Add (new AttributeMutation (AttributeAction.Set, key, value, AttributeType.Float));
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Float));
             return this;
         }
 
@@ -90,7 +91,7 @@ namespace UrbanAirship {
             if (double.IsNaN (value) || double.IsInfinity (value)) {
                 throw new FormatException ("Infinity or NaN: " + value);
             }
-            operations.Add (new AttributeMutation (AttributeAction.Set, key, value, AttributeType.Double));
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Double));
             return this;
         }
 
@@ -109,7 +110,7 @@ namespace UrbanAirship {
 
             // Pass date to the plugin as seconds since the epoch
             System.DateTime epochStart = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
-            double valueInMillisecondsSinceEpoch = (value - epochStart).TotalMilliseconds;
+            string valueInMillisecondsSinceEpoch = (value - epochStart).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
 
             operations.Add(new AttributeMutation(AttributeAction.Set, key, valueInMillisecondsSinceEpoch, AttributeType.Date));
             return this;
@@ -185,11 +186,11 @@ namespace UrbanAirship {
             private string type;
 #pragma warning restore
 
-            public AttributeMutation (AttributeAction action, string key, object value, AttributeType type) {
-                this.action = action.ToString ();
+            public AttributeMutation (AttributeAction action, string key, string value, AttributeType type) {
+                this.action = action.ToString();
                 this.key = key;
-                this.value = value == null ? null : value.ToString ();
-                this.type = type.ToString ();
+                this.value = value;
+                this.type = type.ToString();
             }
         }
     }
