@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/AirshipScene.unity
     guid: cfa4103dc81484259b691bb013666778
   m_configObjects: {}
