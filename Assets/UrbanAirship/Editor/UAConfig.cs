@@ -189,6 +189,7 @@ namespace UrbanAirship.Editor {
 #endif
 
 #if UNITY_ANDROID
+                GenerateAndroidLib();
                 GenerateAndroidAirshipConfig ();
                 GenerateFirebaseConfig ();
 #endif
@@ -316,6 +317,30 @@ namespace UrbanAirship.Editor {
             File.WriteAllText (plistPath, plist.WriteToString ());
         }
 #endif
+
+        /// <summary>
+        /// Generates an Androidlib for generated Airship resources.
+        /// </summary>
+        private void GenerateAndroidLib () {
+            string androidlib = "Assets/Plugins/Android/urbanairship-resources.androidlib";
+            if (!Directory.Exists (androidlib)) {
+                Directory.CreateDirectory (androidlib);
+            }
+
+            string manifest = "Assets/Plugins/Android/urbanairship-resources.androidlib/AndroidManifest.xml";
+            if (File.Exists (manifest)) {
+                return;
+            }
+            
+            using (XmlWriter xmlWriter = XmlWriter.Create (Path.Combine (androidlib, "AndroidManifest.xml"))) {
+                xmlWriter.WriteStartDocument ();
+                xmlWriter.WriteStartElement ("manifest");
+                xmlWriter.WriteAttributeString ("xmlns", "android", null, "http://schemas.android.com/apk/res/android");
+                xmlWriter.WriteAttributeString ("package", "com.urbanairship.unityresources");
+                xmlWriter.WriteEndElement ();
+                xmlWriter.WriteEndDocument ();
+            }
+        }
 
         private void GenerateFirebaseConfig () {
             string res = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/values";

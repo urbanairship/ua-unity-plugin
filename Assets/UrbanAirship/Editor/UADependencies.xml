@@ -4,33 +4,21 @@
   <!-- Android -->
   <androidPackages>
 
+    <repositories>
+      <repository>https://repo.maven.apache.org/maven2</repository>
+    </repositories>
+
     <!-- Urban Airship Message Center -->
-    <androidPackage spec="com.urbanairship.android:urbanairship-message-center:__ANDROID_AIRSHIP_VERSION__">
-      <repositories>
-        <repository>https://urbanairship.bintray.com/android</repository>
-      </repositories>
-    </androidPackage>
+    <androidPackage spec="com.urbanairship.android:urbanairship-message-center:__ANDROID_AIRSHIP_VERSION__"/>
 
     <!-- Urban Airship Automation -->
-    <androidPackage spec="com.urbanairship.android:urbanairship-automation:__ANDROID_AIRSHIP_VERSION__">
-      <repositories>
-        <repository>https://urbanairship.bintray.com/android</repository>
-      </repositories>
-    </androidPackage>
+    <androidPackage spec="com.urbanairship.android:urbanairship-automation:__ANDROID_AIRSHIP_VERSION__"/>
 
     <!-- Urban Airship FCM -->
-    <androidPackage spec="com.urbanairship.android:urbanairship-fcm:__ANDROID_AIRSHIP_VERSION__">
-      <repositories>
-        <repository>https://urbanairship.bintray.com/android</repository>
-      </repositories>
-    </androidPackage>
+    <androidPackage spec="com.urbanairship.android:urbanairship-fcm:__ANDROID_AIRSHIP_VERSION__"/>
 
     <!-- Urban Airship Preference Center -->
-    <androidPackage spec="com.urbanairship.android:urbanairship-preference-center:__ANDROID_AIRSHIP_VERSION__">
-      <repositories>
-        <repository>https://urbanairship.bintray.com/android</repository>
-      </repositories>
-    </androidPackage>
+    <androidPackage spec="com.urbanairship.android:urbanairship-preference-center:__ANDROID_AIRSHIP_VERSION__"/>
 
   </androidPackages>
 
