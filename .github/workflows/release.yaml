@@ -8,6 +8,13 @@ on:
 jobs:
   plugin:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - iOS # Build an iOS player.
+          - Android # Build an Android .apk standalone app.
+          
     steps:
       - uses: actions/checkout@v2
 
@@ -32,11 +39,13 @@ jobs:
           echo ::set-output name=NOTES::"$NOTES"
 
       - name: Build
+        uses: game-ci/unity-builder@v4
         env:
-          UNITY_USERNAME: ${{ secrets.ULRICH_UNITY_EMAIL }}
+          UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
-        run: ./scripts/docker_run.sh
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
 
       - name: Create Github Release
         uses: actions/create-release@v1.0.1

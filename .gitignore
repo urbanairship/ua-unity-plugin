@@ -3,6 +3,12 @@
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
+[Ll]ogs/
+[Aa]rtifacts/
+[Cc]odeCoverage/
+Packages/packages-lock.json
+Assets/Editor/Editor/
+UserSettings/
 
 */bin/*
 */jar/*
@@ -16,5 +22,7 @@ reports/
 *.iml
 .idea/
 .gradle
-build/
+*/build/*
+!build/*.unitypackage
 unity-classes.jar
+*.meta

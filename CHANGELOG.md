@@ -1,5 +1,14 @@
 # Unity Plugin ChangeLog
 
+## Version 9.3.0 - March 14, 2024
+
+Minor release that updates Airship Android SDK to 16.11.2 and iOS SDK to 16.12.6 and adds support for Xcode 15.
+
+### Changes
+- Updated Android Airship SDK to 16.11.2
+- Updated iOS Airship SDK to 16.12.6
+- Add support for Xcode 15
+
 ## Version 9.2.1 - February 5, 2024
 
 Patch release that fixes an issue with decimal attribute values on certain locales. Apps that make use of attributes with decimal values should update.
