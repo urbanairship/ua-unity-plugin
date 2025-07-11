@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.urbanairship.unityplugin">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
 
@@ -9,30 +8,30 @@
             android:value="com.urbanairship.unityplugin.UnityAutopilot" />
 
         <activity
-            android:name="com.urbanairship.unityplugin.CustomMessageCenterActivity"
-            android:exported="false"
+            android:name="com.urbanairship.android.framework.proxy.CustomMessageCenterActivity"
             android:label="@string/ua_message_center_title"
-            android:theme="@style/MessageCenterTheme">
-
+            android:launchMode="singleTask"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.urbanairship.VIEW_RICH_PUSH_INBOX" />
+                <data android:scheme="message" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
 
             <intent-filter>
                 <action android:name="com.urbanairship.VIEW_RICH_PUSH_INBOX" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </activity>
 
         <activity
-            android:name="com.urbanairship.unityplugin.CustomMessageActivity"
-            android:exported="false"
-            android:theme="@style/MessageCenterTheme">
-
+            android:name="com.urbanairship.android.framework.proxy.CustomMessageActivity"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.urbanairship.VIEW_RICH_PUSH_MESSAGE" />
                 <data android:scheme="message" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </activity>
     </application>
 

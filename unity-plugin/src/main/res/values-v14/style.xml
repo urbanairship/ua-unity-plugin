@@ -3,13 +3,13 @@
 <resources>
 
     <!-- Applied to the MessageCenter activities -->
-    <style name="MessageCenterTheme" parent="@android:style/Theme.DeviceDefault.Light.DarkActionBar">
-        <item name="messageCenterStyle">@style/MessageCenterTheme.MessageCenter</item>
-    </style>
+<!--    <style name="MessageCenterTheme" parent="@android:style/Theme.DeviceDefault.Light.DarkActionBar">-->
+<!--        <item name="messageCenterStyle">@style/MessageCenterTheme.MessageCenter</item>-->
+<!--    </style>-->
 
     <!-- Apply any overrides http://docs.urbanairship.com/platform/android.html#styling-the-message-center -->
-    <style name="MessageCenterTheme.MessageCenter" parent="MessageCenter">
+<!--    <style name="MessageCenterTheme.MessageCenter" parent="MessageCenter">-->
 
-    </style>
+<!--    </style>-->
 
 </resources>

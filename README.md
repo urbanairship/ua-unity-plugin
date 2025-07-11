@@ -40,8 +40,8 @@ Download google-services.json into the `Assets` directory from the application's
 
 If proguard is enabled, add Airship settings to the proguard-user.txt file.
 ```
--keep public class com.urbanairship.unityplugin.UnityPlugin
--keepclassmembers class com.urbanairship.unityplugin.UnityPlugin {
+-keep public class com.urbanairship.unityplugin.OldUnityPlugin
+-keepclassmembers class com.urbanairship.unityplugin.OldUnityPlugin {
   public <methods>;
   public <fields>;
   static <methods>;

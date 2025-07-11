@@ -1,5 +1,28 @@
 import java.util.regex.Pattern
 
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    ext {
+        // Gradle plugins
+        // gradlePluginVersion = '8.4.0'
+    }
+
+    // dependencies {
+    //     classpath "com.android.tools.build:gradle:$gradlePluginVersion"
+    //     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+    //     classpath 'com.android.tools.lint:lint-kotlin:26.2.1'
+    // }
+}
+
+plugins {
+   id 'com.android.library' version '8.4.2' apply false
+   id 'org.jetbrains.kotlin.android' version '1.9.24' apply false
+}
+
 allprojects {
   ext {
       airshipProperties = new Properties()
@@ -9,19 +32,6 @@ allprojects {
 
 configurations {
     plugin
-}
-
-repositories {
-    google()
-    ivy {
-        url 'https://github.com'
-        patternLayout {
-            artifact '[organisation]/[module]/archive/[revision].[ext]'
-        }
-        metadataSources {
-            artifact()
-        }
-    }
 }
 
 dependencies {
@@ -73,6 +83,7 @@ task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
             filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
             filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion) }
             filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__AIRSHIP_FRAMEWORK_PROXY_VERSION__"), airshipProperties.airshipFrameworkProxyVersion) }
         }
 
         // Copy UADependencies.xml and replace the version placeholders
@@ -84,6 +95,7 @@ task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
             filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion) }
             filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_ANNOTATIONS_VERSION__"), airshipProperties.androidxAnnotationVersion) }
             filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__AIRSHIP_FRAMEWORK_PROXY_VERSION__"), airshipProperties.airshipFrameworkProxyVersion) }
         }
     }
 }

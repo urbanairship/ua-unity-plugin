@@ -2,8 +2,8 @@
 
 package com.urbanairship.unityplugin;
 
-import com.urbanairship.messagecenter.MessageCenterActivity;
+//import com.urbanairship.messagecenter.ui.MessageCenterActivity;
 
 // Copy of the MessageCenterActivity so we can set a different theme
-public class CustomMessageCenterActivity extends MessageCenterActivity {
+public class CustomMessageCenterActivity /*extends MessageCenterActivity*/ {
 }

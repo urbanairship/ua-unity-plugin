@@ -23,10 +23,10 @@ task packageDocs(type: Tar, dependsOn: 'build') {
         from 'build/html'
     }
 
-    archiveName = "${airshipProperties.version}.tar.gz"
+    archiveFileName = "${airshipProperties.version}.tar.gz"
     compression = Compression.GZIP
 
-    destinationDir file('build')
-    extension 'tar.gz'
+    destinationDirectory = file('build')
+    archiveExtension.set('tar.gz')
     compression = Compression.GZIP
 }
