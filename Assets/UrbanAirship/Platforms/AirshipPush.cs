@@ -80,9 +80,9 @@ namespace UrbanAirship
         /// Gets the registration token if generated.
         /// </summary>
         /// <returns>The push token.</returns>
-        public string GetPushToken()
+        public string? GetPushToken()
         {
-            return plugin.Call<string>("getPushToken");
+            return plugin.Call<string?>("getPushToken");
         }
 
         /// <summary>

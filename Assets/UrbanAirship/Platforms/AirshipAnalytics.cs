@@ -30,7 +30,7 @@ namespace UrbanAirship {
         /// <param name="identifier">The value of the identifier, or `null` to remove the identifier.</param>
         public void AssociateIdentifier(string key, string? identifier)
         {
-            this.plugin.Call("associateIdentifier", key, identifier);
+            plugin.Call("associateIdentifier", key, identifier);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace UrbanAirship {
         /// <param name="screenName">The screen name. `null` to stop tracking.</param>
         public void TrackScreen(string screenName)
         {
-            this.plugin.Call("trackScreen", screenName);
+            plugin.Call("trackScreen", screenName);
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace UrbanAirship {
         /// <param name="customEvent">The custom event.</param>
         public void AddCustomEvent(CustomEvent customEvent)
         {
-            this.plugin.Call("addCustomEvent", customEvent.ToJson());
+            plugin.Call("addCustomEvent", customEvent.ToJson());
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace UrbanAirship {
         /// <returns>The session ID.</returns>
         public string GetSessionId()
         {
-            return this.plugin.Call<string>("getSessionId");
+            return plugin.Call<string>("getSessionId");
         }
     }
 }

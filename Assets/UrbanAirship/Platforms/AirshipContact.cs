@@ -27,7 +27,7 @@ namespace UrbanAirship {
         /// <param name="namedUserId">The named user Id.</param>
         public void Identify(string namedUserId)
         {
-            this.plugin.Call("identify", namedUserId);
+            plugin.Call("identify", namedUserId);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace UrbanAirship {
         /// </summary>
         public void Reset()
         {
-            this.plugin.Call("reset");
+            plugin.Call("reset");
         }
 
         /// <summary>
@@ -44,7 +44,31 @@ namespace UrbanAirship {
         /// <returns>The named user Id.</returns>
         public string? GetNamedUserId()
         {
-            return this.plugin.Call<string?>("getNamedUserId");
+            return plugin.Call<string?>("getNamedUserId");
+        }
+
+        /// <summary>
+        /// Returns an editor for contact tag groups.
+        /// </summary>
+        /// <returns>A TagGroupEditor for contact tag groups.</returns>
+        public TagGroupEditor EditTagGroups()
+        {
+            return new TagGroupEditor((string payload) =>
+            {
+                plugin.Call("editContactTagGroups", payload);
+            });
+        }
+
+        /// <summary>
+        /// Returns an editor for contact attributes.
+        /// </summary>
+        /// <returns>A AttributeEditor for contact attributes.</returns>
+        public AttributeEditor EditAttributes()
+        {
+            return new AttributeEditor((string payload) =>
+            {
+                plugin.Call("editContactAttributes", payload);
+            });
         }
 
         /// <summary>
@@ -55,7 +79,7 @@ namespace UrbanAirship {
         {
             Dictionary<string, IEnumerable<string>> scopedSubscriptionLists = new Dictionary<string, IEnumerable<string>>();
 
-            string subscriptionListsAsJson = this.plugin.Call<string>("getSubscriptionLists");
+            string subscriptionListsAsJson = plugin.Call<string>("getContactSubscriptionLists");
             ScopedSubscriptionList[] _scopedSubscriptionLists = JsonArray<ScopedSubscriptionList>.FromJson(subscriptionListsAsJson).values;
 
             foreach (ScopedSubscriptionList subscriptionList in _scopedSubscriptionLists)
@@ -74,31 +98,7 @@ namespace UrbanAirship {
         {
             return new ScopedSubscriptionListEditor((string payload) =>
             {
-                this.plugin.Call("editSubscriptionLists", payload);
-            });
-        }
-
-        /// <summary>
-        /// Returns an editor for contact tag groups.
-        /// </summary>
-        /// <returns>A TagGroupEditor for contact tag groups.</returns>
-        public TagGroupEditor EditTagGroups()
-        {
-            return new TagGroupEditor((string payload) =>
-            {
-                this.plugin.Call("editTagGroups", payload);
-            });
-        }
-
-        /// <summary>
-        /// Returns an editor for contact attributes.
-        /// </summary>
-        /// <returns>A AttributeEditor for contact attributes.</returns>
-        public AttributeEditor EditAttributes()
-        {
-            return new AttributeEditor((string payload) =>
-            {
-                this.plugin.Call("editAttributes", payload);
+                plugin.Call("editContactSubscriptionLists", payload);
             });
         }
     }

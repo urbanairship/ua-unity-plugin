@@ -24,7 +24,7 @@ namespace UrbanAirship {
         /// </summary>
         /// <param name="paused"><c>true</c> to pause, <c>false</c> to resume.</param>
         public void SetPaused (bool paused) {
-            this.plugin.Call ("setPaused", paused);
+            plugin.Call ("setPaused", paused);
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace UrbanAirship {
         /// </summary>
         /// <returns><c>true</c> if paused, otherwise <c>false</c></returns>
         public bool IsPaused () {
-            return this.plugin.Call<bool> ("isPaused");
+            return plugin.Call<bool> ("isPaused");
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace UrbanAirship {
         /// </summary>
         /// <param name="displayInterval">The display interval.</param>
         public void SetDisplayInterval (TimeSpan displayInterval) {
-            this.plugin.Call ("setDisplayInterval", displayInterval);
+            plugin.Call ("setDisplayInterval", displayInterval.TotalMilliseconds);
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace UrbanAirship {
         /// </summary>
         /// <returns>The display interval.</returns>
         public TimeSpan GetDisplayInterval () {
-            return this.plugin.Call<TimeSpan> ("getDisplayInterval");
+            return TimeSpan.FromMilliseconds (plugin.Call<long> ("getDisplayInterval"));
         }
     }
 }

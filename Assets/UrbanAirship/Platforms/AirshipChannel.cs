@@ -22,17 +22,6 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Gets the tags currently set for the device.
-        /// </summary>
-        /// <returns>The tags.</returns>
-        public IEnumerable<string> GetTags()
-        {
-            string tagsAsJson = plugin.Call<string>("getTags");
-            JsonArray<string> jsonArray = JsonArray<string>.FromJson(tagsAsJson);
-            return jsonArray.AsEnumerable();
-        }
-
-        /// <summary>
         /// Gets the channel ID associated with the device.
         /// </summary>
         /// <returns>The channel ID.</returns>
@@ -52,26 +41,14 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Gets the channel's subscription lists.
+        /// Gets the tags currently set for the device.
         /// </summary>
-        /// <returns>The subscription lists.</returns>
-        public IEnumerable<string> GetSubscriptionLists()
+        /// <returns>The tags.</returns>
+        public IEnumerable<string> GetTags()
         {
-            string subscriptionListsAsJson = plugin.Call<string>("getSubscriptionLists");
-            JsonArray<string> jsonArray = JsonArray<string>.FromJson(subscriptionListsAsJson);
+            string tagsAsJson = plugin.Call<string>("getTags");
+            JsonArray<string> jsonArray = JsonArray<string>.FromJson(tagsAsJson);
             return jsonArray.AsEnumerable();
-        }
-
-        /// <summary>
-        /// Returns an editor for channel subscription lists.
-        /// </summary>
-        /// <returns>A SubscriptionListEditor.</returns>
-        public SubscriptionListEditor EditSubscriptionLists()
-        {
-            return new SubscriptionListEditor((string payload) =>
-            {
-                plugin.Call("editSubscriptionLists", payload);
-            });
         }
 
         /// <summary>
@@ -94,7 +71,7 @@ namespace UrbanAirship {
         {
             return new TagGroupEditor((string payload) =>
             {
-                plugin.Call("editTagGroups", payload);
+                plugin.Call("editChannelTagGroups", payload);
             });
         }
 
@@ -106,7 +83,30 @@ namespace UrbanAirship {
         {
             return new AttributeEditor((string payload) =>
             {
-                plugin.Call("editAttributes", payload);
+                plugin.Call("editChannelAttributes", payload);
+            });
+        }
+
+        /// <summary>
+        /// Gets the channel's subscription lists.
+        /// </summary>
+        /// <returns>The subscription lists.</returns>
+        public IEnumerable<string> GetSubscriptionLists()
+        {
+            string subscriptionListsAsJson = plugin.Call<string>("getChannelSubscriptionLists");
+            JsonArray<string> jsonArray = JsonArray<string>.FromJson(subscriptionListsAsJson);
+            return jsonArray.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Returns an editor for channel subscription lists.
+        /// </summary>
+        /// <returns>A SubscriptionListEditor.</returns>
+        public SubscriptionListEditor EditSubscriptionLists()
+        {
+            return new SubscriptionListEditor((string payload) =>
+            {
+                plugin.Call("editChannelSubscriptionLists", payload);
             });
         }
     }

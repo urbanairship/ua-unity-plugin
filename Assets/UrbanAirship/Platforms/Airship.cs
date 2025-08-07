@@ -195,6 +195,8 @@ namespace UrbanAirship
             return plugin.Call<bool>("isFlying");
         }
 
+        // TODO don't forget live activity and live update.
+
         internal class AirshipListener : MonoBehaviour
         {
             void OnPushReceived(string payload)
@@ -307,11 +309,9 @@ namespace UrbanAirship
         public const string FEATURE_IN_APP_AUTOMATION = "FEATURE_IN_APP_AUTOMATION";
         public const string FEATURE_MESSAGE_CENTER = "FEATURE_MESSAGE_CENTER";
         public const string FEATURE_PUSH = "FEATURE_PUSH";
-        public const string FEATURE_CHAT = "FEATURE_CHAT";
         public const string FEATURE_ANALYTICS = "FEATURE_ANALYTICS";
         public const string FEATURE_TAGS_AND_ATTRIBUTES = "FEATURE_TAGS_AND_ATTRIBUTES";
         public const string FEATURE_CONTACTS = "FEATURE_CONTACTS";
-        public const string FEATURE_LOCATION = "FEATURE_LOCATION";
         public const string FEATURE_ALL = "FEATURE_ALL";
     }
 
@@ -330,7 +330,7 @@ namespace UrbanAirship
         public LogLevel? logLevel;
 
         // Optional iOS config
-        public IOSConfig? iOS;
+        public IOSEnvironmentConfig? iOS;
     }
 
     public enum LogLevel
@@ -343,7 +343,7 @@ namespace UrbanAirship
         None = "none"
     }
 
-    public record IOSConfig
+    public record IOSEnvironmentConfig
     {
         /// <summary>
         /// Log privacy level. By default it logs at `private`, not logging anything lower than info to the console
@@ -359,8 +359,98 @@ namespace UrbanAirship
         Public = "public"
     }
 
-    public record AirshipConfig
+    public enum Site
     {
-        // TODO finish AirshipConfig
+        US = "us",
+        EU = "eu"
     }
+
+    public record IOSConfig
+    {
+        // itunesId for rate app and app store deep links.
+        public string? itunesId;
+    }
+
+    public record AndroidConfig
+    {
+        // App store URI
+        public string? appStoreUri;
+
+        // Fcm app name if using multiple FCM projects.
+        public string? fcmFirebaseAppName;
+
+        // Notification config.
+        public AndroidNotificationConfig? notificationConfig;
+
+        // Log privacy level. By default it logs at `private`, not logging anything lower than info to the console 
+        // and redacting logs with string interpolation. `public` will log all configured log levels to the console 
+        // without redacting any of the log lines.
+        public LogPrivacyLevel? logPrivacyLevel;
+    }
+
+    public record AndroidNotificationConfig
+    {
+        // The icon resource name.
+        public string? icon;
+
+        // The large icon resource name.
+        public string? largeIcon;
+
+        // The default android notification channel ID.
+        public string? defaultChannelId;
+
+        // The accent color. Must be a hex value #AARRGGBB.
+        public string? accentColor;
+    }
+
+    public record AirshipConfig
+        {
+            // Default environment.
+            public ConfigEnvironment? defaultEnvironment;
+
+            // Development environment. Overrides default environment if inProduction is false.
+            public ConfigEnvironment? development;
+
+            // Production environment. Overrides default environment if inProduction is true.
+            public ConfigEnvironment? production;
+
+            // Cloud site.
+            public Site? site;
+
+            // Switches the environment from development or production.
+            // If the value is not set, Airship will determine the value at runtime.
+            public bool? inProduction;
+
+            // URL allow list.
+            public string[]? urlAllowList;
+
+            // URL allow list for open URL scope.
+            public string[]? urlAllowListScopeOpenUrl;
+
+            // URL allow list for JS bridge injection.
+            public string[]? urlAllowListScopeJavaScriptInterface;
+
+            // Initial config URL for custom Airship domains.
+            // The URL should also be added to the urlAllowList.
+            public string? initialConfigUrl;
+
+            // Enabled features. Defaults to all.
+            public Features[]? enabledFeatures;
+
+            // Enables channel capture feature. This config is enabled by default.
+            public bool? isChannelCaptureEnabled;
+
+            // Whether to suppress console error messages about missing allow list entries during takeOff.
+            // This config is disabled by default.
+            public bool? suppressAllowListError;
+
+            // Pauses In-App Automation on launch.
+            public bool? autoPauseInAppAutomationOnLaunch;
+
+            // iOS config.
+            public IOSConfig? ios;
+
+            // Android config.
+            public AndroidConfig? android;
+        }
 }

@@ -42,6 +42,7 @@ namespace UrbanAirship
             string inboxMessagesAsJson = plugin.Call<string>("getMessages");
             InternalInboxMessage[] internalInboxMessages = JsonArray<InternalInboxMessage>.FromJson(inboxMessagesAsJson).values;
 
+            // TODO verify this as the proxy provide a the extras into a map
             // Unity's JsonUtility doesn't support embedded dictionaries - constructor will create the extras dictionary
             foreach (InternalInboxMessage internalInboxMessage in internalInboxMessages)
             {

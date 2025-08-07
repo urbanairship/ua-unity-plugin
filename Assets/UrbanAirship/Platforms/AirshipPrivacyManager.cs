@@ -68,4 +68,3 @@ namespace UrbanAirship
         }
     }
 }
-// TODO check if we can use an enum for the features
