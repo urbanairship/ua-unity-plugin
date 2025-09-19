@@ -72,8 +72,7 @@ namespace UrbanAirship
         public PushNotificationStatus GetNotificationStatus()
         {
             // TODO parse this and return a PushNotificationStatus
-            plugin.Call<string>("getNotificationStatus");
-            return;
+            return JsonUtility.FromJson<PushNotificationStatus> (plugin.Call<string>("getNotificationStatus"));
         }
 
         /// <summary>
@@ -100,7 +99,7 @@ namespace UrbanAirship
             }
 
             var pushMessages = new List<PushMessage>();
-            foreach (string pushMessageAsJson in JsonArray<string>.FromJson(pushMessagesAsJson).values)
+            foreach (string pushMessageAsJson in JsonArray<string>.FromJson(jsonPushMessages).values)
             {
                 pushMessages.Add(PushMessage.FromJson(pushMessageAsJson));
             }
@@ -323,11 +322,14 @@ namespace UrbanAirship
     public enum PermissionStatus
     {
         // Permission is granted.
-        Granted = "granted",
+        [AirshipEnumStringValue("granted")]
+        Granted,
         // Permission is denied.
-        Denied = "denied",
+        [AirshipEnumStringValue("denied")]
+        Denied,
         // Permission has not yet been requested.
-        NotDetermined = "not_determined",
+        [AirshipEnumStringValue("not_determined")]
+        NotDetermined,
     }
 
     /// <summary>
@@ -338,7 +340,8 @@ namespace UrbanAirship
     public enum PromptPermissionFallback
     {
         // Take the user to the system settings to enable the permission.
-        SystemSettings = "systemSettings"
+        [AirshipEnumStringValue("systemSettings")]
+        SystemSettings
     }
 
     /// <summary>
@@ -348,18 +351,22 @@ namespace UrbanAirship
     public enum ForegroundPresentationOption
     {
         // Play the sound associated with the notification.
-        Sound = "sound",
+        [AirshipEnumStringValue("sound")]
+        Sound,
 
         // Apply the notification's badge value to the app’s icon.
-        Badge = "badge",
+        [AirshipEnumStringValue("badge")]
+        Badge,
 
         // Show the notification in Notification Center. On iOS 13 an older,
         // this will also show the notification as a banner.
-        List = "list",
+        [AirshipEnumStringValue("list")]
+        List,
 
         // Present the notification as a banner. On iOS 13 an older,
         // this will also show the notification in the Notification Center.
-        Banner = "banner",
+        [AirshipEnumStringValue("banner")]
+        Banner,
     }
 
     /// <summary>
@@ -369,19 +376,26 @@ namespace UrbanAirship
     public enum NotificationOption
     {
         // Alerts.
-        Alert = "alert",
+        [AirshipEnumStringValue("alert")]
+        Alert,
         // Sounds.
-        Sound = "sound",
+        [AirshipEnumStringValue("sound")]
+        Sound,
         // Badges.
-        Badge = "badge",
+        [AirshipEnumStringValue("badge")]
+        Badge,
         // Car play.
-        CarPlay = "car_play",
+        [AirshipEnumStringValue("car_play")]
+        CarPlay,
         // Critical Alert.
-        CriticalAlert = "critical_alert",
+        [AirshipEnumStringValue("critical_alert")]
+        CriticalAlert,
         // Provides app notification settings.
-        ProvidesAppNotificationSettings = "provides_app_notification_settings",
+        [AirshipEnumStringValue("provides_app_notification_settings")]
+        ProvidesAppNotificationSettings,
         // Provisional.
-        Provisional = "provisional"
+        [AirshipEnumStringValue("provisional")]
+        Provisional
     }
 
     public record QuietTime
@@ -405,25 +419,35 @@ namespace UrbanAirship
     public enum AuthorizedNotificationSetting
     {
         // Alerts.
-        Alert = "alert",
+        [AirshipEnumStringValue("alert")]
+        Alert,
         // Sounds.
-        Sound = "sound",
+        [AirshipEnumStringValue("sound")]
+        Sound,
         // Badges.
-        Badge = "badge",
+        [AirshipEnumStringValue("badge")]
+        Badge,
         // CarPlay.
-        CarPlay = "car_play",
+        [AirshipEnumStringValue("car_play")]
+        CarPlay,
         // Lock screen.
-        LockScreen = "lock_screen",
+        [AirshipEnumStringValue("lock_screen")]
+        LockScreen,
         // Notification center.
-        NotificationCenter = "notification_center",
+        [AirshipEnumStringValue("notification_center")]
+        NotificationCenter,
         // Critical alert.
-        CriticalAlert = "critical_alert",
+        [AirshipEnumStringValue("critical_alert")]
+        CriticalAlert,
         // Announcement.
-        Announcement = "announcement",
+        [AirshipEnumStringValue("announcement")]
+        Announcement,
         // Scheduled delivery.
-        ScheduledDelivery = "scheduled_delivery",
+        [AirshipEnumStringValue("scheduled_delivery")]
+        ScheduledDelivery,
         // Time sensitive.
-        TimeSensitive = "time_sensitive",
+        [AirshipEnumStringValue("time_sensitive")]
+        TimeSensitive,
     }
 
     public record NotificationConfig

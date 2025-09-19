@@ -44,7 +44,7 @@ namespace UrbanAirship
         /// <returns>The current locale.</returns>
         public string GetLocale()
         {
-            return plugin.Call("getLocale");
+            return plugin.Call<string>("getLocale");
         }
     }
 }

@@ -264,7 +264,7 @@ namespace UrbanAirship
 
             }
 
-            ioid OnShowInbox(string messageId)
+            void OnShowInbox(string messageId)
             {
                 ShowInboxEventHandler handler = Shared.OnShowInbox;
 
@@ -335,12 +335,18 @@ namespace UrbanAirship
 
     public enum LogLevel
     {
-        Verbose = "verbose",
-        Debug = "debug",
-        Info = "info",
-        Warning = "warning",
-        Error = "error",
-        None = "none"
+        [AirshipEnumStringValue("verbose")]
+        Verbose,
+        [AirshipEnumStringValue("debug")]
+        Debug,
+        [AirshipEnumStringValue("info")]
+        Info,
+        [AirshipEnumStringValue("warning")]
+        Warning,
+        [AirshipEnumStringValue("error")]
+        Error,
+        [AirshipEnumStringValue("none")]
+        None
     }
 
     public record IOSEnvironmentConfig
@@ -355,14 +361,18 @@ namespace UrbanAirship
 
     public enum LogPrivacyLevel
     {
-        Private = "private",
-        Public = "public"
+        [AirshipEnumStringValue("private")]
+        Private,
+        [AirshipEnumStringValue("public")]
+        Public
     }
 
     public enum Site
     {
-        US = "us",
-        EU = "eu"
+        [AirshipEnumStringValue("us")]
+        US,
+        [AirshipEnumStringValue("eu")]
+        EU
     }
 
     public record IOSConfig
@@ -435,7 +445,7 @@ namespace UrbanAirship
             public string? initialConfigUrl;
 
             // Enabled features. Defaults to all.
-            public Features[]? enabledFeatures;
+            public string[]? enabledFeatures;
 
             // Enables channel capture feature. This config is enabled by default.
             public bool? isChannelCaptureEnabled;

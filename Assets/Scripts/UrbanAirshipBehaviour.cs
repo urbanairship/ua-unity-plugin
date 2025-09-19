@@ -10,102 +10,109 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
     public string addTagOnStart;
 
     void Awake () {
-        UAirship.Shared.UserNotificationsEnabled = true;
+        // UAirship.Shared.UserNotificationsEnabled = true;
     }
 
     void Start () {
-        if (!string.IsNullOrEmpty (addTagOnStart)) {
-            UAirship.Shared.AddTag (addTagOnStart);
-        }
+        // if (!string.IsNullOrEmpty (addTagOnStart)) {
+        //     UAirship.Shared.AddTag (addTagOnStart);
+        // }
 
-        string[] allenable = new string[] { "FEATURE_ALL" };
-        UAirship.Shared.SetEnabledFeatures(allenable);
+        // string[] allenable = new string[] { "FEATURE_ALL" };
+        // UAirship.Shared.SetEnabledFeatures(allenable);
 
-        UAirship.Shared.OnPushReceived += OnPushReceived;
-        UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
-        UAirship.Shared.OnDeepLinkReceived += OnDeepLinkReceived;
-        UAirship.Shared.OnPushOpened += OnPushOpened;
-        UAirship.Shared.OnInboxUpdated += OnInboxUpdated;
-        UAirship.Shared.OnShowInbox += OnShowInbox;
+        // UAirship.Shared.OnPushReceived += OnPushReceived;
+        // UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
+        // UAirship.Shared.OnDeepLinkReceived += OnDeepLinkReceived;
+        // UAirship.Shared.OnPushOpened += OnPushOpened;
+        // UAirship.Shared.OnInboxUpdated += OnInboxUpdated;
+        // UAirship.Shared.OnShowInbox += OnShowInbox;
 
-        UAirship.Shared.TrackScreen("Main Camera");
+        // Airship.Shared.analytics.TrackScreen("Main Camera");
+        
+        // CustomEvent customEvent = new CustomEvent();
+        // customEvent.EventName = "event_name";
+        // customEvent.EventValue = 123;
+        // Airship.Shared.analytics.AddCustomEvent(customEvent);
 
-        UAirship.Shared.RefreshInbox();
+        // UAirship.Shared.RefreshInbox();
 
-        UAirship.Shared.EditChannelAttributes().SetAttribute("teststring", "a_string").Apply();
-        UAirship.Shared.EditChannelAttributes().SetAttribute("testint", (int) 1).Apply();
-        UAirship.Shared.EditChannelAttributes().SetAttribute("testlong", (long) 1000).Apply();
-        UAirship.Shared.EditChannelAttributes().SetAttribute("testfloat", (float)5.99).Apply();
-        UAirship.Shared.EditChannelAttributes().SetAttribute("testdouble", (double)5555.999).Apply();
-        UAirship.Shared.EditChannelAttributes().SetAttribute("testdate", DateTime.UtcNow).Apply();
+        // Airship.Shared.Channel.EditTags().AddTag("ulrich").Apply();
+
+        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("teststring", "a_string").Apply();
+        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testint", (int) 1).Apply();
+        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testlong", (long) 1000).Apply();
+        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testfloat", (float)5.99).Apply();
+        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testdouble", (double)5555.999).Apply();
+        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testdate", DateTime.UtcNow).Apply();
     }
 
-    void OnDestroy () {
-        UAirship.Shared.OnPushReceived -= OnPushReceived;
-        UAirship.Shared.OnChannelUpdated -= OnChannelUpdated;
-        UAirship.Shared.OnDeepLinkReceived -= OnDeepLinkReceived;
-        UAirship.Shared.OnPushOpened -= OnPushOpened;
-    }
+    // void OnDestroy () {
+    //     UAirship.Shared.OnPushReceived -= OnPushReceived;
+    //     UAirship.Shared.OnChannelUpdated -= OnChannelUpdated;
+    //     UAirship.Shared.OnDeepLinkReceived -= OnDeepLinkReceived;
+    //     UAirship.Shared.OnPushOpened -= OnPushOpened;
+    // }
 
-    void OnPushReceived (PushMessage message) {
-        Debug.Log ("Received push! " + message.Alert);
+    // void OnPushReceived (PushMessage message) {
+    //     Debug.Log ("Received push! " + message.Alert);
 
-        if (message.Extras != null) {
-            foreach (KeyValuePair<string, string> kvp in message.Extras) {
-                Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
-            }
-        }
-    }
+    //     if (message.Extras != null) {
+    //         foreach (KeyValuePair<string, string> kvp in message.Extras) {
+    //             Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
+    //         }
+    //     }
+    // }
 
-    void OnPushOpened (PushMessage message) {
-        Debug.Log ("Opened Push! " + message.Alert);
+    // void OnPushOpened (PushMessage message) {
+    //     Debug.Log ("Opened Push! " + message.Alert);
 
-        if (message.Extras != null) {
-            foreach (KeyValuePair<string, string> kvp in message.Extras) {
-                Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
-            }
-        }
-    }
+    //     if (message.Extras != null) {
+    //         foreach (KeyValuePair<string, string> kvp in message.Extras) {
+    //             Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
+    //         }
+    //     }
+    // }
 
-    void OnChannelUpdated (string channelId) {
-        Debug.Log ("Channel updated: " + channelId);
-    }
+    // void OnChannelUpdated (string channelId) {
+    //     Debug.Log ("Channel updated: " + channelId);
+    // }
 
-    void OnDeepLinkReceived (string deeplink) {
-        Debug.Log ("Received deep link: " + deeplink);
-    }
+    // void OnDeepLinkReceived (string deeplink) {
+    //     Debug.Log ("Received deep link: " + deeplink);
+    // }
 
-    void OnInboxUpdated (uint messageUnreadCount, uint messageCount)
-    {
-        Debug.Log("Inbox updated - unread messages: " + messageUnreadCount + " total messages: " + messageCount);
+    // void OnInboxUpdated (uint messageUnreadCount, uint messageCount)
+    // {
+    //     Debug.Log("Inbox updated - unread messages: " + messageUnreadCount + " total messages: " + messageCount);
 
-        IEnumerable<InboxMessage>inboxMessages = UAirship.Shared.InboxMessages();
-        foreach (InboxMessage inboxMessage in inboxMessages)
-        {
-            Debug.Log("Message id: " + inboxMessage.id + ", title: " + inboxMessage.title + ", sentDate: " + inboxMessage.sentDate + ", isRead: " + inboxMessage.isRead + ", isDeleted: " + inboxMessage.isDeleted);
-            if (inboxMessage.extras == null)
-            {
-                Debug.Log("Extras is null");
-            }
-            else
-            {
-                foreach (KeyValuePair<string, string> entry in inboxMessage.extras)
-                {
-                    Debug.Log("Message extras [" + entry.Key + "] = " + entry.Value);
-                }
-            }
-        }
-    }
+    //     IEnumerable<InboxMessage>inboxMessages = UAirship.Shared.InboxMessages();
+    //     foreach (InboxMessage inboxMessage in inboxMessages)
+    //     {
+    //         Debug.Log("Message id: " + inboxMessage.id + ", title: " + inboxMessage.title + ", sentDate: " + inboxMessage.sentDate + ", isRead: " + inboxMessage.isRead + ", isDeleted: " + inboxMessage.isDeleted);
+    //         if (inboxMessage.extras == null)
+    //         {
+    //             Debug.Log("Extras is null");
+    //         }
+    //         else
+    //         {
+    //             foreach (KeyValuePair<string, string> entry in inboxMessage.extras)
+    //             {
+    //                 Debug.Log("Message extras [" + entry.Key + "] = " + entry.Value);
+    //             }
+    //         }
+    //     }
+    // }
 
-    void OnShowInbox (string messageId)
-    {
-        if (messageId == null)
-        {
-            Debug.Log("OnShowInbox - show inbox");
-        }
-        else
-        {
-            Debug.Log("OnShowInbox - show message: messageId = " + messageId);
-        }
-    }
+    // void OnShowInbox (string messageId)
+    // {
+    //     if (messageId == null)
+    //     {
+    //         Debug.Log("OnShowInbox - show inbox");
+    //     }
+    //     else
+    //     {
+    //         Debug.Log("OnShowInbox - show message: messageId = " + messageId);
+    //     }
+    // }
 }

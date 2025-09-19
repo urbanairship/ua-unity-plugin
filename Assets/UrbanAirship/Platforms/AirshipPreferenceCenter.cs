@@ -40,7 +40,7 @@ namespace UrbanAirship
         public PreferenceCenterConfig GetConfig(string preferenceCenterId)
         {
             // TODO parse this from a Json into a PreferenceCenterConfig and return that
-            return plugin.Call<string>("getPreferenceCenterConfig", preferenceCenterId);
+            return JsonUtility.FromJson<PreferenceCenterConfig> (plugin.Call<string>("getPreferenceCenterConfig", preferenceCenterId));
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace UrbanAirship
     [Serializable]
     class PreferenceCenterNotificationOptInCondition : PreferenceCenterCondition
     {
-        public readonly override PreferenceCenterConditionType type = PreferenceCenterConditionType.notificationOptIn;
+        public readonly PreferenceCenterConditionType type = PreferenceCenterConditionType.notificationOptIn;
         public PreferenceCenterConditionOptIn whenStatus;
     }
 
@@ -106,8 +106,8 @@ namespace UrbanAirship
     [Serializable]
     public class PreferenceCenterIconDisplay : PreferenceCenterCommonDisplay
     {
-        public override string title;
-        public override string subtitle;
+        public string title;
+        public string subtitle;
         public string icon;
     }
 
@@ -130,19 +130,19 @@ namespace UrbanAirship
     [Serializable]
     public class PreferenceCenterCommonSection : PreferenceCenterSection
     {
-        public readonly override PreferenceCenterSectionType type = PreferenceCenterSectionType.CommonSection;
-        public readonly override PreferenceCenterCommonDisplay? display;
-        public readonly override List<PreferenceCenterItem>? items;
-        public readonly override List<PreferenceCenterCondition>? conditions;
+        public readonly PreferenceCenterSectionType type = PreferenceCenterSectionType.CommonSection;
+        public readonly PreferenceCenterCommonDisplay? display;
+        public readonly List<PreferenceCenterItem>? items;
+        public readonly List<PreferenceCenterCondition>? conditions;
     }
 
     [Serializable]
     public class PreferenceCenterLabeledSectionBreak : PreferenceCenterSection
     {
-        public readonly override PreferenceCenterSectionType type = PreferenceCenterSectionType.LabeledSectionBreak;
-        public readonly override PreferenceCenterCommonDisplay? display;
-        public readonly override List<PreferenceCenterItem>? items = null;
-        public readonly override List<PreferenceCenterCondition>? conditions;
+        public readonly PreferenceCenterSectionType type = PreferenceCenterSectionType.LabeledSectionBreak;
+        public readonly PreferenceCenterCommonDisplay? display;
+        public readonly List<PreferenceCenterItem>? items = null;
+        public readonly List<PreferenceCenterCondition>? conditions;
     }
 
     [Serializable]
@@ -167,33 +167,33 @@ namespace UrbanAirship
     {
         public string text;
         public string contentDescription;
-        public Map<string, dynamic> actions;
+        public Dictionary<string, dynamic> actions;
     }
 
     [Serializable]
     public class PreferenceCenterAlertItem : PreferenceCenterItem
     {
-        public readonly override PreferenceCenterItemType type = PreferenceCenterItemType.Alert;
-        public readonly override PreferenceCenterCommonDisplay display;
-        public readonly override List<PreferenceCenterCondition>? conditions;
+        public readonly PreferenceCenterItemType type = PreferenceCenterItemType.Alert;
+        public readonly PreferenceCenterCommonDisplay display;
+        public readonly List<PreferenceCenterCondition>? conditions;
         public readonly PreferenceCenterAlertItemButton? button;
     }
 
     [Serializable]
     public class PreferenceCenterChannelSubscriptionItem : PreferenceCenterItem
     {
-        public readonly override PreferenceCenterItemType type = PreferenceCenterItemType.ChannelSubscription;
-        public readonly override PreferenceCenterCommonDisplay display;
-        public readonly override List<PreferenceCenterCondition>? conditions;
+        public readonly PreferenceCenterItemType type = PreferenceCenterItemType.ChannelSubscription;
+        public readonly PreferenceCenterCommonDisplay display;
+        public readonly List<PreferenceCenterCondition>? conditions;
         public readonly string subscriptionId;
     }
 
     [Serializable]
     public class PreferenceCenterContactSubscriptionItem : PreferenceCenterItem
     {
-        public readonly override PreferenceCenterItemType type = PreferenceCenterItemType.ContactSubscription;
-        public readonly override PreferenceCenterCommonDisplay display;
-        public readonly override List<PreferenceCenterCondition>? conditions;
+        public readonly PreferenceCenterItemType type = PreferenceCenterItemType.ContactSubscription;
+        public readonly PreferenceCenterCommonDisplay display;
+        public readonly List<PreferenceCenterCondition>? conditions;
         public readonly string subscriptionId;
         public readonly List<string> scopes;
     }
@@ -208,9 +208,9 @@ namespace UrbanAirship
     [Serializable]
     public class PreferenceCenterContactSubscriptionGroupItem : PreferenceCenterItem
     {
-        public readonly override PreferenceCenterItemType type = PreferenceCenterItemType.ContactSubscriptionGroup;
-        public readonly override PreferenceCenterCommonDisplay display;
-        public readonly override List<PreferenceCenterCondition>? conditions;
+        public readonly PreferenceCenterItemType type = PreferenceCenterItemType.ContactSubscriptionGroup;
+        public readonly PreferenceCenterCommonDisplay display;
+        public readonly List<PreferenceCenterCondition>? conditions;
         public readonly string subscriptionId;
         public readonly List<PreferenceCenterContactSubscriptionGroupItemComponent> components;
     }

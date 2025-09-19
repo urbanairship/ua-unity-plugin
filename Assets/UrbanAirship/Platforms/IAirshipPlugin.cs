@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace UrbanAirship {
@@ -66,15 +67,11 @@ namespace UrbanAirship {
 
     internal class AirshipPluginiOS : IAirshipPlugin{
 
-        // TODO finish the iOS plugin setup
-        // private IAirshipPlugin plugin;
-
-        // public AirshipPluginiOS (IAirshipPlugin plugin) {
-        //     this.plugin = plugin;
-        // }
+        [DllImport ("__Internal")]
+        private static extern void UnityPlugin_call (string method, string args);
 
         public void Call (string method, params object[] args) {
-            
+            UnityPlugin_call(method, JsonUtility.ToJson(args));
         }
 
         public T Call<T> (string method, params object[] args) {
