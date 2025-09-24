@@ -21,6 +21,8 @@ class UnityPlugin {
         this.listener = listener
     }
 
+    // Airship
+
     fun takeOff(config: String): Boolean {
         ProxyLogger.debug("UnityPlugin takeOff: $config")
         return airshipProxyInstance.takeOff(JsonValue.parseString(config))
@@ -375,6 +377,8 @@ class UnityPlugin {
         ProxyLogger.debug("UnityPlugin clearNotification: $identifier")
         airshipProxyInstance.push.clearNotification(identifier)
     }
+
+    // TODO Just noticed I forgot to implement the android specific push methods, I need to add that
 
     // TODO finish the implementation
 

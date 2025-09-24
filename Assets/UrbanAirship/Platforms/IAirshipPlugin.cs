@@ -71,12 +71,12 @@ namespace UrbanAirship {
         private static extern void UnityPlugin_call (string method, string args);
 
         public void Call (string method, params object[] args) {
-            UnityPlugin_call(method, JsonUtility.ToJson(args));
+            UnityPlugin_call(method, args);
         }
 
         public T Call<T> (string method, params object[] args) {
             
-            return default(T);
+            return UnityPlugin_call(method, args);
         }
 
         public GameObject Listener {

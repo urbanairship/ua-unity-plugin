@@ -229,6 +229,8 @@ namespace UrbanAirship
         {
             return plugin.Call<QuietTime?>("getQuietTime");
         }
+
+        // TODO Just noticed I forgot some methods, I need to add that
     }
 
     /// <summary>
@@ -270,6 +272,8 @@ namespace UrbanAirship
         {
             plugin.Call("setForegroundNotificationsEnabled", enabled);
         }
+
+        // TODO Just noticed I forgot isForegroundNotificationsEnabled method, I need to add that
     }
 
     /// <summary>
