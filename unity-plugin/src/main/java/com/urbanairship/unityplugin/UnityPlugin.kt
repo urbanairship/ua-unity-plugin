@@ -7,8 +7,12 @@ import com.urbanairship.android.framework.proxy.ProxyLogger
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.json.JsonException
+import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
+import com.urbanairship.push.PushMessage
+import com.urbanairship.util.UAStringUtil
 import org.json.JSONArray
+
 
 class UnityPlugin {
 
@@ -381,6 +385,117 @@ class UnityPlugin {
     // TODO Just noticed I forgot to implement the android specific push methods, I need to add that
 
     // TODO finish the implementation
+
+    fun onPushReceived(message: PushMessage?) {
+        ProxyLogger.debug("UnityPlugin push received: $message")
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnPushReceived", getPushPayload(message))
+        }
+    }
+
+    fun onPushOpened(message: PushMessage?) {
+        ProxyLogger.debug("UnityPlugin push opened: $message")
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnPushOpened", getPushPayload(message))
+        }
+    }
+
+    fun onDeepLinkReceived(deepLink: String?): Boolean {
+        ProxyLogger.debug("UnityPlugin deepLink received: $deepLink")
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnDeepLinkReceived", deepLink)
+            return true
+        }
+        return false
+    }
+
+    fun onChannelCreated(channelId: String?) {
+        ProxyLogger.debug("UnityPlugin channel created: $channelId")
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnChannelCreated", channelId)
+        }
+    }
+
+    fun onShowInbox(messageId: String?) {
+        if (messageId == null) {
+            ProxyLogger.debug("UnityPlugin show inbox")
+
+            if (listener != null) {
+                UnityPlayer.UnitySendMessage(listener, "OnShowInbox", "")
+            }
+        } else {
+            ProxyLogger.debug("UnityPlugin show inbox message: ", messageId)
+
+            if (listener != null) {
+                UnityPlayer.UnitySendMessage(listener, "OnShowInbox", messageId)
+            }
+        }
+    }
+
+    // TODO Implement the rest of the listeners (PreferenceCenter)
+
+    suspend fun onInboxUpdated() {
+        val unreadCount = getUnreadCount()
+        val totalCount = getMessages().count()
+        val counts: JsonMap = JsonMap.newBuilder()
+            .put("unread", unreadCount)
+            .put("total", totalCount)
+            .build()
+        ProxyLogger.debug(
+            "UnityPlugin inboxUpdated (unread = %s, total = %s)",
+            unreadCount, totalCount
+        )
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnInboxUpdated", counts.toString())
+        }
+    }
+
+
+
+    private fun getPushPayload(message: PushMessage?): String? {
+        if (message == null) {
+            return null
+        }
+
+        val payloadMap: MutableMap<String?, Any?> = HashMap()
+
+        val extras: MutableList<MutableMap<String?, String?>?> = ArrayList()
+
+        for (key in message.getPushBundle().keySet()) {
+            val value: String?
+            if (!UAStringUtil.equals(key, "google.sent_time")) {
+                value = message.getPushBundle().getString(key)
+            } else {
+                continue
+            }
+
+            if (value == null) {
+                continue
+            }
+
+            val extra: MutableMap<String?, String?> = HashMap()
+            extra.put("key", key)
+            extra.put("value", value)
+            extras.add(extra)
+        }
+
+        if (message.alert != null) {
+            payloadMap.put("alert", message.alert)
+        }
+
+        if (message.sendId != null) {
+            payloadMap.put("identifier", message.sendId)
+        }
+
+        payloadMap.put("extras", extras)
+
+        return JsonValue.wrapOpt(payloadMap).toString()
+    }
 
     companion object {
         private val instance = UnityPlugin()

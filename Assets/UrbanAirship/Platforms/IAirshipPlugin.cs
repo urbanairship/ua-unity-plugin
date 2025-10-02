@@ -67,6 +67,13 @@ namespace UrbanAirship {
 
     internal class AirshipPluginiOS : IAirshipPlugin{
 
+        // [DllImport ("__Internal")]
+        // private static extern void UnityPlugin_shared ();
+
+        // public AirshipPluginiOS() {
+        //     UnityPlugin_shared();
+        // }
+
         [DllImport ("__Internal")]
         private static extern void UnityPlugin_call (string method, string args);
 
@@ -75,7 +82,6 @@ namespace UrbanAirship {
         }
 
         public T Call<T> (string method, params object[] args) {
-            
             return UnityPlugin_call(method, args);
         }
 
