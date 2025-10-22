@@ -10,7 +10,8 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
     public string addTagOnStart;
 
     void Awake () {
-        // UAirship.Shared.UserNotificationsEnabled = true;
+        //Airship.Shared.push.SetUserNotificationsEnabled(true);
+        //Airship.Shared.push.UserNotificationsEnabled = true;
     }
 
     void Start () {
@@ -18,8 +19,8 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         //     UAirship.Shared.AddTag (addTagOnStart);
         // }
 
-        // string[] allenable = new string[] { "FEATURE_ALL" };
-        // UAirship.Shared.SetEnabledFeatures(allenable);
+        string[] allenable = new string[] { "FEATURE_ALL" };
+        //Airship.Shared.privacyManager.SetEnabledFeatures(allenable);
 
         // UAirship.Shared.OnPushReceived += OnPushReceived;
         // UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
@@ -28,23 +29,23 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         // UAirship.Shared.OnInboxUpdated += OnInboxUpdated;
         // UAirship.Shared.OnShowInbox += OnShowInbox;
 
-        // Airship.Shared.analytics.TrackScreen("Main Camera");
+        Airship.Shared.analytics.TrackScreen("Main Camera");
         
-        // CustomEvent customEvent = new CustomEvent();
-        // customEvent.EventName = "event_name";
-        // customEvent.EventValue = 123;
-        // Airship.Shared.analytics.AddCustomEvent(customEvent);
+        CustomEvent customEvent = new CustomEvent();
+        customEvent.EventName = "event_name";
+        customEvent.EventValue = 123;
+        Airship.Shared.analytics.AddCustomEvent(customEvent);
 
-        // UAirship.Shared.RefreshInbox();
+        Airship.Shared.messageCenter.RefreshInbox();
 
-        // Airship.Shared.Channel.EditTags().AddTag("ulrich").Apply();
+        Airship.Shared.channel.EditTags().AddTag("ulrich").Apply();
 
-        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("teststring", "a_string").Apply();
-        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testint", (int) 1).Apply();
-        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testlong", (long) 1000).Apply();
-        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testfloat", (float)5.99).Apply();
-        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testdouble", (double)5555.999).Apply();
-        // Airship.Shared.Channel.EditChannelAttributes().SetAttribute("testdate", DateTime.UtcNow).Apply();
+        Airship.Shared.channel.EditAttributes().SetAttribute("teststring", "a_string").Apply();
+        Airship.Shared.channel.EditAttributes().SetAttribute("testint", (int) 1).Apply();
+        Airship.Shared.channel.EditAttributes().SetAttribute("testlong", (long) 1000).Apply();
+        Airship.Shared.channel.EditAttributes().SetAttribute("testfloat", (float)5.99).Apply();
+        Airship.Shared.channel.EditAttributes().SetAttribute("testdouble", (double)5555.999).Apply();
+        Airship.Shared.channel.EditAttributes().SetAttribute("testdate", DateTime.UtcNow).Apply();
     }
 
     // void OnDestroy () {

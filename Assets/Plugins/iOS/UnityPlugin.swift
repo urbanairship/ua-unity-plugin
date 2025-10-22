@@ -28,9 +28,28 @@ class UnityPlugin: NSObject {
     }()
 
     @_cdecl("UnityPlugin_call")
-    public func UnityPlugin_call(_ method: String, args: Any...) async throws -> (any Sendable)? {
+    public func UnityPlugin_call(_ method: String, argsJson: String) -> UnsafePointer<CChar>? {
+        do {
+            let args = try AirshipJSON.wrap(argsJson).decode() as? [String: [Any]]
+        } catch {
+            AirshipLogger.error("Failed to deserialize arguments for method \(method): \(error)")
+            return strdup("{}")
+        }
 
-        AirshipLogger.debug("UnityPlugin \(method): \(args.first)")
+        let result: Any?
+
+        do {
+            result = try UnityPlugin.shared.handleCall(method: method, args: args)
+        } catch {
+            AirshipLogger.error("Error executing method \(method): \(error)")
+            return strdup("{}")
+        }
+
+        return strdup(AirshipJSON.wrap(result))
+    }
+
+    func handleCall(method: String, args: [Any]) throws -> Any? {
+        AirshipLogger.debug("UnityPlugin \(method): \(args.first?)")
 
         // TODO check how to handle the class attributes called in the static method
         // let instance = shared

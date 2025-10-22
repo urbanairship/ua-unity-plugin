@@ -75,20 +75,35 @@ namespace UrbanAirship {
         // }
 
         [DllImport ("__Internal")]
-        private static extern void UnityPlugin_call (string method, string args);
+        private static extern string UnityPlugin_call (string method, string argsJson);
 
         public void Call (string method, params object[] args) {
-            UnityPlugin_call(method, args);
+            string argsJson = SerializeArgs(args);
+            UnityPlugin_call(method, argsJson);
         }
 
         public T Call<T> (string method, params object[] args) {
-            return UnityPlugin_call(method, args);
+            string argsJson = SerializeArgs(args);
+            string resultJson = UnityPlugin_call(method, argsJson);
+
+            if (string.IsNullOrEmpty(resultJson) || resultJson == "{}") {
+                return default(T);
+            }
+
+            return JsonUtility.FromJson<T>(resultJson);
         }
 
         public GameObject Listener {
             set {
                 Call ("setListener", value.name);
             }
+        }
+
+        public static string SerializeArgs(params object[] args) {
+            if (args == null || args.Length == 0) {
+                return "{}"; // Return empty JSON object if no arguments
+            }
+            return JsonUtility.ToJson(args);
         }
     }
 

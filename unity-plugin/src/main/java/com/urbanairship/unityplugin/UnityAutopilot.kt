@@ -15,23 +15,23 @@ class UnityAutopilot : BaseAutopilot() {
     }
 
     override fun onReady(context: Context, airship: UAirship) {
-        ProxyLogger.info("UnityAutopilot", "onAirshipReady")
         airship.analytics.registerSDKExtension(Extension.UNITY, BuildConfig.PLUGIN_VERSION)
     }
 
-    override fun createAirshipConfigOptions(context: Context): AirshipConfigOptions? {
+    // TODO add the listeners
+
+    override fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder {
         val resourceId = context.resources.getIdentifier("airship_config", "xml", context.packageName)
         if (resourceId <= 0) {
             ProxyLogger.error("airship_config.xml not found. Make sure Urban Airship is configured Window => Urban Airship => Settings.")
-            return null
+            return super.createConfigBuilder(context)
         }
 
-        val options = AirshipConfigOptions.Builder()
+        val builder = AirshipConfigOptions.newBuilder()
             .applyConfig(context, resourceId)
-            .build()
 
         //ProxyLogger.setLogLevel(options.logLevel)
 
-        return options
+        return builder
     }
 }
