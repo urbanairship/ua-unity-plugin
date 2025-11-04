@@ -57,20 +57,6 @@ namespace UrbanAirship.Editor {
                 proj.AddFileToBuild (target, airshipGUID);
             }
 
-
-
-            // string targetGuid = proj.GetUnityMainTargetGuid();
-            // string bridgingHeaderPath = "Libraries/Plugins/iOS/UnityPlugin.h";
-            
-            // // 2. Set the 'Objective-C Bridging Header' build property.
-            // proj.SetBuildProperty(targetGuid, "SWIFT_OBJC_BRIDGING_HEADER", bridgingHeaderPath);
-
-            // // 3. IMPORTANT: Also set the 'Defines Module' property to YES. 
-            // // This is generally required for modern Swift/Objective-C interop.
-            // proj.SetBuildProperty(targetGuid, "DEFINES_MODULE", "YES");
-
-
-
             // Update the Header Search Paths
             // so the Swift compiler finds the module.modulemap file.
             UpdateHeaderSearchPaths(buildPath, proj);
