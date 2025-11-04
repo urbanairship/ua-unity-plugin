@@ -57,6 +57,24 @@ namespace UrbanAirship.Editor {
                 proj.AddFileToBuild (target, airshipGUID);
             }
 
+
+
+            // string targetGuid = proj.GetUnityMainTargetGuid();
+            // string bridgingHeaderPath = "Libraries/Plugins/iOS/UnityPlugin.h";
+            
+            // // 2. Set the 'Objective-C Bridging Header' build property.
+            // proj.SetBuildProperty(targetGuid, "SWIFT_OBJC_BRIDGING_HEADER", bridgingHeaderPath);
+
+            // // 3. IMPORTANT: Also set the 'Defines Module' property to YES. 
+            // // This is generally required for modern Swift/Objective-C interop.
+            // proj.SetBuildProperty(targetGuid, "DEFINES_MODULE", "YES");
+
+
+
+            // Update the Header Search Paths
+            // so the Swift compiler finds the module.modulemap file.
+            UpdateHeaderSearchPaths(buildPath, proj);
+
             File.WriteAllText (projectPath, proj.WriteToString ());
         }
 
@@ -68,6 +86,45 @@ namespace UrbanAirship.Editor {
             rootDict.CreateArray ("UIBackgroundModes").AddString ("remote-notification");
             rootDict.SetString ("UAUnityPluginVersion", UrbanAirship.PluginInfo.Version);
             File.WriteAllText (plistPath, plist.WriteToString ());
+        }
+
+        private static void UpdateHeaderSearchPaths (string buildPath, PBXProject proj) {
+            // Copy the Airship modulemap into the iOS project
+            CopyModuleMap (buildPath, proj);
+
+#if UNITY_2019_3_OR_NEWER
+            string[] targets = {
+                proj.GetUnityFrameworkTargetGuid ()
+            };
+#else
+            // Fallback for older Unity versions
+            string[] targets = {
+                proj.TargetGuidByName (PBXProject.GetUnityTargetName ())
+            };
+#endif
+            
+            // Add the path to HEADER_SEARCH_PATHS for all relevant targets.
+            // This allows the Swift compiler to find the module.modulemap file.
+            foreach (string target in targets) {
+                proj.AddBuildProperty(target, "HEADER_SEARCH_PATHS", "$(SRCROOT)/Libraries/Plugins/iOS");
+                // Ensure existing paths are inherited
+                proj.AddBuildProperty(target, "HEADER_SEARCH_PATHS", "$(inherited)");
+            }
+        }
+
+        private static void CopyModuleMap (string buildPath, PBXProject proj) {
+            string sourceDir = Path.Combine(Application.dataPath, "Plugins/iOS");
+            string destinationDir = Path.Combine(buildPath, "Libraries/Plugins/iOS");
+
+            if (!Directory.Exists (destinationDir)) {
+                Directory.CreateDirectory (destinationDir);
+            }
+
+            // Copy module.modulemap
+            string mapFileName = "module.modulemap";
+            File.Copy(Path.Combine(sourceDir, mapFileName), 
+                      Path.Combine(destinationDir, mapFileName), 
+                      true); // 'true' overwrites if file exists
         }
 #endif
     }

@@ -1,15 +1,37 @@
+/* Copyright Airship and Contributors */
+
 import Foundation
 import SwiftUI
 import AirshipFrameworkProxy
+import AirshipUnityCBridge
 
+@_cdecl("UnityPlugin_call")
+public func UnityPlugin_call(_ method: String, argsJson: String) -> UnsafePointer<CChar>? {
+    do {
+        let args = try AirshipJSON.wrap(argsJson).decode() as? [String: [Any]]
+    } catch {
+        AirshipLogger.error("Failed to deserialize arguments for method \(method): \(error)")
+        return strdup("{}")
+    }
+
+    let result: Any?
+
+    do {
+        result = try UnityPlugin.shared.handleCall(method: method, args: args)
+    } catch {
+        AirshipLogger.error("Error executing method \(method): \(error)")
+        return strdup("{}")
+    }
+
+    return strdup(AirshipJSON.wrap(result))
+}
 
 class UnityPlugin: NSObject {
 
-    @_cdecl("UnityPlugin_shared")
     static let shared = UnityPlugin()
 
-    public let listener: String
-    public let storedDeepLink: String
+    public var listener: String? = nil
+    public var storedDeepLink: String? = nil
 
     private override init() {
         super.init()
@@ -26,27 +48,6 @@ class UnityPlugin: NSObject {
             // UnityPlugin.performTakeOff(withLaunchOptions: notification.userInfo)
         }
     }()
-
-    @_cdecl("UnityPlugin_call")
-    public func UnityPlugin_call(_ method: String, argsJson: String) -> UnsafePointer<CChar>? {
-        do {
-            let args = try AirshipJSON.wrap(argsJson).decode() as? [String: [Any]]
-        } catch {
-            AirshipLogger.error("Failed to deserialize arguments for method \(method): \(error)")
-            return strdup("{}")
-        }
-
-        let result: Any?
-
-        do {
-            result = try UnityPlugin.shared.handleCall(method: method, args: args)
-        } catch {
-            AirshipLogger.error("Error executing method \(method): \(error)")
-            return strdup("{}")
-        }
-
-        return strdup(AirshipJSON.wrap(result))
-    }
 
     func handleCall(method: String, args: [Any]) throws -> Any? {
         AirshipLogger.debug("UnityPlugin \(method): \(args.first?)")
@@ -400,6 +401,9 @@ class UnityPlugin: NSObject {
 
             case "getQuietTime":
                 return try AirshipJSON.wrap(try AirshipProxy.shared.push.getQuietTime())
+            
+            default:
+                return nil
         }
     }
 
@@ -409,7 +413,10 @@ class UnityPlugin: NSObject {
         AirshipLogger.debug("UnityPlugin receivedForegroundNotification \(userInfo)")
 
         if let listener = self.listener {
-            callUnitySendMessage(listener, "OnPushReceived", convertPushToJson(userInfo))
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnPushReceived",
+                                 message: UnityPlugin.convertPushToJson(push: userInfo)
+            )
             completionHandler()
         }
     }
@@ -418,7 +425,12 @@ class UnityPlugin: NSObject {
         AirshipLogger.debug("UnityPlugin receivedNotificationResponse \(notificationResponse)")
 
         if let listener = self.listener {
-            callUnitySendMessage(listener, "OnPushOpened", convertPushToJson(notificationResponse.notification.request.content.userInfo))
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnPushOpened",
+                                 message: UnityPlugin.convertPushToJson(
+                                    push: notificationResponse.notification.request.content.userInfo
+                                 )
+            )
             completionHandler()
         }
     }
@@ -432,7 +444,10 @@ class UnityPlugin: NSObject {
         self.storedDeepLink = deepLinkString
 
         if let listener = self.listener {
-            callUnitySendMessage(listener, "OnDeepLinkReceived", deepLinkString)
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnDeepLinkReceived",
+                                 message: deepLinkString
+            )
         }
         completionHandler()
     }
@@ -446,12 +461,15 @@ class UnityPlugin: NSObject {
         AirshipLogger.debug("UnityPlugin channelCreated: \(channelID)")
         
         if let listener = self.listener {
-            callUnitySendMessage(listener, "OnChannelUpdated", channelID)
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnChannelUpdated",
+                                 message: channelID
+            )
         }
     }
 
     // Inbox Message List Updated Notification
-    public func inboxUpdated() {
+    public func inboxUpdated() async {
         let unreadCount = try await AirshipProxy.shared.messageCenter.unreadCount
         let totalCount = try await AirshipProxy.shared.messageCenter.messages.count
 
@@ -463,7 +481,10 @@ class UnityPlugin: NSObject {
         AirshipLogger.debug("UnityPlugin inboxUpdated(unread = \(unreadCount), total = \(totalCount))")
 
         if let listener = self.listener {
-            callUnitySendMessage(listener, "OnInboxUpdated", convertToJson(counts))
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnInboxUpdated",
+                                 message: UnityPlugin.convertToJson(counts)
+            )
         }
     }
 
@@ -471,7 +492,7 @@ class UnityPlugin: NSObject {
 
     // TODO Implement the rest of the delegates (PC and AuthorizedSettings)
 
-    private func requireAnyArg(_ arg: Any) throws -> Any {
+    private func requireAnyArg(_ arg: Any? = nil) throws -> Any {
         guard let value: Any = arg else {
             throw AirshipErrors.error("Argument must not be null")
         }
@@ -528,14 +549,14 @@ class UnityPlugin: NSObject {
         throw AirshipErrors.error("Argument must be a double")
     }
 
-    private func requireCodableArg<T: Decodable>(_ arg: Any) throws -> T  {
+    private func requireCodableArg<T: Decodable>(_ arg: Any? = nil) throws -> T  {
         guard let value: Any = arg else {
             throw AirshipErrors.error("Missing argument")
         }
         return try AirshipJSON.wrap(value).decode()
     }
 
-    private func optionalCodableArg<T: Decodable>(_ arg: Any) throws -> T?  {
+    private func optionalCodableArg<T: Decodable>(_ arg: Any? = nil) throws -> T?  {
         guard let value: Any = arg else {
             return nil
         }
@@ -576,11 +597,7 @@ class UnityPlugin: NSObject {
             var extraValue = value
             
             if !(extraValue is String) {
-                if let jsonString = convertToJson(extraValue) {
-                    extraValue = jsonString
-                } else {
-                    continue
-                }
+                extraValue = convertToJson(extraValue)
             }
             
             extras.append(["key": keyString, "value": extraValue])
