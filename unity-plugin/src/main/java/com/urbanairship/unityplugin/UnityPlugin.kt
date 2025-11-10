@@ -89,7 +89,7 @@ class UnityPlugin {
     fun editChannelAttributes(payload: String) {
         ProxyLogger.debug("UnityPlugin editChannelAttributes: $payload")
         try {
-            airshipProxyInstance.channel.editAttributes(JsonValue.parseString(payload))
+            airshipProxyInstance.channel.editAttributes(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
             ProxyLogger.error("Failed to parse payload", e)
         }
@@ -107,7 +107,7 @@ class UnityPlugin {
     fun editChannelSubscriptionLists(payload: String) {
         ProxyLogger.debug("UnityPlugin editChannelSubscriptionLists: $payload")
         try {
-            airshipProxyInstance.channel.editSubscriptionLists(JsonValue.parseString(payload))
+            airshipProxyInstance.channel.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
             ProxyLogger.error("Failed to parse payload", e)
         }
@@ -138,7 +138,7 @@ class UnityPlugin {
     fun editContactTagGroups(payload: String) {
         ProxyLogger.debug("UnityPlugin editContactTagGroups: $payload")
         try {
-            airshipProxyInstance.contact.editTagGroups(JsonValue.parseString(payload))
+            airshipProxyInstance.contact.editTagGroups(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
             ProxyLogger.error("Failed to parse payload", e)
         }
@@ -147,7 +147,7 @@ class UnityPlugin {
     fun editContactAttributes(payload: String) {
         ProxyLogger.debug("UnityPlugin editContactAttributes: $payload")
         try {
-            airshipProxyInstance.contact.editAttributes(JsonValue.parseString(payload))
+            airshipProxyInstance.contact.editAttributes(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
             ProxyLogger.error("Failed to parse payload", e)
         }
@@ -167,7 +167,7 @@ class UnityPlugin {
     fun editContactSubscriptionLists(payload: String) {
         ProxyLogger.debug("UnityPlugin editContactSubscriptionLists: $payload")
         try {
-            airshipProxyInstance.contact.editSubscriptionLists(JsonValue.parseString(payload))
+            airshipProxyInstance.contact.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
             ProxyLogger.error("Failed to parse payload", e)
         }
@@ -264,9 +264,10 @@ class UnityPlugin {
         airshipProxyInstance.messageCenter.deleteMessage(messageId)
     }
 
-    suspend fun refreshMessages() {
+    fun refreshMessages() {
         ProxyLogger.debug("UnityPlugin refreshMessages")
-        airshipProxyInstance.messageCenter.refreshInbox()
+        // TODO handle suspend fun
+        //airshipProxyInstance.messageCenter.refreshInbox()
     }
 
     fun setAutoLaunchDefaultMessageCenter(enabled: Boolean) {
