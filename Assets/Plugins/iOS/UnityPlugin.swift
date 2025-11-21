@@ -5,13 +5,20 @@ import SwiftUI
 import AirshipFrameworkProxy
 import AirshipUnityCBridge
 
+#if canImport(AirshipKit)
+import AirshipKit
+#elseif canImport(AirshipCore)
+import AirshipCore
+#endif
+
 @_cdecl("UnityPlugin_call")
 public func UnityPlugin_call(_ method: String, argsJson: String) -> UnsafePointer<CChar>? {
+    let args: [String: [Any]]
     do {
-        let args = try AirshipJSON.wrap(argsJson).decode() as? [String: [Any]]
+        args = try AirshipJSON.wrap(argsJson).decode() as? [String: [Any]] ?? [:]
     } catch {
         AirshipLogger.error("Failed to deserialize arguments for method \(method): \(error)")
-        return strdup("{}")
+        return UnsafePointer(strdup("{}"))
     }
 
     let result: Any?
@@ -20,10 +27,15 @@ public func UnityPlugin_call(_ method: String, argsJson: String) -> UnsafePointe
         result = try UnityPlugin.shared.handleCall(method: method, args: args)
     } catch {
         AirshipLogger.error("Error executing method \(method): \(error)")
-        return strdup("{}")
+        return UnsafePointer(strdup("{}"))
     }
 
-    return strdup(AirshipJSON.wrap(result))
+    do {
+        let jsonResult = try AirshipJSON.wrap(result).toString()
+        return UnsafePointer(strdup(jsonResult))
+    } catch {
+        return UnsafePointer(strdup("{}"))
+    }
 }
 
 class UnityPlugin: NSObject {
@@ -37,7 +49,7 @@ class UnityPlugin: NSObject {
         super.init()
     }
 
-    private static let _ = {
+    private static let initializeOnce: Void = {
         AirshipLogger.debug("UnityPlugin class loaded")
 
         // Add Notification Observer
@@ -58,7 +70,7 @@ class UnityPlugin: NSObject {
         switch method {
             case "setListener":
                 // shared.listener = requireAnyString(args.first)
-                listener = requireAnyString(args.first)
+            listener = try requireStringArg(args.first)
                 return nil
 
             case "getDeepLink":
@@ -185,7 +197,7 @@ class UnityPlugin: NSObject {
 
             // InApp
             case "setPaused":
-                try AirshipProxy.shared.inApp.setPaused(try requireBooleanArg(args.first))
+                try AirshipProxy.shared.inApp.setPaused(try requireBoolArg(args.first))
                 return nil
 
             case "isPaused":
@@ -239,7 +251,7 @@ class UnityPlugin: NSObject {
 
             case "setAutoLaunchDefaultMessageCenter":
                 AirshipProxy.shared.messageCenter.setAutoLaunchDefaultMessageCenter(
-                    try requireBooleanArg(args.first)
+                    try requireBoolArg(args.first)
                 )
                 return nil
 
@@ -325,7 +337,7 @@ class UnityPlugin: NSObject {
 
             case "setUserNotificationsEnabled":
                 try AirshipProxy.shared.push.setUserNotificationsEnabled(
-                    try requireBooleanArg(args.first)
+                    try requireBoolArg(args.first)
                 )
                 return nil
 
@@ -371,7 +383,7 @@ class UnityPlugin: NSObject {
 
             case "setAutobadgeEnabled":
                 try AirshipProxy.shared.push.setAutobadgeEnabled(
-                    try requireBooleanArg(args.first)
+                    try requireBoolArg(args.first)
                 )
                 return nil
 
@@ -386,7 +398,7 @@ class UnityPlugin: NSObject {
 
             case "setQuietTimeEnabled":
                 try AirshipProxy.shared.push.setQuietTimeEnabled(
-                    try requireBooleanArg(args.first)
+                    try requireBoolArg(args.first)
                 )
                 return nil
 
@@ -415,7 +427,7 @@ class UnityPlugin: NSObject {
         if let listener = self.listener {
             callUnitySendMessage(objectName: listener,
                                  methodName: "OnPushReceived",
-                                 message: UnityPlugin.convertPushToJson(push: userInfo)
+                                 message: convertPushToJson(push: userInfo)
             )
             completionHandler()
         }
@@ -427,7 +439,7 @@ class UnityPlugin: NSObject {
         if let listener = self.listener {
             callUnitySendMessage(objectName: listener,
                                  methodName: "OnPushOpened",
-                                 message: UnityPlugin.convertPushToJson(
+                                 message: convertPushToJson(
                                     push: notificationResponse.notification.request.content.userInfo
                                  )
             )
@@ -483,7 +495,7 @@ class UnityPlugin: NSObject {
         if let listener = self.listener {
             callUnitySendMessage(objectName: listener,
                                  methodName: "OnInboxUpdated",
-                                 message: UnityPlugin.convertToJson(counts)
+                                 message: convertToJson(counts)
             )
         }
     }
@@ -514,7 +526,7 @@ class UnityPlugin: NSObject {
     }
 
     private func requireIntArg(_ arg: Any) throws -> Int {
-        let value = try requireAnyArg()
+        let value = try requireAnyArg(arg)
 
         if let int = value as? Int {
             return int
@@ -532,7 +544,7 @@ class UnityPlugin: NSObject {
     }
 
     private func requireDoubleArg(_ arg: Any) throws -> Double {
-        let value = try requireAnyArg()
+        let value = try requireAnyArg(arg)
 
         if let double = value as? Double {
             return double
@@ -578,7 +590,7 @@ class UnityPlugin: NSObject {
     ///
     /// - Parameter push: The push notification payload.
     /// - Returns: A JSON string representation of the push.
-    private static func convertPushToJson(push: [AnyHashable: Any]) -> String {
+    private func convertPushToJson(push: [AnyHashable: Any]) -> String {
         let alert = (push["aps"] as? [String: Any])?["alert"] as? String
         let identifier = push["_"] as? String
 
@@ -618,7 +630,7 @@ class UnityPlugin: NSObject {
     ///
     /// - Parameter obj: The object to be serialized.
     /// - Returns: A JSON string representation of the object, or "{}" if serialization fails.
-    static func convertToJson(_ obj: Any) -> String {
+    private func convertToJson(_ obj: Any) -> String {
         do {
             let data = try JSONSerialization.data(withJSONObject: obj, options: [])
             if let jsonString = String(data: data, encoding: .utf8) {
