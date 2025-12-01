@@ -4,6 +4,7 @@ using System;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace UrbanAirship {
@@ -43,7 +44,7 @@ namespace UrbanAirship {
             if (IsInvalidField (key)) {
                 return this;
             }
-            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Integer));
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Number));
             return this;
         }
 
@@ -57,7 +58,7 @@ namespace UrbanAirship {
             if (IsInvalidField (key)) {
                 return this;
             }
-            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Long));
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Number));
             return this;
         }
 
@@ -74,7 +75,7 @@ namespace UrbanAirship {
             if (float.IsNaN (value) || float.IsInfinity (value)) {
                 throw new FormatException ("Infinity or NaN: " + value);
             }
-            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Float));
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Number));
             return this;
         }
 
@@ -91,7 +92,7 @@ namespace UrbanAirship {
             if (double.IsNaN (value) || double.IsInfinity (value)) {
                 throw new FormatException ("Infinity or NaN: " + value);
             }
-            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Double));
+            operations.Add (new AttributeMutation (AttributeAction.Set, key, value.ToString(CultureInfo.InvariantCulture), AttributeType.Number));
             return this;
         }
 
@@ -125,7 +126,7 @@ namespace UrbanAirship {
             if (IsInvalidField (key)) {
                 return this;
             }
-            operations.Add (new AttributeMutation (AttributeAction.Remove, key, null, AttributeType.None));
+            operations.Add (new AttributeMutation (AttributeAction.Remove, key, null, null));
             return this;
         }
 
@@ -148,7 +149,11 @@ namespace UrbanAirship {
             if (onApply != null) {
                 JsonArray<AttributeMutation> jsonArray = new JsonArray<AttributeMutation> ();
                 jsonArray.values = operations.ToArray ();
-                onApply (jsonArray.ToJson ());
+                string json = jsonArray.ToJson ();
+                // Remove empty type fields from JSON (Unity's JsonUtility serializes null strings as empty strings)
+                json = Regex.Replace(json, @",\s*""type""\s*:\s*""""", "");
+                json = Regex.Replace(json, @"""type""\s*:\s*""""\s*,", "");
+                onApply (json);
             }
         }
 
@@ -159,7 +164,8 @@ namespace UrbanAirship {
             Float,
             Double,
             String,
-            Date
+            Date,
+            Number
         }
 
         internal enum AttributeAction {
@@ -183,14 +189,14 @@ namespace UrbanAirship {
             private string value;
 
             [SerializeField]
-            private string type;
+            private string? type;
 #pragma warning restore
 
-            public AttributeMutation (AttributeAction action, string key, string value, AttributeType type) {
+            public AttributeMutation (AttributeAction action, string key, string value, AttributeType? type) {
                 this.action = action.ToString();
                 this.key = key;
                 this.value = value;
-                this.type = type.ToString();
+                this.type = type?.ToString();
             }
         }
     }

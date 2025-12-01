@@ -33,14 +33,20 @@ namespace UrbanAirship
         }
 
         /// <summary>
-        /// Gets the preference center config.
+        /// Gets the preference center config asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
         /// <param name="preferenceCenterId">The preference center Id.</param>
-        /// <returns>The preference center config.</returns>
-        public PreferenceCenterConfig GetConfig(string preferenceCenterId)
+        /// <param name="onComplete">Callback invoked with the config when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator GetConfig(string preferenceCenterId, Action<PreferenceCenterConfig> onComplete, Action<Exception> onError = null)
         {
-            // TODO parse this from a Json into a PreferenceCenterConfig and return that
-            return JsonUtility.FromJson<PreferenceCenterConfig> (plugin.Call<string>("getPreferenceCenterConfig", preferenceCenterId));
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => JsonUtility.FromJson<PreferenceCenterConfig>(plugin.Call<string>("getPreferenceCenterConfig", preferenceCenterId)),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>

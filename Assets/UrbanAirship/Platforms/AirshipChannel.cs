@@ -31,13 +31,21 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Returns the channel ID. If the channel ID is not yet created the function it will wait for it before returning.
+        /// Waits for the channel ID asynchronously using a coroutine.
+        /// If the channel ID is not yet created, this method will wait for it before completing.
         /// After the channel ID is created, this method functions the same as `getChannelId()`.
+        /// This method does not block Unity's main thread.
         /// </summary>
-        /// <returns>The channel ID.</returns>
-        public string WaitForChannelId()
+        /// <param name="onComplete">Callback invoked with the channel ID when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator WaitForChannelId(Action<string> onComplete, Action<Exception> onError = null)
         {
-            return plugin.Call<string>("waitForChannelId");
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call<string>("waitForChannelId"),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>
@@ -88,14 +96,23 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Gets the channel's subscription lists.
+        /// Gets the channel's subscription lists asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
-        /// <returns>The subscription lists.</returns>
-        public IEnumerable<string> GetSubscriptionLists()
+        /// <param name="onComplete">Callback invoked with the subscription lists when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator GetSubscriptionLists(Action<IEnumerable<string>> onComplete, Action<Exception> onError = null)
         {
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => {
             string subscriptionListsAsJson = plugin.Call<string>("getChannelSubscriptionLists");
             JsonArray<string> jsonArray = JsonArray<string>.FromJson(subscriptionListsAsJson);
             return jsonArray.AsEnumerable();
+                },
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>

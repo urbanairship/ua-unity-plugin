@@ -11,6 +11,8 @@ import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
 import com.urbanairship.util.UAStringUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 
 
@@ -44,9 +46,11 @@ class UnityPlugin {
         return airshipProxyInstance.channel.getChannelId()
     }
 
-    suspend fun waitForChannelId(): String {
+    fun waitForChannelId(): String {
         ProxyLogger.debug("UnityPlugin waitForChannelId")
-        return airshipProxyInstance.channel.waitForChannelId()
+        return runBlocking(Dispatchers.IO) {
+            airshipProxyInstance.channel.waitForChannelId()
+        }
     }
 
     fun addTag(tag: String) {
@@ -95,13 +99,15 @@ class UnityPlugin {
         }
     }
 
-    suspend fun getChannelSubscriptionLists(): String {
+    fun getChannelSubscriptionLists(): String {
         ProxyLogger.debug("UnityPlugin getChannelSubscriptionLists")
+        return runBlocking(Dispatchers.IO) {
         val jsonArray = JSONArray()
         for (tag in airshipProxyInstance.channel.getSubscriptionLists()) {
             jsonArray.put(tag)
         }
-        return jsonArray.toString()
+            jsonArray.toString()
+        }
     }
 
     fun editChannelSubscriptionLists(payload: String) {
@@ -244,30 +250,39 @@ class UnityPlugin {
 
     // Message Center
 
-    suspend fun getUnreadCount(): Int {
+    fun getUnreadCount(): Int {
         ProxyLogger.debug("UnityPlugin getUnreadCount")
-        return airshipProxyInstance.messageCenter.getUnreadMessagesCount()
+        return runBlocking(Dispatchers.IO) {
+            airshipProxyInstance.messageCenter.getUnreadMessagesCount()
+        }
     }
 
-    suspend fun getMessages(): String {
+    fun getMessages(): String {
         ProxyLogger.debug("UnityPlugin getMessages")
-        return JsonValue.wrapOpt(airshipProxyInstance.messageCenter.getMessages()).toString()
+        return runBlocking(Dispatchers.IO) {
+            JsonValue.wrapOpt(airshipProxyInstance.messageCenter.getMessages()).toString()
+        }
     }
 
     fun markMessageRead(messageId: String) {
         ProxyLogger.debug("UnityPlugin markMessageRead: $messageId")
+        runBlocking(Dispatchers.IO) {
         airshipProxyInstance.messageCenter.markMessageRead(messageId)
+        }
     }
 
     fun deleteMessage(messageId: String) {
         ProxyLogger.debug("UnityPlugin deleteMessage: $messageId")
+        runBlocking(Dispatchers.IO) {
         airshipProxyInstance.messageCenter.deleteMessage(messageId)
+        }
     }
 
     fun refreshMessages() {
         ProxyLogger.debug("UnityPlugin refreshMessages")
-        // TODO handle suspend fun
-        //airshipProxyInstance.messageCenter.refreshInbox()
+        runBlocking(Dispatchers.IO) {
+            airshipProxyInstance.messageCenter.refreshInbox()
+        }
     }
 
     fun setAutoLaunchDefaultMessageCenter(enabled: Boolean) {
@@ -302,9 +317,11 @@ class UnityPlugin {
         airshipProxyInstance.preferenceCenter.displayPreferenceCenter(preferenceCenterId)
     }
 
-    suspend fun getPreferenceCenterConfig(preferenceCenterId: String): String {
+    fun getPreferenceCenterConfig(preferenceCenterId: String): String {
         ProxyLogger.debug("UnityPlugin getPreferenceCenterConfig: $preferenceCenterId")
-        return JsonValue.wrapOpt(airshipProxyInstance.preferenceCenter.getPreferenceCenterConfig(preferenceCenterId)).toString()
+        return runBlocking(Dispatchers.IO) {
+            JsonValue.wrapOpt(airshipProxyInstance.preferenceCenter.getPreferenceCenterConfig(preferenceCenterId)).toString()
+        }
     }
 
     fun setAutoLaunchDefaultPreferenceCenter(preferenceCenterId: String, autoLaunch: Boolean) {
@@ -351,16 +368,20 @@ class UnityPlugin {
         airshipProxyInstance.push.setUserNotificationsEnabled(enabled)
     }
 
-    suspend fun enableUserNotifications(fallback: String?): Boolean {
+    fun enableUserNotifications(fallback: String?): Boolean {
         ProxyLogger.debug("UnityPlugin enableUserNotifications: $fallback")
-        return airshipProxyInstance.push.enableUserPushNotifications(
+        return runBlocking(Dispatchers.IO) {
+            airshipProxyInstance.push.enableUserPushNotifications(
             EnableUserNotificationsArgs.fromJson(JsonValue.parseString(fallback))
         )
+        }
     }
 
-    suspend fun getNotificationStatus(): String {
+    fun getNotificationStatus(): String {
         ProxyLogger.debug("UnityPlugin getNotificationStatus")
-        return airshipProxyInstance.push.getNotificationStatus().toJsonValue().toString()
+        return runBlocking(Dispatchers.IO) {
+            airshipProxyInstance.push.getNotificationStatus().toJsonValue().toString()
+        }
     }
 
     fun getPushToken(): String? {
@@ -439,9 +460,11 @@ class UnityPlugin {
 
     // TODO Implement the rest of the listeners (PreferenceCenter)
 
-    suspend fun onInboxUpdated() {
-        val unreadCount = getUnreadCount()
-        val totalCount = getMessages().count()
+    fun onInboxUpdated() {
+        runBlocking(Dispatchers.IO) {
+            val unreadCount = airshipProxyInstance.messageCenter.getUnreadMessagesCount()
+            val messages = airshipProxyInstance.messageCenter.getMessages()
+            val totalCount = messages.size
         val counts: JsonMap = JsonMap.newBuilder()
             .put("unread", unreadCount)
             .put("total", totalCount)
@@ -453,6 +476,7 @@ class UnityPlugin {
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnInboxUpdated", counts.toString())
+            }
         }
     }
 

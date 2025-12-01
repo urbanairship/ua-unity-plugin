@@ -56,23 +56,36 @@ namespace UrbanAirship
         }
 
         /// <summary>
-        /// Enables user notifications.
+        /// Enables user notifications asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
         /// <param name="fallback">Optional fallback.</param>
-        /// <returns>The permission result.</returns>
-        public bool EnableUserNotifications(PromptPermissionFallback? fallback)
+        /// <param name="onComplete">Callback invoked with the permission result when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator EnableUserNotifications(PromptPermissionFallback? fallback, Action<bool> onComplete, Action<Exception> onError = null)
         {
-            return plugin.Call<bool>("enableUserNotifications", fallback);
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call<bool>("enableUserNotifications", fallback),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>
-        /// Gets the notification status.
+        /// Gets the notification status asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
-        /// <returns>The notification status.</returns>
-        public PushNotificationStatus GetNotificationStatus()
+        /// <param name="onComplete">Callback invoked with the notification status when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator GetNotificationStatus(Action<PushNotificationStatus> onComplete, Action<Exception> onError = null)
         {
-            // TODO parse this and return a PushNotificationStatus
-            return JsonUtility.FromJson<PushNotificationStatus> (plugin.Call<string>("getNotificationStatus"));
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => JsonUtility.FromJson<PushNotificationStatus>(plugin.Call<string>("getNotificationStatus")),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>

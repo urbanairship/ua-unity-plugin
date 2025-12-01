@@ -23,58 +23,96 @@ namespace UrbanAirship
         }
 
         /// <summary>
-        /// Gets the number of unread messages for the message center.
+        /// Gets the number of unread messages for the message center asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
-        /// <returns>The number of unread messages.</returns>
-        public int GetUnReadCount()
+        /// <param name="onComplete">Callback invoked with the unread count when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator GetUnReadCount(Action<int> onComplete, Action<Exception> onError = null)
         {
-            return plugin.Call<int>("getUnreadCount");
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call<int>("getUnreadCount"),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>
-        /// Gets the inbox messages.
+        /// Gets the inbox messages asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
-        /// <value>An enumberable list of InboxMessage objects.</value>
-        public IEnumerable<InboxMessage> GetMessages()
+        /// <param name="onComplete">Callback invoked with the messages when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator GetMessages(Action<IEnumerable<InboxMessage>> onComplete, Action<Exception> onError = null)
         {
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => {
             var inboxMessages = new List<InboxMessage>();
-
             string inboxMessagesAsJson = plugin.Call<string>("getMessages");
             InternalInboxMessage[] internalInboxMessages = JsonArray<InternalInboxMessage>.FromJson(inboxMessagesAsJson).values;
-
             // TODO verify this as the proxy provide a the extras into a map
             // Unity's JsonUtility doesn't support embedded dictionaries - constructor will create the extras dictionary
             foreach (InternalInboxMessage internalInboxMessage in internalInboxMessages)
             {
                 inboxMessages.Add(new InboxMessage(internalInboxMessage));
             }
-            return inboxMessages;
+                    return (IEnumerable<InboxMessage>)inboxMessages;
+                },
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>
-        /// Mark an inbox message as having been read.
+        /// Mark an inbox message as having been read asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
         /// <param name="messageId">The messageId for the message.</param>
-        public void MarkMessageRead(string messageId)
+        /// <param name="onComplete">Optional callback invoked when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator MarkMessageRead(string messageId, Action onComplete = null, Action<Exception> onError = null)
         {
-            plugin.Call("markMessageRead", messageId);
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call("markMessageRead", messageId),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>
-        /// Delete an inbox message.
+        /// Delete an inbox message asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
         /// <param name="messageId">The messageId for the message.</param>
-        public void DeleteMessage(string messageId)
+        /// <param name="onComplete">Optional callback invoked when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator DeleteMessage(string messageId, Action onComplete = null, Action<Exception> onError = null)
         {
-            plugin.Call("deleteMessage", messageId);
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call("deleteMessage", messageId),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>
-        /// Refreshes the inbox.
+        /// Refreshes the inbox asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
-        public void RefreshInbox()
+        /// <param name="onComplete">Optional callback invoked when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator RefreshInbox(Action onComplete = null, Action<Exception> onError = null)
         {
-            plugin.Call("refreshMessages");
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call("refreshMessages"),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>
