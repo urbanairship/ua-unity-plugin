@@ -36,8 +36,6 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         customEvent.EventValue = 123;
         Airship.Shared.analytics.AddCustomEvent(customEvent);
 
-        Airship.Shared.messageCenter.RefreshInbox();
-
         Airship.Shared.channel.EditTags().AddTag("ulrich").Apply();
 
         Airship.Shared.channel.EditAttributes().SetAttribute("teststring", "a_string").Apply();
@@ -46,6 +44,27 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Airship.Shared.channel.EditAttributes().SetAttribute("testfloat", (float)5.99).Apply();
         Airship.Shared.channel.EditAttributes().SetAttribute("testdouble", (double)5555.999).Apply();
         Airship.Shared.channel.EditAttributes().SetAttribute("testdate", DateTime.UtcNow).Apply();
+
+        Airship.Shared.channel.EditAttributes().RemoveAttribute("teststring").Apply();
+        Airship.Shared.channel.EditAttributes().RemoveAttribute("testint").Apply();
+
+        StartCoroutine(Airship.Shared.messageCenter.RefreshInbox(
+            onComplete: () => {
+                Debug.Log("Refresh inbox complete");
+            },
+            onError: (error) => {
+                Debug.LogError("Error refreshing inbox: " + error.Message);
+            }
+        ));
+
+        StartCoroutine(Airship.Shared.channel.WaitForChannelId(
+            onComplete: (channelId) => {
+                Debug.Log($"Channel ID received: {channelId}");
+            },
+            onError: (error) => {
+                Debug.LogError($"Error getting channel ID: {error.Message}");
+            }
+        ));
     }
 
     // void OnDestroy () {
