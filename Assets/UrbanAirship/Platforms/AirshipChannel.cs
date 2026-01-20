@@ -106,9 +106,9 @@ namespace UrbanAirship {
         {
             yield return AirshipCoroutineHelper.RunAsync(
                 () => {
-            string subscriptionListsAsJson = plugin.Call<string>("getChannelSubscriptionLists");
-            JsonArray<string> jsonArray = JsonArray<string>.FromJson(subscriptionListsAsJson);
-            return jsonArray.AsEnumerable();
+                    string subscriptionListsAsJson = plugin.Call<string>("getChannelSubscriptionLists");
+                    JsonArray<string> jsonArray = JsonArray<string>.FromJson(subscriptionListsAsJson);
+                    return jsonArray.AsEnumerable();
                 },
                 onComplete,
                 onError

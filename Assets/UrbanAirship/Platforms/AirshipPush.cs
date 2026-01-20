@@ -63,10 +63,13 @@ namespace UrbanAirship
         /// <param name="onComplete">Callback invoked with the permission result when the operation completes.</param>
         /// <param name="onError">Optional callback invoked if an error occurs.</param>
         /// <returns>A coroutine that can be started with StartCoroutine.</returns>
-        public IEnumerator EnableUserNotifications(PromptPermissionFallback? fallback, Action<bool> onComplete, Action<Exception> onError = null)
+        public IEnumerator EnableUserNotifications(EnabledUserPushNotificationsArgs? fallback, Action<bool> onComplete, Action<Exception> onError = null)
         {
             yield return AirshipCoroutineHelper.RunAsync(
-                () => plugin.Call<bool>("enableUserNotifications", fallback),
+                () => {
+                    string json = AirshipUtils.Serialize(fallback);
+                    return plugin.Call<bool>("enableUserNotifications", json);
+                },
                 onComplete,
                 onError
             );
@@ -272,9 +275,9 @@ namespace UrbanAirship
         /// Sets the notification config.
         /// </summary>
         /// <param name="config">The notification config.</param>
-        public void SetNotificationConfig(NotificationConfig config)
+        public void SetNotificationConfig(AndroidNotificationConfig config)
         {
-            plugin.Call("setNotificationConfig", config);
+            plugin.Call("setNotificationConfig", AirshipUtils.Serialize(config));
         }
 
         /// <summary>
@@ -286,7 +289,14 @@ namespace UrbanAirship
             plugin.Call("setForegroundNotificationsEnabled", enabled);
         }
 
-        // TODO Just noticed I forgot isForegroundNotificationsEnabled method, I need to add that
+        /// <summary>
+        /// Checks if notifications show in the foreground.
+        /// </summary>
+        /// <returns>true if notifications show in the foreground, otherwise false.</returns>
+        public bool IsForegroundNotificationsEnabled()
+        {
+            return plugin.Call<bool>("isForegroundNotificationsEnabled");
+        }
     }
 
     /// <summary>
@@ -361,6 +371,11 @@ namespace UrbanAirship
         SystemSettings
     }
 
+    [Serializable]
+    public record EnabledUserPushNotificationsArgs {
+        public PromptPermissionFallback? fallback;
+    }
+
     /// <summary>
     /// Enum of foreground notification options.
     /// </summary>
@@ -415,6 +430,7 @@ namespace UrbanAirship
         Provisional
     }
 
+    [Serializable]
     public record QuietTime
     {
         // Start hour. Must be 0-23.
@@ -433,6 +449,7 @@ namespace UrbanAirship
     /// <summary>
     /// Enum of authorized notification options.
     /// </summary>
+    [Serializable]
     public enum AuthorizedNotificationSetting
     {
         // Alerts.
@@ -467,18 +484,4 @@ namespace UrbanAirship
         TimeSensitive,
     }
 
-    public record NotificationConfig
-    {
-        // The icon resource name.
-        public string? icon;
-
-        // The large icon resource name.
-        public string? largeIcon;
-
-        // The default android notification channel ID.
-        public string? defaultChannelId;
-
-        // The accent color. Must be a hex value #AARRGGBB.
-        public string? accentColor;
-    }
 }

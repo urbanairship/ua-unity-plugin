@@ -23,7 +23,7 @@ namespace UrbanAirship {
         /// <returns>The subscription list editor.</returns>
         /// <param name="subscriptionListId">The subscription list identifier.</param>
         /// <param name="subscriptionScope">The subscription scope to unsubscribe.</param>
-        public ScopedSubscriptionListEditor subscribe (string subscriptionListId, string subscriptionScope) {
+        public ScopedSubscriptionListEditor Subscribe (string subscriptionListId, string subscriptionScope) {
             operations.Add (new ScopedSubscriptionListOperation ("subscribe", subscriptionListId, subscriptionScope));
             return this;
         }
@@ -34,7 +34,7 @@ namespace UrbanAirship {
         /// <returns>The subscription list editor.</returns>
         /// <param name="subscriptionListId">The subscription list identifier.</param>
         /// <param name="subscriptionScope">The subscription scope to unsubscribe.</param>
-        public ScopedSubscriptionListEditor unsubscribe (string subscriptionListId, string subscriptionScope) {
+        public ScopedSubscriptionListEditor Unsubscribe (string subscriptionListId, string subscriptionScope) {
             operations.Add (new ScopedSubscriptionListOperation ("unsubscribe", subscriptionListId, subscriptionScope));
             return this;
         }

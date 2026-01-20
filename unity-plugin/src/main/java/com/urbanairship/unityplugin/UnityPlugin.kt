@@ -1,6 +1,11 @@
 /* Copyright Airship and Contributors */
 package com.urbanairship.unityplugin
 
+import android.R.attr.enabled
+import android.R.attr.identifier
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.google.android.datatransport.runtime.scheduling.SchedulingConfigModule_ConfigFactory.config
 import com.unity3d.player.UnityPlayer
 import com.urbanairship.PrivacyManager
 import com.urbanairship.android.framework.proxy.ProxyLogger
@@ -23,48 +28,38 @@ class UnityPlugin {
     private var listener: String? = null
 
     fun setListener(listener: String) {
-        ProxyLogger.debug("UnityPlugin setListener: $listener")
+        ProxyLogger.debug("UnityPlugin setListener method call with: $listener")
         this.listener = listener
     }
 
     // Airship
 
     fun takeOff(config: String): Boolean {
-        ProxyLogger.debug("UnityPlugin takeOff: $config")
+        ProxyLogger.debug("UnityPlugin takeOff method call with: $config")
         return airshipProxyInstance.takeOff(JsonValue.parseString(config))
     }
 
     fun isFlying(): Boolean {
-        ProxyLogger.debug("UnityPlugin isFlying")
+        ProxyLogger.debug("UnityPlugin isFlying method call")
         return airshipProxyInstance.isFlying()
     }
 
     // Channel
     
     fun getChannelId(): String? {
-        ProxyLogger.debug("UnityPlugin getChannelId")
+        ProxyLogger.debug("UnityPlugin getChannelId method call")
         return airshipProxyInstance.channel.getChannelId()
     }
 
     fun waitForChannelId(): String {
-        ProxyLogger.debug("UnityPlugin waitForChannelId")
+        ProxyLogger.debug("UnityPlugin waitForChannelId method call")
         return runBlocking(Dispatchers.IO) {
             airshipProxyInstance.channel.waitForChannelId()
         }
     }
 
-    fun addTag(tag: String) {
-        ProxyLogger.debug("UnityPlugin addTag: $tag")
-        airshipProxyInstance.channel.addTag(tag)
-    }
-
-    fun removeTag(tag: String) {
-        ProxyLogger.debug("UnityPlugin removeTag: $tag")
-        airshipProxyInstance.channel.removeTag(tag)
-    }
-
     fun getTags(): String {
-        ProxyLogger.debug("UnityPlugin getTags")
+        ProxyLogger.debug("UnityPlugin getTags method call")
         val jsonArray = JSONArray()
         for (tag in airshipProxyInstance.channel.getTags()) {
             jsonArray.put(tag)
@@ -73,25 +68,25 @@ class UnityPlugin {
     }
 
     fun editTags(payload: String) {
-        ProxyLogger.debug("UnityPlugin editTags: $payload")
+        ProxyLogger.debug("UnityPlugin editTags method call with: $payload")
         try {
-            airshipProxyInstance.channel.editTags(JsonValue.parseString(payload))
+            airshipProxyInstance.channel.editTags(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
             ProxyLogger.error("Failed to parse payload", e)
         }
     }
 
     fun editChannelTagGroups(payload: String) {
-        ProxyLogger.debug("UnityPlugin editChannelTagGroups: $payload")
+        ProxyLogger.debug("UnityPlugin editChannelTagGroups method call with: $payload")
         try {
-            airshipProxyInstance.channel.editTagGroups(JsonValue.parseString(payload))
+            airshipProxyInstance.channel.editTagGroups(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
             ProxyLogger.error("Failed to parse payload", e)
         }
     }
 
     fun editChannelAttributes(payload: String) {
-        ProxyLogger.debug("UnityPlugin editChannelAttributes: $payload")
+        ProxyLogger.debug("UnityPlugin editChannelAttributes method call with: $payload")
         try {
             airshipProxyInstance.channel.editAttributes(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
@@ -100,7 +95,7 @@ class UnityPlugin {
     }
 
     fun getChannelSubscriptionLists(): String {
-        ProxyLogger.debug("UnityPlugin getChannelSubscriptionLists")
+        ProxyLogger.debug("UnityPlugin getChannelSubscriptionLists method call")
         return runBlocking(Dispatchers.IO) {
         val jsonArray = JSONArray()
         for (tag in airshipProxyInstance.channel.getSubscriptionLists()) {
@@ -111,7 +106,7 @@ class UnityPlugin {
     }
 
     fun editChannelSubscriptionLists(payload: String) {
-        ProxyLogger.debug("UnityPlugin editChannelSubscriptionLists: $payload")
+        ProxyLogger.debug("UnityPlugin editChannelSubscriptionLists method call with: $payload")
         try {
             airshipProxyInstance.channel.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
@@ -122,27 +117,27 @@ class UnityPlugin {
     // Contact
 
     fun identify(namedUserId: String?) {
-        ProxyLogger.debug("UnityPlugin identify: $namedUserId")
+        ProxyLogger.debug("UnityPlugin identify method call with: $namedUserId")
         airshipProxyInstance.contact.identify(namedUserId)
     }
 
     fun reset() {
-        ProxyLogger.debug("UnityPlugin reset")
+        ProxyLogger.debug("UnityPlugin reset method call")
         airshipProxyInstance.contact.reset()
     }
 
     fun getNamedUserId(): String? {
-        ProxyLogger.debug("UnityPlugin getNamedUserId")
+        ProxyLogger.debug("UnityPlugin getNamedUserId method call")
         return airshipProxyInstance.contact.getNamedUserId()
     }
 
     fun notifyRemoteLogin() {
-        ProxyLogger.debug("UnityPlugin notifyRemoteLogin")
+        ProxyLogger.debug("UnityPlugin notifyRemoteLogin method call")
         airshipProxyInstance.contact.notifyRemoteLogin()
     }
 
     fun editContactTagGroups(payload: String) {
-        ProxyLogger.debug("UnityPlugin editContactTagGroups: $payload")
+        ProxyLogger.debug("UnityPlugin editContactTagGroups method call with: $payload")
         try {
             airshipProxyInstance.contact.editTagGroups(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
@@ -151,7 +146,7 @@ class UnityPlugin {
     }
 
     fun editContactAttributes(payload: String) {
-        ProxyLogger.debug("UnityPlugin editContactAttributes: $payload")
+        ProxyLogger.debug("UnityPlugin editContactAttributes method call with: $payload")
         try {
             airshipProxyInstance.contact.editAttributes(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
@@ -160,7 +155,7 @@ class UnityPlugin {
     }
 
     fun getContactSubscriptionLists(): String {
-        ProxyLogger.debug("UnityPlugin getContactSubscriptionLists")
+        ProxyLogger.debug("UnityPlugin getContactSubscriptionLists method call")
 
         // TODO finish this
         val jsonArray = JSONArray()
@@ -171,7 +166,7 @@ class UnityPlugin {
     }
 
     fun editContactSubscriptionLists(payload: String) {
-        ProxyLogger.debug("UnityPlugin editContactSubscriptionLists: $payload")
+        ProxyLogger.debug("UnityPlugin editContactSubscriptionLists method call with: $payload")
         try {
             airshipProxyInstance.contact.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
         } catch (e: JsonException) {
@@ -183,20 +178,20 @@ class UnityPlugin {
 
     fun associateIdentifier(key: String, identifier: String?) {
         if (identifier == null) {
-            ProxyLogger.debug("UnityPlugin associateIdentifier removed identifier for key: $key")
+            ProxyLogger.debug("UnityPlugin associateIdentifier method call removed identifier for key: $key")
         } else {
-            ProxyLogger.debug("UnityPlugin associateIdentifier with identifier: $identifier for key: $key")
+            ProxyLogger.debug("UnityPlugin associateIdentifier method call with identifier: $identifier for key: $key")
         }
         airshipProxyInstance.analytics.associateIdentifier(key, identifier)
     }
 
     fun trackScreen(screenName: String) {
-        ProxyLogger.debug("UnityPlugin trackScreen: $screenName")
+        ProxyLogger.debug("UnityPlugin trackScreen method call with: $screenName")
         airshipProxyInstance.analytics.trackScreen(screenName)
     }
 
     fun addCustomEvent(eventPayload: String) {
-        ProxyLogger.debug("UnityPlugin addCustomEvent: $eventPayload")
+        ProxyLogger.debug("UnityPlugin addCustomEvent method call with: $eventPayload")
         try {
             airshipProxyInstance.analytics.addEvent(JsonValue.parseString(eventPayload))
         } catch (e: JsonException) {
@@ -205,206 +200,221 @@ class UnityPlugin {
     }
 
     fun getSessionId(): String {
-        ProxyLogger.debug("UnityPlugin getSessionId")
+        ProxyLogger.debug("UnityPlugin getSessionId method call")
         return airshipProxyInstance.analytics.getSessionId()
     }
 
     // InApp
 
     fun setPaused(paused: Boolean) {
-        ProxyLogger.debug("UnityPlugin setPaused: $paused")
+        ProxyLogger.debug("UnityPlugin setPaused method call with: $paused")
         airshipProxyInstance.inApp.setPaused(paused)
     }
 
     fun isPaused(): Boolean {
-        ProxyLogger.debug("UnityPlugin isPaused")
+        ProxyLogger.debug("UnityPlugin isPaused method call")
         return airshipProxyInstance.inApp.isPaused()
     }
 
     fun setDisplayInterval(displayInterval: Long) {
-        ProxyLogger.debug("UnityPlugin setDisplayInterval: $displayInterval")
+        ProxyLogger.debug("UnityPlugin setDisplayInterval method call with: $displayInterval")
         airshipProxyInstance.inApp.setDisplayInterval(displayInterval)
     }
 
     fun getDisplayInterval(): Long {
-        ProxyLogger.debug("UnityPlugin getDisplayInterval")
+        ProxyLogger.debug("UnityPlugin getDisplayInterval method call")
         return airshipProxyInstance.inApp.getDisplayInterval()
     }
 
     // Locale
 
     fun setLocaleOverride(localeIdentifier: String) {
-        ProxyLogger.debug("UnityPlugin setLocaleOverride: $localeIdentifier")
+        ProxyLogger.debug("UnityPlugin setLocaleOverride method call with: $localeIdentifier")
         airshipProxyInstance.locale.setCurrentLocale(localeIdentifier)
     }
 
     fun clearLocaleOverride() {
-        ProxyLogger.debug("UnityPlugin clearLocaleOverride")
+        ProxyLogger.debug("UnityPlugin clearLocaleOverride method call")
         airshipProxyInstance.locale.clearLocale()
     }
 
     fun getLocale(): String {
-        ProxyLogger.debug("UnityPlugin getLocale")
+        ProxyLogger.debug("UnityPlugin getLocale method call")
         return airshipProxyInstance.locale.getCurrentLocale()
     }
 
     // Message Center
 
     fun getUnreadCount(): Int {
-        ProxyLogger.debug("UnityPlugin getUnreadCount")
+        ProxyLogger.debug("UnityPlugin getUnreadCount method call")
         return runBlocking(Dispatchers.IO) {
             airshipProxyInstance.messageCenter.getUnreadMessagesCount()
         }
     }
 
     fun getMessages(): String {
-        ProxyLogger.debug("UnityPlugin getMessages")
+        ProxyLogger.debug("UnityPlugin getMessages method call")
         return runBlocking(Dispatchers.IO) {
             JsonValue.wrapOpt(airshipProxyInstance.messageCenter.getMessages()).toString()
         }
     }
 
     fun markMessageRead(messageId: String) {
-        ProxyLogger.debug("UnityPlugin markMessageRead: $messageId")
-        runBlocking(Dispatchers.IO) {
+        ProxyLogger.debug("UnityPlugin markMessageRead method call with: $messageId")
         airshipProxyInstance.messageCenter.markMessageRead(messageId)
-        }
     }
 
     fun deleteMessage(messageId: String) {
-        ProxyLogger.debug("UnityPlugin deleteMessage: $messageId")
-        runBlocking(Dispatchers.IO) {
+        ProxyLogger.debug("UnityPlugin deleteMessage method call with: $messageId")
         airshipProxyInstance.messageCenter.deleteMessage(messageId)
-        }
     }
 
     fun refreshMessages() {
-        ProxyLogger.debug("UnityPlugin refreshMessages")
+        ProxyLogger.debug("UnityPlugin refreshMessages method call")
         runBlocking(Dispatchers.IO) {
             airshipProxyInstance.messageCenter.refreshInbox()
         }
     }
 
     fun setAutoLaunchDefaultMessageCenter(enabled: Boolean) {
-        ProxyLogger.debug("UnityPlugin setAutoLaunchDefaultMessageCenter: $enabled")
+        ProxyLogger.debug("UnityPlugin setAutoLaunchDefaultMessageCenter method call with: $enabled")
         airshipProxyInstance.messageCenter.setAutoLaunchDefaultMessageCenter(enabled)
     }
 
     fun displayMessageCenter(messageId: String?) {
-        ProxyLogger.debug("UnityPlugin displayMessageCenter: $messageId")
+        ProxyLogger.debug("UnityPlugin displayMessageCenter method call with: $messageId")
         airshipProxyInstance.messageCenter.display(messageId)
     }
 
     fun dismissMessageCenter() {
-        ProxyLogger.debug("UnityPlugin dismissMessageCenter")
+        ProxyLogger.debug("UnityPlugin dismissMessageCenter method call")
         airshipProxyInstance.messageCenter.dismiss()
     }
 
     fun showMessageView(messageId: String) {
-        ProxyLogger.debug("UnityPlugin showMessageView: $messageId")
+        ProxyLogger.debug("UnityPlugin showMessageView method call with: $messageId")
         airshipProxyInstance.messageCenter.showMessageView(messageId)
     }
 
     fun showMessageCenter(messageId: String?) {
-        ProxyLogger.debug("UnityPlugin showMessageCenter: $messageId")
+        ProxyLogger.debug("UnityPlugin showMessageCenter method call with: $messageId")
         airshipProxyInstance.messageCenter.showMessageCenter(messageId)
     }
 
     // Preference Center
 
     fun displayPreferenceCenter(preferenceCenterId: String) {
-        ProxyLogger.debug("UnityPlugin displayPreferenceCenter: $preferenceCenterId")
+        ProxyLogger.debug("UnityPlugin displayPreferenceCenter method call with: $preferenceCenterId")
         airshipProxyInstance.preferenceCenter.displayPreferenceCenter(preferenceCenterId)
     }
 
     fun getPreferenceCenterConfig(preferenceCenterId: String): String {
-        ProxyLogger.debug("UnityPlugin getPreferenceCenterConfig: $preferenceCenterId")
+        ProxyLogger.debug("UnityPlugin getPreferenceCenterConfig method call with: $preferenceCenterId")
         return runBlocking(Dispatchers.IO) {
             JsonValue.wrapOpt(airshipProxyInstance.preferenceCenter.getPreferenceCenterConfig(preferenceCenterId)).toString()
         }
     }
 
     fun setAutoLaunchDefaultPreferenceCenter(preferenceCenterId: String, autoLaunch: Boolean) {
-        ProxyLogger.debug("UnityPlugin setAutoLaunchDefaultPreferenceCenter: $preferenceCenterId, $autoLaunch")
+        ProxyLogger.debug("UnityPlugin setAutoLaunchDefaultPreferenceCenter method call with: $preferenceCenterId, $autoLaunch")
         airshipProxyInstance.preferenceCenter.setAutoLaunchPreferenceCenter(preferenceCenterId, autoLaunch)
     }
 
     // Privacy Manager
 
     fun setEnabledFeatures(features: Array<String>) {
-        ProxyLogger.debug("UnityPlugin setEnabledFeatures: $features")
+        ProxyLogger.debug("UnityPlugin setEnabledFeatures method call with: ${features.joinToString()}")
         airshipProxyInstance.privacyManager.setEnabledFeatures(features.asList())
     }
 
     fun getEnabledFeatures(): Array<String> {
-        ProxyLogger.debug("UnityPlugin getEnabledFeatures")
+        ProxyLogger.debug("UnityPlugin getEnabledFeatures method call")
         return airshipProxyInstance.privacyManager.getFeatureNames().toTypedArray()
     }
 
     fun enableFeatures(features: Array<String>) {
-        ProxyLogger.debug("UnityPlugin enableFeatures: $features")
+        ProxyLogger.debug("UnityPlugin enableFeatures method call with: ${features.joinToString()}")
         airshipProxyInstance.privacyManager.enableFeatures(features.asList())
     }
 
     fun disableFeatures(features: Array<String>) {
-        ProxyLogger.debug("UnityPlugin disableFeatures: $features")
+        ProxyLogger.debug("UnityPlugin disableFeatures method call with: ${features.joinToString()}")
         airshipProxyInstance.privacyManager.disableFeatures(features.asList())
     }
 
     fun isFeaturesEnabled(features: Array<String>): Boolean {
-        ProxyLogger.debug("UnityPlugin isFeaturesEnabled: $features")
+        ProxyLogger.debug("UnityPlugin isFeaturesEnabled method call with: ${features.joinToString()}")
         return airshipProxyInstance.privacyManager.isFeatureEnabled(features.asList())
     }
 
     // Push
 
     fun isUserNotificationsEnabled(): Boolean {
-        ProxyLogger.debug("UnityPlugin isUserNotificationsEnabled")
+        ProxyLogger.debug("UnityPlugin isUserNotificationsEnabled method call")
         return airshipProxyInstance.push.isUserNotificationsEnabled()
     }
 
     fun setUserNotificationsEnabled(enabled: Boolean) {
-        ProxyLogger.debug("UnityPlugin setUserNotificationsEnabled: $enabled")
+        ProxyLogger.debug("UnityPlugin setUserNotificationsEnabled method call with: $enabled")
         airshipProxyInstance.push.setUserNotificationsEnabled(enabled)
     }
 
     fun enableUserNotifications(fallback: String?): Boolean {
-        ProxyLogger.debug("UnityPlugin enableUserNotifications: $fallback")
+        ProxyLogger.debug("UnityPlugin enableUserNotifications method call with: $fallback")
         return runBlocking(Dispatchers.IO) {
             airshipProxyInstance.push.enableUserPushNotifications(
-            EnableUserNotificationsArgs.fromJson(JsonValue.parseString(fallback))
-        )
+                EnableUserNotificationsArgs.fromJson(JsonValue.parseString(fallback))
+            )
         }
     }
 
     fun getNotificationStatus(): String {
-        ProxyLogger.debug("UnityPlugin getNotificationStatus")
+        ProxyLogger.debug("UnityPlugin getNotificationStatus method call")
         return runBlocking(Dispatchers.IO) {
             airshipProxyInstance.push.getNotificationStatus().toJsonValue().toString()
         }
     }
 
     fun getPushToken(): String? {
-        ProxyLogger.debug("UnityPlugin getPushToken")
+        ProxyLogger.debug("UnityPlugin getPushToken method call")
         return airshipProxyInstance.push.getRegistrationToken()
     }
 
     fun getActiveNotifications(): String {
-        ProxyLogger.debug("UnityPlugin getActiveNotifications")
+        ProxyLogger.debug("UnityPlugin getActiveNotifications method call")
         return JsonValue.wrapOpt(airshipProxyInstance.push.getActiveNotifications()).toString()
     }
 
     fun clearNotifications() {
-        ProxyLogger.debug("UnityPlugin clearNotifications")
+        ProxyLogger.debug("UnityPlugin clearNotifications method call")
         airshipProxyInstance.push.clearNotifications()
     }
 
     fun clearNotification(identifier: String) {
-        ProxyLogger.debug("UnityPlugin clearNotification: $identifier")
+        ProxyLogger.debug("UnityPlugin clearNotification method call with: $identifier")
         airshipProxyInstance.push.clearNotification(identifier)
     }
 
-    // TODO Just noticed I forgot to implement the android specific push methods, I need to add that
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    fun isNotificationChannelEnabled(channelId: String): Boolean {
+        ProxyLogger.debug("UnityPlugin isNotificationChannelEnabled method call with: $channelId")
+        return airshipProxyInstance.push.isNotificationChannelEnabled(channelId)
+    }
+
+    fun setNotificationConfig(config: String) {
+        ProxyLogger.debug("UnityPlugin setNotificationConfig method call with: $config")
+        airshipProxyInstance.push.setNotificationConfig(JsonValue.parseString(config))
+    }
+
+    fun setForegroundNotificationsEnabled(enabled: Boolean) {
+        ProxyLogger.debug("UnityPlugin setForegroundNotificationsEnabled method call with: $enabled")
+        airshipProxyInstance.push.isForegroundNotificationsEnabled = enabled
+    }
+
+    fun isForegroundNotificationsEnabled(): Boolean {
+        ProxyLogger.debug("UnityPlugin isForegroundNotificationsEnabled method call")
+        return airshipProxyInstance.push.isForegroundNotificationsEnabled
+    }
 
     // TODO finish the implementation
 
@@ -479,8 +489,6 @@ class UnityPlugin {
             }
         }
     }
-
-
 
     private fun getPushPayload(message: PushMessage?): String? {
         if (message == null) {

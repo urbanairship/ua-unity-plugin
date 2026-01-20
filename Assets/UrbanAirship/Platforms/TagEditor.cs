@@ -74,14 +74,14 @@ namespace UrbanAirship {
             // Used for JSON encoding/decoding
 
             [SerializeField]
-            private string operation;
+            private string operationType;
 
             [SerializeField]
             private string[] tags;
 #pragma warning restore
 
             public TagOperation (string operation, ICollection<string> tags) {
-                this.operation = operation;
+                this.operationType = operation;
                 this.tags = tags.ToArray ();
             }
         }

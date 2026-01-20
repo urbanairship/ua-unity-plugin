@@ -183,7 +183,8 @@ namespace UrbanAirship
         /// <returns>true if airship is ready.</returns>
         public bool TakeOff(AirshipConfig config)
         {
-            return plugin.Call<bool>("takeOff", config);
+            string json = AirshipUtils.Serialize(config);
+            return plugin.Call<bool>("takeOff", json);
         }
 
         /// <summary>
@@ -318,6 +319,7 @@ namespace UrbanAirship
     /// <summary>
     /// Airship config environment
     /// </summary>
+    [Serializable]
     public record ConfigEnvironment
     {
         // App key.
@@ -333,6 +335,7 @@ namespace UrbanAirship
         public IOSEnvironmentConfig? iOS;
     }
 
+    [Serializable]
     public enum LogLevel
     {
         [AirshipEnumStringValue("verbose")]
@@ -349,6 +352,7 @@ namespace UrbanAirship
         None
     }
 
+    [Serializable]
     public record IOSEnvironmentConfig
     {
         /// <summary>
@@ -359,6 +363,7 @@ namespace UrbanAirship
         public LogPrivacyLevel? logPrivacyLevel;
     }
 
+    [Serializable]
     public enum LogPrivacyLevel
     {
         [AirshipEnumStringValue("private")]
@@ -367,6 +372,7 @@ namespace UrbanAirship
         Public
     }
 
+    [Serializable]
     public enum Site
     {
         [AirshipEnumStringValue("us")]
@@ -375,12 +381,14 @@ namespace UrbanAirship
         EU
     }
 
+    [Serializable]
     public record IOSConfig
     {
         // itunesId for rate app and app store deep links.
         public string? itunesId;
     }
 
+    [Serializable]
     public record AndroidConfig
     {
         // App store URI
@@ -398,6 +406,7 @@ namespace UrbanAirship
         public LogPrivacyLevel? logPrivacyLevel;
     }
 
+    [Serializable]
     public record AndroidNotificationConfig
     {
         // The icon resource name.
@@ -413,54 +422,55 @@ namespace UrbanAirship
         public string? accentColor;
     }
 
+    [Serializable]
     public record AirshipConfig
-        {
-            // Default environment.
-            public ConfigEnvironment? defaultEnvironment;
+    {
+        // Default environment.
+        public ConfigEnvironment? defaultEnvironment;
 
-            // Development environment. Overrides default environment if inProduction is false.
-            public ConfigEnvironment? development;
+        // Development environment. Overrides default environment if inProduction is false.
+        public ConfigEnvironment? development;
 
-            // Production environment. Overrides default environment if inProduction is true.
-            public ConfigEnvironment? production;
+        // Production environment. Overrides default environment if inProduction is true.
+        public ConfigEnvironment? production;
 
-            // Cloud site.
-            public Site? site;
+        // Cloud site.
+        public Site? site;
 
-            // Switches the environment from development or production.
-            // If the value is not set, Airship will determine the value at runtime.
-            public bool? inProduction;
+        // Switches the environment from development or production.
+        // If the value is not set, Airship will determine the value at runtime.
+        public bool? inProduction;
 
-            // URL allow list.
-            public string[]? urlAllowList;
+        // URL allow list.
+        public string[]? urlAllowList;
 
-            // URL allow list for open URL scope.
-            public string[]? urlAllowListScopeOpenUrl;
+        // URL allow list for open URL scope.
+        public string[]? urlAllowListScopeOpenUrl;
 
-            // URL allow list for JS bridge injection.
-            public string[]? urlAllowListScopeJavaScriptInterface;
+        // URL allow list for JS bridge injection.
+        public string[]? urlAllowListScopeJavaScriptInterface;
 
-            // Initial config URL for custom Airship domains.
-            // The URL should also be added to the urlAllowList.
-            public string? initialConfigUrl;
+        // Initial config URL for custom Airship domains.
+        // The URL should also be added to the urlAllowList.
+        public string? initialConfigUrl;
 
-            // Enabled features. Defaults to all.
-            public string[]? enabledFeatures;
+        // Enabled features. Defaults to all.
+        public string[]? enabledFeatures;
 
-            // Enables channel capture feature. This config is enabled by default.
-            public bool? isChannelCaptureEnabled;
+        // Enables channel capture feature. This config is enabled by default.
+        public bool? isChannelCaptureEnabled;
 
-            // Whether to suppress console error messages about missing allow list entries during takeOff.
-            // This config is disabled by default.
-            public bool? suppressAllowListError;
+        // Whether to suppress console error messages about missing allow list entries during takeOff.
+        // This config is disabled by default.
+        public bool? suppressAllowListError;
 
-            // Pauses In-App Automation on launch.
-            public bool? autoPauseInAppAutomationOnLaunch;
+        // Pauses In-App Automation on launch.
+        public bool? autoPauseInAppAutomationOnLaunch;
 
-            // iOS config.
-            public IOSConfig? ios;
+        // iOS config.
+        public IOSConfig? ios;
 
-            // Android config.
-            public AndroidConfig? android;
-        }
+        // Android config.
+        public AndroidConfig? android;
+    }
 }

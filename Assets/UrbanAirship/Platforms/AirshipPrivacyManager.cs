@@ -27,7 +27,13 @@ namespace UrbanAirship
         /// <param name="enabledFeatures">The features to set.</param>
         public void SetEnabledFeatures(string[] enabledFeatures)
         {
-            plugin.Call("setEnabledFeatures", enabledFeatures);
+            #if UNITY_ANDROID
+                plugin.Call("setEnabledFeatures", ((AirshipPluginAndroid)plugin).MakeJavaArray(enabledFeatures));
+            #elif UNITY_IOS
+                plugin.Call("setEnabledFeatures", string.Join(",", enabledFeatures));
+            #else
+                plugin.Call("setEnabledFeatures", enabledFeatures);
+            #endif
         }
 
         /// <summary>
@@ -45,7 +51,13 @@ namespace UrbanAirship
         /// <param name="features">The features to enable.</param>
         public void EnableFeatures(string[] features)
         {
-            plugin.Call("enableFeatures", features);
+            #if UNITY_ANDROID
+                plugin.Call("enableFeatures", ((AirshipPluginAndroid)plugin).MakeJavaArray(features));
+            #elif UNITY_IOS
+                plugin.Call("enableFeatures", string.Join(",", features));
+            #else
+                plugin.Call("enableFeatures", features);
+            #endif
         }
 
         /// <summary>
@@ -54,7 +66,13 @@ namespace UrbanAirship
         /// <param name="features">The features to disable.</param>
         public void DisableFeatures(string[] features)
         {
-            plugin.Call("disableFeatures", features);
+            #if UNITY_ANDROID
+                plugin.Call("disableFeatures", ((AirshipPluginAndroid)plugin).MakeJavaArray(features));
+            #elif UNITY_IOS
+                plugin.Call("disableFeatures", string.Join(",", features));
+            #else
+                plugin.Call("disableFeatures", features);
+            #endif
         }
 
         /// <summary>
@@ -64,7 +82,13 @@ namespace UrbanAirship
         /// <value><c>true</c> if the features are enabled, otherwise <c>false</c></value>
         public bool IsFeaturesEnabled(string[] features)
         {
-            return plugin.Call<bool>("isFeaturesEnabled", features);
+            #if UNITY_ANDROID
+                return plugin.Call<bool>("isFeaturesEnabled", ((AirshipPluginAndroid)plugin).MakeJavaArray(features));
+            #elif UNITY_IOS
+                return plugin.Call<bool>("isFeaturesEnabled", string.Join(",", features));
+            #else
+                return plugin.Call<bool>("isFeaturesEnabled", features);
+            #endif
         }
     }
 }

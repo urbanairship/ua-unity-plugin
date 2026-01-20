@@ -22,7 +22,7 @@ namespace UrbanAirship {
         /// </summary>
         /// <returns>The subscription list editor.</returns>
         /// <param name="subscriptionListId">The subscription list identifier.</param>
-        public SubscriptionListEditor subscribe (string subscriptionListId) {
+        public SubscriptionListEditor Subscribe (string subscriptionListId) {
             operations.Add (new SubscriptionListOperation ("subscribe", subscriptionListId));
             return this;
         }
@@ -32,7 +32,7 @@ namespace UrbanAirship {
         /// </summary>
         /// <returns>The subscription list editor.</returns>
         /// <param name="subscriptionListId">The subscription list identifier.</param>
-        public SubscriptionListEditor unsubscribe (string subscriptionListId) {
+        public SubscriptionListEditor Unsubscribe (string subscriptionListId) {
             operations.Add (new SubscriptionListOperation ("unsubscribe", subscriptionListId));
             return this;
         }

@@ -66,37 +66,21 @@ namespace UrbanAirship
         }
 
         /// <summary>
-        /// Mark an inbox message as having been read asynchronously using a coroutine.
-        /// This method does not block Unity's main thread.
+        /// Mark an inbox message as having been read.
         /// </summary>
         /// <param name="messageId">The messageId for the message.</param>
-        /// <param name="onComplete">Optional callback invoked when the operation completes.</param>
-        /// <param name="onError">Optional callback invoked if an error occurs.</param>
-        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
-        public IEnumerator MarkMessageRead(string messageId, Action onComplete = null, Action<Exception> onError = null)
+        public void MarkMessageRead(string messageId)
         {
-            yield return AirshipCoroutineHelper.RunAsync(
-                () => plugin.Call("markMessageRead", messageId),
-                onComplete,
-                onError
-            );
+            plugin.Call("markMessageRead", messageId);
         }
 
         /// <summary>
-        /// Delete an inbox message asynchronously using a coroutine.
-        /// This method does not block Unity's main thread.
+        /// Delete an inbox message.
         /// </summary>
         /// <param name="messageId">The messageId for the message.</param>
-        /// <param name="onComplete">Optional callback invoked when the operation completes.</param>
-        /// <param name="onError">Optional callback invoked if an error occurs.</param>
-        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
-        public IEnumerator DeleteMessage(string messageId, Action onComplete = null, Action<Exception> onError = null)
+        public void DeleteMessage(string messageId)
         {
-            yield return AirshipCoroutineHelper.RunAsync(
-                () => plugin.Call("deleteMessage", messageId),
-                onComplete,
-                onError
-            );
+            plugin.Call("deleteMessage", messageId);
         }
 
         /// <summary>

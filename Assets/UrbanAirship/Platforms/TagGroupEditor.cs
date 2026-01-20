@@ -78,18 +78,18 @@ namespace UrbanAirship {
             // Used for JSON encoding/decoding
 
             [SerializeField]
-            private string operation;
+            private string operationType;
 
             [SerializeField]
-            private string tagGroup;
+            private string group;
 
             [SerializeField]
             private string[] tags;
 #pragma warning restore
 
             public TagGroupOperation (string operation, string tagGroup, ICollection<string> tags) {
-                this.operation = operation;
-                this.tagGroup = tagGroup;
+                this.operationType = operation;
+                this.group = tagGroup;
                 this.tags = tags.ToArray ();
             }
         }

@@ -41,6 +41,24 @@ namespace UrbanAirship {
             }
         }
 
+        /// Internal method to make a Java Array with an array of String values,
+        /// to be used with the PrivacyManager methods.
+        public AndroidJavaObject MakeJavaArray(string[] values) {
+            if (values == null) {
+                return null;
+            }
+
+            // Create a Java String[] array using reflection
+            AndroidJavaClass arrayClass = new AndroidJavaClass("java.lang.reflect.Array");
+            AndroidJavaObject arrayObject = arrayClass.CallStatic<AndroidJavaObject>("newInstance", new AndroidJavaClass("java.lang.String"), values.Length);
+
+            for (int i = 0; i < values.Length; i++) {
+                arrayClass.CallStatic("set", arrayObject, i, new AndroidJavaObject("java.lang.String", values[i]));
+            }
+
+            return arrayObject;
+        }
+
         public void Call (string method, params object[] args) {
             if (androidPlugin != null) {
                 androidPlugin.Call (method, args);

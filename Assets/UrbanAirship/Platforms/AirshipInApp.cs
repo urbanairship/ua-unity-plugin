@@ -40,7 +40,7 @@ namespace UrbanAirship {
         /// </summary>
         /// <param name="displayInterval">The display interval.</param>
         public void SetDisplayInterval (TimeSpan displayInterval) {
-            plugin.Call ("setDisplayInterval", displayInterval.TotalMilliseconds);
+            plugin.Call ("setDisplayInterval", (long)displayInterval.TotalMilliseconds);
         }
 
         /// <summary>
