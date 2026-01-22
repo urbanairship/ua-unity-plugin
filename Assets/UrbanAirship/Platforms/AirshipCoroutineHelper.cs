@@ -2,23 +2,22 @@
 
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace UrbanAirship {
 
     /// <summary>
-    /// Helper class to run blocking operations in coroutines.
-    /// AndroidJavaObject.Call() must run on Unity's main thread, so we call it directly
-    /// from the coroutine (which runs on the main thread). We yield first to let Unity
-    /// process a frame, then execute the blocking call. The blocking happens on the main
-    /// thread, but Unity has had a chance to process input/rendering first.
+    /// Helper class to run blocking operations asynchronously without blocking Unity's main thread.
+    /// On Android, JNI calls that use runBlocking in Kotlin will block the calling thread.
+    /// This helper runs those operations on a background thread with proper JNI thread attachment,
+    /// then returns results to the main thread via callbacks.
     /// </summary>
     internal static class AirshipCoroutineHelper {
         
         /// <summary>
-        /// Runs a blocking operation on the main thread. Yields first to let Unity process,
-        /// then executes the blocking call. Since coroutines run on the main thread, this
-        /// ensures AndroidJavaObject.Call() works correctly.
+        /// Runs a blocking operation on a background thread to avoid ANRs.
+        /// On Android, attaches/detaches the thread to/from the JVM.
         /// </summary>
         /// <typeparam name="T">The return type</typeparam>
         /// <param name="operation">The blocking operation to run</param>
@@ -26,21 +25,35 @@ namespace UrbanAirship {
         /// <param name="onError">Optional callback invoked if an error occurs</param>
         /// <returns>A coroutine</returns>
         public static IEnumerator RunAsync<T>(Func<T> operation, Action<T> onComplete, Action<Exception> onError = null) {
-            // Yield first to let Unity process a frame
-            yield return null;
-            
             T result = default(T);
             Exception exception = null;
+            bool completed = false;
             
-            try {
-                result = operation();
-            } catch (Exception e) {
-                exception = e;
-                Debug.LogError($"[AirshipCoroutineHelper] Exception: {e.Message}\n{e.StackTrace}");
+            // Run the blocking operation on a background thread
+            Task.Run(() => {
+                try {
+#if UNITY_ANDROID && !UNITY_EDITOR
+                    // Attach this thread to the JVM for JNI calls
+                    AndroidJNI.AttachCurrentThread();
+                    try {
+                        result = operation();
+                    } finally {
+                        AndroidJNI.DetachCurrentThread();
+                    }
+#else
+                    result = operation();
+#endif
+                } catch (Exception e) {
+                    exception = e;
+                } finally {
+                    completed = true;
+                }
+            });
+            
+            // Wait for completion without blocking the main thread
+            while (!completed) {
+                yield return null;
             }
-            
-            // Yield again before invoking callbacks to ensure we're still on main thread
-            yield return null;
 
             // Handle result or error on main thread
             if (exception != null) {
@@ -51,29 +64,42 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Runs a blocking operation on the main thread. Yields first to let Unity process,
-        /// then executes the blocking call. Since coroutines run on the main thread, this
-        /// ensures AndroidJavaObject.Call() works correctly.
+        /// Runs a blocking operation on a background thread to avoid ANRs.
+        /// On Android, attaches/detaches the thread to/from the JVM.
         /// </summary>
         /// <param name="operation">The blocking operation to run</param>
         /// <param name="onComplete">Callback invoked when the operation completes</param>
         /// <param name="onError">Optional callback invoked if an error occurs</param>
         /// <returns>A coroutine</returns>
         public static IEnumerator RunAsync(Action operation, Action onComplete = null, Action<Exception> onError = null) {
-            // Yield first to let Unity process a frame
-            yield return null;
-            
             Exception exception = null;
+            bool completed = false;
             
-            try {
-                operation();
-            } catch (Exception e) {
-                exception = e;
-                Debug.LogError($"[AirshipCoroutineHelper] Exception: {e.Message}\n{e.StackTrace}");
+            // Run the blocking operation on a background thread
+            Task.Run(() => {
+                try {
+#if UNITY_ANDROID && !UNITY_EDITOR
+                    // Attach this thread to the JVM for JNI calls
+                    AndroidJNI.AttachCurrentThread();
+                    try {
+                        operation();
+                    } finally {
+                        AndroidJNI.DetachCurrentThread();
+                    }
+#else
+                    operation();
+#endif
+                } catch (Exception e) {
+                    exception = e;
+                } finally {
+                    completed = true;
+                }
+            });
+            
+            // Wait for completion without blocking the main thread
+            while (!completed) {
+                yield return null;
             }
-            
-            // Yield again before invoking callbacks to ensure we're still on main thread
-            yield return null;
 
             // Handle result or error on main thread
             if (exception != null) {
@@ -84,4 +110,3 @@ namespace UrbanAirship {
         }
     }
 }
-

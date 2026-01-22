@@ -72,22 +72,31 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Gets the contact's subscription lists.
+        /// Gets the contact's subscription lists asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
-        /// <returns>The subscription lists.</returns>
-        public Dictionary<string, IEnumerable<string>> GetSubscriptionLists()
+        /// <param name="onComplete">Callback invoked with the subscription lists when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator GetSubscriptionLists(Action<Dictionary<string, IEnumerable<string>>> onComplete, Action<Exception> onError = null)
         {
-            Dictionary<string, IEnumerable<string>> scopedSubscriptionLists = new Dictionary<string, IEnumerable<string>>();
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => {
+                    Dictionary<string, IEnumerable<string>> scopedSubscriptionLists = new Dictionary<string, IEnumerable<string>>();
 
-            string subscriptionListsAsJson = plugin.Call<string>("getContactSubscriptionLists");
-            ScopedSubscriptionList[] _scopedSubscriptionLists = JsonArray<ScopedSubscriptionList>.FromJson(subscriptionListsAsJson).values;
+                    string subscriptionListsAsJson = plugin.Call<string>("getContactSubscriptionLists");
+                    ScopedSubscriptionList[] _scopedSubscriptionLists = JsonArray<ScopedSubscriptionList>.FromJson(subscriptionListsAsJson).values;
 
-            foreach (ScopedSubscriptionList subscriptionList in _scopedSubscriptionLists)
-            {
-                scopedSubscriptionLists.Add(subscriptionList.listId, subscriptionList.scopes.AsEnumerable());
-            }
+                    foreach (ScopedSubscriptionList subscriptionList in _scopedSubscriptionLists)
+                    {
+                        scopedSubscriptionLists.Add(subscriptionList.listId, subscriptionList.scopes.AsEnumerable());
+                    }
 
-            return scopedSubscriptionLists;
+                    return scopedSubscriptionLists;
+                },
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>

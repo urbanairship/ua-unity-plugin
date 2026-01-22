@@ -234,7 +234,7 @@ namespace UrbanAirship
 
             void OnDeepLinkReceived(string deeplink)
             {
-                DeepLinkReceivedEventHandler handler = Shared.OnDeepLinkReceived;
+                DeepLinkReceivedEventHandler handler = Airship.Shared.OnDeepLinkReceived;
 
                 if (handler != null)
                 {
@@ -244,7 +244,7 @@ namespace UrbanAirship
 
             void OnChannelCreated(string channelId)
             {
-                ChannelCreateEventHandler handler = Shared.OnChannelCreated;
+                ChannelCreateEventHandler handler = Airship.Shared.OnChannelCreated;
 
                 if (handler != null)
                 {
@@ -254,7 +254,7 @@ namespace UrbanAirship
 
             void OnInboxUpdated(string counts)
             {
-                InboxUpdatedEventHandler handler = Shared.OnInboxUpdated;
+                InboxUpdatedEventHandler handler = Airship.Shared.OnInboxUpdated;
 
                 MessageCounts messageCounts = JsonUtility.FromJson<MessageCounts>(counts);
 
@@ -267,7 +267,7 @@ namespace UrbanAirship
 
             void OnShowInbox(string messageId)
             {
-                ShowInboxEventHandler handler = Shared.OnShowInbox;
+                ShowInboxEventHandler handler = Airship.Shared.OnShowInbox;
 
                 if (handler != null)
                 {
@@ -284,7 +284,7 @@ namespace UrbanAirship
 
             void OnPreferenceCenterDisplay(string preferenceCenterId)
             {
-                PreferenceCenterDisplayEventHandler handler = Shared.OnPreferenceCenterDisplay;
+                PreferenceCenterDisplayEventHandler handler = Airship.Shared.OnPreferenceCenterDisplay;
 
                 if (handler != null)
                 {
@@ -294,7 +294,7 @@ namespace UrbanAirship
 
             void OnAuthorizedSettingsChanged(AuthorizedNotificationSetting[] authorizedSettings)
             {
-                AuthorizedSettingsChangedEventHandler handler = Shared.OnAuthorizedSettingsChanged;
+                AuthorizedSettingsChangedEventHandler handler = Airship.Shared.OnAuthorizedSettingsChanged;
 
                 if (handler != null)
                 {

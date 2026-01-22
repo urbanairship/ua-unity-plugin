@@ -31,12 +31,13 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         //     UAirship.Shared.AddTag (addTagOnStart);
         // }
 
-        // UAirship.Shared.OnPushReceived += OnPushReceived;
-        // UAirship.Shared.OnChannelUpdated += OnChannelUpdated;
-        // UAirship.Shared.OnDeepLinkReceived += OnDeepLinkReceived;
-        // UAirship.Shared.OnPushOpened += OnPushOpened;
-        // UAirship.Shared.OnInboxUpdated += OnInboxUpdated;
-        // UAirship.Shared.OnShowInbox += OnShowInbox;
+        Airship.Shared.OnPushReceived += OnPushReceived;
+        Airship.Shared.OnPushOpened += OnPushOpened;
+        Airship.Shared.OnChannelCreated += OnChannelCreated;
+        Airship.Shared.OnDeepLinkReceived += OnDeepLinkReceived;
+        Airship.Shared.OnInboxUpdated += OnInboxUpdated;
+        Airship.Shared.OnShowInbox += OnShowInbox;
+        Airship.Shared.OnPreferenceCenterDisplay += OnPreferenceCenterDisplay;
 
         // PrivacyManager
         Debug.Log("Set Enabled features to none");
@@ -72,14 +73,14 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         // Channel
         Debug.Log("Channel ID: " + Airship.Shared.channel.GetChannelId());
 
-        // StartCoroutine(Airship.Shared.channel.WaitForChannelId(
-        //     onComplete: (channelId) => {
-        //         Debug.Log($"Channel ID received: {channelId}");
-        //     },
-        //     onError: (error) => {
-        //         Debug.LogError($"Error getting channel ID: {error.Message}");
-        //     }
-        // ));
+        StartCoroutine(Airship.Shared.channel.WaitForChannelId(
+            onComplete: (channelId) => {
+                Debug.Log($"Channel ID received: {channelId}");
+            },
+            onError: (error) => {
+                Debug.LogError($"Error getting channel ID: {error.Message}");
+            }
+        ));
 
         Airship.Shared.channel.EditTags().AddTag("unity_tag").Apply();
         Airship.Shared.channel.EditTags().AddTag("tag_to_remove_1").Apply();
@@ -96,14 +97,14 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
 
         Airship.Shared.channel.EditSubscriptionLists().Subscribe("unity_subscription_list").Apply();
         Airship.Shared.channel.EditSubscriptionLists().Subscribe("unity_subscription_list_to_remove").Apply();
-        // StartCoroutine(Airship.Shared.channel.GetSubscriptionLists(
-        //     onComplete: (subscriptionLists) => {
-        //         Debug.Log("Channel Subscription lists: " + string.Join(", ", subscriptionLists));
-        //     },
-        //     onError: (error) => {
-        //         Debug.LogError("Error getting subscription lists: " + error.Message);
-        //     }
-        // ));
+        StartCoroutine(Airship.Shared.channel.GetSubscriptionLists(
+            onComplete: (subscriptionLists) => {
+                Debug.Log("Channel Subscription lists: " + string.Join(", ", subscriptionLists));
+            },
+            onError: (error) => {
+                Debug.LogError("Error getting subscription lists: " + error.Message);
+            }
+        ));
         Airship.Shared.channel.EditSubscriptionLists().Unsubscribe("unity_subscription_list_to_remove").Apply();
 
         Airship.Shared.channel.EditAttributes().SetAttribute("teststring", "a_string").Apply();
@@ -139,15 +140,17 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Airship.Shared.contact.EditSubscriptionLists().Subscribe("unity_subscription_list", SubscriptionScope.APP).Apply();
         Airship.Shared.contact.EditSubscriptionLists().Subscribe("unity_subscription_list_to_remove", SubscriptionScope.APP).Apply();
         Airship.Shared.contact.EditSubscriptionLists().Unsubscribe("unity_subscription_list_to_remove", SubscriptionScope.APP).Apply();
-        Debug.Log("Contact Subscription lists: " + string.Join(", ", Airship.Shared.contact.GetSubscriptionLists()));
-        // StartCoroutine(Airship.Shared.contact.GetSubscriptionLists(
-        //     onComplete: (subscriptionLists) => {
-        //         Debug.Log("Contact Subscription lists: " + string.Join(", ", subscriptionLists));
-        //     },
-        //     onError: (error) => {
-        //         Debug.LogError("Error getting subscription lists: " + error.Message);
-        //     }
-        // ));
+        StartCoroutine(Airship.Shared.contact.GetSubscriptionLists(
+            onComplete: (subscriptionLists) => {
+                Debug.Log("Contact Subscription lists:");
+                foreach (var subscription in subscriptionLists) {
+                    Debug.Log($"List: {subscription.Key}, Scopes: {string.Join(", ", subscription.Value)}");
+                }
+            },
+            onError: (error) => {
+                Debug.LogError("Error getting subscription lists: " + error.Message);
+            }
+        ));
 
         // InApp
         Airship.Shared.inApp.SetPaused(true);
@@ -164,34 +167,34 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         // Debug.Log("Locale: " + Airship.Shared.locale.GetLocale());
 
         // Message Center
-        // StartCoroutine(Airship.Shared.messageCenter.RefreshInbox(
-        //     onComplete: () => {
-        //         Debug.Log("Refresh inbox complete");
-        //     },
-        //     onError: (error) => {
-        //         Debug.LogError("Error refreshing inbox: " + error.Message);
-        //     }
-        // ));
+        StartCoroutine(Airship.Shared.messageCenter.RefreshInbox(
+            onComplete: () => {
+                Debug.Log("Refresh inbox complete");
+            },
+            onError: (error) => {
+                Debug.LogError("Error refreshing inbox: " + error.Message);
+            }
+        ));
 
         Airship.Shared.messageCenter.SetAutoLaunchDefaultMessageCenter(true);
 
-        // StartCoroutine(Airship.Shared.messageCenter.GetUnReadCount(
-        //     onComplete: (unreadCount) => {
-        //         Debug.Log("Unread count: " + unreadCount);
-        //     },
-        //     onError: (error) => {
-        //         Debug.LogError("Error getting unread count: " + error.Message);
-        //     }
-        // ));
+        StartCoroutine(Airship.Shared.messageCenter.GetUnReadCount(
+            onComplete: (unreadCount) => {
+                Debug.Log("Unread count: " + unreadCount);
+            },
+            onError: (error) => {
+                Debug.LogError("Error getting unread count: " + error.Message);
+            }
+        ));
 
-        // StartCoroutine(Airship.Shared.messageCenter.GetMessages(
-        //     onComplete: (messages) => {
-        //         Debug.Log("Messages: " + string.Join(", ", messages));
-        //     },
-        //     onError: (error) => {
-        //         Debug.LogError("Error getting messages: " + error.Message);
-        //     }
-        // ));
+        StartCoroutine(Airship.Shared.messageCenter.GetMessages(
+            onComplete: (messages) => {
+                Debug.Log("Messages: " + string.Join(", ", messages));
+            },
+            onError: (error) => {
+                Debug.LogError("Error getting messages: " + error.Message);
+            }
+        ));
 
         Airship.Shared.messageCenter.Display(null);
         // Airship.Shared.messageCenter.ShowMessageCenter(null);
@@ -213,8 +216,6 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         
         Airship.Shared.push.SetUserNotificationsEnabled(false);
         Debug.Log("User notifications enabled after set to false: " + Airship.Shared.push.IsUserNotificationEnabled());
-        // Airship.Shared.push.SetUserNotificationsEnabled(true);
-        // Debug.Log("User notifications enabled after set to true: " + Airship.Shared.push.IsUserNotificationEnabled());
         
         StartCoroutine(Airship.Shared.push.EnableUserNotifications(
             new EnabledUserPushNotificationsArgs() {
@@ -253,78 +254,91 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
             accentColor = "#FF0000",
         });
 
+        Airship.Shared.push.android.SetForegroundNotificationsEnabled(false);
+        Debug.Log("Foreground notifications enabled: " + Airship.Shared.push.android.IsForegroundNotificationsEnabled());
         Airship.Shared.push.android.SetForegroundNotificationsEnabled(true);
-        // Debug.Log("Foreground notifications enabled: " + Airship.Shared.push.android.IsForegroundNotificationsEnabled());
-        // Airship.Shared.push.android.SetForegroundNotificationsEnabled(false);
-        // Debug.Log("Foreground notifications enabled after false: " + Airship.Shared.push.android.IsForegroundNotificationsEnabled());
+        Debug.Log("Foreground notifications enabled after true: " + Airship.Shared.push.android.IsForegroundNotificationsEnabled());
     }
 
-    // void OnDestroy () {
-    //     UAirship.Shared.OnPushReceived -= OnPushReceived;
-    //     UAirship.Shared.OnChannelUpdated -= OnChannelUpdated;
-    //     UAirship.Shared.OnDeepLinkReceived -= OnDeepLinkReceived;
-    //     UAirship.Shared.OnPushOpened -= OnPushOpened;
-    // }
+    void OnDestroy () {
+        Airship.Shared.OnPushReceived -= OnPushReceived;
+        Airship.Shared.OnPushOpened -= OnPushOpened;
+        Airship.Shared.OnChannelCreated -= OnChannelCreated;
+        Airship.Shared.OnDeepLinkReceived -= OnDeepLinkReceived;
+        Airship.Shared.OnInboxUpdated -= OnInboxUpdated;
+        Airship.Shared.OnShowInbox -= OnShowInbox;
+        Airship.Shared.OnPreferenceCenterDisplay -= OnPreferenceCenterDisplay;
+    }
 
-    // void OnPushReceived (PushMessage message) {
-    //     Debug.Log ("Received push! " + message.Alert);
+    void OnPushReceived (PushMessage message) {
+        Debug.Log ("Received push! " + message.Alert);
 
-    //     if (message.Extras != null) {
-    //         foreach (KeyValuePair<string, string> kvp in message.Extras) {
-    //             Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
-    //         }
-    //     }
-    // }
+        if (message.Extras != null) {
+            foreach (KeyValuePair<string, string> kvp in message.Extras) {
+                Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
+            }
+        }
+    }
 
-    // void OnPushOpened (PushMessage message) {
-    //     Debug.Log ("Opened Push! " + message.Alert);
+    void OnPushOpened (PushMessage message) {
+        Debug.Log ("Opened Push! " + message.Alert);
 
-    //     if (message.Extras != null) {
-    //         foreach (KeyValuePair<string, string> kvp in message.Extras) {
-    //             Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
-    //         }
-    //     }
-    // }
+        if (message.Extras != null) {
+            foreach (KeyValuePair<string, string> kvp in message.Extras) {
+                Debug.Log (string.Format ("Extras Key = {0}, Value = {1}", kvp.Key, kvp.Value));
+            }
+        }
+    }
 
-    // void OnChannelUpdated (string channelId) {
-    //     Debug.Log ("Channel updated: " + channelId);
-    // }
+    void OnChannelCreated (string channelId) {
+        Debug.Log ("Channel created: " + channelId);
+    }
 
-    // void OnDeepLinkReceived (string deeplink) {
-    //     Debug.Log ("Received deep link: " + deeplink);
-    // }
+    void OnDeepLinkReceived (string deeplink) {
+        Debug.Log ("Received deep link: " + deeplink);
+    }
 
-    // void OnInboxUpdated (uint messageUnreadCount, uint messageCount)
-    // {
-    //     Debug.Log("Inbox updated - unread messages: " + messageUnreadCount + " total messages: " + messageCount);
+    void OnInboxUpdated (uint messageUnreadCount, uint messageCount)
+    {
+        Debug.Log("Inbox updated - unread messages: " + messageUnreadCount + " total messages: " + messageCount);
 
-    //     IEnumerable<InboxMessage>inboxMessages = UAirship.Shared.InboxMessages();
-    //     foreach (InboxMessage inboxMessage in inboxMessages)
-    //     {
-    //         Debug.Log("Message id: " + inboxMessage.id + ", title: " + inboxMessage.title + ", sentDate: " + inboxMessage.sentDate + ", isRead: " + inboxMessage.isRead + ", isDeleted: " + inboxMessage.isDeleted);
-    //         if (inboxMessage.extras == null)
-    //         {
-    //             Debug.Log("Extras is null");
-    //         }
-    //         else
-    //         {
-    //             foreach (KeyValuePair<string, string> entry in inboxMessage.extras)
-    //             {
-    //                 Debug.Log("Message extras [" + entry.Key + "] = " + entry.Value);
-    //             }
-    //         }
-    //     }
-    // }
+        StartCoroutine(Airship.Shared.messageCenter.GetMessages(
+            onComplete: (messages) => {
+                foreach (InboxMessage inboxMessage in messages)
+                {
+                    Debug.Log("Message id: " + inboxMessage.id + ", title: " + inboxMessage.title + ", sentDate: " + inboxMessage.sentDate + ", isRead: " + inboxMessage.isRead + ", isDeleted: " + inboxMessage.isDeleted);
+                    if (inboxMessage.extras == null)
+                    {
+                        Debug.Log("Extras is null");
+                    }
+                    else
+                    {
+                        foreach (KeyValuePair<string, string> entry in inboxMessage.extras)
+                        {
+                            Debug.Log("Message extras [" + entry.Key + "] = " + entry.Value);
+                        }
+                    }
+                }
+            },
+            onError: (error) => {
+                Debug.LogError("Error getting messages: " + error.Message);
+            }
+        ));
+    }
 
-    // void OnShowInbox (string messageId)
-    // {
-    //     if (messageId == null)
-    //     {
-    //         Debug.Log("OnShowInbox - show inbox");
-    //     }
-    //     else
-    //     {
-    //         Debug.Log("OnShowInbox - show message: messageId = " + messageId);
-    //     }
-    // }
+    void OnShowInbox (string messageId)
+    {
+        if (messageId == null)
+        {
+            Debug.Log("OnShowInbox - show inbox");
+        }
+        else
+        {
+            Debug.Log("OnShowInbox - show message: messageId = " + messageId);
+        }
+    }
+
+    void OnPreferenceCenterDisplay (string preferenceCenterId) {
+        Debug.Log ("Preference Center display - preferenceCenterId: " + preferenceCenterId);
+    }
 }

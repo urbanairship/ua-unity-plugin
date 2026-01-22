@@ -19,6 +19,7 @@ import com.urbanairship.util.UAStringUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
+import org.json.JSONObject
 
 
 class UnityPlugin {
@@ -97,10 +98,10 @@ class UnityPlugin {
     fun getChannelSubscriptionLists(): String {
         ProxyLogger.debug("UnityPlugin getChannelSubscriptionLists method call")
         return runBlocking(Dispatchers.IO) {
-        val jsonArray = JSONArray()
-        for (tag in airshipProxyInstance.channel.getSubscriptionLists()) {
-            jsonArray.put(tag)
-        }
+            val jsonArray = JSONArray()
+            for (tag in airshipProxyInstance.channel.getSubscriptionLists()) {
+                jsonArray.put(tag)
+            }
             jsonArray.toString()
         }
     }
@@ -156,13 +157,20 @@ class UnityPlugin {
 
     fun getContactSubscriptionLists(): String {
         ProxyLogger.debug("UnityPlugin getContactSubscriptionLists method call")
-
-        // TODO finish this
-        val jsonArray = JSONArray()
-//        for (tag in airshipProxyInstance.contact.getSubscriptionLists()) {
-//            jsonArray.put(tag)
-//        }
-        return jsonArray.toString()
+        return runBlocking(Dispatchers.IO) {
+            val resultArray = JSONArray()
+            airshipProxyInstance.contact.getSubscriptionLists().forEach { subscription ->
+                val scopesArray = JSONArray()
+                for (scope in subscription.value) {
+                    scopesArray.put(scope)
+                }
+                val item = JSONObject()
+                item.put("listId", subscription.key)
+                item.put("scopes", scopesArray)
+                resultArray.put(item)
+            }
+            resultArray.toString()
+        }
     }
 
     fun editContactSubscriptionLists(payload: String) {
@@ -468,25 +476,31 @@ class UnityPlugin {
         }
     }
 
-    // TODO Implement the rest of the listeners (PreferenceCenter)
-
     fun onInboxUpdated() {
         runBlocking(Dispatchers.IO) {
             val unreadCount = airshipProxyInstance.messageCenter.getUnreadMessagesCount()
             val messages = airshipProxyInstance.messageCenter.getMessages()
             val totalCount = messages.size
-        val counts: JsonMap = JsonMap.newBuilder()
-            .put("unread", unreadCount)
-            .put("total", totalCount)
-            .build()
-        ProxyLogger.debug(
-            "UnityPlugin inboxUpdated (unread = %s, total = %s)",
-            unreadCount, totalCount
-        )
+            val counts: JsonMap = JsonMap.newBuilder()
+                .put("unread", unreadCount)
+                .put("total", totalCount)
+                .build()
+            ProxyLogger.debug(
+                "UnityPlugin inboxUpdated (unread = %s, total = %s)",
+                unreadCount, totalCount
+            )
+
+            if (listener != null) {
+                UnityPlayer.UnitySendMessage(listener, "OnInboxUpdated", counts.toString())
+            }
+        }
+    }
+
+    fun onPreferenceCenterDisplay(preferenceCenterId: String) {
+        ProxyLogger.debug("UnityPlugin preference center display: $preferenceCenterId")
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnInboxUpdated", counts.toString())
-            }
+            UnityPlayer.UnitySendMessage(listener, "OnPreferenceCenterDisplay", preferenceCenterId)
         }
     }
 
