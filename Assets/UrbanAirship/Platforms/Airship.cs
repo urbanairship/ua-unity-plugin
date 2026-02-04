@@ -99,6 +99,8 @@ namespace UrbanAirship
         public AirshipPreferenceCenter preferenceCenter;
         public AirshipPrivacyManager privacyManager;
         public AirshipLocale locale;
+        public AirshipAction actions;
+        public AirshipFeatureFlagManager featureFlagManager;
 
         private IAirshipPlugin plugin;
         internal GameObject gameObject;
@@ -166,7 +168,9 @@ namespace UrbanAirship
             preferenceCenter = new AirshipPreferenceCenter(plugin);
             privacyManager = new AirshipPrivacyManager(plugin);
             locale = new AirshipLocale(plugin);
-            // TODO finish the rest of the modules
+            actions = new AirshipAction(plugin);
+            featureFlagManager = new AirshipFeatureFlagManager(plugin);
+            // TODO finish the rest of the modules (live activity and live update)
 
             gameObject = new GameObject("[AirshipListener]");
             gameObject.AddComponent<AirshipListener>();

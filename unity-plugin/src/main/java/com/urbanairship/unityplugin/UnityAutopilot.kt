@@ -18,8 +18,6 @@ class UnityAutopilot : BaseAutopilot() {
         airship.analytics.registerSDKExtension(Extension.UNITY, BuildConfig.PLUGIN_VERSION)
     }
 
-    // TODO add the listeners
-
     override fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder {
         val resourceId = context.resources.getIdentifier("airship_config", "xml", context.packageName)
         if (resourceId <= 0) {

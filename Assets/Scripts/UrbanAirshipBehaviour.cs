@@ -258,6 +258,27 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Debug.Log("Foreground notifications enabled: " + Airship.Shared.push.android.IsForegroundNotificationsEnabled());
         Airship.Shared.push.android.SetForegroundNotificationsEnabled(true);
         Debug.Log("Foreground notifications enabled after true: " + Airship.Shared.push.android.IsForegroundNotificationsEnabled());
+
+        StartCoroutine(Airship.Shared.actions.RunAction("test_action", "test_value",
+            onComplete: (result) => {
+                Debug.Log("Action result: " + result);
+            },
+            onError: (error) => {
+                Debug.LogError("Error running action: " + error.Message);
+            }
+        ));
+
+        StartCoroutine(Airship.Shared.featureFlagManager.Flag("ulrich_feature_flag",
+            onComplete: (flag) => {
+                Debug.Log("Feature flag: " + flag);
+
+                Airship.Shared.featureFlagManager.TrackInteraction(flag);
+            },
+            onError: (error) => {
+                Debug.LogError("Error getting feature flag: " + error.Message);
+            }
+        ));
+
     }
 
     void OnDestroy () {

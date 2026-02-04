@@ -1,32 +1,76 @@
 /* Copyright Airship and Contributors */
 package com.urbanairship.unityplugin
 
-import android.R.attr.enabled
-import android.R.attr.identifier
+import android.R.id.message
 import android.os.Build
+import android.os.Bundle
 import androidx.annotation.RequiresApi
-import com.google.android.datatransport.runtime.scheduling.SchedulingConfigModule_ConfigFactory.config
 import com.unity3d.player.UnityPlayer
+import com.urbanairship.Autopilot
 import com.urbanairship.PrivacyManager
+import com.urbanairship.android.framework.proxy.EventType
+import com.urbanairship.android.framework.proxy.MessageCenterMessage
 import com.urbanairship.android.framework.proxy.ProxyLogger
+import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
+import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
 import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
+import com.urbanairship.json.optionalField
+import com.urbanairship.json.requireMap
+import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.push.PushMessage
 import com.urbanairship.util.UAStringUtil
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
 
 
 class UnityPlugin {
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
 
     private val airshipProxyInstance = AirshipProxy.shared(UnityPlayer.currentActivity.applicationContext)
 
     private var listener: String? = null
+
+    init {
+        Autopilot.automaticTakeOff(UnityPlayer.currentActivity.applicationContext)
+
+        scope.launch {
+            EventEmitter.shared().pendingEventListener.collect {
+                notifyPendingEvents()
+            }
+        }
+    }
+
+    private fun notifyPendingEvents() {
+        EventType.entries.forEach { eventType ->
+            EventEmitter.shared().processPending(listOf(eventType)) { event ->
+                when (event.type) {
+                    EventType.CHANNEL_CREATED -> onChannelCreated(event.body.optionalField<String>("channelId"))
+                    EventType.DEEP_LINK_RECEIVED -> onDeepLinkReceived(event.body.optionalField<String>("deepLink"))
+                    EventType.DISPLAY_MESSAGE_CENTER -> onShowInbox(event.body.optionalField<String>("messageId"))
+                    EventType.DISPLAY_PREFERENCE_CENTER -> onPreferenceCenterDisplay(event.body.get("preferenceCenterId").toString())
+                    EventType.MESSAGE_CENTER_UPDATED -> onInboxUpdated()
+                    EventType.PUSH_TOKEN_RECEIVED -> {}
+                    EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED -> onPushOpened(event.body.optionalField<JsonValue>("pushPayload"))
+                    EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED -> onPushOpened(event.body.optionalField<JsonValue>("pushPayload"))
+                    EventType.FOREGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
+                    EventType.BACKGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
+                    EventType.NOTIFICATION_STATUS_CHANGED -> {}
+                    EventType.PENDING_EMBEDDED_UPDATED -> {}
+                }
+                true
+            }
+        }
+    }
 
     fun setListener(listener: String) {
         ProxyLogger.debug("UnityPlugin setListener method call with: $listener")
@@ -263,7 +307,7 @@ class UnityPlugin {
     fun getMessages(): String {
         ProxyLogger.debug("UnityPlugin getMessages method call")
         return runBlocking(Dispatchers.IO) {
-            JsonValue.wrapOpt(airshipProxyInstance.messageCenter.getMessages()).toString()
+            getInboxMessagesAsJSON(airshipProxyInstance.messageCenter.getMessages())
         }
     }
 
@@ -424,21 +468,60 @@ class UnityPlugin {
         return airshipProxyInstance.push.isForegroundNotificationsEnabled
     }
 
-    // TODO finish the implementation
-
-    fun onPushReceived(message: PushMessage?) {
-        ProxyLogger.debug("UnityPlugin push received: $message")
-
-        if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnPushReceived", getPushPayload(message))
+    fun runAction(name: String, value: String?): String {
+        ProxyLogger.debug("UnityPlugin runAction method call with: $name, $value")
+        return runBlocking(Dispatchers.IO) {
+            val actionResult = airshipProxyInstance.actions.runAction(name, JsonValue.parseString(value))
+            JsonValue.wrapOpt(actionResult).toString()
         }
     }
 
-    fun onPushOpened(message: PushMessage?) {
+    fun flag(name: String): String {
+        ProxyLogger.debug("UnityPlugin flag method call with: $name")
+        return runBlocking(Dispatchers.IO) {
+            val flagProxy = airshipProxyInstance.featureFlagManager.flag(name)
+            val flagJson = flagProxy.toJsonValue().optMap()
+
+            // Build a new JSON with _internal and variables as strings
+            val result = JSONObject()
+            result.put("isEligible", flagJson.opt("isEligible").getBoolean(false))
+            result.put("exists", flagJson.opt("exists").getBoolean(false))
+
+            // Stringify the nested objects so Unity's JsonUtility can deserialize them
+            val internal = flagJson.opt("_internal").toJsonValue()
+            if (!internal.isNull) {
+                result.put("_internal", internal.toString())
+            }
+
+            val variables = flagJson.opt("variables").toJsonValue()
+            if (!variables.isNull) {
+                result.put("variables", variables.toString())
+            }
+
+            result.toString()
+        }
+    }
+
+    fun trackInteraction(flag: String) {
+        ProxyLogger.debug("UnityPlugin trackInteraction method call with: $flag")
+        airshipProxyInstance.featureFlagManager.trackInteraction(FeatureFlagProxy(JsonValue.parseString(flag)))
+    }
+
+    // TODO finish the implementation (live activity and live update)
+
+    fun onPushReceived(message: JsonValue?) {
+        ProxyLogger.debug("UnityPlugin push received: $message")
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnPushReceived", message.toString())
+        }
+    }
+
+    fun onPushOpened(message: JsonValue?) {
         ProxyLogger.debug("UnityPlugin push opened: $message")
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnPushOpened", getPushPayload(message))
+            UnityPlayer.UnitySendMessage(listener, "OnPushOpened", message.toString())
         }
     }
 
@@ -504,6 +587,7 @@ class UnityPlugin {
         }
     }
 
+    // TODO Probably remove that, I don't think we'll need it anymore
     private fun getPushPayload(message: PushMessage?): String? {
         if (message == null) {
             return null
@@ -544,10 +628,40 @@ class UnityPlugin {
         return JsonValue.wrapOpt(payloadMap).toString()
     }
 
+    fun getInboxMessagesAsJSON(messageList: List<MessageCenterMessage>): String {
+        val messages: MutableList<MutableMap<String?, Any?>?> = ArrayList()
+        for (message in messageList) {
+            val messageMap: MutableMap<String?, Any?> = HashMap<String?, Any?>()
+            messageMap["id"] = message.id
+            messageMap["title"] = message.title
+            messageMap["sentDate"] = message.sentDate
+            val listIconUrl: String? = message.listIconUrl
+            if (listIconUrl != null) {
+                messageMap["listIconUrl"] = listIconUrl
+            }
+            messageMap["isRead"] = message.isRead
+
+            if (message.extras.entries.isNotEmpty()) {
+                val extrasKeys: MutableList<String?> = ArrayList()
+                val extrasValues: MutableList<Any?> = ArrayList()
+
+                for (entry in message.extras.entries.iterator()) {
+                    extrasKeys.add(entry.key)
+                    extrasValues.add(entry.value)
+                }
+
+                messageMap["extrasKeys"] = extrasKeys
+                messageMap["extrasValues"] = extrasValues
+            }
+            messages.add(messageMap)
+        }
+        return JsonValue.wrapOpt(messages).toString()
+    }
+
     companion object {
         private val instance = UnityPlugin()
 
-        private val featuresMap = mapOf(
+        private val FEATURE_MAP = mapOf(
             "FEATURE_NONE" to PrivacyManager.Feature.NONE,
             "FEATURE_IN_APP_AUTOMATION" to PrivacyManager.Feature.IN_APP_AUTOMATION,
             "FEATURE_MESSAGE_CENTER" to PrivacyManager.Feature.MESSAGE_CENTER,

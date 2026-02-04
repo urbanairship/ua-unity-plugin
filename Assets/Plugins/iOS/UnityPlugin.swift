@@ -413,6 +413,27 @@ class UnityPlugin: NSObject {
 
             case "getQuietTime":
                 return try AirshipJSON.wrap(try AirshipProxy.shared.push.getQuietTime())
+
+            case "runAction":
+                return AirshipJSON.wrap(
+                    try await AirshipProxy.shared.actions.runAction(
+                        try requireStringArg(args.first),
+                        try? AirshipJSON.wrap(try requireStringArg(args.second))
+                    )
+                ).toString()
+
+            case "flag":
+                return AirshipJSON.wrap(
+                    try await AirshipProxy.shared.featureFlagManager.flag(
+                        try requireStringArg(args.first)
+                    )
+                ).toString()
+
+            case "trackInteraction":
+                try AirshipProxy.shared.featureFlagManager.trackInteraction(
+                    try requireCodableArg(args.first)
+                )
+                return nil
             
             default:
                 return nil
