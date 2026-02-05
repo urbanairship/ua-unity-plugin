@@ -67,41 +67,5 @@ namespace UrbanAirship {
             return $"{{ \"isEligible\":{isEligible}, \"exists\":{exists}, \"variables\":{(variables == null ? "\"\"" : variables)}, \"_internal\":{_internal} }}";
         }
 
-        // public FeatureFlag(InternalFeatureFlag internalFeatureFlag)
-        // {
-        //     isEligible = internalFeatureFlag.isEligible;
-        //     exists = internalFeatureFlag.exists;
-
-        //     if (internalFeatureFlag.variableKeys != null && internalFeatureFlag.variableKeys.Count > 0)
-        //     {
-        //         // Unity's JsonUtility doesn't support embedded dictionaries - create the extras dictionary manually
-        //         variables = new Dictionary<string, string>();
-        //         for (int index = 0; index < internalFeatureFlag.variableKeys.Count; index++)
-        //         {
-        //             variables[internalFeatureFlag.variableKeys[index]] = internalFeatureFlag.variableValues[index];
-        //         }
-        //     }
-
-        //     if (internalFeatureFlag._internalKeys != null && internalFeatureFlag._internalKeys.Count > 0)
-        //     {
-        //         // Unity's JsonUtility doesn't support embedded dictionaries - create the extras dictionary manually
-        //         _internal = new Dictionary<string, string>();
-        //         for (int index = 0; index < internalFeatureFlag._internalKeys.Count; index++)
-        //         {
-        //             _internal[internalFeatureFlag._internalKeys[index]] = internalFeatureFlag._internalValues[index];
-        //         }
-        //     }
-        // }
     }
-
-    // [Serializable]
-    // public class InternalFeatureFlag
-    // {
-    //     public bool isEligible;
-    //     public bool exists;
-    //     public List<string>? variableKeys;
-    //     public List<string>? variableValues;
-    //     public List<string> _internalKeys;
-    //     public List<string> _internalValues;
-    // }
 }
