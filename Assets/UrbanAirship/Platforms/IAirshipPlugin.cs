@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
@@ -107,6 +108,21 @@ namespace UrbanAirship {
             if (string.IsNullOrEmpty(resultJson) || resultJson == "{}") {
                 return default(T);
             }
+            Debug.Log("resultJson: " + resultJson + " for method: " + method);
+
+            Type type = typeof(T);
+            if (type == typeof(bool)) {
+                return (T)(object)bool.Parse(resultJson);
+            } else if (type == typeof(int)) {
+                return (T)(object)int.Parse(resultJson);
+            } else if (type == typeof(float)) {
+                return (T)(object)float.Parse(resultJson, System.Globalization.CultureInfo.InvariantCulture);
+            } else if (type == typeof(string)) {
+                if (resultJson.StartsWith("\"") && resultJson.EndsWith("\"")) {
+                    return (T)(object)resultJson.Substring(1, resultJson.Length - 2);
+                }
+                return (T)(object)resultJson;
+            }
 
             return JsonUtility.FromJson<T>(resultJson);
         }
@@ -119,9 +135,17 @@ namespace UrbanAirship {
 
         public static string SerializeArgs(params object[] args) {
             if (args == null || args.Length == 0) {
-                return "{}"; // Return empty JSON object if no arguments
+                return "[]";
             }
-            return JsonUtility.ToJson(args);
+
+            var sb = new StringBuilder();
+            sb.Append("[");
+            for (int i = 0; i < args.Length; i++) {
+                if (i > 0) sb.Append(",");
+                sb.Append(AirshipUtils.SerializeValue(args[i]));
+            }
+            sb.Append("]");
+            return sb.ToString();
         }
     }
 

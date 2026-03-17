@@ -72,7 +72,7 @@ namespace UrbanAirship
         /// </summary>
         /// <param name="value">The value to serialize.</param>
         /// <returns>JSON string representation of the value.</returns>
-        private static string SerializeValue(object value)
+        public static string SerializeValue(object value)
         {
             if (value == null)
             {

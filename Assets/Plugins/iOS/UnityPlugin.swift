@@ -11,23 +11,63 @@ import AirshipKit
 import AirshipCore
 #endif
 
+private let _notHandled = "NOT_HANDLED"
+
 @_cdecl("UnityPlugin_call")
-public func UnityPlugin_call(_ method: String, argsJson: String) -> UnsafePointer<CChar>? {
-    let args: [String: [Any]]
+public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePointer<CChar>) -> UnsafePointer<CChar>? {
+    let methodStr = String(cString: method)
+    let argsJsonStr = String(cString: argsJson)
+
+    let args: [Any]
     do {
-        args = try AirshipJSON.wrap(argsJson).decode() as? [String: [Any]] ?? [:]
+        //args = try AirshipJSON.wrap(argsJson).decode() as? [String: [Any]] ?? [:]
+        let data = argsJsonStr.data(using: .utf8) ?? Data()
+        args = (try JSONSerialization.jsonObject(with: data) as? [Any]) ?? []
     } catch {
-        AirshipLogger.error("Failed to deserialize arguments for method \(method): \(error)")
+        AirshipLogger.error("Failed to deserialize arguments for method \(methodStr): \(error)")
         return UnsafePointer(strdup("{}"))
     }
 
-    let result: Any?
+    var result: Any?
 
-    do {
-        result = try UnityPlugin.shared.handleCall(method: method, args: args)
-    } catch {
-        AirshipLogger.error("Error executing method \(method): \(error)")
-        return UnsafePointer(strdup("{}"))
+    // Try sync path
+    if Thread.isMainThread {
+        do {
+            result = try UnityPlugin.shared.handleCall(method: methodStr, args: args)
+        } catch {
+            AirshipLogger.error("Error executing method \(methodStr): \(error)")
+            return UnsafePointer(strdup("{}"))
+        }
+    }
+    
+    // Fall through to async path
+    if result == _notHandled {
+        let semaphore = DispatchSemaphore(value: 0)
+        var callError: Error?
+        result = nil
+
+        Task {
+            do {
+                result = try await UnityPlugin.shared.handleCallAsync(method: methodStr, args: args)
+            } catch {
+                callError = error
+            }
+            semaphore.signal()
+        }
+
+        if Thread.isMainThread {
+            // Spin the RunLoop instead of blocking, so @MainActor work can execute
+            while semaphore.wait(timeout: .now()) == .timedOut {
+                RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.005))
+            }
+        } else {
+            semaphore.wait()
+        }
+        
+        if let callError {
+            AirshipLogger.error("Error executing method \(methodStr): \(callError)")
+            return UnsafePointer(strdup("{}"))
+        }
     }
 
     do {
@@ -50,8 +90,6 @@ class UnityPlugin: NSObject {
     }
 
     private static let initializeOnce: Void = {
-        AirshipLogger.debug("UnityPlugin class loaded")
-
         // Add Notification Observer
         NotificationCenter.default.addObserver(forName: UIApplication.didFinishLaunchingNotification,
                                                object: nil,
@@ -62,7 +100,7 @@ class UnityPlugin: NSObject {
     }()
 
     func handleCall(method: String, args: [Any]) throws -> Any? {
-        AirshipLogger.debug("UnityPlugin \(method): \(args.first?)")
+        AirshipLogger.debug("UnityPlugin \(method): \(args.first ?? "")")
 
         // TODO check how to handle the class attributes called in the static method
         // let instance = shared
@@ -70,19 +108,25 @@ class UnityPlugin: NSObject {
         switch method {
             case "setListener":
                 // shared.listener = requireAnyString(args.first)
-            listener = try requireStringArg(args.first)
+                listener = try requireStringArg(args.first)
                 return nil
 
-            case "getDeepLink":
-                let deepLink = convertToJson(storedDeepLink)
-                if (requireBoolArg(args.first)) {
-                    storedDeepLink = nil
-                }
-                return deepLink
+            // Check if we still need this
+//            case "getDeepLink":
+//                let deepLink = convertToJson(storedDeepLink)
+//                if (requireBoolArg(args.first)) {
+//                    storedDeepLink = nil
+//                }
+//                return deepLink
 
             // Airship
             case "takeOff":
-                return try AirshipProxy.shared.takeOff(json: requireAnyArg(args.first))
+                return try MainActor.assumeIsolated {
+                    let config: String = try requireStringArg(args.first)
+                    let data = config.data(using: .utf8) ?? Data()
+                    let configJsonObject = try JSONSerialization.jsonObject(with: data)
+                    return try AirshipProxy.shared.takeOff(json: configJsonObject)
+                }
 
             case "isFlying":
                 return AirshipProxy.shared.isFlying()
@@ -91,15 +135,12 @@ class UnityPlugin: NSObject {
             case "getChannelId":
                 return try AirshipProxy.shared.channel.channelID
 
-            case "waitForChannelId":
-                return try await AirshipProxy.shared.channel.waitForChannelID()
-
             case "addTag":
-                try AirshipProxy.shared.channel.addTags(requireStringArg(args.first))
+                try AirshipProxy.shared.channel.addTags([requireStringArg(args.first)])
                 return nil
 
             case "removeTag":
-                try AirshipProxy.shared.channel.removeTags(requireStringArg(args.first))
+                try AirshipProxy.shared.channel.removeTags([requireStringArg(args.first)])
                 return nil
 
             case "getTags":
@@ -123,9 +164,6 @@ class UnityPlugin: NSObject {
                 )
                 return nil
 
-            case "getChannelSubscriptionLists":
-                return try await AirshipProxy.shared.channel.fetchSubscriptionLists()
-
             case "editChannelSubscriptionLists":
                 try AirshipProxy.shared.channel.editSubscriptionLists(
                     json: try requireAnyArg(args.first)
@@ -140,9 +178,6 @@ class UnityPlugin: NSObject {
             case "reset":
                 try AirshipProxy.shared.contact.reset()
                 return nil
-
-            case "getNamedUserId":
-                return try await AirshipProxy.shared.contact.namedUserID
 
             case "notifyRemoteLogin":
                 try AirshipProxy.shared.contact.notifyRemoteLogin()
@@ -160,9 +195,6 @@ class UnityPlugin: NSObject {
                 )
                 return nil
 
-            case "getContactSubscriptionLists":
-                return try await AirshipProxy.shared.contact.getSubscriptionLists()
-
             case "editContactSubscriptionLists":
                 try AirshipProxy.shared.contact.editSubscriptionLists(
                     operations: try requireCodableArg(args.first)
@@ -175,15 +207,17 @@ class UnityPlugin: NSObject {
                     throw AirshipErrors.error("associateIdentifier call requires 1 to 2 strings parameters.")
                 }
                 try AirshipProxy.shared.analytics.associateIdentifier(
-                    identifier: args.count == 2 ? args[1] : nil,
-                    key: args[0]
+                    identifier: args.count == 2 ? requireStringArg(args[1]) : nil,
+                    key: requireStringArg(args[0])
                 )
                 return nil
 
             case "trackScreen":
-                try AirshipProxy.shared.analytics.trackScreen(
-                    try? requireStringArg(args.first)
-                )
+                try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.analytics.trackScreen(
+                        try? requireStringArg(args.first)
+                    )
+                }
                 return nil
 
             case "addCustomEvent":
@@ -193,24 +227,26 @@ class UnityPlugin: NSObject {
                 return nil
 
             case "getSessionId":
-                return try AirshipProxy.shared.analytics.getSessionID()
+                return try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.analytics.getSessionID()
+                }
 
             // InApp
             case "setPaused":
-                try AirshipProxy.shared.inApp.setPaused(try requireBoolArg(args.first))
+                try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.inApp.setPaused(try requireBoolArg(args.first))
+                }
                 return nil
 
             case "isPaused":
-                return try AirshipProxy.shared.inApp.isPaused()
-
-            case "setDisplayInterval":
-                try AirshipProxy.shared.inApp.setDisplayInterval(
-                    milliseconds: try requireIntArg(args.first)
-                )
-                return nil
+                return try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.inApp.isPaused()
+                }
 
             case "getDisplayInterval":
-                return try AirshipProxy.shared.inApp.getDisplayInterval()
+                return try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.inApp.getDisplayInterval()
+                }
 
             // Locale
             case "setLocaleOverride":
@@ -227,67 +263,52 @@ class UnityPlugin: NSObject {
                 return try AirshipProxy.shared.locale.currentLocale
 
             // Message Center
-            case "getUnreadCount":
-                return try await AirshipProxy.shared.messageCenter.unreadCount
-
-            case "getMessages":
-                return try await AirshipProxy.shared.messageCenter.messages
-
-            case "markMessageRead":
-                try await AirshipProxy.shared.messageCenter.markMessageRead(
-                    messageID: requireStringArg(args.first)
-                )
-                return nil
-
-            case "deleteMessage":
-                try await AirshipProxy.shared.messageCenter.deleteMessage(
-                    messageID: requireStringArg(args.first)
-                )
-                return nil
-
-            case "refreshMessages":
-                try await AirshipProxy.shared.messageCenter.refresh()
-                return nil
-
             case "setAutoLaunchDefaultMessageCenter":
-                AirshipProxy.shared.messageCenter.setAutoLaunchDefaultMessageCenter(
-                    try requireBoolArg(args.first)
-                )
+                try MainActor.assumeIsolated {
+                    AirshipProxy.shared.messageCenter.setAutoLaunchDefaultMessageCenter(
+                        try requireBoolArg(args.first)
+                    )
+                }
                 return nil
 
             case "displayMessageCenter":
-                try AirshipProxy.shared.messageCenter.display(
-                    messageID: try? requireStringArg(args.first)
-                )
+                try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.messageCenter.display(
+                        messageID: try? requireStringArg(args.first)
+                    )
+                }
                 return nil
 
             case "dismissMessageCenter":
-                try AirshipProxy.shared.messageCenter.dismiss()
+                try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.messageCenter.dismiss()
+                }
                 return nil
 
             case "showMessageView":
-                try AirshipProxy.shared.messageCenter.showMessageView(
-                    messageID: try requireStringArg(args.first)
-                )
+                try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.messageCenter.showMessageView(
+                        messageID: try requireStringArg(args.first)
+                    )
+                }
                 return nil
 
             case "showMessageCenter":
-                try AirshipProxy.shared.messageCenter.showMessageCenter(
-                    messageID: try? requireStringArg(args.first)
-                )
+                try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.messageCenter.showMessageCenter(
+                        messageID: try? requireStringArg(args.first)
+                    )
+                }
                 return nil
 
             // Preference Center
             case "displayPreferenceCenter":
-                try AirshipProxy.shared.preferenceCenter.displayPreferenceCenter(
-                    preferenceCenterID: try requireStringArg(args.first)
-                )
+                try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.preferenceCenter.displayPreferenceCenter(
+                        preferenceCenterID: try requireStringArg(args.first)
+                    )
+                }
                 return nil
-
-            case "getPreferenceCenterConfig":
-                return try await AirshipProxy.shared.preferenceCenter.getPreferenceCenterConfig(
-                    preferenceCenterID: try requireStringArg(args.first)
-                )
 
             case "setAutoLaunchDefaultPreferenceCenter":
                 guard
@@ -298,10 +319,12 @@ class UnityPlugin: NSObject {
                     throw AirshipErrors.error("setAutoLaunchDefaultPreferenceCenter call requires [String, Bool]")
                 }
 
-                AirshipProxy.shared.preferenceCenter.setAutoLaunchPreferenceCenter(
-                    autoLaunch,
-                    preferenceCenterID: identifier
-                )
+                MainActor.assumeIsolated {
+                    AirshipProxy.shared.preferenceCenter.setAutoLaunchPreferenceCenter(
+                        autoLaunch,
+                        preferenceCenterID: identifier
+                    )
+                }
                 return nil
 
             // Privacy Manager
@@ -341,19 +364,10 @@ class UnityPlugin: NSObject {
                 )
                 return nil
 
-            case "enableUserNotifications":
-                return try await AirshipProxy.shared.push.enableUserPushNotifications(
-                    args: try optionalCodableArg(args.first)
-                )
-
-            case "getNotificationStatus":
-                return try await AirshipProxy.shared.push.notificationStatus
-
             case "getPushToken":
-                return try AirshipProxy.shared.push.getRegistrationToken()
-
-            case "getActiveNotifications":
-                return try await AirshipProxy.shared.push.getActiveNotifications()
+                return try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.push.getRegistrationToken()
+                }
 
             case "clearNotifications":
                 AirshipProxy.shared.push.clearNotifications()
@@ -367,15 +381,19 @@ class UnityPlugin: NSObject {
 
             // Push iOS
             case "setForegroundPresentationOptions":
-                try AirshipProxy.shared.push.setForegroundPresentationOptions(
-                    names: try requireStringArrayArg(args.first)
-                )
+                try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.push.setForegroundPresentationOptions(
+                        names: try requireStringArrayArg(args.first)
+                    )
+                }
                 return nil
 
             case "setNotificationOptions":
-                try AirshipProxy.shared.push.setNotificationOptions(
-                    names: try requireStringArrayArg(args.first)
-                )
+                try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.push.setNotificationOptions(
+                        names: try requireStringArrayArg(args.first)
+                    )
+                }
                 return nil
 
             case "isAutobadgeEnabled":
@@ -387,14 +405,10 @@ class UnityPlugin: NSObject {
                 )
                 return nil
 
-            case "setBadgeNumber":
-                try await AirshipProxy.shared.push.setBadgeNumber(
-                    try requireIntArg(args.first)
-                )
-                return nil
-
             case "getBadgeNumber":
-                return try AirshipProxy.shared.push.getBadgeNumber()
+                return try MainActor.assumeIsolated {
+                    try AirshipProxy.shared.push.getBadgeNumber()
+                }
 
             case "setQuietTimeEnabled":
                 try AirshipProxy.shared.push.setQuietTimeEnabled(
@@ -414,27 +428,99 @@ class UnityPlugin: NSObject {
             case "getQuietTime":
                 return try AirshipJSON.wrap(try AirshipProxy.shared.push.getQuietTime())
 
+            case "trackInteraction":
+                try AirshipProxy.shared.featureFlagManager.trackInteraction(
+                    flag: try requireCodableArg(args.first)
+                )
+                return nil
+            
+            default:
+                return _notHandled
+        }
+    }
+
+    func handleCallAsync(method: String, args: [Any]) async throws -> Any? {
+        AirshipLogger.debug("UnityPlugin \(method): \(args.first ?? "")")
+        print("UnityPlugin \(method): \(args.first ?? "")")
+
+        switch method {
+            case "waitForChannelId":
+                return try await AirshipProxy.shared.channel.waitForChannelID()
+
+            case "getChannelSubscriptionLists":
+                return try await AirshipProxy.shared.channel.fetchSubscriptionLists()
+
+            case "getContactSubscriptionLists":
+                return try await AirshipProxy.shared.contact.getSubscriptionLists()
+            
+            case "getNamedUserId":
+                return try await AirshipProxy.shared.contact.namedUserID
+
+            case "setDisplayInterval":
+                try await AirshipProxy.shared.inApp.setDisplayInterval(
+                    milliseconds: try requireIntArg(args.first)
+                )
+                return nil
+            
+            case "getUnreadCount":
+                return try await AirshipProxy.shared.messageCenter.unreadCount
+
+            case "getMessages":
+                return try await AirshipProxy.shared.messageCenter.messages
+
+            case "markMessageRead":
+                try await AirshipProxy.shared.messageCenter.markMessageRead(
+                    messageID: requireStringArg(args.first)
+                )
+                return nil
+
+            case "deleteMessage":
+                try await AirshipProxy.shared.messageCenter.deleteMessage(
+                    messageID: requireStringArg(args.first)
+                )
+                return nil
+
+            case "refreshMessages":
+                try await AirshipProxy.shared.messageCenter.refresh()
+                return nil
+
+            case "getPreferenceCenterConfig":
+                return try await AirshipProxy.shared.preferenceCenter.getPreferenceCenterConfig(
+                    preferenceCenterID: try requireStringArg(args.first)
+                )
+
+            case "enableUserNotifications":
+                return try await AirshipProxy.shared.push.enableUserPushNotifications(
+                    args: try optionalCodableArg(args.first)
+                )
+
+            case "getNotificationStatus":
+                return try await AirshipProxy.shared.push.notificationStatus
+
+            case "getActiveNotifications":
+                return try await AirshipProxy.shared.push.getActiveNotifications()
+
+            case "setBadgeNumber":
+                try await AirshipProxy.shared.push.setBadgeNumber(
+                    try requireIntArg(args.first)
+                )
+                return nil
+
             case "runAction":
-                return AirshipJSON.wrap(
-                    try await AirshipProxy.shared.actions.runAction(
+                return try AirshipJSON.wrap(
+                    try await AirshipProxy.shared.action.runAction(
                         try requireStringArg(args.first),
-                        try? AirshipJSON.wrap(try requireStringArg(args.second))
+                        value: try? AirshipJSON.wrap(try requireStringArg(args[1]))
                     )
                 ).toString()
 
             case "flag":
-                return AirshipJSON.wrap(
+                return try AirshipJSON.wrap(
                     try await AirshipProxy.shared.featureFlagManager.flag(
-                        try requireStringArg(args.first)
+                        name: try requireStringArg(args.first)
                     )
                 ).toString()
 
-            case "trackInteraction":
-                try AirshipProxy.shared.featureFlagManager.trackInteraction(
-                    try requireCodableArg(args.first)
-                )
-                return nil
-            
             default:
                 return nil
         }
@@ -488,14 +574,14 @@ class UnityPlugin: NSObject {
     // Channel Registration Events
 
     public func channelCreated(_ notification: Notification) {
-        guard let channelID = notification.userInfo?[AirshipChannel.channelIdentifierKey] as? String else {
-            return 
+        guard let channelID = notification.userInfo?[AirshipNotifications.ChannelCreated.channelIDKey] as? String else {
+            return
         }
         AirshipLogger.debug("UnityPlugin channelCreated: \(channelID)")
         
         if let listener = self.listener {
             callUnitySendMessage(objectName: listener,
-                                 methodName: "OnChannelUpdated",
+                                 methodName: "OnChannelCreated",
                                  message: channelID
             )
         }
@@ -503,21 +589,26 @@ class UnityPlugin: NSObject {
 
     // Inbox Message List Updated Notification
     public func inboxUpdated() async {
-        let unreadCount = try await AirshipProxy.shared.messageCenter.unreadCount
-        let totalCount = try await AirshipProxy.shared.messageCenter.messages.count
+        do {
+            let unreadCount =  try await AirshipProxy.shared.messageCenter.unreadCount
+            let totalCount = try await AirshipProxy.shared.messageCenter.messages.count
+        
+            let counts : [String: Any] = [
+                "unread": unreadCount,
+                "total": totalCount
+            ]
 
-        let counts : [String: Any] = [
-            "unread": unreadCount,
-            "total": totalCount
-        ]
+            AirshipLogger.debug("UnityPlugin inboxUpdated(unread = \(unreadCount), total = \(totalCount))")
 
-        AirshipLogger.debug("UnityPlugin inboxUpdated(unread = \(unreadCount), total = \(totalCount))")
-
-        if let listener = self.listener {
-            callUnitySendMessage(objectName: listener,
-                                 methodName: "OnInboxUpdated",
-                                 message: convertToJson(counts)
-            )
+            if let listener = self.listener {
+                callUnitySendMessage(objectName: listener,
+                                     methodName: "OnInboxUpdated",
+                                     message: convertToJson(counts)
+                )
+            }
+        } catch {
+            AirshipLogger.error("Error executing method inboxUpdated: \(error)")
+            return
         }
     }
 
@@ -532,21 +623,21 @@ class UnityPlugin: NSObject {
         return value
     }
 
-    private func requireStringArg(_ arg: Any) throws -> String {
+    private func requireStringArg(_ arg: Any?) throws -> String {
         guard let value: String = arg as? String else {
             throw AirshipErrors.error("Argument must be a string")
         }
         return value
     }
 
-    private func requireBoolArg(_ arg: Any) throws -> Bool {
+    private func requireBoolArg(_ arg: Any?) throws -> Bool {
         guard let value: Bool = arg as? Bool else {
             throw AirshipErrors.error("Argument must be a bool")
         }
         return value
     }
 
-    private func requireIntArg(_ arg: Any) throws -> Int {
+    private func requireIntArg(_ arg: Any?) throws -> Int {
         let value = try requireAnyArg(arg)
 
         if let int = value as? Int {
@@ -564,7 +655,7 @@ class UnityPlugin: NSObject {
         throw AirshipErrors.error("Argument must be an int")
     }
 
-    private func requireDoubleArg(_ arg: Any) throws -> Double {
+    private func requireDoubleArg(_ arg: Any?) throws -> Double {
         let value = try requireAnyArg(arg)
 
         if let double = value as? Double {
@@ -596,7 +687,7 @@ class UnityPlugin: NSObject {
         return try AirshipJSON.wrap(value).decode()
     }
 
-    private func requireStringArrayArg(_ arg: Any) throws -> [String] {
+    private func requireStringArrayArg(_ arg: Any?) throws -> [String] {
         guard let value: [String] = arg as? [String] else {
             throw AirshipErrors.error("Argument must be a string array")
         }
