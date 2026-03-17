@@ -336,7 +336,6 @@ namespace UrbanAirship.Editor {
                 xmlWriter.WriteStartDocument ();
                 xmlWriter.WriteStartElement ("manifest");
                 xmlWriter.WriteAttributeString ("xmlns", "android", null, "http://schemas.android.com/apk/res/android");
-                xmlWriter.WriteAttributeString ("package", "com.urbanairship.unityresources");
                 xmlWriter.WriteEndElement ();
                 xmlWriter.WriteEndDocument ();
             }
