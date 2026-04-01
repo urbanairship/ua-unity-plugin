@@ -8,49 +8,6 @@
       <repository>https://repo.maven.apache.org/maven2</repository>
     </repositories>
 
-    <!-- <androidPackage spec="androidx.lifecycle:lifecycle-common-java8:2.9.0-alpha12">
-      <repositories>
-        <repository>https://maven.google.com/</repository>
-      </repositories>
-    </androidPackage>
-    <androidPackage spec="androidx.lifecycle:lifecycle-livedata-ktx:2.9.0-alpha12">
-      <repositories>
-        <repository>https://maven.google.com/</repository>
-      </repositories>
-    </androidPackage>
-    <androidPackage spec="androidx.lifecycle:lifecycle-runtime-ktx:2.9.0-alpha12">
-      <repositories>
-        <repository>https://maven.google.com/</repository>
-      </repositories>
-    </androidPackage>
-    <androidPackage spec="androidx.lifecycle:lifecycle-runtime-compose:2.9.0-alpha12">
-      <repositories>
-        <repository>https://maven.google.com/</repository>
-      </repositories>
-    </androidPackage>
-    <androidPackage spec="androidx.lifecycle:lifecycle-viewmodel:2.9.0-alpha12">
-      <repositories>
-        <repository>https://maven.google.com/</repository>
-      </repositories>
-    </androidPackage>
-    <androidPackage spec="androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0-alpha12">
-      <repositories>
-        <repository>https://maven.google.com/</repository>
-      </repositories>
-    </androidPackage> -->
-
-    <!-- Urban Airship Message Center -->
-    <!-- <androidPackage spec="com.urbanairship.android:urbanairship-message-center:__ANDROID_AIRSHIP_VERSION__"/> -->
-
-    <!-- Urban Airship Automation -->
-    <!-- <androidPackage spec="com.urbanairship.android:urbanairship-automation:__ANDROID_AIRSHIP_VERSION__"/> -->
-
-    <!-- Urban Airship FCM -->
-    <!-- <androidPackage spec="com.urbanairship.android:urbanairship-fcm:__ANDROID_AIRSHIP_VERSION__"/> -->
-
-    <!-- Urban Airship Preference Center -->
-    <!-- <androidPackage spec="com.urbanairship.android:urbanairship-preference-center:__ANDROID_AIRSHIP_VERSION__"/> -->
-
     <!-- Urban Airship Framework Proxy -->
     <androidPackage spec="com.urbanairship.android:airship-framework-proxy:__AIRSHIP_FRAMEWORK_PROXY_VERSION__"/>
 
@@ -61,12 +18,6 @@
   <iosPods>
 
     <!-- iosPod -->
-    <!-- <iosPod name="Airship/Core" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
-    <iosPod name="Airship/MessageCenter" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
-    <iosPod name="Airship/Automation" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
-    <iosPod name="Airship/ExtendedActions" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" />
-    <iosPod name="Airship/PreferenceCenter" version="__IOS_AIRSHIP_VERSION__" minTargetSdk="11.0" /> -->
-
     <iosPod name="AirshipFrameworkProxy" version="__AIRSHIP_FRAMEWORK_PROXY_VERSION__" minTargetSdk="15.0" />
 
   </iosPods>

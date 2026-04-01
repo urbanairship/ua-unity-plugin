@@ -36,11 +36,19 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Sets the display interval for messages.
+        /// Sets the display interval for messages asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
         /// <param name="displayInterval">The display interval.</param>
-        public void SetDisplayInterval (TimeSpan displayInterval) {
-            plugin.Call ("setDisplayInterval", (long)displayInterval.TotalMilliseconds);
+        /// <param name="onComplete">Optional callback invoked when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator SetDisplayInterval (TimeSpan displayInterval, Action onComplete = null, Action<Exception> onError = null) {
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call ("setDisplayInterval", (long)displayInterval.TotalMilliseconds),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>

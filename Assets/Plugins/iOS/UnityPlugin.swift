@@ -20,7 +20,6 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
 
     let args: [Any]
     do {
-        //args = try AirshipJSON.wrap(argsJson).decode() as? [String: [Any]] ?? [:]
         let data = argsJsonStr.data(using: .utf8) ?? Data()
         args = (try JSONSerialization.jsonObject(with: data) as? [Any]) ?? []
     } catch {
@@ -41,7 +40,7 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
     }
     
     // Fall through to async path
-    if result == _notHandled {
+    if !Thread.isMainThread || (result as? String) == _notHandled {
         let semaphore = DispatchSemaphore(value: 0)
         var callError: Error?
         result = nil
@@ -100,7 +99,7 @@ class UnityPlugin: NSObject {
     }()
 
     func handleCall(method: String, args: [Any]) throws -> Any? {
-        AirshipLogger.debug("UnityPlugin \(method): \(args.first ?? "")")
+        AirshipLogger.debug("UnityPlugin \(method): \(args)")
 
         // TODO check how to handle the class attributes called in the static method
         // let instance = shared
@@ -122,10 +121,7 @@ class UnityPlugin: NSObject {
             // Airship
             case "takeOff":
                 return try MainActor.assumeIsolated {
-                    let config: String = try requireStringArg(args.first)
-                    let data = config.data(using: .utf8) ?? Data()
-                    let configJsonObject = try JSONSerialization.jsonObject(with: data)
-                    return try AirshipProxy.shared.takeOff(json: configJsonObject)
+                    return try AirshipProxy.shared.takeOff(json: try requireParsedAnyArg(args.first))
                 }
 
             case "isFlying":
@@ -148,25 +144,29 @@ class UnityPlugin: NSObject {
 
             case "editTags":
                 try AirshipProxy.shared.channel.editTags(
-                    operations: try requireCodableArg(args.first)
+                    operations: try requireParsedArgWithValues(args.first)
                 )
                 return nil
 
             case "editChannelTagGroups":
                 try AirshipProxy.shared.channel.editTagGroups(
-                    operations: try requireCodableArg(args.first)
+                    operations: try requireParsedArgWithValues(args.first)
                 )
                 return nil
 
             case "editChannelAttributes":
                 try AirshipProxy.shared.channel.editAttributes(
-                    operations: try requireCodableArg(args.first)
+                    operations: try requireParsedArgWithValues(args.first)
                 )
                 return nil
 
             case "editChannelSubscriptionLists":
+                let parsed = try requireParsedAnyArg(args.first)
+                guard let dict = parsed as? [String: Any], let values = dict["values"] else {
+                    throw AirshipErrors.error("Missing 'values' key in JSON wrapper")
+                }
                 try AirshipProxy.shared.channel.editSubscriptionLists(
-                    json: try requireAnyArg(args.first)
+                    json: values
                 )
                 return nil
 
@@ -185,19 +185,19 @@ class UnityPlugin: NSObject {
 
             case "editContactTagGroups":
                 try AirshipProxy.shared.contact.editTagGroups(
-                    operations: try requireCodableArg(args.first)
+                    operations: try requireParsedArgWithValues(args.first)
                 )
                 return nil
 
             case "editContactAttributes":
                 try AirshipProxy.shared.contact.editAttributes(
-                    operations: try requireCodableArg(args.first)
+                    operations: try requireParsedArgWithValues(args.first)
                 )
                 return nil
 
             case "editContactSubscriptionLists":
                 try AirshipProxy.shared.contact.editSubscriptionLists(
-                    operations: try requireCodableArg(args.first)
+                    operations: try requireParsedArgWithValues(args.first)
                 )
                 return nil
 
@@ -222,7 +222,7 @@ class UnityPlugin: NSObject {
 
             case "addCustomEvent":
                 try AirshipProxy.shared.analytics.addEvent(
-                    requireAnyArg(args.first)
+                    try requireParsedAnyArg(args.first)
                 )
                 return nil
 
@@ -330,7 +330,7 @@ class UnityPlugin: NSObject {
             // Privacy Manager
             case "setEnabledFeatures":
                 try AirshipProxy.shared.privacyManager.setEnabled(
-                    featureNames: try requireStringArrayArg(args.first)
+                    featureNames: try requireStringArrayArg(args)
                 )
                 return nil
 
@@ -339,19 +339,19 @@ class UnityPlugin: NSObject {
                 
             case "enableFeatures":
                 try AirshipProxy.shared.privacyManager.enable(
-                    featureNames: try requireStringArrayArg(args.first)
+                    featureNames: try requireStringArrayArg(args)
                 )
                 return nil
 
             case "disableFeatures":
                 try AirshipProxy.shared.privacyManager.disable(
-                    featureNames: try requireStringArrayArg(args.first)
+                    featureNames: try requireStringArrayArg(args)
                 )
                 return nil
 
             case "isFeaturesEnabled":
                 return try AirshipProxy.shared.privacyManager.isEnabled(
-                    featuresNames: try requireStringArrayArg(args.first)
+                    featuresNames: try requireStringArrayArg(args)
                 )
 
             // Push
@@ -426,11 +426,11 @@ class UnityPlugin: NSObject {
                 return nil
 
             case "getQuietTime":
-                return try AirshipJSON.wrap(try AirshipProxy.shared.push.getQuietTime())
+                return try AirshipProxy.shared.push.getQuietTime()
 
             case "trackInteraction":
                 try AirshipProxy.shared.featureFlagManager.trackInteraction(
-                    flag: try requireCodableArg(args.first)
+                    flag: try AirshipJSON.wrap(requireParsedAnyArg(args.first)).decode()
                 )
                 return nil
             
@@ -440,8 +440,7 @@ class UnityPlugin: NSObject {
     }
 
     func handleCallAsync(method: String, args: [Any]) async throws -> Any? {
-        AirshipLogger.debug("UnityPlugin \(method): \(args.first ?? "")")
-        print("UnityPlugin \(method): \(args.first ?? "")")
+        AirshipLogger.debug("UnityPlugin async \(method): \(args)")
 
         switch method {
             case "waitForChannelId":
@@ -451,7 +450,14 @@ class UnityPlugin: NSObject {
                 return try await AirshipProxy.shared.channel.fetchSubscriptionLists()
 
             case "getContactSubscriptionLists":
-                return try await AirshipProxy.shared.contact.getSubscriptionLists()
+                let subscriptionLists = try await AirshipProxy.shared.contact.getSubscriptionLists()
+                let subscriptionListsData = try AirshipJSON.wrap(subscriptionLists).toString().data(using: .utf8) ?? Data()
+                let subscriptionListsDict = try JSONSerialization.jsonObject(with: subscriptionListsData) as? [String: [String]] ?? [:]
+                var resultArray: [[String: Any]] = []
+                for (listId, scopes) in subscriptionListsDict {
+                    resultArray.append(["listId": listId, "scopes": scopes])
+                }
+                return resultArray
             
             case "getNamedUserId":
                 return try await AirshipProxy.shared.contact.namedUserID
@@ -507,19 +513,34 @@ class UnityPlugin: NSObject {
                 return nil
 
             case "runAction":
-                return try AirshipJSON.wrap(
-                    try await AirshipProxy.shared.action.runAction(
-                        try requireStringArg(args.first),
-                        value: try? AirshipJSON.wrap(try requireStringArg(args[1]))
-                    )
-                ).toString()
+                return try await AirshipProxy.shared.action.runAction(
+                    try requireStringArg(args.first),
+                    value: try? AirshipJSON.wrap(try requireStringArg(args[1]))
+                )
 
             case "flag":
-                return try AirshipJSON.wrap(
-                    try await AirshipProxy.shared.featureFlagManager.flag(
-                        name: try requireStringArg(args.first)
-                    )
-                ).toString()
+                let flag = try await AirshipProxy.shared.featureFlagManager.flag(
+                    name: try requireStringArg(args.first)
+                )
+                let flagJsonData = try AirshipJSON.wrap(flag).toString().data(using: .utf8) ?? Data()
+                let flagDict = try JSONSerialization.jsonObject(with: flagJsonData) as? [String: Any] ?? [:]
+                
+                var result: [String: Any] = [:]
+                result["isEligible"] = flagDict["isEligible"] as? Bool ?? false
+                result["exists"] = flagDict["exists"] as? Bool ?? false
+            
+                // Stringify the nested objects so Unity's JsonUtility can deserialize them
+                if let internalObj = flagDict["_internal"],
+                   let internalData = try? JSONSerialization.data(withJSONObject: internalObj) {
+                    result["_internal"] = String(data: internalData, encoding: .utf8) ?? ""
+                }
+            
+                if let variablesObj = flagDict["variables"],
+                   let variablesData = try? JSONSerialization.data(withJSONObject: variablesObj) {
+                    result["variables"] = String(data: variablesData, encoding: .utf8) ?? ""
+                }
+            
+                return result
 
             default:
                 return nil
@@ -623,6 +644,17 @@ class UnityPlugin: NSObject {
         return value
     }
 
+    private func requireParsedAnyArg(_ arg: Any?) throws -> Any {
+        guard let value = arg else {
+            throw AirshipErrors.error("Missing argument")
+        }
+        if let jsonString = value as? String,
+           let data = jsonString.data(using: .utf8) {
+            return try JSONSerialization.jsonObject(with: data)
+        }
+        return value
+    }
+
     private func requireStringArg(_ arg: Any?) throws -> String {
         guard let value: String = arg as? String else {
             throw AirshipErrors.error("Argument must be a string")
@@ -684,7 +716,40 @@ class UnityPlugin: NSObject {
         guard let value: Any = arg else {
             return nil
         }
+        if let stringValue = value as? String,
+           let data = stringValue.data(using: .utf8),
+           let parsed = try? JSONSerialization.jsonObject(with: data) {
+            return try AirshipJSON.wrap(parsed).decode()
+        }
         return try AirshipJSON.wrap(value).decode()
+    }
+
+    private func requireParsedArgWithValues<T: Decodable>(_ arg: Any?) throws -> T {
+        guard let value = arg else {
+            throw AirshipErrors.error("Missing argument")
+        }
+        guard let jsonString = value as? String else {
+            throw AirshipErrors.error("Argument must be a JSON string")
+        }
+        guard let data = jsonString.data(using: .utf8) else {
+            throw AirshipErrors.error("Failed to encode JSON string to UTF-8")
+        }
+        let parsed = try JSONSerialization.jsonObject(with: data)
+        if let dict = parsed as? [String: Any] {
+            guard let values = dict["values"] else {
+                throw AirshipErrors.error("Missing 'values' key in JSON wrapper")
+            }
+            return try AirshipJSON.wrap(values).decode()
+        }
+        return try AirshipJSON.wrap(parsed).decode()
+    }
+
+    // TODO Delete this if not needed
+    private func optionalParsedArg<T: Decodable>(_ arg: Any?) throws -> T? {
+        guard let value = arg else {
+            return nil
+        }
+        return try requireParsedArgWithValues(value)
     }
 
     private func requireStringArrayArg(_ arg: Any?) throws -> [String] {

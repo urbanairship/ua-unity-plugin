@@ -29,8 +29,6 @@ namespace UrbanAirship
         {
             #if UNITY_ANDROID
                 plugin.Call("setEnabledFeatures", ((AirshipPluginAndroid)plugin).MakeJavaArray(enabledFeatures));
-            #elif UNITY_IOS
-                plugin.Call("setEnabledFeatures", string.Join(",", enabledFeatures));
             #else
                 plugin.Call("setEnabledFeatures", enabledFeatures);
             #endif
@@ -53,8 +51,6 @@ namespace UrbanAirship
         {
             #if UNITY_ANDROID
                 plugin.Call("enableFeatures", ((AirshipPluginAndroid)plugin).MakeJavaArray(features));
-            #elif UNITY_IOS
-                plugin.Call("enableFeatures", string.Join(",", features));
             #else
                 plugin.Call("enableFeatures", features);
             #endif
@@ -68,8 +64,6 @@ namespace UrbanAirship
         {
             #if UNITY_ANDROID
                 plugin.Call("disableFeatures", ((AirshipPluginAndroid)plugin).MakeJavaArray(features));
-            #elif UNITY_IOS
-                plugin.Call("disableFeatures", string.Join(",", features));
             #else
                 plugin.Call("disableFeatures", features);
             #endif
@@ -84,8 +78,6 @@ namespace UrbanAirship
         {
             #if UNITY_ANDROID
                 return plugin.Call<bool>("isFeaturesEnabled", ((AirshipPluginAndroid)plugin).MakeJavaArray(features));
-            #elif UNITY_IOS
-                return plugin.Call<bool>("isFeaturesEnabled", string.Join(",", features));
             #else
                 return plugin.Call<bool>("isFeaturesEnabled", features);
             #endif

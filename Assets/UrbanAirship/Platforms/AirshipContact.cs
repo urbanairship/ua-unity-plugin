@@ -39,12 +39,19 @@ namespace UrbanAirship {
         }
 
         /// <summary>
-        /// Gets the named user Id.
+        /// Gets the named user Id asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
-        /// <returns>The named user Id.</returns>
-        public string? GetNamedUserId()
+        /// <param name="onComplete">Callback invoked with the named user Id when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator GetNamedUserId(Action<string> onComplete, Action<Exception> onError = null)
         {
-            return plugin.Call<string?>("getNamedUserId");
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call<string>("getNamedUserId"),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>

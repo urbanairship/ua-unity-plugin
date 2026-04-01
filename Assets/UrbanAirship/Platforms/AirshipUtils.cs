@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace UrbanAirship
 {
@@ -177,6 +178,61 @@ namespace UrbanAirship
                 .Replace("\n", "\\n")
                 .Replace("\r", "\\r")
                 .Replace("\t", "\\t");
+        }
+
+        public static T Deserialize<T>(string json)
+        {
+            if (string.IsNullOrEmpty(json) || json == "{}")
+            {
+                return default(T);
+            }
+            Type type = typeof(T);
+            Type underlyingType = Nullable.GetUnderlyingType(type);
+            Type actualType = underlyingType ?? type;
+            // Primitives
+            if (actualType == typeof(bool))
+                return (T)(object)bool.Parse(json);
+            if (actualType == typeof(int))
+                return (T)(object)int.Parse(json);
+            if (actualType == typeof(long))
+                return (T)(object)long.Parse(json);
+            if (actualType == typeof(float))
+                return (T)(object)float.Parse(json, System.Globalization.CultureInfo.InvariantCulture);
+            if (actualType == typeof(double))
+                return (T)(object)double.Parse(json, System.Globalization.CultureInfo.InvariantCulture);
+            // String
+            if (actualType == typeof(string))
+            {
+                if (json.StartsWith("\"") && json.EndsWith("\""))
+                    return (T)(object)json.Substring(1, json.Length - 2);
+                return (T)(object)json;
+            }
+            // string[] — top-level JSON array of strings like ["a","b"]
+            if (actualType == typeof(string[]))
+            {
+                return (T)(object)JsonArray<string>.FromJson(json).values;
+            }
+            // For other arrays of serializable objects, use the JsonArray wrapper
+            if (actualType.IsArray)
+            {
+                Type elementType = actualType.GetElementType();
+                Type jsonArrayType = typeof(JsonArray<>).MakeGenericType(elementType);
+                var method = jsonArrayType.GetMethod("FromJson", BindingFlags.Public | BindingFlags.Static);
+                var wrapper = method.Invoke(null, new object[] { json });
+                var valuesField = jsonArrayType.GetField("values");
+                return (T)valuesField.GetValue(wrapper);
+            }
+
+            // Let's check if I can fix QuietTime? result differently
+            // if (underlyingType != null)
+            // {
+            //     var method = typeof(JsonUtility).GetMethod("FromJson", new[] { typeof(string) })
+            //         .MakeGenericMethod(underlyingType);
+            //     return (T)method.Invoke(null, new object[] { json });
+            // }
+
+            // Serializable objects — unwrap nullable and use JsonUtility
+            return JsonUtility.FromJson<T>(json);
         }
     }
 }

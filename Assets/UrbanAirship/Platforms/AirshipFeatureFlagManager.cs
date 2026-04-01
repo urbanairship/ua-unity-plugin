@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Linq;
 using UnityEngine;
 
@@ -64,7 +65,24 @@ namespace UrbanAirship {
 
         public string ToJson()
         {
-            return $"{{ \"isEligible\":{isEligible}, \"exists\":{exists}, \"variables\":{(variables == null ? "\"\"" : variables)}, \"_internal\":{_internal} }}";
+            //return $"{{ \"isEligible\":{isEligible}, \"exists\":{exists}, \"variables\":{(variables == null ? "\"\"" : variables)}, \"_internal\":{_internal} }}";
+            var sb = new StringBuilder();
+            sb.Append("{");
+
+            sb.Append($"\"isEligible\":{(isEligible ? "true" : "false")}");
+            sb.Append($",\"exists\":{(exists ? "true" : "false")}");
+
+            if (!string.IsNullOrEmpty(variables))
+            {
+                sb.Append($",\"variables\":{variables}");
+            }
+            if (!string.IsNullOrEmpty(_internal))
+            {
+                sb.Append($",\"_internal\":{_internal}");
+            }
+            
+            sb.Append("}");
+            return sb.ToString();
         }
 
     }

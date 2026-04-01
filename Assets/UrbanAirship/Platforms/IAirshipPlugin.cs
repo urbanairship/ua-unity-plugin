@@ -103,6 +103,7 @@ namespace UrbanAirship {
 
         public T Call<T> (string method, params object[] args) {
             string argsJson = SerializeArgs(args);
+            Debug.Log("argsJson: " + argsJson + " for method: " + method);
             string resultJson = UnityPlugin_call(method, argsJson);
 
             if (string.IsNullOrEmpty(resultJson) || resultJson == "{}") {
@@ -110,21 +111,7 @@ namespace UrbanAirship {
             }
             Debug.Log("resultJson: " + resultJson + " for method: " + method);
 
-            Type type = typeof(T);
-            if (type == typeof(bool)) {
-                return (T)(object)bool.Parse(resultJson);
-            } else if (type == typeof(int)) {
-                return (T)(object)int.Parse(resultJson);
-            } else if (type == typeof(float)) {
-                return (T)(object)float.Parse(resultJson, System.Globalization.CultureInfo.InvariantCulture);
-            } else if (type == typeof(string)) {
-                if (resultJson.StartsWith("\"") && resultJson.EndsWith("\"")) {
-                    return (T)(object)resultJson.Substring(1, resultJson.Length - 2);
-                }
-                return (T)(object)resultJson;
-            }
-
-            return JsonUtility.FromJson<T>(resultJson);
+            return AirshipUtils.Deserialize<T>(resultJson);
         }
 
         public GameObject Listener {

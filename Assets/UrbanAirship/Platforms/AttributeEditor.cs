@@ -4,6 +4,7 @@ using System;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -147,13 +148,22 @@ namespace UrbanAirship {
         /// </summary>
         public void Apply () {
             if (onApply != null) {
-                JsonArray<AttributeMutation> jsonArray = new JsonArray<AttributeMutation> ();
-                jsonArray.values = operations.ToArray ();
-                string json = jsonArray.ToJson ();
-                // Remove empty type fields from JSON (Unity's JsonUtility serializes null strings as empty strings)
-                json = Regex.Replace(json, @",\s*""type""\s*:\s*""""", "");
-                json = Regex.Replace(json, @"""type""\s*:\s*""""\s*,", "");
-                onApply (json);
+                // JsonArray<AttributeMutation> jsonArray = new JsonArray<AttributeMutation> ();
+                // jsonArray.values = operations.ToArray ();
+                // string json = jsonArray.ToJson ();
+                // // Remove empty type fields from JSON (Unity's JsonUtility serializes null strings as empty strings)
+                // json = Regex.Replace(json, @",\s*""type""\s*:\s*""""", "");
+                // json = Regex.Replace(json, @"""type""\s*:\s*""""\s*,", "");
+                // onApply (json);
+
+                var sb = new System.Text.StringBuilder();
+                sb.Append("[");
+                for (int i = 0; i < operations.Count; i++) {
+                    if (i > 0) sb.Append(",");
+                    sb.Append(operations[i].ToJson());
+                }
+                sb.Append("]");
+                onApply(sb.ToString());
             }
         }
 
@@ -193,10 +203,29 @@ namespace UrbanAirship {
 #pragma warning restore
 
             public AttributeMutation (AttributeAction action, string key, string value, AttributeType? type) {
-                this.action = action.ToString();
+                this.action = action.ToString().ToLower();
                 this.key = key;
                 this.value = value;
-                this.type = type?.ToString();
+                this.type = type?.ToString().ToLower();
+            }
+
+            public string ToJson() {
+                var sb = new System.Text.StringBuilder();
+                sb.Append("{");
+                sb.Append($"\"action\":\"{action}\",\"key\":\"{key}\"");
+                if (value != null) {
+                    bool isNumericType = type == "number" || type == "date";
+                    if (isNumericType) {
+                        sb.Append($",\"value\":{value}");
+                    } else {
+                        sb.Append($",\"value\":\"{value}\"");
+                    }
+                }
+                if (type != null) {
+                    sb.Append($",\"type\":\"{type}\"");
+                }
+                sb.Append("}");
+                return sb.ToString();
             }
         }
     }

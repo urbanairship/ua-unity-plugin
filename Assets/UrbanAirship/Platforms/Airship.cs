@@ -138,7 +138,7 @@ namespace UrbanAirship
         {
             if (Application.isEditor)
             {
-                plugin = new StubbedAirshipPlugin();
+                plugin = new StubbedAirshipPlugin ();
             }
             else
             {
@@ -147,7 +147,7 @@ namespace UrbanAirship
 #elif UNITY_IOS
                 plugin = new AirshipPluginiOS ();
 #else
-                plugin = new StubbedAirshipPlugin();
+                plugin = new StubbedAirshipPlugin ();
 #endif
             }
 

@@ -7,13 +7,12 @@ using UnityEngine;
 using UrbanAirship;
 
 public class UrbanAirshipBehaviour : MonoBehaviour {
-    public string addTagOnStart;
 
     void Awake () {
         Airship.Shared.TakeOff(new AirshipConfig() {
             defaultEnvironment = new ConfigEnvironment() {
-                appKey = "APP_KEY",
-                appSecret = "APP_SECRET",
+                appKey = "VWDwdOFjRTKLRxCeXTVP6g",
+                appSecret = "5Ifi5rYgTm2QHey9JkP0WA",
                 logLevel = LogLevel.Verbose,
             },
             site = Site.US,
@@ -26,10 +25,6 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Debug.Log("Airship is flying: " + Airship.Shared.IsFlying());
 
         Airship.Shared.push.SetUserNotificationsEnabled(true);
-        
-        // if (!string.IsNullOrEmpty (addTagOnStart)) {
-        //     UAirship.Shared.AddTag (addTagOnStart);
-        // }
 
         Airship.Shared.OnPushReceived += OnPushReceived;
         Airship.Shared.OnPushOpened += OnPushOpened;
@@ -102,7 +97,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
                 Debug.Log("Channel Subscription lists: " + string.Join(", ", subscriptionLists));
             },
             onError: (error) => {
-                Debug.LogError("Error getting subscription lists: " + error.Message);
+                Debug.LogError("Error getting channel subscription lists: " + error.Message);
             }
         ));
         Airship.Shared.channel.EditSubscriptionLists().Unsubscribe("unity_subscription_list_to_remove").Apply();
@@ -119,9 +114,23 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
 
         // Contact
         Airship.Shared.contact.Identify("my_named_user");
-        Debug.Log("Named user ID: " + Airship.Shared.contact.GetNamedUserId());
-        Airship.Shared.contact.Reset();
-        Debug.Log("Named user ID after reset: " + Airship.Shared.contact.GetNamedUserId());
+        StartCoroutine(Airship.Shared.contact.GetNamedUserId(
+            onComplete: (namedUserId) => {
+                Debug.Log("Named user ID: " + namedUserId);
+            },
+            onError: (error) => {
+                Debug.LogError("Error getting named user ID: " + error.Message);
+            }
+        ));
+        // Airship.Shared.contact.Reset();
+        // StartCoroutine(Airship.Shared.contact.GetNamedUserId(
+        //     onComplete: (namedUserId) => {
+        //         Debug.Log("Named user ID after reset: " + namedUserId);
+        //     },
+        //     onError: (error) => {
+        //         Debug.LogError("Error getting named user ID: " + error.Message);
+        //     }
+        // ));
 
         Airship.Shared.contact.EditTagGroups().AddTag("unity_tag_group", "tag_1").Apply();
         Airship.Shared.contact.EditTagGroups().AddTags("unity_tag_group", new string[] { "tag_2", "tag_3" }).Apply();
@@ -148,7 +157,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
                 }
             },
             onError: (error) => {
-                Debug.LogError("Error getting subscription lists: " + error.Message);
+                Debug.LogError("Error getting contact subscription lists: " + error.Message);
             }
         ));
 
@@ -158,13 +167,20 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Airship.Shared.inApp.SetPaused(false);
         Debug.Log("InApp paused after false: " + Airship.Shared.inApp.IsPaused());
 
-        Airship.Shared.inApp.SetDisplayInterval(TimeSpan.FromSeconds(10));
-        Debug.Log("InApp display interval: " + Airship.Shared.inApp.GetDisplayInterval());
+        StartCoroutine(Airship.Shared.inApp.SetDisplayInterval(TimeSpan.FromSeconds(10),
+            onComplete: () => {
+                Debug.Log("InApp display interval: " + Airship.Shared.inApp.GetDisplayInterval());
+            },
+            onError: (error) => {
+                Debug.LogError("Error setting display interval: " + error.Message);
+            }
+        ));
 
         // Locale
         Airship.Shared.locale.SetLocaleOverride("en_US");
+        Debug.Log("Locale: " + Airship.Shared.locale.GetLocale());
         Airship.Shared.locale.ClearLocaleOverride();
-        // Debug.Log("Locale: " + Airship.Shared.locale.GetLocale());
+        Debug.Log("Locale: " + Airship.Shared.locale.GetLocale());
 
         // Message Center
         StartCoroutine(Airship.Shared.messageCenter.RefreshInbox(
@@ -190,6 +206,9 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         StartCoroutine(Airship.Shared.messageCenter.GetMessages(
             onComplete: (messages) => {
                 Debug.Log("Messages: " + string.Join(", ", messages));
+                foreach (var message in messages) {
+                    Debug.Log(message.title);
+                }
             },
             onError: (error) => {
                 Debug.LogError("Error getting messages: " + error.Message);
@@ -202,15 +221,15 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
 
         // Preference Center
         Airship.Shared.preferenceCenter.SetAutoLaunchDefaultPreferenceCenter("neat", true);
+        StartCoroutine(Airship.Shared.preferenceCenter.GetConfig("neat",
+            onComplete: (config) => {
+                Debug.Log("Config: " + JsonUtility.ToJson(config));
+            },
+            onError: (error) => {
+                Debug.LogError("Error getting config: " + error.Message);
+            }
+        ));
         // Airship.Shared.preferenceCenter.Display("neat");
-        // StartCoroutine(Airship.Shared.preferenceCenter.GetConfig("neat",
-        //     onComplete: (config) => {
-        //         Debug.Log("Config: " + JsonUtility.ToJson(config));
-        //     },
-        //     onError: (error) => {
-        //         Debug.LogError("Error getting config: " + error.Message);
-        //     }
-        // ));
 
         // Push
         
@@ -240,11 +259,20 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
 
         Debug.Log("Push token: " + Airship.Shared.push.GetPushToken());
 
-        Debug.Log("Active notifications: " + string.Join(", ", Airship.Shared.push.GetActiveNotifications()));
+        StartCoroutine(Airship.Shared.push.GetActiveNotifications(
+            onComplete: (notifications) => {
+                Debug.Log("Active notifications: " + string.Join(", ", notifications));
+            },
+            onError: (error) => {
+                Debug.LogError("Error getting active notifications: " + error.Message);
+            }
+        ));
 
-        // Airship.Shared.push.ClearNotifications();   
-        // Debug.Log("Notifications cleared");
+        Airship.Shared.push.ClearNotifications();   
+        Debug.Log("Notifications cleared");
 
+
+        // Android Push methods
         Debug.Log("Is notification channel enabled: " + Airship.Shared.push.android.IsNotificationChannelEnabled("test_channel"));
         
         Airship.Shared.push.android.SetNotificationConfig(new AndroidNotificationConfig() {
@@ -258,6 +286,18 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Debug.Log("Foreground notifications enabled: " + Airship.Shared.push.android.IsForegroundNotificationsEnabled());
         Airship.Shared.push.android.SetForegroundNotificationsEnabled(true);
         Debug.Log("Foreground notifications enabled after true: " + Airship.Shared.push.android.IsForegroundNotificationsEnabled());
+
+        // iOS Push methods
+        Airship.Shared.push.iOS.SetBadgeNumber(1);
+        Debug.Log("Badge number: " + Airship.Shared.push.iOS.GetBadgeNumber());
+        Airship.Shared.push.iOS.SetBadgeNumber(0);
+        Debug.Log("Badge number: " + Airship.Shared.push.iOS.GetBadgeNumber());
+        
+        Airship.Shared.push.iOS.SetQuietTimeEnabled(true);
+        Debug.Log("Quiet time enabled: " + Airship.Shared.push.iOS.IsQuietTimeEnabled());
+        Airship.Shared.push.iOS.SetQuietTimeEnabled(false);
+        Debug.Log("Quiet time enabled: " + Airship.Shared.push.iOS.IsQuietTimeEnabled());
+
 
         StartCoroutine(Airship.Shared.actions.RunAction("test_action", "test_value",
             onComplete: (result) => {
@@ -279,6 +319,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
             }
         ));
 
+        // TODO fix contact subscription list, and listeners. Then check the TODOs in the code
     }
 
     void OnDestroy () {

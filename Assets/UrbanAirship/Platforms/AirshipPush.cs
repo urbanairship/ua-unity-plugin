@@ -19,18 +19,26 @@ namespace UrbanAirship
         /// <summary>
         /// iOS only push methods.
         /// </summary>
-        public readonly AirshipPushIOS iOS;
+        public readonly IAirshipPushIOS iOS;
 
         /// <summary>
         /// Android only push methods.
         /// </summary>
-        public readonly AirshipPushAndroid android;
+        public readonly IAirshipPushAndroid android;
 
         internal AirshipPush(IAirshipPlugin plugin)
         {
             this.plugin = plugin;
-            iOS = new AirshipPushIOS(plugin);
-            android = new AirshipPushAndroid(plugin);
+#if UNITY_IOS
+            iOS = new AirshipPushIOS (plugin);
+#else
+            iOS = new StubbedAirshipPushIOS ();
+#endif
+#if UNITY_ANDROID
+            android = new AirshipPushAndroid (plugin);
+#else
+            android = new StubbedAirshipPushAndroid ();
+#endif
         }
 
         /// <summary>
@@ -101,26 +109,35 @@ namespace UrbanAirship
         }
 
         /// <summary>
-        /// Gets the list of active notifications.
+        /// Gets the list of active notifications asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// 
         /// On Android, this list only includes notifications sent through Airship.
         /// </summary>
-        /// <returns>The list of active notifications.</returns>
-        public IEnumerable<PushMessage> GetActiveNotifications()
+        /// <param name="onComplete">Callback invoked with the list of active notifications when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator GetActiveNotifications(Action<IEnumerable<PushMessage>> onComplete, Action<Exception> onError = null)
         {
-            string jsonPushMessages = plugin.Call<string>("getActiveNotifications");
-            if (String.IsNullOrEmpty(jsonPushMessages))
-            {
-                return null;
-            }
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => {
+                    string jsonPushMessages = plugin.Call<string>("getActiveNotifications");
+                    if (String.IsNullOrEmpty(jsonPushMessages))
+                    {
+                        return (IEnumerable<PushMessage>)new List<PushMessage>();
+                    }
 
-            var pushMessages = new List<PushMessage>();
-            foreach (string pushMessageAsJson in JsonArray<string>.FromJson(jsonPushMessages).values)
-            {
-                pushMessages.Add(PushMessage.FromJson(pushMessageAsJson));
-            }
+                    var pushMessages = new List<PushMessage>();
+                    foreach (string pushMessageAsJson in JsonArray<string>.FromJson(jsonPushMessages).values)
+                    {
+                        pushMessages.Add(PushMessage.FromJson(pushMessageAsJson));
+                    }
 
-            return pushMessages;
+                    return (IEnumerable<PushMessage>)pushMessages;
+                },
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>
@@ -144,10 +161,36 @@ namespace UrbanAirship
         }
     }
 
+    public interface IAirshipPushIOS {
+        void SetForegroundPresentationOptions(ForegroundPresentationOption options);
+        void SetNotificationOptions(NotificationOption[] options);
+        bool IsAutobadgeEnabled();
+        void SetAutobadgeEnabled(bool enabled);
+        IEnumerator SetBadgeNumber(int badge, Action onComplete = null, Action<Exception> onError = null);
+        int GetBadgeNumber();
+        void SetQuietTimeEnabled(bool enabled);
+        bool IsQuietTimeEnabled();
+        void SetQuietTime(QuietTime quietTime);
+        QuietTime? GetQuietTime();
+    }
+
+    internal class StubbedAirshipPushIOS : IAirshipPushIOS {
+        public void SetForegroundPresentationOptions(ForegroundPresentationOption options) {}
+        public void SetNotificationOptions(NotificationOption[] options) {}
+        public bool IsAutobadgeEnabled() { return false; }
+        public void SetAutobadgeEnabled(bool enabled) {}
+        public IEnumerator SetBadgeNumber(int badge, Action onComplete = null, Action<Exception> onError = null) { yield break; }
+        public int GetBadgeNumber() { return 0; }
+        public void SetQuietTimeEnabled(bool enabled) {}
+        public bool IsQuietTimeEnabled() { return false; }
+        public void SetQuietTime(QuietTime quietTime) {}
+        public QuietTime? GetQuietTime() { return null; }
+    }
+
     /// <summary>
     /// IOS Push.
     /// </summary>
-    public class AirshipPushIOS
+    public class AirshipPushIOS : IAirshipPushIOS
     {
         private IAirshipPlugin plugin;
 
@@ -193,12 +236,20 @@ namespace UrbanAirship
         }
 
         /// <summary>
-        /// Set the badge number.
+        /// Sets the badge number asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
         /// </summary>
         /// <param name="badge">The badge number.</param>
-        public void SetBadgeNumber(int badge)
+        /// <param name="onComplete">Optional callback invoked when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator SetBadgeNumber(int badge, Action onComplete = null, Action<Exception> onError = null)
         {
-            plugin.Call("setBadgeNumber", badge);
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call("setBadgeNumber", badge),
+                onComplete,
+                onError
+            );
         }
 
         /// <summary>
@@ -249,10 +300,24 @@ namespace UrbanAirship
         // TODO Just noticed I forgot some methods, I need to add that
     }
 
+    public interface IAirshipPushAndroid {
+        bool IsNotificationChannelEnabled(string channel);
+        void SetNotificationConfig(AndroidNotificationConfig config);
+        void SetForegroundNotificationsEnabled(bool enabled);
+        bool IsForegroundNotificationsEnabled();
+    }
+
+    internal class StubbedAirshipPushAndroid : IAirshipPushAndroid {
+        public bool IsNotificationChannelEnabled(string channel) { return false; }
+        public void SetNotificationConfig(AndroidNotificationConfig config) {}
+        public void SetForegroundNotificationsEnabled(bool enabled) {}
+        public bool IsForegroundNotificationsEnabled() { return false; }
+    }
+
     /// <summary>
     /// Android Push.
     /// </summary>
-    public class AirshipPushAndroid
+    public class AirshipPushAndroid : IAirshipPushAndroid
     {
         private IAirshipPlugin plugin;
 
