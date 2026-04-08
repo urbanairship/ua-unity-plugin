@@ -90,6 +90,26 @@ namespace UrbanAirship
         /// </summary>
         public event AuthorizedSettingsChangedEventHandler OnAuthorizedSettingsChanged;
 
+        /// <summary>
+        /// Push token received event handler.
+        /// </summary>
+        public delegate void PushTokenReceivedEventHandler(string pushToken);
+
+        /// <summary>
+        /// Occurs when the push token is received.
+        /// </summary>
+        public event PushTokenReceivedEventHandler OnPushTokenReceived;
+
+        /// <summary>
+        /// Notification status changed event handler.
+        /// </summary>
+        public delegate void NotificationStatusChangedEventHandler(PushNotificationStatus status);
+
+        /// <summary>
+        /// Occurs when the notification status changed.
+        /// </summary>
+        public event NotificationStatusChangedEventHandler OnNotificationStatusChanged;
+
         public AirshipChannel channel;
         public AirshipContact contact;
         public AirshipAnalytics analytics;
@@ -296,13 +316,41 @@ namespace UrbanAirship
                 }
             }
 
-            void OnAuthorizedSettingsChanged(AuthorizedNotificationSetting[] authorizedSettings)
+            void OnAuthorizedSettingsChanged(string authorizedSettings)
             {
                 AuthorizedSettingsChangedEventHandler handler = Airship.Shared.OnAuthorizedSettingsChanged;
 
                 if (handler != null)
                 {
-                    handler(authorizedSettings);
+                    AuthorizedNotificationSetting[] authorizedSettingsArray = JsonUtility.FromJson<AuthorizedNotificationSetting[]>(authorizedSettings);
+                    if (authorizedSettingsArray != null)
+                    {
+                        handler(authorizedSettingsArray);
+                    }
+                }
+            }
+
+            void OnPushTokenReceived(string pushToken)
+            {
+                PushTokenReceivedEventHandler handler = Airship.Shared.OnPushTokenReceived;
+
+                if (handler != null)
+                {
+                    handler(pushToken);
+                }
+            }
+
+            void OnNotificationStatusChanged(string status)
+            {
+                NotificationStatusChangedEventHandler handler = Airship.Shared.OnNotificationStatusChanged;
+
+                if (handler != null)
+                {
+                    PushNotificationStatus pushStatus = JsonUtility.FromJson<PushNotificationStatus>(status);
+                    if (pushStatus != null)
+                    {
+                        handler(pushStatus);
+                    }
                 }
             }
         }

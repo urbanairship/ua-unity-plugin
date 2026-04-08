@@ -134,7 +134,7 @@ class UnityPlugin: NSObject {
                 listener = try requireStringArg(args.first)
                 return nil
 
-            // Check if we still need this
+            // TODO Check if we still need this
 //            case "getDeepLink":
 //                let deepLink = convertToJson(storedDeepLink)
 //                if (requireBoolArg(args.first)) {

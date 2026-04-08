@@ -15,6 +15,7 @@ import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
+import com.urbanairship.android.framework.proxy.NotificationStatus
 import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
@@ -57,14 +58,14 @@ class UnityPlugin {
                     EventType.CHANNEL_CREATED -> onChannelCreated(event.body.optionalField<String>("channelId"))
                     EventType.DEEP_LINK_RECEIVED -> onDeepLinkReceived(event.body.optionalField<String>("deepLink"))
                     EventType.DISPLAY_MESSAGE_CENTER -> onShowInbox(event.body.optionalField<String>("messageId"))
-                    EventType.DISPLAY_PREFERENCE_CENTER -> onPreferenceCenterDisplay(event.body.get("preferenceCenterId").toString())
-                    EventType.MESSAGE_CENTER_UPDATED -> onInboxUpdated()
-                    EventType.PUSH_TOKEN_RECEIVED -> {}
+                    EventType.DISPLAY_PREFERENCE_CENTER -> onPreferenceCenterDisplay(event.body.optionalField<String>("preferenceCenterId"))
+                    EventType.MESSAGE_CENTER_UPDATED -> onInboxUpdated(event.body.optionalField<Int>("messageUnreadCount"), event.body.optionalField<Int>("messageCount"))
+                    EventType.PUSH_TOKEN_RECEIVED -> onPushTokenReceived(event.body.optionalField<String>("pushToken"))
                     EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED -> onPushOpened(event.body.optionalField<JsonValue>("pushPayload"))
                     EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED -> onPushOpened(event.body.optionalField<JsonValue>("pushPayload"))
                     EventType.FOREGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
                     EventType.BACKGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
-                    EventType.NOTIFICATION_STATUS_CHANGED -> {}
+                    EventType.NOTIFICATION_STATUS_CHANGED -> onNotificationStatusChanged(event.body.optionalField<NotificationStatus>("status"))
                     EventType.PENDING_EMBEDDED_UPDATED -> {}
                 }
                 true
@@ -559,31 +560,47 @@ class UnityPlugin {
         }
     }
 
-    fun onInboxUpdated() {
-        runBlocking(Dispatchers.IO) {
-            val unreadCount = airshipProxyInstance.messageCenter.getUnreadMessagesCount()
-            val messages = airshipProxyInstance.messageCenter.getMessages()
-            val totalCount = messages.size
-            val counts: JsonMap = JsonMap.newBuilder()
-                .put("unread", unreadCount)
-                .put("total", totalCount)
-                .build()
-            ProxyLogger.debug(
-                "UnityPlugin inboxUpdated (unread = %s, total = %s)",
-                unreadCount, totalCount
-            )
+    fun onInboxUpdated(messageUnreadCount: Int?, messageCount: Int?) {
+        ProxyLogger.debug("UnityPlugin inboxUpdated (unread = $messageUnreadCount, total = $messageCount)")
 
-            if (listener != null) {
-                UnityPlayer.UnitySendMessage(listener, "OnInboxUpdated", counts.toString())
-            }
+        if (messageUnreadCount == null) {
+            ProxyLogger.error("UnityPlugin failed to retrieve message unread count")
+        }
+        if (messageCount == null) {
+            ProxyLogger.error("UnityPlugin failed to retrieve message count")
+        }
+
+        val counts: JsonMap = JsonMap.newBuilder()
+            .put("unread", messageUnreadCount?.toInt() ?: 0)
+            .put("total", messageCount?.toInt() ?: 0)
+            .build()
+        
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnInboxUpdated", counts.toString())
         }
     }
 
-    fun onPreferenceCenterDisplay(preferenceCenterId: String) {
+    fun onPreferenceCenterDisplay(preferenceCenterId: String?) {
         ProxyLogger.debug("UnityPlugin preference center display: $preferenceCenterId")
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnPreferenceCenterDisplay", preferenceCenterId)
+        }
+    }
+
+    fun onPushTokenReceived(pushToken: String?) {
+        ProxyLogger.debug("UnityPlugin push token received: $pushToken")
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnPushTokenReceived", pushToken)
+        }
+    }
+
+    fun onNotificationStatusChanged(status: NotificationStatus?) {
+        ProxyLogger.debug("UnityPlugin notification status changed: ${status?.toJsonValue().toString()}")
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnNotificationStatusChanged", status?.toJsonValue().toString())
         }
     }
 
