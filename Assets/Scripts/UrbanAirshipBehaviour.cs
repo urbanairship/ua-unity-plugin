@@ -11,8 +11,8 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
     void Awake () {
         Airship.Shared.TakeOff(new AirshipConfig() {
             defaultEnvironment = new ConfigEnvironment() {
-                appKey = "VWDwdOFjRTKLRxCeXTVP6g",
-                appSecret = "5Ifi5rYgTm2QHey9JkP0WA",
+                appKey = "APP_KEY",
+                appSecret = "APP_SECRET",
                 logLevel = LogLevel.Verbose,
             },
             site = Site.US,
@@ -319,7 +319,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
             }
         ));
 
-        // TODO fix contact subscription list, and listeners. Then check the TODOs in the code
+        // TODO fix listeners. Then check the TODOs in the code
     }
 
     void OnDestroy () {

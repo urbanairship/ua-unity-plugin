@@ -83,9 +83,25 @@ class UnityPlugin: NSObject {
 
     public var listener: String? = nil
     public var storedDeepLink: String? = nil
+    
+    private static let eventNames: [AirshipProxyEventType: String] = [
+        .authorizedNotificationSettingsChanged: "ios_authorized_notification_settings_changed",
+        .pushTokenReceived: "push_token_received",
+        .deepLinkReceived: "OnDeepLinkReceived",
+        .channelCreated: "OnChannelCreated",
+        .messageCenterUpdated: "OnInboxUpdated",
+        .displayMessageCenter: "display_message_center",
+        .displayPreferenceCenter: "display_preference_center",
+        .notificationResponseReceived: "OnPushOpened",
+        .pushReceived: "OnPushReceived",
+        .notificationStatusChanged: "notification_status_changed",
+        .liveActivitiesUpdated: "ios_live_activities_updated"
+    ]
 
     private override init() {
         super.init()
+
+        startEventProcessing()
     }
 
     private static let initializeOnce: Void = {
@@ -97,6 +113,14 @@ class UnityPlugin: NSObject {
             // UnityPlugin.performTakeOff(withLaunchOptions: notification.userInfo)
         }
     }()
+
+    func startEventProcessing() {
+        Task { @MainActor in
+            for await _ in AirshipProxyEventEmitter.shared.pendingEventAdded {
+                self.notifyPendingEvents()
+            }
+        }
+    }
 
     func handleCall(method: String, args: [Any]) throws -> Any? {
         AirshipLogger.debug("UnityPlugin \(method): \(args)")
@@ -547,95 +571,213 @@ class UnityPlugin: NSObject {
         }
     }
 
-    // Push Notification Delegates
-
-    public func receivedForegroundNotification(_ userInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) {
-        AirshipLogger.debug("UnityPlugin receivedForegroundNotification \(userInfo)")
-
-        if let listener = self.listener {
-            callUnitySendMessage(objectName: listener,
-                                 methodName: "OnPushReceived",
-                                 message: convertPushToJson(push: userInfo)
-            )
-            completionHandler()
+    @MainActor
+    private func notifyPendingEvents() {
+        for eventType in AirshipProxyEventType.allCases {
+            AirshipProxyEventEmitter.shared.processPendingEvents(type: eventType) { event in
+                if let data = try? JSONEncoder().encode(event.body),
+                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    switch event.type {
+                    case .channelCreated:
+                        if let channelId = json["channelId"] as? String {
+                            channelCreated(channelId)
+                        }
+                    case .deepLinkReceived:
+                        if let deepLink = json["deepLink"] as? String {
+                            receivedDeepLink(deepLink)
+                        }
+                    case .pushReceived:
+                        if let pushPayloadRaw = json["pushPayload"],
+                           let pushPayload: ProxyPushPayload = try? AirshipJSON.wrap(pushPayloadRaw).decode(),
+                           let isForeground = json["isForeground"] as? Bool {
+                            receivedNotification(pushPayload, isForeground: isForeground)
+                        }
+                    case .notificationResponseReceived:
+                        if let pushPayloadRaw = json["pushPayload"],
+                           let pushPayload: ProxyPushPayload = try? AirshipJSON.wrap(pushPayloadRaw).decode(),
+                           let isForeground = json["isForeground"] as? Bool,
+                           let actionId = json["actionId"] as? String? {
+                            receivedNotificationResponse(pushPayload, isForeground: isForeground, actionId: actionId)
+                        }
+                    case .messageCenterUpdated:
+                        if let messageCount = json["messageCount"] as? Int,
+                           let messageUnreadCount = json["messageUnreadCount"] as? Int {
+                            inboxUpdated(messageCount: messageCount, messageUnreadCount: messageUnreadCount)
+                        }
+                    case .displayMessageCenter:
+                        if let messageId = json["messageId"] as? String? {
+                            messageCenterDisplayed(messageId)
+                        }
+                    case .displayPreferenceCenter:
+                        if let preferenceCenterId = json["preferenceCenterId"] as? String? {
+                            preferenceCenterDisplayed(preferenceCenterId)
+                        }
+                    case .authorizedNotificationSettingsChanged:
+                        if let authorizedSettings = json["authorizedSettings"] as? [String] {
+                            authorizedNotificationSettingsChanged(authorizedSettings)
+                        }
+                    case .pushTokenReceived:
+                        if let pushToken = json["pushToken"] as? String {
+                            pushTokenReceived(pushToken)
+                        }
+                    case .notificationStatusChanged:
+                        if let statusRaw = json["status"],
+                           let status: NotificationStatus = try? AirshipJSON.wrap(statusRaw).decode() {
+                            notificationStatusChanged(status)
+                        }
+                    case .pendingEmbeddedUpdated, .liveActivitiesUpdated:
+                        break
+                    }
+                }
+                return true
+            }
         }
     }
 
-    public func receivedNotificationResponse(_ notificationResponse: UNNotificationResponse, completionHandler: @escaping () -> Void) {
-        AirshipLogger.debug("UnityPlugin receivedNotificationResponse \(notificationResponse)")
-
-        if let listener = self.listener {
-            callUnitySendMessage(objectName: listener,
-                                 methodName: "OnPushOpened",
-                                 message: convertPushToJson(
-                                    push: notificationResponse.notification.request.content.userInfo
-                                 )
-            )
-            completionHandler()
+    // Push Notification Delegates
+    
+    public func receivedNotification(_ pushPayload: ProxyPushPayload, isForeground: Bool) {
+        AirshipLogger.debug("UnityPlugin receivedNotification \(pushPayload)")
+        
+        do {
+            let jsonPush = try AirshipJSON.wrap(pushPayload).toString()
+            
+            if let listener = self.listener {
+                callUnitySendMessage(objectName: listener,
+                                     methodName: "OnPushReceived",
+                                     message: jsonPush
+                )
+            }
+        } catch {
+            AirshipLogger.debug("UnityPlugin failed to serialize push")
+        }
+    }
+    
+    public func receivedNotificationResponse(_ pushPayload: ProxyPushPayload, isForeground: Bool, actionId: String?) {
+        AirshipLogger.debug("UnityPlugin receivedNotificationResponse \(pushPayload)")
+        
+        do {
+            let jsonPush = try AirshipJSON.wrap(pushPayload).toString()
+            
+            if let listener = self.listener {
+                callUnitySendMessage(objectName: listener,
+                                     methodName: "OnPushOpened",
+                                     message: jsonPush
+                )
+            }
+        } catch {
+            AirshipLogger.debug("UnityPlugin failed to serialize push")
         }
     }
 
     // Airship DeepLink Delegate
+    public func receivedDeepLink(_ deepLink: String) {
+        AirshipLogger.debug("UnityPlugin receivedDeepLink \(deepLink)")
 
-    public func receivedDeepLink(_ url: URL, completionHandler: @escaping () -> Void) {
-        AirshipLogger.debug("UnityPlugin receivedDeepLink \(url)")
-
-        let deepLinkString = url.absoluteString
-        self.storedDeepLink = deepLinkString
+        self.storedDeepLink = deepLink
 
         if let listener = self.listener {
             callUnitySendMessage(objectName: listener,
                                  methodName: "OnDeepLinkReceived",
-                                 message: deepLinkString
+                                 message: deepLink
             )
         }
-        completionHandler()
     }
 
-    // Channel Registration Events
-
-    public func channelCreated(_ notification: Notification) {
-        guard let channelID = notification.userInfo?[AirshipNotifications.ChannelCreated.channelIDKey] as? String else {
-            return
-        }
-        AirshipLogger.debug("UnityPlugin channelCreated: \(channelID)")
+    // Channel Creation Event
+    public func channelCreated(_ channelId: String) {
+        AirshipLogger.debug("UnityPlugin channelCreated: \(channelId)")
         
         if let listener = self.listener {
             callUnitySendMessage(objectName: listener,
                                  methodName: "OnChannelCreated",
-                                 message: channelID
+                                 message: channelId
             )
         }
     }
 
     // Inbox Message List Updated Notification
-    public func inboxUpdated() async {
-        do {
-            let unreadCount =  try await AirshipProxy.shared.messageCenter.unreadCount
-            let totalCount = try await AirshipProxy.shared.messageCenter.messages.count
-        
-            let counts : [String: Any] = [
-                "unread": unreadCount,
-                "total": totalCount
-            ]
+    public func inboxUpdated(messageCount: Int, messageUnreadCount: Int) {
+        let counts : [String: Any] = [
+            "unread": messageUnreadCount,
+            "total": messageCount
+        ]
 
-            AirshipLogger.debug("UnityPlugin inboxUpdated(unread = \(unreadCount), total = \(totalCount))")
+        AirshipLogger.debug("UnityPlugin inboxUpdated(unread = \(messageUnreadCount), total = \(messageCount))")
 
-            if let listener = self.listener {
-                callUnitySendMessage(objectName: listener,
-                                     methodName: "OnInboxUpdated",
-                                     message: convertToJson(counts)
-                )
-            }
-        } catch {
-            AirshipLogger.error("Error executing method inboxUpdated: \(error)")
-            return
+        if let listener = self.listener {
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnInboxUpdated",
+                                 message: convertToJson(counts)
+            )
         }
     }
 
-    // TODO Message Center Display Delegates
+    // Message Center Display Delegate
+    
+    public func messageCenterDisplayed(_ messageId: String? = nil) {
+        AirshipLogger.debug("UnityPlugin messageCenterDisplayed \(String(describing: messageId))")
+        
+        if let listener = self.listener {
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnShowInbox",
+                                 message: messageId ?? ""
+            )
+        }
+    }
+    
+    // Preference Center Display Delegate
+    public func preferenceCenterDisplayed(_ preferenceCenterId: String? = nil) {
+        AirshipLogger.debug("UnityPlugin preferenceCenterDisplayed \(String(describing: preferenceCenterId))")
+        
+        if let listener = self.listener {
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnPreferenceCenterDisplay",
+                                 message: preferenceCenterId ?? ""
+            )
+        }
+    }
+    
+    public func authorizedNotificationSettingsChanged(_ authorizedSettings: [String]) {
+        AirshipLogger.debug("UnityPlugin authorizedNotificationSettingsChanged \(String(describing: authorizedSettings))")
+        
+        if let listener = self.listener {
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnAuthorizedNotificationSettingsChanged",
+                                 message: convertToJson(authorizedSettings)
+            )
+        }
+    }
 
-    // TODO Implement the rest of the delegates (PC and AuthorizedSettings)
+    public func pushTokenReceived(_ pushToken: String) {
+        AirshipLogger.debug("UnityPlugin pushTokenReceived \(pushToken)")
+        
+        if let listener = self.listener {
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnPushTokenReceived",
+                                 message: pushToken
+            )
+        }
+    }
+    
+    public func notificationStatusChanged(_ status: NotificationStatus) {
+        AirshipLogger.debug("UnityPlugin notificationStatusChanged \(status)")
+        
+        do {
+            let jsonStatus = try AirshipJSON.wrap(status).toString()
+        
+            if let listener = self.listener {
+                callUnitySendMessage(objectName: listener,
+                                     methodName: "OnNotificationStatusChanged",
+                                     message: jsonStatus
+                )
+            }
+        } catch {
+            AirshipLogger.debug("UnityPlugin failed to serialize notification status")
+        }
+    }
+    
+    // TODO Implement the rest of the delegates
 
     private func requireAnyArg(_ arg: Any? = nil) throws -> Any {
         guard let value: Any = arg else {
