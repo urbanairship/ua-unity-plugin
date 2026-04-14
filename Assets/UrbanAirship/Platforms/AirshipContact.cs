@@ -92,7 +92,14 @@ namespace UrbanAirship {
                     Dictionary<string, IEnumerable<string>> scopedSubscriptionLists = new Dictionary<string, IEnumerable<string>>();
 
                     string subscriptionListsAsJson = plugin.Call<string>("getContactSubscriptionLists");
+                    if (string.IsNullOrEmpty(subscriptionListsAsJson)) {
+                        return scopedSubscriptionLists;
+                    }
+
                     ScopedSubscriptionList[] _scopedSubscriptionLists = JsonArray<ScopedSubscriptionList>.FromJson(subscriptionListsAsJson).values;
+                    if (_scopedSubscriptionLists == null) {
+                        return scopedSubscriptionLists;
+                    }
 
                     foreach (ScopedSubscriptionList subscriptionList in _scopedSubscriptionLists)
                     {
