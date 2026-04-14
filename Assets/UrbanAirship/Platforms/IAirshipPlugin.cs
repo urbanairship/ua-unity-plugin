@@ -86,20 +86,35 @@ namespace UrbanAirship {
 
     internal class AirshipPluginiOS : IAirshipPlugin{
 
+        [Serializable]
+        private class CallResponse {
+            public string result;
+            public string error;
+        }
+
         [DllImport ("__Internal")]
         private static extern IntPtr UnityPlugin_call (string method, string argsJson);
 
         [DllImport ("libc")]
         private static extern void free (IntPtr ptr);
 
+        /// <summary>
+        /// Calls the native plugin, parses the response envelope, and returns
+        /// the inner result JSON string. Throws on native errors.
+        /// </summary>
         private static string CallNative (string method, string argsJson) {
             IntPtr ptr = UnityPlugin_call(method, argsJson);
             if (ptr == IntPtr.Zero) {
-                return null;
+                throw new Exception("Airship: null response from native for method " + method);
             }
-            string result = Marshal.PtrToStringUTF8(ptr);
+            string responseJson = Marshal.PtrToStringUTF8(ptr);
             free(ptr);
-            return result;
+
+            CallResponse response = JsonUtility.FromJson<CallResponse>(responseJson);
+            if (!string.IsNullOrEmpty(response.error)) {
+                throw new Exception(response.error);
+            }
+            return response.result;
         }
 
         public void Call (string method, params object[] args) {
@@ -111,7 +126,7 @@ namespace UrbanAirship {
             string argsJson = SerializeArgs(args);
             string resultJson = CallNative(method, argsJson);
 
-            if (string.IsNullOrEmpty(resultJson) || resultJson == "{}") {
+            if (string.IsNullOrEmpty(resultJson) || resultJson == "null" || resultJson == "{}") {
                 return default(T);
             }
 

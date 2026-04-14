@@ -17,6 +17,22 @@ private enum HandleResult {
     case notHandled
 }
 
+private func makeSuccessResponse(_ jsonResult: String) -> UnsafeMutablePointer<CChar>? {
+    if let data = try? JSONSerialization.data(withJSONObject: ["result": jsonResult]),
+       let str = String(data: data, encoding: .utf8) {
+        return strdup(str)
+    }
+    return strdup("{\"error\":\"Failed to create response envelope\"}")
+}
+
+private func makeErrorResponse(_ message: String) -> UnsafeMutablePointer<CChar>? {
+    if let data = try? JSONSerialization.data(withJSONObject: ["error": message]),
+       let str = String(data: data, encoding: .utf8) {
+        return strdup(str)
+    }
+    return strdup("{\"error\":\"Unknown error\"}")
+}
+
 @_cdecl("UnityPlugin_call")
 public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePointer<CChar>) -> UnsafeMutablePointer<CChar>? {
     let methodStr = String(cString: method)
@@ -27,8 +43,7 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
         let data = argsJsonStr.data(using: .utf8) ?? Data()
         args = (try JSONSerialization.jsonObject(with: data) as? [Any]) ?? []
     } catch {
-        AirshipLogger.error("Failed to deserialize arguments for method \(methodStr): \(error)")
-        return strdup("{}")
+        return makeErrorResponse("Failed to deserialize arguments for method \(methodStr): \(error)")
     }
 
     let result: Any?
@@ -46,26 +61,22 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
             case .handledAsync(let value):
                 result = value
             case .notHandled:
-                AirshipLogger.error("Unknown method: \(methodStr)")
-                return strdup("{}")
+                return makeErrorResponse("Unknown method: \(methodStr)")
             default:
-                AirshipLogger.error("Unexpected result type for async handler \(methodStr)")
-                return strdup("{}")
+                return makeErrorResponse("Unexpected result type for async handler \(methodStr)")
             }
         default:
-            AirshipLogger.error("Unexpected result type for sync handler \(methodStr)")
-            return strdup("{}")
+            return makeErrorResponse("Unexpected result type for sync handler \(methodStr)")
         }
     } catch {
-        AirshipLogger.error("Error executing method \(methodStr): \(error)")
-        return strdup("{}")
+        return makeErrorResponse("Error executing method \(methodStr): \(error)")
     }
 
     do {
         let jsonResult = try AirshipJSON.wrap(result).toString()
-        return strdup(jsonResult)
+        return makeSuccessResponse(jsonResult)
     } catch {
-        return strdup("{}")
+        return makeErrorResponse("Failed to serialize result for \(methodStr): \(error)")
     }
 }
 
