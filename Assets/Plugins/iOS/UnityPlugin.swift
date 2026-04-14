@@ -14,7 +14,7 @@ import AirshipCore
 private let _notHandled = "NOT_HANDLED"
 
 @_cdecl("UnityPlugin_call")
-public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePointer<CChar>) -> UnsafePointer<CChar>? {
+public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePointer<CChar>) -> UnsafeMutablePointer<CChar>? {
     let methodStr = String(cString: method)
     let argsJsonStr = String(cString: argsJson)
 
@@ -24,7 +24,7 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
         args = (try JSONSerialization.jsonObject(with: data) as? [Any]) ?? []
     } catch {
         AirshipLogger.error("Failed to deserialize arguments for method \(methodStr): \(error)")
-        return UnsafePointer(strdup("{}"))
+        return strdup("{}")
     }
 
     var result: Any?
@@ -35,7 +35,7 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
             result = try UnityPlugin.shared.handleCall(method: methodStr, args: args)
         } catch {
             AirshipLogger.error("Error executing method \(methodStr): \(error)")
-            return UnsafePointer(strdup("{}"))
+            return strdup("{}")
         }
     }
     
@@ -65,15 +65,15 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
         
         if let callError {
             AirshipLogger.error("Error executing method \(methodStr): \(callError)")
-            return UnsafePointer(strdup("{}"))
+            return strdup("{}")
         }
     }
 
     do {
         let jsonResult = try AirshipJSON.wrap(result).toString()
-        return UnsafePointer(strdup(jsonResult))
+        return strdup(jsonResult)
     } catch {
-        return UnsafePointer(strdup("{}"))
+        return strdup("{}")
     }
 }
 
