@@ -34,6 +34,13 @@ namespace UrbanAirship.Editor {
         public static void Apply (BuildTarget target) {
             if (target == BuildTarget.iOS || target == BuildTarget.Android) {
                 UAConfig config = UAConfig.LoadConfig ();
+
+                if (!config.IsConfigured) {
+                    UnityEngine.Debug.Log ("Urban Airship editor config is empty. " +
+                        "Skipping config file generation. Make sure to call Airship.Shared.TakeOff() at runtime.");
+                    return;
+                }
+
                 if (!config.IsValid) {
                     EditorUtility.DisplayDialog ("Urban Airship", "Urban Airship not configured. Set the app credentials in Window -> Urban Airship -> Settings", "OK");
                     return;

@@ -14,7 +14,9 @@ namespace UrbanAirship.Editor {
 
         void OnEnable () {
             config = UAConfig.LoadConfig ();
-            config.Apply ();
+            if (config.IsConfigured) {
+                config.Apply ();
+            }
         }
 
         void OnGUI () {
@@ -66,6 +68,13 @@ namespace UrbanAirship.Editor {
                 config.NotificationPresentationOptionSound = EditorGUILayout.Toggle ("Sound", config.NotificationPresentationOptionSound);
             });
 
+            if (!config.IsConfigured) {
+                EditorGUILayout.HelpBox (
+                    "No app credentials configured. Config files will not be generated. " +
+                    "You can configure Airship at runtime via Airship.Shared.TakeOff() instead.",
+                    MessageType.Info);
+            }
+
             GUILayout.FlexibleSpace ();
 
             GUILayout.BeginHorizontal ();
@@ -82,7 +91,9 @@ namespace UrbanAirship.Editor {
 
                     UnityEngine.Debug.Log ("Saving Urban Airship config.");
 
-                    config.Apply ();
+                    if (config.IsConfigured) {
+                        config.Apply ();
+                    }
                     UAConfig.SaveConfig (config);
 
                     AssetDatabase.Refresh ();

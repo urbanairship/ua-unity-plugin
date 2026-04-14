@@ -92,6 +92,19 @@ namespace UrbanAirship.Editor {
         [SerializeField]
         public CloudSite Site { get; set; }
 
+        /// <summary>
+        /// Whether any app credentials have been configured.
+        /// Returns false when all key/secret fields are empty, meaning the user
+        /// needs to configure Airship via TakeOff instead of the editor config files.
+        /// </summary>
+        public bool IsConfigured {
+            get {
+                bool hasProd = !string.IsNullOrEmpty (ProductionAppKey) || !string.IsNullOrEmpty (ProductionAppSecret);
+                bool hasDev = !string.IsNullOrEmpty (DevelopmentAppKey) || !string.IsNullOrEmpty (DevelopmentAppSecret);
+                return hasProd || hasDev;
+            }
+        }
+
         public bool IsValid {
             get {
                 try {
@@ -183,6 +196,10 @@ namespace UrbanAirship.Editor {
         }
 
         public bool Apply () {
+            if (!IsConfigured) {
+                return false;
+            }
+
             if (IsValid) {
 #if UNITY_IOS
                 GenerateIOSAirshipConfig ();
@@ -200,6 +217,10 @@ namespace UrbanAirship.Editor {
         }
 
         public void Validate () {
+            if (!IsConfigured) {
+                return;
+            }
+
             if (InProduction) {
                 if (string.IsNullOrEmpty (ProductionAppKey)) {
                     throw new Exception ("Production App Key missing.");

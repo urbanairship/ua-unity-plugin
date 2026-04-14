@@ -45,16 +45,19 @@ namespace UrbanAirship.Editor {
             };
 #endif
 
-            string airshipConfig = Path.Combine (buildPath, "AirshipConfig.plist");
-            if (File.Exists (airshipConfig)) {
-                File.Delete (airshipConfig);
-            }
+            string airshipConfigSource = Path.Combine (Application.dataPath, "Plugins/iOS/AirshipConfig.plist");
+            if (File.Exists (airshipConfigSource)) {
+                string airshipConfig = Path.Combine (buildPath, "AirshipConfig.plist");
+                if (File.Exists (airshipConfig)) {
+                    File.Delete (airshipConfig);
+                }
 
-            File.Copy (Path.Combine (Application.dataPath, "Plugins/iOS/AirshipConfig.plist"), airshipConfig);
-            string airshipGUID = proj.AddFile ("AirshipConfig.plist", "AirshipConfig.plist", PBXSourceTree.Source);
+                File.Copy (airshipConfigSource, airshipConfig);
+                string airshipGUID = proj.AddFile ("AirshipConfig.plist", "AirshipConfig.plist", PBXSourceTree.Source);
 
-            foreach (string target in targets) {
-                proj.AddFileToBuild (target, airshipGUID);
+                foreach (string target in targets) {
+                    proj.AddFileToBuild (target, airshipGUID);
+                }
             }
 
             // Update the Header Search Paths

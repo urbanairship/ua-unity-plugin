@@ -185,6 +185,9 @@ namespace UrbanAirship
         public bool IsQuietTimeEnabled() { return false; }
         public void SetQuietTime(QuietTime quietTime) {}
         public QuietTime? GetQuietTime() { return null; }
+        // TODO: Add these methods and figure out how to set the AuthorizedNotificationSettings and AuthorizedNotificationStatus
+        // public String[] GetAuthorizedNotificationSettings() { return []; }
+        // public String GetAuthroizedNotificationStatus() { return "" }
     }
 
     /// <summary>

@@ -86,13 +86,6 @@ namespace UrbanAirship {
 
     internal class AirshipPluginiOS : IAirshipPlugin{
 
-        // [DllImport ("__Internal")]
-        // private static extern void UnityPlugin_shared ();
-
-        // public AirshipPluginiOS() {
-        //     UnityPlugin_shared();
-        // }
-
         [DllImport ("__Internal")]
         private static extern string UnityPlugin_call (string method, string argsJson);
 
@@ -103,13 +96,11 @@ namespace UrbanAirship {
 
         public T Call<T> (string method, params object[] args) {
             string argsJson = SerializeArgs(args);
-            Debug.Log("argsJson: " + argsJson + " for method: " + method);
             string resultJson = UnityPlugin_call(method, argsJson);
 
             if (string.IsNullOrEmpty(resultJson) || resultJson == "{}") {
                 return default(T);
             }
-            Debug.Log("resultJson: " + resultJson + " for method: " + method);
 
             return AirshipUtils.Deserialize<T>(resultJson);
         }

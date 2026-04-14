@@ -65,7 +65,7 @@ class UnityPlugin {
                     EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED -> onPushOpened(event.body.optionalField<JsonValue>("pushPayload"))
                     EventType.FOREGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
                     EventType.BACKGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
-                    EventType.NOTIFICATION_STATUS_CHANGED -> onNotificationStatusChanged(event.body.optionalField<NotificationStatus>("status"))
+                    EventType.NOTIFICATION_STATUS_CHANGED -> onNotificationStatusChanged(event.body.optionalField<JsonValue>("status"))
                     EventType.PENDING_EMBEDDED_UPDATED -> {}
                 }
                 true
@@ -596,11 +596,11 @@ class UnityPlugin {
         }
     }
 
-    fun onNotificationStatusChanged(status: NotificationStatus?) {
-        ProxyLogger.debug("UnityPlugin notification status changed: ${status?.toJsonValue().toString()}")
+    fun onNotificationStatusChanged(status: JsonValue?) {
+        ProxyLogger.debug("UnityPlugin notification status changed: ${status?.toString()}")
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnNotificationStatusChanged", status?.toJsonValue().toString())
+            UnityPlayer.UnitySendMessage(listener, "OnNotificationStatusChanged", status?.toString())
         }
     }
 

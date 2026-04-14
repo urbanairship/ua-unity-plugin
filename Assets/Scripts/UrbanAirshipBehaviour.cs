@@ -9,8 +9,9 @@ using UrbanAirship;
 public class UrbanAirshipBehaviour : MonoBehaviour {
 
     void Awake () {
-        Airship.Shared.TakeOff(new AirshipConfig() {
-            defaultEnvironment = new ConfigEnvironment() {
+        Debug.Log("Taking off");
+        bool takeOffResult = Airship.Shared.TakeOff(new AirshipConfig() {
+            @default = new ConfigEnvironment() {
                 appKey = "APP_KEY",
                 appSecret = "APP_SECRET",
                 logLevel = LogLevel.Verbose,
@@ -19,6 +20,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
             inProduction = false,
             urlAllowList = new string[] { "*" },
         });
+        Debug.Log("TakeOff returned: " + takeOffResult);
     }
 
     void Start () {
@@ -33,6 +35,9 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Airship.Shared.OnInboxUpdated += OnInboxUpdated;
         Airship.Shared.OnShowInbox += OnShowInbox;
         Airship.Shared.OnPreferenceCenterDisplay += OnPreferenceCenterDisplay;
+        Airship.Shared.OnPushTokenReceived += OnPushTokenReceived;
+        Airship.Shared.OnNotificationStatusChanged += OnNotificationStatusChanged;
+        Airship.Shared.OnAuthorizedSettingsChanged += OnAuthorizedSettingsChanged;
 
         // PrivacyManager
         Debug.Log("Set Enabled features to none");
@@ -318,8 +323,6 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
                 Debug.LogError("Error getting feature flag: " + error.Message);
             }
         ));
-
-        // TODO fix listeners. Then check the TODOs in the code
     }
 
     void OnDestroy () {
@@ -330,10 +333,13 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Airship.Shared.OnInboxUpdated -= OnInboxUpdated;
         Airship.Shared.OnShowInbox -= OnShowInbox;
         Airship.Shared.OnPreferenceCenterDisplay -= OnPreferenceCenterDisplay;
+        Airship.Shared.OnPushTokenReceived -= OnPushTokenReceived;
+        Airship.Shared.OnNotificationStatusChanged -= OnNotificationStatusChanged;
+        Airship.Shared.OnAuthorizedSettingsChanged -= OnAuthorizedSettingsChanged;
     }
 
     void OnPushReceived (PushMessage message) {
-        Debug.Log ("Received push! " + message.Alert);
+        Debug.Log ("Listener: Received push! " + message.Alert);
 
         if (message.Extras != null) {
             foreach (KeyValuePair<string, string> kvp in message.Extras) {
@@ -343,7 +349,7 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
     }
 
     void OnPushOpened (PushMessage message) {
-        Debug.Log ("Opened Push! " + message.Alert);
+        Debug.Log ("Listener: Opened Push! " + message.Alert);
 
         if (message.Extras != null) {
             foreach (KeyValuePair<string, string> kvp in message.Extras) {
@@ -353,54 +359,43 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
     }
 
     void OnChannelCreated (string channelId) {
-        Debug.Log ("Channel created: " + channelId);
+        Debug.Log ("Listener: Channel created: " + channelId);
     }
 
     void OnDeepLinkReceived (string deeplink) {
-        Debug.Log ("Received deep link: " + deeplink);
+        Debug.Log ("Listener: Received deep link: " + deeplink);
     }
 
     void OnInboxUpdated (uint messageUnreadCount, uint messageCount)
     {
-        Debug.Log("Inbox updated - unread messages: " + messageUnreadCount + " total messages: " + messageCount);
-
-        StartCoroutine(Airship.Shared.messageCenter.GetMessages(
-            onComplete: (messages) => {
-                foreach (InboxMessage inboxMessage in messages)
-                {
-                    Debug.Log("Message id: " + inboxMessage.id + ", title: " + inboxMessage.title + ", sentDate: " + inboxMessage.sentDate + ", isRead: " + inboxMessage.isRead + ", isDeleted: " + inboxMessage.isDeleted);
-                    if (inboxMessage.extras == null)
-                    {
-                        Debug.Log("Extras is null");
-                    }
-                    else
-                    {
-                        foreach (KeyValuePair<string, string> entry in inboxMessage.extras)
-                        {
-                            Debug.Log("Message extras [" + entry.Key + "] = " + entry.Value);
-                        }
-                    }
-                }
-            },
-            onError: (error) => {
-                Debug.LogError("Error getting messages: " + error.Message);
-            }
-        ));
+        Debug.Log("Listener: Inbox updated - unread messages: " + messageUnreadCount + " total messages: " + messageCount);
     }
 
     void OnShowInbox (string messageId)
     {
         if (messageId == null)
         {
-            Debug.Log("OnShowInbox - show inbox");
+            Debug.Log("Listener: OnShowInbox - show inbox");
         }
         else
         {
-            Debug.Log("OnShowInbox - show message: messageId = " + messageId);
+            Debug.Log("Listener: OnShowInbox - show message: messageId = " + messageId);
         }
     }
 
     void OnPreferenceCenterDisplay (string preferenceCenterId) {
-        Debug.Log ("Preference Center display - preferenceCenterId: " + preferenceCenterId);
+        Debug.Log ("Listener: Preference Center display - preferenceCenterId: " + preferenceCenterId);
+    }
+
+    void OnPushTokenReceived (string pushToken) {
+        Debug.Log ("Listener: Push token received: " + pushToken);
+    }
+
+    void OnNotificationStatusChanged (PushNotificationStatus status) {
+        Debug.Log ("Listener: Notification status changed: " + status);
+    }
+
+    void OnAuthorizedSettingsChanged (AuthorizedNotificationSetting[] authorizedSettings) {
+        Debug.Log ("Listener: Authorized settings changed: " + JsonUtility.ToJson(authorizedSettings));
     }
 }

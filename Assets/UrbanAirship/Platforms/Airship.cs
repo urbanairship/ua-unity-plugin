@@ -478,7 +478,7 @@ namespace UrbanAirship
     public record AirshipConfig
     {
         // Default environment.
-        public ConfigEnvironment? defaultEnvironment;
+        public ConfigEnvironment? @default;
 
         // Development environment. Overrides default environment if inProduction is false.
         public ConfigEnvironment? development;

@@ -82,37 +82,21 @@ class UnityPlugin: NSObject {
     static let shared = UnityPlugin()
 
     public var listener: String? = nil
-    public var storedDeepLink: String? = nil
-    
-    private static let eventNames: [AirshipProxyEventType: String] = [
-        .authorizedNotificationSettingsChanged: "ios_authorized_notification_settings_changed",
-        .pushTokenReceived: "push_token_received",
-        .deepLinkReceived: "OnDeepLinkReceived",
-        .channelCreated: "OnChannelCreated",
-        .messageCenterUpdated: "OnInboxUpdated",
-        .displayMessageCenter: "display_message_center",
-        .displayPreferenceCenter: "display_preference_center",
-        .notificationResponseReceived: "OnPushOpened",
-        .pushReceived: "OnPushReceived",
-        .notificationStatusChanged: "notification_status_changed",
-        .liveActivitiesUpdated: "ios_live_activities_updated"
-    ]
 
     private override init() {
         super.init()
-
         startEventProcessing()
     }
 
-    private static let initializeOnce: Void = {
-        // Add Notification Observer
-        NotificationCenter.default.addObserver(forName: UIApplication.didFinishLaunchingNotification,
-                                               object: nil,
-                                               queue: nil) { notification in
-            // TODO let's see how we handle take off
-            // UnityPlugin.performTakeOff(withLaunchOptions: notification.userInfo)
-        }
-    }()
+    // private static let initializeOnce: Void = {
+    //     // Add Notification Observer
+    //     NotificationCenter.default.addObserver(forName: UIApplication.didFinishLaunchingNotification,
+    //                                            object: nil,
+    //                                            queue: nil) { notification in
+    //         // TODO let's see how we handle take off
+    //         // UnityPlugin.performTakeOff(withLaunchOptions: notification.userInfo)
+    //     }
+    // }()
 
     func startEventProcessing() {
         Task { @MainActor in
@@ -125,22 +109,10 @@ class UnityPlugin: NSObject {
     func handleCall(method: String, args: [Any]) throws -> Any? {
         AirshipLogger.debug("UnityPlugin \(method): \(args)")
 
-        // TODO check how to handle the class attributes called in the static method
-        // let instance = shared
-
         switch method {
             case "setListener":
-                // shared.listener = requireAnyString(args.first)
                 listener = try requireStringArg(args.first)
                 return nil
-
-            // TODO Check if we still need this
-//            case "getDeepLink":
-//                let deepLink = convertToJson(storedDeepLink)
-//                if (requireBoolArg(args.first)) {
-//                    storedDeepLink = nil
-//                }
-//                return deepLink
 
             // Airship
             case "takeOff":
@@ -674,8 +646,6 @@ class UnityPlugin: NSObject {
     public func receivedDeepLink(_ deepLink: String) {
         AirshipLogger.debug("UnityPlugin receivedDeepLink \(deepLink)")
 
-        self.storedDeepLink = deepLink
-
         if let listener = self.listener {
             callUnitySendMessage(objectName: listener,
                                  methodName: "OnDeepLinkReceived",
@@ -777,8 +747,6 @@ class UnityPlugin: NSObject {
         }
     }
     
-    // TODO Implement the rest of the delegates
-
     private func requireAnyArg(_ arg: Any? = nil) throws -> Any {
         guard let value: Any = arg else {
             throw AirshipErrors.error("Argument must not be null")
@@ -884,14 +852,6 @@ class UnityPlugin: NSObject {
             return try AirshipJSON.wrap(values).decode()
         }
         return try AirshipJSON.wrap(parsed).decode()
-    }
-
-    // TODO Delete this if not needed
-    private func optionalParsedArg<T: Decodable>(_ arg: Any?) throws -> T? {
-        guard let value = arg else {
-            return nil
-        }
-        return try requireParsedArgWithValues(value)
     }
 
     private func requireStringArrayArg(_ arg: Any?) throws -> [String] {
