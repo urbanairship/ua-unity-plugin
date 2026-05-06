@@ -11,13 +11,13 @@ import AirshipKit
 import AirshipCore
 #endif
 
-private enum HandleResult {
+enum HandleResult {
     case handledSync(Any?)
     case handledAsync(Any?)
     case notHandled
 }
 
-private func makeSuccessResponse(_ jsonResult: String) -> UnsafeMutablePointer<CChar>? {
+func makeSuccessResponse(_ jsonResult: String) -> UnsafeMutablePointer<CChar>? {
     if let data = try? JSONSerialization.data(withJSONObject: ["result": jsonResult]),
        let str = String(data: data, encoding: .utf8) {
         return strdup(str)
@@ -25,7 +25,7 @@ private func makeSuccessResponse(_ jsonResult: String) -> UnsafeMutablePointer<C
     return strdup("{\"error\":\"Failed to create response envelope\"}")
 }
 
-private func makeErrorResponse(_ message: String) -> UnsafeMutablePointer<CChar>? {
+func makeErrorResponse(_ message: String) -> UnsafeMutablePointer<CChar>? {
     if let data = try? JSONSerialization.data(withJSONObject: ["error": message]),
        let str = String(data: data, encoding: .utf8) {
         return strdup(str)
@@ -80,6 +80,8 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
     }
 }
 
+private let asyncTimeout: TimeInterval = 60.0
+
 private func runAsync<T>(_ block: @escaping () async throws -> T) throws -> T {
     let semaphore = DispatchSemaphore(value: 0)
     var result: T?
@@ -94,12 +96,19 @@ private func runAsync<T>(_ block: @escaping () async throws -> T) throws -> T {
         semaphore.signal()
     }
 
+    let deadline = Date(timeIntervalSinceNow: asyncTimeout)
+
     if Thread.isMainThread {
         while semaphore.wait(timeout: .now()) == .timedOut {
+            if Date() > deadline {
+                throw AirshipErrors.error("Async call timed out after \(Int(asyncTimeout))s")
+            }
             RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.005))
         }
     } else {
-        semaphore.wait()
+        if semaphore.wait(timeout: .now() + asyncTimeout) == .timedOut {
+            throw AirshipErrors.error("Async call timed out after \(Int(asyncTimeout))s")
+        }
     }
 
     if let callError { throw callError }
@@ -899,6 +908,7 @@ class UnityPlugin: NSObject {
         UnitySendMessage(objectName, methodName, message)
     }
 
+    // TODO probably remove that
     /// Converts a push notification payload to a JSON string.
     ///
     /// - Parameter push: The push notification payload.
