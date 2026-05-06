@@ -686,7 +686,7 @@ class UnityPlugin {
             "FEATURE_ANALYTICS" to PrivacyManager.Feature.ANALYTICS,
             "FEATURE_TAGS_AND_ATTRIBUTES" to PrivacyManager.Feature.TAGS_AND_ATTRIBUTES,
             "FEATURE_CONTACTS" to PrivacyManager.Feature.CONTACTS,
-            "FEATURE_LOCATION" to PrivacyManager.Feature.FEATURE_FLAGS,
+            "FEATURE_FEATURE_FLAGS" to PrivacyManager.Feature.FEATURE_FLAGS,
             "FEATURE_ALL" to PrivacyManager.Feature.ALL
         )
 
