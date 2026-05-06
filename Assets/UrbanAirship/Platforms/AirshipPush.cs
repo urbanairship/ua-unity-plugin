@@ -172,6 +172,9 @@ namespace UrbanAirship
         bool IsQuietTimeEnabled();
         void SetQuietTime(QuietTime quietTime);
         QuietTime? GetQuietTime();
+
+        AuthorizedNotificationSetting[] GetAuthorizedNotificationSettings();
+        AuthorizedNotificationStatus GetAuthroizedNotificationStatus();
     }
 
     internal class StubbedAirshipPushIOS : IAirshipPushIOS {
@@ -185,9 +188,8 @@ namespace UrbanAirship
         public bool IsQuietTimeEnabled() { return false; }
         public void SetQuietTime(QuietTime quietTime) {}
         public QuietTime? GetQuietTime() { return null; }
-        // TODO: Add these methods and figure out how to set the AuthorizedNotificationSettings and AuthorizedNotificationStatus
-        // public String[] GetAuthorizedNotificationSettings() { return []; }
-        // public String GetAuthroizedNotificationStatus() { return "" }
+        public String[] GetAuthorizedNotificationSettings() { return []; }
+        public String GetAuthroizedNotificationStatus() { return "" }
     }
 
     /// <summary>
@@ -300,7 +302,15 @@ namespace UrbanAirship
             return plugin.Call<QuietTime?>("getQuietTime");
         }
 
-        // TODO Just noticed I forgot some methods, I need to add that
+        public AuthorizedNotificationSetting[] GetAuthorizedNotificationSettings()
+        {
+            return plugin.Call<AuthorizedNotificationSetting[]>("getAuthorizedNotificationSettings");
+        }
+
+        public AuthorizedNotificationStatus GetAuthroizedNotificationStatus()
+        {
+            return plugin.Call<AuthorizedNotificationStatus>("getAuthroizedNotificationStatus");
+        }
     }
 
     public interface IAirshipPushAndroid {
@@ -550,6 +560,29 @@ namespace UrbanAirship
         // Time sensitive.
         [AirshipEnumStringValue("time_sensitive")]
         TimeSensitive,
+    }
+
+    /// <summary>
+    /// Enum of authorized notification status.
+    /// </summary>
+    [Serializable]
+    public enum AuthorizedNotificationStatus
+    {
+        // Not determined.
+        [AirshipEnumStringValue("not_determined")]
+        NotDetermined,
+        // Denied.
+        [AirshipEnumStringValue("denied")]
+        Denied,
+        // Authorized.
+        [AirshipEnumStringValue("authorized")]
+        Authorized,
+        // Provisional.
+        [AirshipEnumStringValue("provisional")]
+        Provisional,
+        // Ephemeral.
+        [AirshipEnumStringValue("ephemeral")]
+        Ephemeral,
     }
 
 }

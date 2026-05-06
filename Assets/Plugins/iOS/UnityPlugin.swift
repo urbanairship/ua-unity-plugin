@@ -468,6 +468,12 @@ class UnityPlugin: NSObject {
             case "getQuietTime":
                 return .handledSync(try AirshipProxy.shared.push.getQuietTime())
 
+            case "getAuthorizedNotificationSettings":
+                return .handledSync(try AirshipProxy.shared.push.getAuthorizedNotificationSettings())
+
+            case "getAuthorizedNotificationStatus":
+                return .handledSync(try AirshipProxy.shared.push.getAuthroizedNotificationStatus())
+
             case "trackInteraction":
                 try AirshipProxy.shared.featureFlagManager.trackInteraction(
                     flag: try AirshipJSON.wrap(requireParsedAnyArg(args.first)).decode()
