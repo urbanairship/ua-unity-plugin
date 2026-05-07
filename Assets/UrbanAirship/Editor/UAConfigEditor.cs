@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 using UnityEditor;
 using UnityEngine;
 
-namespace UrbanAirship.Editor {
+namespace AirshipSDK.Editor {
     [InitializeOnLoad]
     public class UAConfigEditor : EditorWindow {
         private UAConfig config;

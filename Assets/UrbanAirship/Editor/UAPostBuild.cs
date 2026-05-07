@@ -12,7 +12,7 @@ using UnityEngine;
 using UnityEditor.iOS.Xcode;
 #endif
 
-namespace UrbanAirship.Editor {
+namespace AirshipSDK.Editor {
 
     public class UAPostBuild {
 

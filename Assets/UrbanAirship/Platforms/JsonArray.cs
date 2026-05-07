@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace UrbanAirship {
+namespace AirshipSDK {
     [System.Serializable]
     class JsonArray<T> {
         public T[] values = null;

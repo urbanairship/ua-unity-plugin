@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UrbanAirship {
+namespace AirshipSDK {
     /// <summary>
     /// A push message model object.
     /// </summary>

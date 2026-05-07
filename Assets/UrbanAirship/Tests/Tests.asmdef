@@ -1,7 +1,7 @@
 {
     "name": "Unit Tests",
     "references": [
-        "UrbanAirship"
+        "AirshipSDK"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

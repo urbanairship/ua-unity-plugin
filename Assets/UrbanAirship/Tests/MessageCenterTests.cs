@@ -4,7 +4,7 @@ using NUnit.Framework;
 using NSubstitute;
 using UnityEngine;
 using UnityEngine.TestTools;
-using UrbanAirship;
+using AirshipSDK;
 
 namespace Tests
 {

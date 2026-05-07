@@ -5,7 +5,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace UrbanAirship.Editor {
+namespace AirshipSDK.Editor {
     [InitializeOnLoad]
     public class UAUpdater {
 

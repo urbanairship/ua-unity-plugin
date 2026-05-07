@@ -7,7 +7,7 @@ using System.Text;
 using System.Linq;
 using UnityEngine;
 
-namespace UrbanAirship {
+namespace AirshipSDK {
 
     /// <summary>
     /// Airship feature flag manager.

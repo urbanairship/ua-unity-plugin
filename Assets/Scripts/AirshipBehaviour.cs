@@ -4,9 +4,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UrbanAirship;
+using AirshipSDK;
 
-public class UrbanAirshipBehaviour : MonoBehaviour {
+public class AirshipBehaviour : MonoBehaviour {
 
     void Awake () {
         Debug.Log("Taking off");

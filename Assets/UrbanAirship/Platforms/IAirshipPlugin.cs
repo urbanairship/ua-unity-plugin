@@ -7,7 +7,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace UrbanAirship {
+namespace AirshipSDK {
 
     internal interface IAirshipPlugin {
 

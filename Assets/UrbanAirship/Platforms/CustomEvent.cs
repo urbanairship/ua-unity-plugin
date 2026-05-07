@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Linq;
 using UnityEngine;
 
-namespace UrbanAirship {
+namespace AirshipSDK {
     /// <summary>
     /// A Custom Event model object.
     /// </summary>

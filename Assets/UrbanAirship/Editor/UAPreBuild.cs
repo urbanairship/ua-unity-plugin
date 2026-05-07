@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEditor.Build.Reporting;
 #endif
 
-namespace UrbanAirship.Editor {
+namespace AirshipSDK.Editor {
 
 #if UNITY_2018_1_OR_NEWER
     public class UAPreBuild : IPreprocessBuildWithReport {

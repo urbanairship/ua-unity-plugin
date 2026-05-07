@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UrbanAirship
+namespace AirshipSDK
 {
 
     public class Airship

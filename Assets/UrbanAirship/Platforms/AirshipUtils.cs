@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace UrbanAirship
+namespace AirshipSDK
 {
     /// <summary>
     /// Utility class for Airship serialization and helper methods.

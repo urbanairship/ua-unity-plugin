@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 using UnityEditor;
 using UnityEngine;
 
-namespace UrbanAirship.Editor {
+namespace AirshipSDK.Editor {
     public class UAMenu {
         [MenuItem ("Window/Urban Airship/Settings", false, 1)]
         public static void Settings () {

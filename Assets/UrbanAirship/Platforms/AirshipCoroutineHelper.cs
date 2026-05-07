@@ -5,7 +5,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace UrbanAirship {
+namespace AirshipSDK {
 
     /// <summary>
     /// Helper class to run blocking operations asynchronously without blocking Unity's main thread.

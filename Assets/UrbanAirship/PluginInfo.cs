@@ -1,6 +1,6 @@
 /* Copyright Airship and Contributors */
 
-namespace UrbanAirship {
+namespace AirshipSDK {
     /// <summary>
     /// Urban Airship Unity plugin info.
     /// </summary>

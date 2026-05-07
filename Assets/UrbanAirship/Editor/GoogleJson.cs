@@ -8,7 +8,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using UnityEngine;
 
-namespace UrbanAirship.Editor {
+namespace AirshipSDK.Editor {
 
     public class GoogleJson {
 
