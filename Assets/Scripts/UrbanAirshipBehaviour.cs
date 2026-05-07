@@ -99,7 +99,9 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Airship.Shared.channel.EditSubscriptionLists().Subscribe("unity_subscription_list_to_remove").Apply();
         StartCoroutine(Airship.Shared.channel.GetSubscriptionLists(
             onComplete: (subscriptionLists) => {
-                Debug.Log("Channel Subscription lists: " + string.Join(", ", subscriptionLists));
+                if (subscriptionLists != null) {
+                    Debug.Log("Channel Subscription lists: " + string.Join(", ", subscriptionLists));
+                }
             },
             onError: (error) => {
                 Debug.LogError("Error getting channel subscription lists: " + error.Message);
@@ -156,9 +158,11 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Airship.Shared.contact.EditSubscriptionLists().Unsubscribe("unity_subscription_list_to_remove", SubscriptionScope.APP).Apply();
         StartCoroutine(Airship.Shared.contact.GetSubscriptionLists(
             onComplete: (subscriptionLists) => {
-                Debug.Log("Contact Subscription lists:");
-                foreach (var subscription in subscriptionLists) {
-                    Debug.Log($"List: {subscription.Key}, Scopes: {string.Join(", ", subscription.Value)}");
+                if (subscriptionLists != null) {
+                    Debug.Log("Contact Subscription lists:");
+                    foreach (var subscription in subscriptionLists) {
+                        Debug.Log($"List: {subscription.Key}, Scopes: {string.Join(", ", subscription.Value)}");
+                    }
                 }
             },
             onError: (error) => {
@@ -302,6 +306,17 @@ public class UrbanAirshipBehaviour : MonoBehaviour {
         Debug.Log("Quiet time enabled: " + Airship.Shared.push.iOS.IsQuietTimeEnabled());
         Airship.Shared.push.iOS.SetQuietTimeEnabled(false);
         Debug.Log("Quiet time enabled: " + Airship.Shared.push.iOS.IsQuietTimeEnabled());
+        Airship.Shared.push.iOS.SetQuietTimeEnabled(true);
+        Airship.Shared.push.iOS.SetQuietTime(new QuietTime() {
+            startHour = 10,
+            startMinute = 0,
+            endHour = 18,
+            endMinute = 0,
+        });
+        Debug.Log("Quiet time: " + Airship.Shared.push.iOS.GetQuietTime());
+
+        Debug.Log("Authorized notification settings: " + string.Join(", ", Airship.Shared.push.iOS.GetAuthorizedNotificationSettings()));
+        Debug.Log("Authorized notification status: " + Airship.Shared.push.iOS.GetAuthorizedNotificationStatus());
 
 
         StartCoroutine(Airship.Shared.actions.RunAction("test_action", "test_value",

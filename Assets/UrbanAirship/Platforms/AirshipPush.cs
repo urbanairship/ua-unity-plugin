@@ -174,7 +174,7 @@ namespace UrbanAirship
         QuietTime? GetQuietTime();
 
         AuthorizedNotificationSetting[] GetAuthorizedNotificationSettings();
-        AuthorizedNotificationStatus GetAuthroizedNotificationStatus();
+        AuthorizedNotificationStatus GetAuthorizedNotificationStatus();
     }
 
     internal class StubbedAirshipPushIOS : IAirshipPushIOS {
@@ -188,8 +188,8 @@ namespace UrbanAirship
         public bool IsQuietTimeEnabled() { return false; }
         public void SetQuietTime(QuietTime quietTime) {}
         public QuietTime? GetQuietTime() { return null; }
-        public String[] GetAuthorizedNotificationSettings() { return []; }
-        public String GetAuthroizedNotificationStatus() { return "" }
+        public AuthorizedNotificationSetting[] GetAuthorizedNotificationSettings() { return new AuthorizedNotificationSetting[0]; }
+        public AuthorizedNotificationStatus GetAuthorizedNotificationStatus() { return AuthorizedNotificationStatus.NotDetermined; }
     }
 
     /// <summary>
@@ -307,9 +307,9 @@ namespace UrbanAirship
             return plugin.Call<AuthorizedNotificationSetting[]>("getAuthorizedNotificationSettings");
         }
 
-        public AuthorizedNotificationStatus GetAuthroizedNotificationStatus()
+        public AuthorizedNotificationStatus GetAuthorizedNotificationStatus()
         {
-            return plugin.Call<AuthorizedNotificationStatus>("getAuthroizedNotificationStatus");
+            return plugin.Call<AuthorizedNotificationStatus>("getAuthorizedNotificationStatus");
         }
     }
 

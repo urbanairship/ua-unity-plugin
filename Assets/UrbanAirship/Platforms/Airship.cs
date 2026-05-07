@@ -322,7 +322,7 @@ namespace UrbanAirship
 
                 if (handler != null)
                 {
-                    AuthorizedNotificationSetting[] authorizedSettingsArray = JsonUtility.FromJson<AuthorizedNotificationSetting[]>(authorizedSettings);
+                    AuthorizedNotificationSetting[] authorizedSettingsArray = AirshipUtils.Deserialize<AuthorizedNotificationSetting[]>(authorizedSettings);
                     if (authorizedSettingsArray != null)
                     {
                         handler(authorizedSettingsArray);

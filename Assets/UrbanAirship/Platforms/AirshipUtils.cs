@@ -161,6 +161,23 @@ namespace UrbanAirship
         }
 
         /// <summary>
+        /// Parses a string value into an enum by matching [AirshipEnumStringValue] attributes.
+        /// Falls back to Enum.Parse if no attribute match is found.
+        /// </summary>
+        private static object ParseEnumFromStringValue(Type enumType, string stringValue)
+        {
+            foreach (FieldInfo field in enumType.GetFields(BindingFlags.Public | BindingFlags.Static))
+            {
+                AirshipEnumStringValueAttribute attr = field.GetCustomAttribute<AirshipEnumStringValueAttribute>();
+                if (attr != null && attr.StringValue == stringValue)
+                {
+                    return field.GetValue(null);
+                }
+            }
+            return Enum.Parse(enumType, stringValue, true);
+        }
+
+        /// <summary>
         /// Escapes special characters in JSON strings.
         /// </summary>
         /// <param name="str">The string to escape.</param>
@@ -207,10 +224,32 @@ namespace UrbanAirship
                     return (T)(object)json.Substring(1, json.Length - 2);
                 return (T)(object)json;
             }
+            // Enums with [AirshipEnumStringValue] — parse from string value
+            if (actualType.IsEnum)
+            {
+                string enumStr = json;
+                if (enumStr.StartsWith("\"") && enumStr.EndsWith("\""))
+                    enumStr = enumStr.Substring(1, enumStr.Length - 2);
+                return (T)(object)ParseEnumFromStringValue(actualType, enumStr);
+            }
             // string[] — top-level JSON array of strings like ["a","b"]
             if (actualType == typeof(string[]))
             {
                 return (T)(object)JsonArray<string>.FromJson(json).values;
+            }
+            // Enum arrays — parse JSON array of strings into enum values
+            if (actualType.IsArray && actualType.GetElementType().IsEnum)
+            {
+                Type elementType = actualType.GetElementType();
+                string[] stringValues = JsonArray<string>.FromJson(json).values;
+                if (stringValues == null)
+                    return (T)(object)Array.CreateInstance(elementType, 0);
+                Array enumArray = Array.CreateInstance(elementType, stringValues.Length);
+                for (int i = 0; i < stringValues.Length; i++)
+                {
+                    enumArray.SetValue(ParseEnumFromStringValue(elementType, stringValues[i]), i);
+                }
+                return (T)(object)enumArray;
             }
             // For other arrays of serializable objects, use the JsonArray wrapper
             if (actualType.IsArray)
@@ -223,7 +262,7 @@ namespace UrbanAirship
                 return (T)valuesField.GetValue(wrapper);
             }
 
-            // Let's check if I can fix QuietTime? result differently
+            // TODO Let's check if I can fix QuietTime? result differently
             // if (underlyingType != null)
             // {
             //     var method = typeof(JsonUtility).GetMethod("FromJson", new[] { typeof(string) })

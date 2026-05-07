@@ -762,7 +762,7 @@ class UnityPlugin: NSObject {
         
         if let listener = self.listener {
             callUnitySendMessage(objectName: listener,
-                                 methodName: "OnAuthorizedNotificationSettingsChanged",
+                                 methodName: "OnAuthorizedSettingsChanged",
                                  message: convertToJson(authorizedSettings)
             )
         }
