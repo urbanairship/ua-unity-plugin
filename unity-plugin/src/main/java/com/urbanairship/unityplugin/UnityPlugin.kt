@@ -115,29 +115,18 @@ class UnityPlugin {
 
     fun editTags(payload: String) {
         ProxyLogger.debug("UnityPlugin editTags method call with: $payload")
-        try {
-            airshipProxyInstance.channel.editTags(JsonValue.parseString(payload).optMap().opt("values"))
-        } catch (e: JsonException) {
-            ProxyLogger.error("Failed to parse payload", e)
-        }
+        airshipProxyInstance.channel.editTags(JsonValue.parseString(payload).optMap().opt("values"))
+
     }
 
     fun editChannelTagGroups(payload: String) {
         ProxyLogger.debug("UnityPlugin editChannelTagGroups method call with: $payload")
-        try {
-            airshipProxyInstance.channel.editTagGroups(JsonValue.parseString(payload).optMap().opt("values"))
-        } catch (e: JsonException) {
-            ProxyLogger.error("Failed to parse payload", e)
-        }
+        airshipProxyInstance.channel.editTagGroups(JsonValue.parseString(payload).optMap().opt("values"))
     }
 
     fun editChannelAttributes(payload: String) {
         ProxyLogger.debug("UnityPlugin editChannelAttributes method call with: $payload")
-        try {
-            airshipProxyInstance.channel.editAttributes(JsonValue.parseString(payload).optMap().opt("values"))
-        } catch (e: JsonException) {
-            ProxyLogger.error("Failed to parse payload", e)
-        }
+        airshipProxyInstance.channel.editAttributes(JsonValue.parseString(payload))
     }
 
     fun getChannelSubscriptionLists(): String {
@@ -153,11 +142,7 @@ class UnityPlugin {
 
     fun editChannelSubscriptionLists(payload: String) {
         ProxyLogger.debug("UnityPlugin editChannelSubscriptionLists method call with: $payload")
-        try {
-            airshipProxyInstance.channel.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
-        } catch (e: JsonException) {
-            ProxyLogger.error("Failed to parse payload", e)
-        }
+        airshipProxyInstance.channel.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
     }
 
     // Contact
@@ -184,20 +169,12 @@ class UnityPlugin {
 
     fun editContactTagGroups(payload: String) {
         ProxyLogger.debug("UnityPlugin editContactTagGroups method call with: $payload")
-        try {
-            airshipProxyInstance.contact.editTagGroups(JsonValue.parseString(payload).optMap().opt("values"))
-        } catch (e: JsonException) {
-            ProxyLogger.error("Failed to parse payload", e)
-        }
+        airshipProxyInstance.contact.editTagGroups(JsonValue.parseString(payload).optMap().opt("values"))
     }
 
     fun editContactAttributes(payload: String) {
         ProxyLogger.debug("UnityPlugin editContactAttributes method call with: $payload")
-        try {
-            airshipProxyInstance.contact.editAttributes(JsonValue.parseString(payload).optMap().opt("values"))
-        } catch (e: JsonException) {
-            ProxyLogger.error("Failed to parse payload", e)
-        }
+        airshipProxyInstance.contact.editAttributes(JsonValue.parseString(payload))
     }
 
     fun getContactSubscriptionLists(): String {
@@ -220,11 +197,7 @@ class UnityPlugin {
 
     fun editContactSubscriptionLists(payload: String) {
         ProxyLogger.debug("UnityPlugin editContactSubscriptionLists method call with: $payload")
-        try {
-            airshipProxyInstance.contact.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
-        } catch (e: JsonException) {
-            ProxyLogger.error("Failed to parse payload", e)
-        }
+        airshipProxyInstance.contact.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
     }
 
     // Analytics
@@ -245,11 +218,7 @@ class UnityPlugin {
 
     fun addCustomEvent(eventPayload: String) {
         ProxyLogger.debug("UnityPlugin addCustomEvent method call with: $eventPayload")
-        try {
-            airshipProxyInstance.analytics.addEvent(JsonValue.parseString(eventPayload))
-        } catch (e: JsonException) {
-            ProxyLogger.error("Failed to parse event payload", e)
-        }
+        airshipProxyInstance.analytics.addEvent(JsonValue.parseString(eventPayload))
     }
 
     fun getSessionId(): String {

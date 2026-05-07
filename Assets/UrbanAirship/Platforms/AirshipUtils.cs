@@ -262,14 +262,6 @@ namespace UrbanAirship
                 return (T)valuesField.GetValue(wrapper);
             }
 
-            // TODO Let's check if I can fix QuietTime? result differently
-            // if (underlyingType != null)
-            // {
-            //     var method = typeof(JsonUtility).GetMethod("FromJson", new[] { typeof(string) })
-            //         .MakeGenericMethod(underlyingType);
-            //     return (T)method.Invoke(null, new object[] { json });
-            // }
-
             // Serializable objects — unwrap nullable and use JsonUtility
             return JsonUtility.FromJson<T>(json);
         }
