@@ -2,23 +2,18 @@
 
 namespace AirshipSDK {
     /// <summary>
-    /// Urban Airship Unity plugin info.
+    /// Airship Unity plugin info.
     /// </summary>
     public class PluginInfo {
         /// <summary>
-        /// The Urban Airship Unity plugin version
+        /// The Airship Unity plugin version
         /// </summary>
         public const string Version = "__PLUGIN_VERSION__";
 
         /// <summary>
-        /// The Urban Airship iOS version
+        /// The Airship Framework Proxy version
         /// </summary>
-        public const string IOSAirshipVersion = "__IOS_AIRSHIP_VERSION__";
-
-        /// <summary>
-        /// The Urban Airship Android version
-        /// </summary>
-        public const string AndroidAirshipVersion = "__ANDROID_AIRSHIP_VERSION__";
+        public const string AirshipFrameworkProxyVersion = "__AIRSHIP_FRAMEWORK_PROXY_VERSION__";
 
         /// <summary>
         /// The API documents URL.

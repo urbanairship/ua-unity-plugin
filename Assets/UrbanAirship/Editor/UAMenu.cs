@@ -29,7 +29,7 @@ namespace AirshipSDK.Editor {
         [MenuItem ("Window/Urban Airship/About")]
         public static void About () {
             EditorUtility.DisplayDialog (
-                "Urban Airship",
+                "Airship",
                 "Unity plugin version " + PluginInfo.Version,
                 "Ok");
         }

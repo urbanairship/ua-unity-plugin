@@ -21,7 +21,7 @@ class UnityAutopilot : BaseAutopilot() {
     override fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder {
         val resourceId = context.resources.getIdentifier("airship_config", "xml", context.packageName)
         if (resourceId <= 0) {
-            ProxyLogger.error("airship_config.xml not found. Make sure Urban Airship is configured Window => Urban Airship => Settings.")
+            ProxyLogger.error("airship_config.xml not found. Make sure Airship is configured Window => Urban Airship => Settings.")
             return super.createConfigBuilder(context)
         }
 

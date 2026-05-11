@@ -26,7 +26,7 @@ namespace AirshipSDK.Editor {
             }
 #endif
 
-            UnityEngine.Debug.Log ("Finished Urban Airship post build steps.");
+            UnityEngine.Debug.Log ("Finished Airship post build steps.");
         }
 
 #if UNITY_IOS
@@ -73,7 +73,7 @@ namespace AirshipSDK.Editor {
 
             PlistElementDict rootDict = plist.root;
             rootDict.CreateArray ("UIBackgroundModes").AddString ("remote-notification");
-            rootDict.SetString ("UAUnityPluginVersion", UrbanAirship.PluginInfo.Version);
+            rootDict.SetString ("UAUnityPluginVersion", PluginInfo.Version);
             File.WriteAllText (plistPath, plist.WriteToString ());
         }
 

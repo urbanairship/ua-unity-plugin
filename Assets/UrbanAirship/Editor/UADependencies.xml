@@ -8,7 +8,7 @@
       <repository>https://repo.maven.apache.org/maven2</repository>
     </repositories>
 
-    <!-- Urban Airship Framework Proxy -->
+    <!-- Airship Framework Proxy -->
     <androidPackage spec="com.urbanairship.android:airship-framework-proxy:__AIRSHIP_FRAMEWORK_PROXY_VERSION__"/>
 
   </androidPackages>

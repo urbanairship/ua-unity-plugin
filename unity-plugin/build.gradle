@@ -7,7 +7,7 @@ plugins {
 
 group = 'com.urbanairship.unitysupport'
 version = airshipProperties.version
-description = "Urban Airship Android Unity Plugin"
+description = "Airship Android Unity Plugin"
 
 
 android {

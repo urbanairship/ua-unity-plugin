@@ -89,7 +89,7 @@ namespace AirshipSDK.Editor {
                 try {
                     config.Validate ();
 
-                    UnityEngine.Debug.Log ("Saving Urban Airship config.");
+                    UnityEngine.Debug.Log ("Saving Airship config.");
 
                     if (config.IsConfigured) {
                         config.Apply ();
@@ -99,7 +99,7 @@ namespace AirshipSDK.Editor {
                     AssetDatabase.Refresh ();
                     Close ();
                 } catch (Exception e) {
-                    EditorUtility.DisplayDialog ("Urban Airship", "Unable to save config. Error: " + e.Message, "Ok");
+                    EditorUtility.DisplayDialog ("Airship", "Unable to save config. Error: " + e.Message, "Ok");
                 }
             }
 
