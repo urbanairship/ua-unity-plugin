@@ -646,7 +646,7 @@ class UnityPlugin: NSObject {
                            let status: NotificationStatus = try? AirshipJSON.wrap(statusRaw).decode() {
                             notificationStatusChanged(status)
                         }
-                    case .pendingEmbeddedUpdated, .liveActivitiesUpdated:
+                    case .pendingEmbeddedUpdated, .liveActivitiesUpdated, .overridePresentationOptions:
                         break
                     }
                 }

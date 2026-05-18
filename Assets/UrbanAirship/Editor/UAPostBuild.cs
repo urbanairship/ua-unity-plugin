@@ -64,6 +64,11 @@ namespace AirshipSDK.Editor {
             // so the Swift compiler finds the module.modulemap file.
             UpdateHeaderSearchPaths(buildPath, proj);
 
+            // Add a script phase to copy SPM resource bundles into the app bundle.
+            // SPM static libraries produce resource bundles (e.g. Airship_AirshipCore.bundle)
+            // that need to be inside the .app for Bundle.module to find them at runtime.
+            AddCopySPMResourceBundlesPhase(proj);
+
             File.WriteAllText (projectPath, proj.WriteToString ());
         }
 
@@ -99,6 +104,41 @@ namespace AirshipSDK.Editor {
                 // Ensure existing paths are inherited
                 proj.AddBuildProperty(target, "HEADER_SEARCH_PATHS", "$(inherited)");
             }
+        }
+
+        private static void AddCopySPMResourceBundlesPhase (PBXProject proj) {
+#if UNITY_2019_3_OR_NEWER
+            string mainTargetGuid = proj.GetUnityMainTargetGuid ();
+#else
+            string mainTargetGuid = proj.TargetGuidByName (PBXProject.GetUnityTargetName ());
+#endif
+
+            string shellScript =
+                "# Copy Airship SPM resource bundles into the app bundle so Bundle.module can find them.\n" +
+                "DEST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app\"\n" +
+                "FOUND=0\n" +
+                "# Check the build products directory (standard SPM static library location)\n" +
+                "for BUNDLE in \"${BUILT_PRODUCTS_DIR}\"/Airship_*.bundle; do\n" +
+                "  [ -d \"$BUNDLE\" ] || continue\n" +
+                "  echo \"Copying SPM resource bundle: $(basename \"$BUNDLE\") from BUILT_PRODUCTS_DIR\"\n" +
+                "  cp -R \"$BUNDLE\" \"$DEST/\"\n" +
+                "  FOUND=1\n" +
+                "done\n" +
+                "# Fallback: check inside UnityFramework.framework\n" +
+                "if [ \"$FOUND\" = \"0\" ] && [ -d \"${BUILT_PRODUCTS_DIR}/UnityFramework.framework\" ]; then\n" +
+                "  for BUNDLE in \"${BUILT_PRODUCTS_DIR}/UnityFramework.framework\"/Airship_*.bundle; do\n" +
+                "    [ -d \"$BUNDLE\" ] || continue\n" +
+                "    echo \"Copying SPM resource bundle: $(basename \"$BUNDLE\") from UnityFramework.framework\"\n" +
+                "    cp -R \"$BUNDLE\" \"$DEST/\"\n" +
+                "  done\n" +
+                "fi\n";
+
+            proj.AddShellScriptBuildPhase (
+                mainTargetGuid,
+                "Copy Airship SPM Resource Bundles",
+                "/bin/sh",
+                shellScript
+            );
         }
 
         private static void CopyModuleMap (string buildPath, PBXProject proj) {

@@ -1,29 +1,20 @@
 /* Copyright Airship and Contributors */
 package com.urbanairship.unityplugin
 
-import android.R.id.message
 import android.os.Build
-import android.os.Bundle
 import androidx.annotation.RequiresApi
 import com.unity3d.player.UnityPlayer
 import com.urbanairship.Autopilot
-import com.urbanairship.PrivacyManager
-import com.urbanairship.android.framework.proxy.EventType
+import com.urbanairship.UALog
 import com.urbanairship.android.framework.proxy.MessageCenterMessage
-import com.urbanairship.android.framework.proxy.ProxyLogger
 import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.android.framework.proxy.events.EventType
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
-import com.urbanairship.android.framework.proxy.NotificationStatus
-import com.urbanairship.json.JsonException
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.json.optionalField
-import com.urbanairship.json.requireMap
-import com.urbanairship.messagecenter.MessageCenter
-import com.urbanairship.push.PushMessage
-import com.urbanairship.util.UAStringUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -66,7 +57,7 @@ class UnityPlugin {
                     EventType.FOREGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
                     EventType.BACKGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
                     EventType.NOTIFICATION_STATUS_CHANGED -> onNotificationStatusChanged(event.body.optionalField<JsonValue>("status"))
-                    EventType.PENDING_EMBEDDED_UPDATED -> {}
+                    else -> {}
                 }
                 true
             }
@@ -74,38 +65,38 @@ class UnityPlugin {
     }
 
     fun setListener(listener: String) {
-        ProxyLogger.debug("UnityPlugin setListener method call with: $listener")
+        UALog.d { "UnityPlugin setListener method call with: $listener" }
         this.listener = listener
     }
 
     // Airship
 
     fun takeOff(config: String): Boolean {
-        ProxyLogger.debug("UnityPlugin takeOff method call with: $config")
+        UALog.d { "UnityPlugin takeOff method call with: $config" }
         return airshipProxyInstance.takeOff(JsonValue.parseString(config))
     }
 
     fun isFlying(): Boolean {
-        ProxyLogger.debug("UnityPlugin isFlying method call")
+        UALog.d { "UnityPlugin isFlying method call" }
         return airshipProxyInstance.isFlying()
     }
 
     // Channel
     
     fun getChannelId(): String? {
-        ProxyLogger.debug("UnityPlugin getChannelId method call")
+        UALog.d { "UnityPlugin getChannelId method call" }
         return airshipProxyInstance.channel.getChannelId()
     }
 
     fun waitForChannelId(): String {
-        ProxyLogger.debug("UnityPlugin waitForChannelId method call")
+        UALog.d { "UnityPlugin waitForChannelId method call" }
         return runBlocking(Dispatchers.IO) {
             airshipProxyInstance.channel.waitForChannelId()
         }
     }
 
     fun getTags(): String {
-        ProxyLogger.debug("UnityPlugin getTags method call")
+        UALog.d { "UnityPlugin getTags method call" }
         val jsonArray = JSONArray()
         for (tag in airshipProxyInstance.channel.getTags()) {
             jsonArray.put(tag)
@@ -114,23 +105,23 @@ class UnityPlugin {
     }
 
     fun editTags(payload: String) {
-        ProxyLogger.debug("UnityPlugin editTags method call with: $payload")
+        UALog.d { "UnityPlugin editTags method call with: $payload" }
         airshipProxyInstance.channel.editTags(JsonValue.parseString(payload).optMap().opt("values"))
 
     }
 
     fun editChannelTagGroups(payload: String) {
-        ProxyLogger.debug("UnityPlugin editChannelTagGroups method call with: $payload")
+        UALog.d { "UnityPlugin editChannelTagGroups method call with: $payload" }
         airshipProxyInstance.channel.editTagGroups(JsonValue.parseString(payload).optMap().opt("values"))
     }
 
     fun editChannelAttributes(payload: String) {
-        ProxyLogger.debug("UnityPlugin editChannelAttributes method call with: $payload")
+        UALog.d { "UnityPlugin editChannelAttributes method call with: $payload" }
         airshipProxyInstance.channel.editAttributes(JsonValue.parseString(payload))
     }
 
     fun getChannelSubscriptionLists(): String {
-        ProxyLogger.debug("UnityPlugin getChannelSubscriptionLists method call")
+        UALog.d { "UnityPlugin getChannelSubscriptionLists method call" }
         return runBlocking(Dispatchers.IO) {
             val jsonArray = JSONArray()
             for (tag in airshipProxyInstance.channel.getSubscriptionLists()) {
@@ -141,44 +132,44 @@ class UnityPlugin {
     }
 
     fun editChannelSubscriptionLists(payload: String) {
-        ProxyLogger.debug("UnityPlugin editChannelSubscriptionLists method call with: $payload")
+        UALog.d { "UnityPlugin editChannelSubscriptionLists method call with: $payload" }
         airshipProxyInstance.channel.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
     }
 
     // Contact
 
     fun identify(namedUserId: String?) {
-        ProxyLogger.debug("UnityPlugin identify method call with: $namedUserId")
+        UALog.d { "UnityPlugin identify method call with: $namedUserId" }
         airshipProxyInstance.contact.identify(namedUserId)
     }
 
     fun reset() {
-        ProxyLogger.debug("UnityPlugin reset method call")
+        UALog.d { "UnityPlugin reset method call" }
         airshipProxyInstance.contact.reset()
     }
 
     fun getNamedUserId(): String? {
-        ProxyLogger.debug("UnityPlugin getNamedUserId method call")
+        UALog.d { "UnityPlugin getNamedUserId method call" }
         return airshipProxyInstance.contact.getNamedUserId()
     }
 
     fun notifyRemoteLogin() {
-        ProxyLogger.debug("UnityPlugin notifyRemoteLogin method call")
+        UALog.d { "UnityPlugin notifyRemoteLogin method call" }
         airshipProxyInstance.contact.notifyRemoteLogin()
     }
 
     fun editContactTagGroups(payload: String) {
-        ProxyLogger.debug("UnityPlugin editContactTagGroups method call with: $payload")
+        UALog.d { "UnityPlugin editContactTagGroups method call with: $payload" }
         airshipProxyInstance.contact.editTagGroups(JsonValue.parseString(payload).optMap().opt("values"))
     }
 
     fun editContactAttributes(payload: String) {
-        ProxyLogger.debug("UnityPlugin editContactAttributes method call with: $payload")
+        UALog.d { "UnityPlugin editContactAttributes method call with: $payload" }
         airshipProxyInstance.contact.editAttributes(JsonValue.parseString(payload))
     }
 
     fun getContactSubscriptionLists(): String {
-        ProxyLogger.debug("UnityPlugin getContactSubscriptionLists method call")
+        UALog.d { "UnityPlugin getContactSubscriptionLists method call" }
         return runBlocking(Dispatchers.IO) {
             val resultArray = JSONArray()
             airshipProxyInstance.contact.getSubscriptionLists().forEach { subscription ->
@@ -196,7 +187,7 @@ class UnityPlugin {
     }
 
     fun editContactSubscriptionLists(payload: String) {
-        ProxyLogger.debug("UnityPlugin editContactSubscriptionLists method call with: $payload")
+        UALog.d { "UnityPlugin editContactSubscriptionLists method call with: $payload" }
         airshipProxyInstance.contact.editSubscriptionLists(JsonValue.parseString(payload).optMap().opt("values"))
     }
 
@@ -204,185 +195,185 @@ class UnityPlugin {
 
     fun associateIdentifier(key: String, identifier: String?) {
         if (identifier == null) {
-            ProxyLogger.debug("UnityPlugin associateIdentifier method call removed identifier for key: $key")
+            UALog.d { "UnityPlugin associateIdentifier method call removed identifier for key: $key" }
         } else {
-            ProxyLogger.debug("UnityPlugin associateIdentifier method call with identifier: $identifier for key: $key")
+            UALog.d { "UnityPlugin associateIdentifier method call with identifier: $identifier for key: $key" }
         }
         airshipProxyInstance.analytics.associateIdentifier(key, identifier)
     }
 
     fun trackScreen(screenName: String) {
-        ProxyLogger.debug("UnityPlugin trackScreen method call with: $screenName")
+        UALog.d { "UnityPlugin trackScreen method call with: $screenName" }
         airshipProxyInstance.analytics.trackScreen(screenName)
     }
 
     fun addCustomEvent(eventPayload: String) {
-        ProxyLogger.debug("UnityPlugin addCustomEvent method call with: $eventPayload")
+        UALog.d { "UnityPlugin addCustomEvent method call with: $eventPayload" }
         airshipProxyInstance.analytics.addEvent(JsonValue.parseString(eventPayload))
     }
 
     fun getSessionId(): String {
-        ProxyLogger.debug("UnityPlugin getSessionId method call")
+        UALog.d { "UnityPlugin getSessionId method call" }
         return airshipProxyInstance.analytics.getSessionId()
     }
 
     // InApp
 
     fun setPaused(paused: Boolean) {
-        ProxyLogger.debug("UnityPlugin setPaused method call with: $paused")
+        UALog.d { "UnityPlugin setPaused method call with: $paused" }
         airshipProxyInstance.inApp.setPaused(paused)
     }
 
     fun isPaused(): Boolean {
-        ProxyLogger.debug("UnityPlugin isPaused method call")
+        UALog.d { "UnityPlugin isPaused method call" }
         return airshipProxyInstance.inApp.isPaused()
     }
 
     fun setDisplayInterval(displayInterval: Long) {
-        ProxyLogger.debug("UnityPlugin setDisplayInterval method call with: $displayInterval")
+        UALog.d { "UnityPlugin setDisplayInterval method call with: $displayInterval" }
         airshipProxyInstance.inApp.setDisplayInterval(displayInterval)
     }
 
     fun getDisplayInterval(): Long {
-        ProxyLogger.debug("UnityPlugin getDisplayInterval method call")
+        UALog.d { "UnityPlugin getDisplayInterval method call" }
         return airshipProxyInstance.inApp.getDisplayInterval()
     }
 
     // Locale
 
     fun setLocaleOverride(localeIdentifier: String) {
-        ProxyLogger.debug("UnityPlugin setLocaleOverride method call with: $localeIdentifier")
+        UALog.d { "UnityPlugin setLocaleOverride method call with: $localeIdentifier" }
         airshipProxyInstance.locale.setCurrentLocale(localeIdentifier)
     }
 
     fun clearLocaleOverride() {
-        ProxyLogger.debug("UnityPlugin clearLocaleOverride method call")
+        UALog.d { "UnityPlugin clearLocaleOverride method call" }
         airshipProxyInstance.locale.clearLocale()
     }
 
     fun getLocale(): String {
-        ProxyLogger.debug("UnityPlugin getLocale method call")
+        UALog.d { "UnityPlugin getLocale method call" }
         return airshipProxyInstance.locale.getCurrentLocale()
     }
 
     // Message Center
 
     fun getUnreadCount(): Int {
-        ProxyLogger.debug("UnityPlugin getUnreadCount method call")
+        UALog.d { "UnityPlugin getUnreadCount method call" }
         return runBlocking(Dispatchers.IO) {
             airshipProxyInstance.messageCenter.getUnreadMessagesCount()
         }
     }
 
     fun getMessages(): String {
-        ProxyLogger.debug("UnityPlugin getMessages method call")
+        UALog.d { "UnityPlugin getMessages method call" }
         return runBlocking(Dispatchers.IO) {
             getInboxMessagesAsJSON(airshipProxyInstance.messageCenter.getMessages())
         }
     }
 
     fun markMessageRead(messageId: String) {
-        ProxyLogger.debug("UnityPlugin markMessageRead method call with: $messageId")
+        UALog.d { "UnityPlugin markMessageRead method call with: $messageId" }
         airshipProxyInstance.messageCenter.markMessageRead(messageId)
     }
 
     fun deleteMessage(messageId: String) {
-        ProxyLogger.debug("UnityPlugin deleteMessage method call with: $messageId")
+        UALog.d { "UnityPlugin deleteMessage method call with: $messageId" }
         airshipProxyInstance.messageCenter.deleteMessage(messageId)
     }
 
     fun refreshMessages() {
-        ProxyLogger.debug("UnityPlugin refreshMessages method call")
+        UALog.d { "UnityPlugin refreshMessages method call" }
         runBlocking(Dispatchers.IO) {
             airshipProxyInstance.messageCenter.refreshInbox()
         }
     }
 
     fun setAutoLaunchDefaultMessageCenter(enabled: Boolean) {
-        ProxyLogger.debug("UnityPlugin setAutoLaunchDefaultMessageCenter method call with: $enabled")
+        UALog.d { "UnityPlugin setAutoLaunchDefaultMessageCenter method call with: $enabled" }
         airshipProxyInstance.messageCenter.setAutoLaunchDefaultMessageCenter(enabled)
     }
 
     fun displayMessageCenter(messageId: String?) {
-        ProxyLogger.debug("UnityPlugin displayMessageCenter method call with: $messageId")
+        UALog.d { "UnityPlugin displayMessageCenter method call with: $messageId" }
         airshipProxyInstance.messageCenter.display(messageId)
     }
 
     fun dismissMessageCenter() {
-        ProxyLogger.debug("UnityPlugin dismissMessageCenter method call")
+        UALog.d { "UnityPlugin dismissMessageCenter method call" }
         airshipProxyInstance.messageCenter.dismiss()
     }
 
     fun showMessageView(messageId: String) {
-        ProxyLogger.debug("UnityPlugin showMessageView method call with: $messageId")
+        UALog.d { "UnityPlugin showMessageView method call with: $messageId" }
         airshipProxyInstance.messageCenter.showMessageView(messageId)
     }
 
     fun showMessageCenter(messageId: String?) {
-        ProxyLogger.debug("UnityPlugin showMessageCenter method call with: $messageId")
+        UALog.d { "UnityPlugin showMessageCenter method call with: $messageId" }
         airshipProxyInstance.messageCenter.showMessageCenter(messageId)
     }
 
     // Preference Center
 
     fun displayPreferenceCenter(preferenceCenterId: String) {
-        ProxyLogger.debug("UnityPlugin displayPreferenceCenter method call with: $preferenceCenterId")
+        UALog.d { "UnityPlugin displayPreferenceCenter method call with: $preferenceCenterId" }
         airshipProxyInstance.preferenceCenter.displayPreferenceCenter(preferenceCenterId)
     }
 
     fun getPreferenceCenterConfig(preferenceCenterId: String): String {
-        ProxyLogger.debug("UnityPlugin getPreferenceCenterConfig method call with: $preferenceCenterId")
+        UALog.d { "UnityPlugin getPreferenceCenterConfig method call with: $preferenceCenterId" }
         return runBlocking(Dispatchers.IO) {
             JsonValue.wrapOpt(airshipProxyInstance.preferenceCenter.getPreferenceCenterConfig(preferenceCenterId)).toString()
         }
     }
 
     fun setAutoLaunchDefaultPreferenceCenter(preferenceCenterId: String, autoLaunch: Boolean) {
-        ProxyLogger.debug("UnityPlugin setAutoLaunchDefaultPreferenceCenter method call with: $preferenceCenterId, $autoLaunch")
+        UALog.d { "UnityPlugin setAutoLaunchDefaultPreferenceCenter method call with: $preferenceCenterId, $autoLaunch" }
         airshipProxyInstance.preferenceCenter.setAutoLaunchPreferenceCenter(preferenceCenterId, autoLaunch)
     }
 
     // Privacy Manager
 
     fun setEnabledFeatures(features: Array<String>) {
-        ProxyLogger.debug("UnityPlugin setEnabledFeatures method call with: ${features.joinToString()}")
+        UALog.d { "UnityPlugin setEnabledFeatures method call with: ${features.joinToString()}" }
         airshipProxyInstance.privacyManager.setEnabledFeatures(features.asList())
     }
 
     fun getEnabledFeatures(): Array<String> {
-        ProxyLogger.debug("UnityPlugin getEnabledFeatures method call")
+        UALog.d { "UnityPlugin getEnabledFeatures method call" }
         return airshipProxyInstance.privacyManager.getFeatureNames().toTypedArray()
     }
 
     fun enableFeatures(features: Array<String>) {
-        ProxyLogger.debug("UnityPlugin enableFeatures method call with: ${features.joinToString()}")
+        UALog.d { "UnityPlugin enableFeatures method call with: ${features.joinToString()}" }
         airshipProxyInstance.privacyManager.enableFeatures(features.asList())
     }
 
     fun disableFeatures(features: Array<String>) {
-        ProxyLogger.debug("UnityPlugin disableFeatures method call with: ${features.joinToString()}")
+        UALog.d { "UnityPlugin disableFeatures method call with: ${features.joinToString()}" }
         airshipProxyInstance.privacyManager.disableFeatures(features.asList())
     }
 
     fun isFeaturesEnabled(features: Array<String>): Boolean {
-        ProxyLogger.debug("UnityPlugin isFeaturesEnabled method call with: ${features.joinToString()}")
+        UALog.d { "UnityPlugin isFeaturesEnabled method call with: ${features.joinToString()}" }
         return airshipProxyInstance.privacyManager.isFeatureEnabled(features.asList())
     }
 
     // Push
 
     fun isUserNotificationsEnabled(): Boolean {
-        ProxyLogger.debug("UnityPlugin isUserNotificationsEnabled method call")
+        UALog.d { "UnityPlugin isUserNotificationsEnabled method call" }
         return airshipProxyInstance.push.isUserNotificationsEnabled()
     }
 
     fun setUserNotificationsEnabled(enabled: Boolean) {
-        ProxyLogger.debug("UnityPlugin setUserNotificationsEnabled method call with: $enabled")
+        UALog.d { "UnityPlugin setUserNotificationsEnabled method call with: $enabled" }
         airshipProxyInstance.push.setUserNotificationsEnabled(enabled)
     }
 
     fun enableUserNotifications(fallback: String?): Boolean {
-        ProxyLogger.debug("UnityPlugin enableUserNotifications method call with: $fallback")
+        UALog.d { "UnityPlugin enableUserNotifications method call with: $fallback" }
         return runBlocking(Dispatchers.IO) {
             airshipProxyInstance.push.enableUserPushNotifications(
                 EnableUserNotificationsArgs.fromJson(JsonValue.parseString(fallback))
@@ -391,55 +382,55 @@ class UnityPlugin {
     }
 
     fun getNotificationStatus(): String {
-        ProxyLogger.debug("UnityPlugin getNotificationStatus method call")
+        UALog.d { "UnityPlugin getNotificationStatus method call" }
         return runBlocking(Dispatchers.IO) {
             airshipProxyInstance.push.getNotificationStatus().toJsonValue().toString()
         }
     }
 
     fun getPushToken(): String? {
-        ProxyLogger.debug("UnityPlugin getPushToken method call")
+        UALog.d { "UnityPlugin getPushToken method call" }
         return airshipProxyInstance.push.getRegistrationToken()
     }
 
     fun getActiveNotifications(): String {
-        ProxyLogger.debug("UnityPlugin getActiveNotifications method call")
+        UALog.d { "UnityPlugin getActiveNotifications method call" }
         return JsonValue.wrapOpt(airshipProxyInstance.push.getActiveNotifications()).toString()
     }
 
     fun clearNotifications() {
-        ProxyLogger.debug("UnityPlugin clearNotifications method call")
+        UALog.d { "UnityPlugin clearNotifications method call" }
         airshipProxyInstance.push.clearNotifications()
     }
 
     fun clearNotification(identifier: String) {
-        ProxyLogger.debug("UnityPlugin clearNotification method call with: $identifier")
+        UALog.d { "UnityPlugin clearNotification method call with: $identifier" }
         airshipProxyInstance.push.clearNotification(identifier)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     fun isNotificationChannelEnabled(channelId: String): Boolean {
-        ProxyLogger.debug("UnityPlugin isNotificationChannelEnabled method call with: $channelId")
+        UALog.d { "UnityPlugin isNotificationChannelEnabled method call with: $channelId" }
         return airshipProxyInstance.push.isNotificationChannelEnabled(channelId)
     }
 
     fun setNotificationConfig(config: String) {
-        ProxyLogger.debug("UnityPlugin setNotificationConfig method call with: $config")
+        UALog.d { "UnityPlugin setNotificationConfig method call with: $config" }
         airshipProxyInstance.push.setNotificationConfig(JsonValue.parseString(config))
     }
 
     fun setForegroundNotificationsEnabled(enabled: Boolean) {
-        ProxyLogger.debug("UnityPlugin setForegroundNotificationsEnabled method call with: $enabled")
+        UALog.d { "UnityPlugin setForegroundNotificationsEnabled method call with: $enabled" }
         airshipProxyInstance.push.isForegroundNotificationsEnabled = enabled
     }
 
     fun isForegroundNotificationsEnabled(): Boolean {
-        ProxyLogger.debug("UnityPlugin isForegroundNotificationsEnabled method call")
+        UALog.d { "UnityPlugin isForegroundNotificationsEnabled method call" }
         return airshipProxyInstance.push.isForegroundNotificationsEnabled
     }
 
     fun runAction(name: String, value: String?): String {
-        ProxyLogger.debug("UnityPlugin runAction method call with: $name, $value")
+        UALog.d { "UnityPlugin runAction method call with: $name, $value" }
         return runBlocking(Dispatchers.IO) {
             val actionResult = airshipProxyInstance.actions.runAction(name, JsonValue.parseString(value))
             JsonValue.wrapOpt(actionResult).toString()
@@ -447,7 +438,7 @@ class UnityPlugin {
     }
 
     fun flag(name: String): String {
-        ProxyLogger.debug("UnityPlugin flag method call with: $name")
+        UALog.d { "UnityPlugin flag method call with: $name" }
         return runBlocking(Dispatchers.IO) {
             val flagProxy = airshipProxyInstance.featureFlagManager.flag(name)
             val flagJson = flagProxy.toJsonValue().optMap()
@@ -473,14 +464,14 @@ class UnityPlugin {
     }
 
     fun trackInteraction(flag: String) {
-        ProxyLogger.debug("UnityPlugin trackInteraction method call with: $flag")
+        UALog.d { "UnityPlugin trackInteraction method call with: $flag" }
         airshipProxyInstance.featureFlagManager.trackInteraction(FeatureFlagProxy(JsonValue.parseString(flag)))
     }
 
     // TODO finish the implementation (live activity and live update)
 
     fun onPushReceived(message: JsonValue?) {
-        ProxyLogger.debug("UnityPlugin push received: $message")
+        UALog.d { "UnityPlugin push received: $message" }
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnPushReceived", message.toString())
@@ -488,7 +479,7 @@ class UnityPlugin {
     }
 
     fun onPushOpened(message: JsonValue?) {
-        ProxyLogger.debug("UnityPlugin push opened: $message")
+        UALog.d { "UnityPlugin push opened: $message" }
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnPushOpened", message.toString())
@@ -496,7 +487,7 @@ class UnityPlugin {
     }
 
     fun onDeepLinkReceived(deepLink: String?): Boolean {
-        ProxyLogger.debug("UnityPlugin deepLink received: $deepLink")
+        UALog.d { "UnityPlugin deepLink received: $deepLink" }
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnDeepLinkReceived", deepLink)
@@ -506,7 +497,7 @@ class UnityPlugin {
     }
 
     fun onChannelCreated(channelId: String?) {
-        ProxyLogger.debug("UnityPlugin channel created: $channelId")
+        UALog.d { "UnityPlugin channel created: $channelId" }
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnChannelCreated", channelId)
@@ -515,13 +506,13 @@ class UnityPlugin {
 
     fun onShowInbox(messageId: String?) {
         if (messageId == null) {
-            ProxyLogger.debug("UnityPlugin show inbox")
+            UALog.d { "UnityPlugin show inbox" }
 
             if (listener != null) {
                 UnityPlayer.UnitySendMessage(listener, "OnShowInbox", "")
             }
         } else {
-            ProxyLogger.debug("UnityPlugin show inbox message: ", messageId)
+            UALog.d { "UnityPlugin show inbox message: $messageId" }
 
             if (listener != null) {
                 UnityPlayer.UnitySendMessage(listener, "OnShowInbox", messageId)
@@ -530,13 +521,13 @@ class UnityPlugin {
     }
 
     fun onInboxUpdated(messageUnreadCount: Int?, messageCount: Int?) {
-        ProxyLogger.debug("UnityPlugin inboxUpdated (unread = $messageUnreadCount, total = $messageCount)")
+        UALog.d { "UnityPlugin inboxUpdated (unread = $messageUnreadCount, total = $messageCount)" }
 
         if (messageUnreadCount == null) {
-            ProxyLogger.error("UnityPlugin failed to retrieve message unread count")
+            UALog.e { "UnityPlugin failed to retrieve message unread count" }
         }
         if (messageCount == null) {
-            ProxyLogger.error("UnityPlugin failed to retrieve message count")
+            UALog.e { "UnityPlugin failed to retrieve message count" }
         }
 
         val counts: JsonMap = JsonMap.newBuilder()
@@ -550,7 +541,7 @@ class UnityPlugin {
     }
 
     fun onPreferenceCenterDisplay(preferenceCenterId: String?) {
-        ProxyLogger.debug("UnityPlugin preference center display: $preferenceCenterId")
+        UALog.d { "UnityPlugin preference center display: $preferenceCenterId" }
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnPreferenceCenterDisplay", preferenceCenterId)
@@ -558,7 +549,7 @@ class UnityPlugin {
     }
 
     fun onPushTokenReceived(pushToken: String?) {
-        ProxyLogger.debug("UnityPlugin push token received: $pushToken")
+        UALog.d { "UnityPlugin push token received: $pushToken" }
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnPushTokenReceived", pushToken)
@@ -566,52 +557,11 @@ class UnityPlugin {
     }
 
     fun onNotificationStatusChanged(status: JsonValue?) {
-        ProxyLogger.debug("UnityPlugin notification status changed: ${status?.toString()}")
+        UALog.d { "UnityPlugin notification status changed: ${status?.toString()}" }
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnNotificationStatusChanged", status?.toString())
         }
-    }
-
-    // TODO Probably remove that, I don't think we'll need it anymore
-    private fun getPushPayload(message: PushMessage?): String? {
-        if (message == null) {
-            return null
-        }
-
-        val payloadMap: MutableMap<String?, Any?> = HashMap()
-
-        val extras: MutableList<MutableMap<String?, String?>?> = ArrayList()
-
-        for (key in message.getPushBundle().keySet()) {
-            val value: String?
-            if (!UAStringUtil.equals(key, "google.sent_time")) {
-                value = message.getPushBundle().getString(key)
-            } else {
-                continue
-            }
-
-            if (value == null) {
-                continue
-            }
-
-            val extra: MutableMap<String?, String?> = HashMap()
-            extra.put("key", key)
-            extra.put("value", value)
-            extras.add(extra)
-        }
-
-        if (message.alert != null) {
-            payloadMap.put("alert", message.alert)
-        }
-
-        if (message.sendId != null) {
-            payloadMap.put("identifier", message.sendId)
-        }
-
-        payloadMap.put("extras", extras)
-
-        return JsonValue.wrapOpt(payloadMap).toString()
     }
 
     fun getInboxMessagesAsJSON(messageList: List<MessageCenterMessage>): String {
@@ -646,18 +596,6 @@ class UnityPlugin {
 
     companion object {
         private val instance = UnityPlugin()
-
-        private val FEATURE_MAP = mapOf(
-            "FEATURE_NONE" to PrivacyManager.Feature.NONE,
-            "FEATURE_IN_APP_AUTOMATION" to PrivacyManager.Feature.IN_APP_AUTOMATION,
-            "FEATURE_MESSAGE_CENTER" to PrivacyManager.Feature.MESSAGE_CENTER,
-            "FEATURE_PUSH" to PrivacyManager.Feature.PUSH,
-            "FEATURE_ANALYTICS" to PrivacyManager.Feature.ANALYTICS,
-            "FEATURE_TAGS_AND_ATTRIBUTES" to PrivacyManager.Feature.TAGS_AND_ATTRIBUTES,
-            "FEATURE_CONTACTS" to PrivacyManager.Feature.CONTACTS,
-            "FEATURE_FEATURE_FLAGS" to PrivacyManager.Feature.FEATURE_FLAGS,
-            "FEATURE_ALL" to PrivacyManager.Feature.ALL
-        )
 
         @JvmStatic
         fun shared(): UnityPlugin {

@@ -8,8 +8,8 @@ buildscript {
 }
 
 plugins {
-   id 'com.android.library' version '8.4.2' apply false
-   id 'org.jetbrains.kotlin.android' version '1.9.24' apply false
+   id 'com.android.library' version '8.10.0' apply false
+   id 'org.jetbrains.kotlin.android' version '2.2.20' apply false
 }
 
 allprojects {
@@ -79,7 +79,6 @@ task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
             into file("$buildDir/unity-plugin/Assets/")
             include "UrbanAirship/Editor/UADependencies.xml"
             filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
-            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_ANNOTATIONS_VERSION__"), airshipProperties.androidxAnnotationVersion) }
             filter { String line -> line.replaceAll(Pattern.quote("__AIRSHIP_FRAMEWORK_PROXY_VERSION__"), airshipProperties.airshipFrameworkProxyVersion) }
         }
     }

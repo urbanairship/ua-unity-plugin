@@ -3,23 +3,19 @@
 
   <!-- Android -->
   <androidPackages>
-
     <repositories>
       <repository>https://repo.maven.apache.org/maven2</repository>
     </repositories>
 
-    <!-- Airship Framework Proxy -->
     <androidPackage spec="com.urbanairship.android:airship-framework-proxy:__AIRSHIP_FRAMEWORK_PROXY_VERSION__"/>
-
   </androidPackages>
 
-  <!-- iOS -->
 
-  <iosPods>
-
-    <!-- iosPod -->
-    <iosPod name="AirshipFrameworkProxy" version="__AIRSHIP_FRAMEWORK_PROXY_VERSION__" minTargetSdk="15.0" />
-
-  </iosPods>
+  <!-- iOS - Swift Package -->
+  <remoteSwiftPackage url="https://github.com/urbanairship/airship-mobile-framework-proxy.git"
+                      version="__AIRSHIP_FRAMEWORK_PROXY_VERSION__"
+                      upToNextMajor="true">
+    <swiftPackage name="AirshipFrameworkProxy"/>
+  </remoteSwiftPackage>
 
 </dependencies>
