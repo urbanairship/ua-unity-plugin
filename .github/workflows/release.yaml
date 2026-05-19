@@ -28,8 +28,7 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
 
       - name: Build Unity Package
-        run: |
-        ./gradlew build
+        run: ./gradlew build
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
