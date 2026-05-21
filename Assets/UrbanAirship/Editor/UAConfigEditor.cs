@@ -14,9 +14,7 @@ namespace AirshipSDK.Editor {
 
         void OnEnable () {
             config = UAConfig.LoadConfig ();
-            if (config.IsConfigured) {
-                config.Apply ();
-            }
+            config.Apply ();
         }
 
         void OnGUI () {
@@ -91,9 +89,7 @@ namespace AirshipSDK.Editor {
 
                     UnityEngine.Debug.Log ("Saving Airship config.");
 
-                    if (config.IsConfigured) {
-                        config.Apply ();
-                    }
+                    config.Apply ();
                     UAConfig.SaveConfig (config);
 
                     AssetDatabase.Refresh ();

@@ -197,6 +197,7 @@ namespace AirshipSDK.Editor {
 
         public bool Apply () {
             if (!IsConfigured) {
+                CleanUpGeneratedConfigs ();
                 return false;
             }
 
@@ -439,6 +440,18 @@ namespace AirshipSDK.Editor {
 
                 xmlWriter.WriteEndElement ();
                 xmlWriter.WriteEndDocument ();
+            }
+        }
+
+        private void CleanUpGeneratedConfigs () {
+            string androidConfig = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/xml/airship_config.xml";
+            if (File.Exists (androidConfig)) {
+                File.Delete (androidConfig);
+            }
+
+            string iosConfig = "Assets/Plugins/iOS/AirshipConfig.plist";
+            if (File.Exists (iosConfig)) {
+                File.Delete (iosConfig);
             }
         }
 
