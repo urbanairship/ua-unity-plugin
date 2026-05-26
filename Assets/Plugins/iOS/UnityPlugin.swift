@@ -126,16 +126,6 @@ class UnityPlugin: NSObject {
         startEventProcessing()
     }
 
-    // private static let initializeOnce: Void = {
-    //     // Add Notification Observer
-    //     NotificationCenter.default.addObserver(forName: UIApplication.didFinishLaunchingNotification,
-    //                                            object: nil,
-    //                                            queue: nil) { notification in
-    //         // TODO let's see how we handle take off
-    //         // UnityPlugin.performTakeOff(withLaunchOptions: notification.userInfo)
-    //     }
-    // }()
-
     func startEventProcessing() {
         Task { @MainActor in
             for await _ in AirshipProxyEventEmitter.shared.pendingEventAdded {
