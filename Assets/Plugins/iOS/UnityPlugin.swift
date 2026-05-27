@@ -577,6 +577,51 @@ class UnityPlugin: NSObject {
             
                 return .handledAsync(result)
 
+            // Live Activity (iOS only)
+            case "liveActivityList":
+                if #available(iOS 16.1, *) {
+                    let request: LiveActivityRequest.List = try requireCodableStringArg(args.first)
+                    let activities = try await LiveActivityManager.shared.list(request)
+                    return .handledAsync(try activities.map { try AirshipJSON.wrap($0).unWrap() })
+                } else {
+                    throw AirshipErrors.error("Live Activities require iOS 16.1+")
+                }
+
+            case "liveActivityListAll":
+                if #available(iOS 16.1, *) {
+                    let activities = try await LiveActivityManager.shared.listAll()
+                    return .handledAsync(try activities.map { try AirshipJSON.wrap($0).unWrap() })
+                } else {
+                    throw AirshipErrors.error("Live Activities require iOS 16.1+")
+                }
+
+            case "liveActivityStart":
+                if #available(iOS 16.1, *) {
+                    let request: LiveActivityRequest.Start = try requireCodableStringArg(args.first)
+                    let activity = try await LiveActivityManager.shared.start(request)
+                    return .handledAsync(try AirshipJSON.wrap(activity).unWrap())
+                } else {
+                    throw AirshipErrors.error("Live Activities require iOS 16.1+")
+                }
+
+            case "liveActivityUpdate":
+                if #available(iOS 16.1, *) {
+                    let request: LiveActivityRequest.Update = try requireCodableStringArg(args.first)
+                    try await LiveActivityManager.shared.update(request)
+                    return .handledAsync(nil)
+                } else {
+                    throw AirshipErrors.error("Live Activities require iOS 16.1+")
+                }
+
+            case "liveActivityEnd":
+                if #available(iOS 16.1, *) {
+                    let request: LiveActivityRequest.End = try requireCodableStringArg(args.first)
+                    try await LiveActivityManager.shared.end(request)
+                    return .handledAsync(nil)
+                } else {
+                    throw AirshipErrors.error("Live Activities require iOS 16.1+")
+                }
+
             default:
                 return .notHandled
         }
@@ -871,6 +916,18 @@ class UnityPlugin: NSObject {
             return try AirshipJSON.wrap(parsed).decode()
         }
         return try AirshipJSON.wrap(value).decode()
+    }
+
+    private func requireCodableStringArg<T: Decodable>(_ arg: Any? = nil) throws -> T {
+        guard let value = arg else {
+            throw AirshipErrors.error("Missing argument")
+        }
+        guard let stringValue = value as? String,
+              let data = stringValue.data(using: .utf8),
+              let parsed = try? JSONSerialization.jsonObject(with: data) else {
+            throw AirshipErrors.error("Argument must be a JSON string")
+        }
+        return try AirshipJSON.wrap(parsed).decode()
     }
 
     private func requireParsedArgWithValues<T: Decodable>(_ arg: Any?) throws -> T {

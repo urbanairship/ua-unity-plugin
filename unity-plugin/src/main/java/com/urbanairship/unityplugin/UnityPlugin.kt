@@ -12,6 +12,7 @@ import com.urbanairship.android.framework.proxy.events.EventType
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
+import com.urbanairship.android.framework.proxy.proxies.LiveUpdateRequest
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.json.optionalField
@@ -468,7 +469,47 @@ class UnityPlugin {
         airshipProxyInstance.featureFlagManager.trackInteraction(FeatureFlagProxy(JsonValue.parseString(flag)))
     }
 
-    // TODO finish the implementation (live activity and live update)
+    // Live Update (Android only)
+
+    fun liveUpdateList(payload: String): String {
+        UALog.d { "UnityPlugin liveUpdateList method call with: $payload" }
+        return runBlocking(Dispatchers.IO) {
+            val request = LiveUpdateRequest.List.fromJson(JsonValue.parseString(payload))
+            val result = airshipProxyInstance.liveUpdateManager.list(request)
+            JsonValue.wrapOpt(result).toString()
+        }
+    }
+
+    fun liveUpdateListAll(): String {
+        UALog.d { "UnityPlugin liveUpdateListAll method call" }
+        return runBlocking(Dispatchers.IO) {
+            val result = airshipProxyInstance.liveUpdateManager.listAll()
+            JsonValue.wrapOpt(result).toString()
+        }
+    }
+
+    fun liveUpdateStart(payload: String) {
+        UALog.d { "UnityPlugin liveUpdateStart method call with: $payload" }
+        val request = LiveUpdateRequest.Start.fromJson(JsonValue.parseString(payload))
+        airshipProxyInstance.liveUpdateManager.start(request)
+    }
+
+    fun liveUpdateUpdate(payload: String) {
+        UALog.d { "UnityPlugin liveUpdateUpdate method call with: $payload" }
+        val request = LiveUpdateRequest.Update.fromJson(JsonValue.parseString(payload))
+        airshipProxyInstance.liveUpdateManager.update(request)
+    }
+
+    fun liveUpdateEnd(payload: String) {
+        UALog.d { "UnityPlugin liveUpdateEnd method call with: $payload" }
+        val request = LiveUpdateRequest.End.fromJson(JsonValue.parseString(payload))
+        airshipProxyInstance.liveUpdateManager.end(request)
+    }
+
+    fun liveUpdateClearAll() {
+        UALog.d { "UnityPlugin liveUpdateClearAll method call" }
+        airshipProxyInstance.liveUpdateManager.clearAll()
+    }
 
     fun onPushReceived(message: JsonValue?) {
         UALog.d { "UnityPlugin push received: $message" }
