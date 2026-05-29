@@ -3,6 +3,8 @@
 using System;
 using System.Reflection;
 
+#nullable enable annotations
+
 public class AirshipEnumStringValueAttribute : Attribute
 {
     public string StringValue { get; }

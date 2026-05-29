@@ -62,15 +62,31 @@ namespace AirshipSDK {
 
         public void Call (string method, params object[] args) {
             if (androidPlugin != null) {
-                androidPlugin.Call (method, args);
+                androidPlugin.Call (method, SerializeArgs(args));
             }
         }
 
         public T Call<T> (string method, params object[] args) {
             if (androidPlugin != null) {
-                return androidPlugin.Call<T> (method, args);
+                return androidPlugin.Call<T> (method, SerializeArgs(args));
             }
             return default(T);
+        }
+
+        private static object[] SerializeArgs(object[] args) {
+            if (args == null || args.Length == 0) return args;
+            var result = new object[args.Length];
+            for (int i = 0; i < args.Length; i++) {
+                result[i] = SerializeIfNeeded(args[i]);
+            }
+            return result;
+        }
+
+        private static object SerializeIfNeeded(object arg) {
+            if (arg == null) return null;
+            Type type = arg.GetType();
+            if (type.IsPrimitive || arg is string || arg is decimal || arg is AndroidJavaObject) return arg;
+            return AirshipUtils.Serialize(arg);
         }
 
         public GameObject Listener {

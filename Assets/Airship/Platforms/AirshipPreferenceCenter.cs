@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+#nullable enable annotations
+
 namespace AirshipSDK
 {
 
@@ -98,7 +100,7 @@ namespace AirshipSDK
     [Serializable]
     class PreferenceCenterNotificationOptInCondition : PreferenceCenterCondition
     {
-        public readonly PreferenceCenterConditionType type = PreferenceCenterConditionType.notificationOptIn;
+        public new readonly PreferenceCenterConditionType type = PreferenceCenterConditionType.notificationOptIn;
         public PreferenceCenterConditionOptIn whenStatus;
     }
 
@@ -112,8 +114,8 @@ namespace AirshipSDK
     [Serializable]
     public class PreferenceCenterIconDisplay : PreferenceCenterCommonDisplay
     {
-        public string title;
-        public string subtitle;
+        public new string title;
+        public new string subtitle;
         public string icon;
     }
 
@@ -136,19 +138,19 @@ namespace AirshipSDK
     [Serializable]
     public class PreferenceCenterCommonSection : PreferenceCenterSection
     {
-        public readonly PreferenceCenterSectionType type = PreferenceCenterSectionType.CommonSection;
-        public readonly PreferenceCenterCommonDisplay? display;
-        public readonly List<PreferenceCenterItem>? items;
-        public readonly List<PreferenceCenterCondition>? conditions;
+        public new readonly PreferenceCenterSectionType type = PreferenceCenterSectionType.CommonSection;
+        public new readonly PreferenceCenterCommonDisplay? display;
+        public new readonly List<PreferenceCenterItem>? items;
+        public new readonly List<PreferenceCenterCondition>? conditions;
     }
 
     [Serializable]
     public class PreferenceCenterLabeledSectionBreak : PreferenceCenterSection
     {
-        public readonly PreferenceCenterSectionType type = PreferenceCenterSectionType.LabeledSectionBreak;
-        public readonly PreferenceCenterCommonDisplay? display;
-        public readonly List<PreferenceCenterItem>? items = null;
-        public readonly List<PreferenceCenterCondition>? conditions;
+        public new readonly PreferenceCenterSectionType type = PreferenceCenterSectionType.LabeledSectionBreak;
+        public new readonly PreferenceCenterCommonDisplay? display;
+        public new readonly List<PreferenceCenterItem>? items = null;
+        public new readonly List<PreferenceCenterCondition>? conditions;
     }
 
     [Serializable]
@@ -179,27 +181,27 @@ namespace AirshipSDK
     [Serializable]
     public class PreferenceCenterAlertItem : PreferenceCenterItem
     {
-        public readonly PreferenceCenterItemType type = PreferenceCenterItemType.Alert;
-        public readonly PreferenceCenterCommonDisplay display;
-        public readonly List<PreferenceCenterCondition>? conditions;
+        public new readonly PreferenceCenterItemType type = PreferenceCenterItemType.Alert;
+        public new readonly PreferenceCenterCommonDisplay display;
+        public new readonly List<PreferenceCenterCondition>? conditions;
         public readonly PreferenceCenterAlertItemButton? button;
     }
 
     [Serializable]
     public class PreferenceCenterChannelSubscriptionItem : PreferenceCenterItem
     {
-        public readonly PreferenceCenterItemType type = PreferenceCenterItemType.ChannelSubscription;
-        public readonly PreferenceCenterCommonDisplay display;
-        public readonly List<PreferenceCenterCondition>? conditions;
+        public new readonly PreferenceCenterItemType type = PreferenceCenterItemType.ChannelSubscription;
+        public new readonly PreferenceCenterCommonDisplay display;
+        public new readonly List<PreferenceCenterCondition>? conditions;
         public readonly string subscriptionId;
     }
 
     [Serializable]
     public class PreferenceCenterContactSubscriptionItem : PreferenceCenterItem
     {
-        public readonly PreferenceCenterItemType type = PreferenceCenterItemType.ContactSubscription;
-        public readonly PreferenceCenterCommonDisplay display;
-        public readonly List<PreferenceCenterCondition>? conditions;
+        public new readonly PreferenceCenterItemType type = PreferenceCenterItemType.ContactSubscription;
+        public new readonly PreferenceCenterCommonDisplay display;
+        public new readonly List<PreferenceCenterCondition>? conditions;
         public readonly string subscriptionId;
         public readonly List<string> scopes;
     }
@@ -214,9 +216,9 @@ namespace AirshipSDK
     [Serializable]
     public class PreferenceCenterContactSubscriptionGroupItem : PreferenceCenterItem
     {
-        public readonly PreferenceCenterItemType type = PreferenceCenterItemType.ContactSubscriptionGroup;
-        public readonly PreferenceCenterCommonDisplay display;
-        public readonly List<PreferenceCenterCondition>? conditions;
+        public new readonly PreferenceCenterItemType type = PreferenceCenterItemType.ContactSubscriptionGroup;
+        public new readonly PreferenceCenterCommonDisplay display;
+        public new readonly List<PreferenceCenterCondition>? conditions;
         public readonly string subscriptionId;
         public readonly List<PreferenceCenterContactSubscriptionGroupItemComponent> components;
     }

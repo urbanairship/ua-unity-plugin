@@ -29,7 +29,7 @@ namespace AirshipSDK {
         {
             yield return AirshipCoroutineHelper.RunAsync(
                 () => {
-                    string json = plugin.Call<string>("liveUpdateList", AirshipUtils.Serialize(request));
+                    string json = plugin.Call<string>("liveUpdateList", request);
                     return AirshipUtils.Deserialize<LiveUpdate[]>(json);
                 },
                 onComplete,
@@ -61,7 +61,7 @@ namespace AirshipSDK {
         /// <param name="request">The start request.</param>
         public void Start(LiveUpdateStartRequest request)
         {
-            plugin.Call("liveUpdateStart", AirshipUtils.Serialize(request));
+            plugin.Call("liveUpdateStart", request);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace AirshipSDK {
         /// <param name="request">The update request.</param>
         public void Update(LiveUpdateUpdateRequest request)
         {
-            plugin.Call("liveUpdateUpdate", AirshipUtils.Serialize(request));
+            plugin.Call("liveUpdateUpdate", request);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace AirshipSDK {
         /// <param name="request">The end request.</param>
         public void End(LiveUpdateEndRequest request)
         {
-            plugin.Call("liveUpdateEnd", AirshipUtils.Serialize(request));
+            plugin.Call("liveUpdateEnd", request);
         }
 
         /// <summary>

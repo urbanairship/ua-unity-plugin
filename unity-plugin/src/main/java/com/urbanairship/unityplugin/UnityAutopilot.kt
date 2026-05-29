@@ -22,7 +22,7 @@ class UnityAutopilot : BaseAutopilot() {
     override fun createConfigBuilder(context: Context): AirshipConfigOptions.Builder {
         val resourceId = context.resources.getIdentifier("airship_config", "xml", context.packageName)
         if (resourceId <= 0) {
-            UALog.e { "airship_config.xml not found. Make sure you call TakeOff() or you configured Airship in the Unity Editor Window => Urban Airship => Settings." }
+            UALog.e { "airship_config.xml not found. Make sure you call TakeOff() or you configured Airship in the Unity Editor Window => Airship => Settings." }
             return super.createConfigBuilder(context)
         }
 

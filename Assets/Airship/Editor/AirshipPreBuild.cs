@@ -13,7 +13,7 @@ using UnityEditor.Build.Reporting;
 namespace AirshipSDK.Editor {
 
 #if UNITY_2018_1_OR_NEWER
-    public class UAPreBuild : IPreprocessBuildWithReport {
+    public class AirshipPreBuild : IPreprocessBuildWithReport {
         public int callbackOrder { get { return 0; } }
 
         public void OnPreprocessBuild (BuildReport report) {
@@ -21,7 +21,7 @@ namespace AirshipSDK.Editor {
         }
     }
 #else
-    public class UAPreBuild : IPreprocessBuild {
+    public class AirshipPreBuild : IPreprocessBuild {
         public int callbackOrder { get { return 0; } }
 
         public void OnPreprocessBuild (BuildTarget target, string path) {
@@ -33,7 +33,7 @@ namespace AirshipSDK.Editor {
     class GenerateConfig {
         public static void Apply (BuildTarget target) {
             if (target == BuildTarget.iOS || target == BuildTarget.Android) {
-                UAConfig config = UAConfig.LoadConfig ();
+                AirshipConfig config = AirshipConfig.LoadConfig ();
 
                 if (!config.IsConfigured) {
                     UnityEngine.Debug.Log ("Airship editor config is empty. " +
@@ -42,7 +42,7 @@ namespace AirshipSDK.Editor {
                 }
 
                 if (!config.IsValid) {
-                    EditorUtility.DisplayDialog ("Airship", "Airship not configured. Set the app credentials in Window -> Urban Airship -> Settings", "OK");
+                    EditorUtility.DisplayDialog ("Airship", "Airship not configured. Set the app credentials in Window -> Airship -> Settings", "OK");
                     return;
                 }
 

@@ -9,11 +9,11 @@ using UnityEngine;
 
 namespace AirshipSDK.Editor {
     [InitializeOnLoad]
-    public class UAConfigEditor : EditorWindow {
-        private UAConfig config;
+    public class AirshipConfigEditor : EditorWindow {
+        private AirshipConfig config;
 
         void OnEnable () {
-            config = UAConfig.LoadConfig ();
+            config = AirshipConfig.LoadConfig ();
             config.Apply ();
         }
 
@@ -23,18 +23,18 @@ namespace AirshipSDK.Editor {
             CreateSection ("Production", () => {
                 config.ProductionAppKey = EditorGUILayout.TextField ("App Key", config.ProductionAppKey);
                 config.ProductionAppSecret = EditorGUILayout.TextField ("App Secret", config.ProductionAppSecret);
-                config.ProductionLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup ("Log Level", config.ProductionLogLevel);
+                config.ProductionLogLevel = (AirshipConfig.LogLevel) EditorGUILayout.EnumPopup ("Log Level", config.ProductionLogLevel);
             });
 
             CreateSection ("Development", () => {
                 config.DevelopmentAppKey = EditorGUILayout.TextField ("App Key", config.DevelopmentAppKey);
                 config.DevelopmentAppSecret = EditorGUILayout.TextField ("App Secret", config.DevelopmentAppSecret);
-                config.DevelopmentLogLevel = (UAConfig.LogLevel) EditorGUILayout.EnumPopup ("Log Level", config.DevelopmentLogLevel);
+                config.DevelopmentLogLevel = (AirshipConfig.LogLevel) EditorGUILayout.EnumPopup ("Log Level", config.DevelopmentLogLevel);
             });
 
             CreateSection ("Common", () => {
                 config.InProduction = EditorGUILayout.Toggle ("inProduction", config.InProduction);
-                config.Site = (UAConfig.CloudSite) EditorGUILayout.EnumPopup ("Cloud Site", config.Site);
+                config.Site = (AirshipConfig.CloudSite) EditorGUILayout.EnumPopup ("Cloud Site", config.Site);
             });
 
             CreateSection ("URL Allow List", () => {
@@ -56,7 +56,7 @@ namespace AirshipSDK.Editor {
 
                 GUILayout.Label ("Notification icon must be the name of a drawable in the project, e.g., " +
                     "app_icon, ic_dialog_alert. Drawables can be added " +
-                    "in either the Assets/Plugins/Android/urbanairship-resources.androidlib/res/drawable* directory or by " +
+                    "in either the Assets/Plugins/Android/airship-resources.androidlib/res/drawable* directory or by " +
                     "providing a new Android library project.", EditorStyles.wordWrappedMiniLabel);
             });
 
@@ -90,7 +90,7 @@ namespace AirshipSDK.Editor {
                     UnityEngine.Debug.Log ("Saving Airship config.");
 
                     config.Apply ();
-                    UAConfig.SaveConfig (config);
+                    AirshipConfig.SaveConfig (config);
 
                     AssetDatabase.Refresh ();
                     Close ();

@@ -14,7 +14,7 @@ using UnityEditor.iOS.Xcode;
 
 namespace AirshipSDK.Editor {
 
-    public class UAPostBuild {
+    public class AirshipPostBuild {
 
         [PostProcessBuildAttribute (1)]
         public static void OnPostProcessBuild (BuildTarget target, string buildPath) {
@@ -78,7 +78,7 @@ namespace AirshipSDK.Editor {
 
             PlistElementDict rootDict = plist.root;
             rootDict.CreateArray ("UIBackgroundModes").AddString ("remote-notification");
-            rootDict.SetString ("UAUnityPluginVersion", PluginInfo.Version);
+            rootDict.SetString ("AirshipUnityPluginVersion", PluginInfo.Version);
             File.WriteAllText (plistPath, plist.WriteToString ());
         }
 

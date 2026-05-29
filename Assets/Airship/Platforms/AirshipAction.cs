@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+#nullable enable annotations
+
 namespace AirshipSDK {
 
     /// <summary>

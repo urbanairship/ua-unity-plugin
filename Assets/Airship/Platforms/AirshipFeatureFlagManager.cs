@@ -7,6 +7,8 @@ using System.Text;
 using System.Linq;
 using UnityEngine;
 
+#nullable enable annotations
+
 namespace AirshipSDK {
 
     /// <summary>

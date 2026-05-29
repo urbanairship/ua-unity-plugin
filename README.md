@@ -20,9 +20,9 @@ A Unity plugin that integrates the iOS and Android Airship SDK.
 ## Quickstart
 1. [Download](https://github.com/urbanairship/ua-unity-plugin/releases/latest) the latest `unitypackage`
 2. Import Airship `unitypackage`: In Unity, Assets -> Import Package -> Custom Package
-3. Configure Airship: In Unity, Window -> Urban Airship -> Settings
+3. Configure Airship: In Unity, Window -> Airship -> Settings
 
-An example script is provided in 'Scripts/UrbanAirshipBehaviour.cs'. Import into your app's
+An example script is provided in 'Assets/Scripts/AirshipBehaviour.cs'. Import into your app's
 scripts and attach it to a game object in each scene. The script shows a very basic
 integration with Airship.
 

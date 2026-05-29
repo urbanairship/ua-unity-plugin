@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
+#nullable enable annotations
+
 namespace AirshipSDK
 {
     /// <summary>

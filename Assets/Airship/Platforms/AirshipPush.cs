@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+#nullable enable annotations
+
 namespace AirshipSDK
 {
 
@@ -75,8 +77,7 @@ namespace AirshipSDK
         {
             yield return AirshipCoroutineHelper.RunAsync(
                 () => {
-                    string json = AirshipUtils.Serialize(fallback);
-                    return plugin.Call<bool>("enableUserNotifications", json);
+                    return plugin.Call<bool>("enableUserNotifications", fallback);
                 },
                 onComplete,
                 onError
@@ -355,7 +356,7 @@ namespace AirshipSDK
         /// <param name="config">The notification config.</param>
         public void SetNotificationConfig(AndroidNotificationConfig config)
         {
-            plugin.Call("setNotificationConfig", AirshipUtils.Serialize(config));
+            plugin.Call("setNotificationConfig", config);
         }
 
         /// <summary>

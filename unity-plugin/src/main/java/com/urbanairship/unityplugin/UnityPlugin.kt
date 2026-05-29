@@ -325,7 +325,9 @@ class UnityPlugin {
     fun getPreferenceCenterConfig(preferenceCenterId: String): String {
         UALog.d { "UnityPlugin getPreferenceCenterConfig method call with: $preferenceCenterId" }
         return runBlocking(Dispatchers.IO) {
-            JsonValue.wrapOpt(airshipProxyInstance.preferenceCenter.getPreferenceCenterConfig(preferenceCenterId)).toString()
+            val config = airshipProxyInstance.preferenceCenter.getPreferenceCenterConfig(preferenceCenterId)
+                ?: throw IllegalArgumentException("Preference center config not found for ID: $preferenceCenterId")
+            config.toString()
         }
     }
 

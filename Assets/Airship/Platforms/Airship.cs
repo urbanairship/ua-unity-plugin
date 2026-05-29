@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#nullable enable annotations
+
 namespace AirshipSDK
 {
 
@@ -210,8 +212,7 @@ namespace AirshipSDK
         /// <returns>true if airship is ready.</returns>
         public bool TakeOff(AirshipConfig config)
         {
-            string json = AirshipUtils.Serialize(config);
-            return plugin.Call<bool>("takeOff", json);
+            return plugin.Call<bool>("takeOff", config);
         }
 
         /// <summary>

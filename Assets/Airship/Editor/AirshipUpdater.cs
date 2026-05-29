@@ -7,15 +7,21 @@ using UnityEngine;
 
 namespace AirshipSDK.Editor {
     [InitializeOnLoad]
-    public class UAUpdater {
+    public class AirshipUpdater {
 
         private static string[] obsoleteFiles = {
             "Assets/UrbanAirship/Editor/UADependencies.cs",
-            "Assets/Plugins/Android",
-            "Assets/PlayServicesResolver"
+            "Assets/Scripts/UrbanAirshipBehaviour.cs",
+            "Assets/Plugins/iOS/UAUnityPlugin.h",
+            "Assets/Plugins/iOS/UAUnityPlugin.m",
+            "Assets/Plugins/iOS/UAUnityMessageViewController.h",
+            "Assets/Plugins/iOS/UAUnityMessageViewController.m"
         };
 
         private static string[] obsoleteDirectories = {
+            "Assets/UrbanAirship",
+            "Assets/PlayServicesResolver",
+            "Assets/Plugins/Android/urbanairship-resources.androidlib",
             "Assets/Plugins/Android/urbanairship-plugin-lib",
             "Assets/Plugins/Android/urbanairship-sdk",
             "Assets/Plugins/Android/urbanairship-resources",
@@ -23,8 +29,9 @@ namespace AirshipSDK.Editor {
             "Assets/Plugins/iOS/Airship"
         };
 
-        static UAUpdater () {
+        static AirshipUpdater () {
             MigrateResources ();
+            MigrateSettings ();
             DeleteObsoleteFiles ();
         }
 
@@ -42,12 +49,20 @@ namespace AirshipSDK.Editor {
 
             foreach (string dir in drawables) {
                 string name = Path.GetDirectoryName (dir);
-                Directory.Move (dir, Path.Combine ("Assets/Plugins/Android/urbanairship-resources.androidlib/res", name));
+                Directory.Move (dir, Path.Combine ("Assets/Plugins/Android/airship-resources.androidlib/res", name));
                 refreshAssets = true;
             }
 
             if (refreshAssets) {
                 AssetDatabase.Refresh ();
+            }
+        }
+
+        private static void MigrateSettings () {
+            string oldPath = "ProjectSettings/UrbanAirship.xml";
+            string newPath = "ProjectSettings/Airship.xml";
+            if (File.Exists (oldPath) && !File.Exists (newPath)) {
+                File.Move (oldPath, newPath);
             }
         }
 

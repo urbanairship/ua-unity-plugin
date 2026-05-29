@@ -15,7 +15,7 @@ namespace AirshipSDK.Editor {
 
     [InitializeOnLoad]
     [Serializable]
-    public class UAConfig {
+    public class AirshipConfig {
 
         public enum LogLevel {
             Verbose = 0,
@@ -32,8 +32,9 @@ namespace AirshipSDK.Editor {
             EU = 1,
         }
 
-        private static readonly string filePath = "ProjectSettings/UrbanAirship.xml";
-        private static UAConfig cachedInstance;
+        private static readonly string filePath = "ProjectSettings/Airship.xml";
+        private static readonly string legacyFilePath = "ProjectSettings/UrbanAirship.xml";
+        private static AirshipConfig cachedInstance;
 
         [SerializeField]
         public string ProductionAppKey { get; set; }
@@ -116,7 +117,7 @@ namespace AirshipSDK.Editor {
             }
         }
 
-        public UAConfig () {
+        public AirshipConfig () {
             DevelopmentLogLevel = LogLevel.Debug;
             ProductionLogLevel = LogLevel.Error;
             GenerateGoogleJsonConfig = true;
@@ -124,7 +125,7 @@ namespace AirshipSDK.Editor {
             Site = CloudSite.US;
         }
 
-        public UAConfig (UAConfig config) {
+        public AirshipConfig (AirshipConfig config) {
             this.ProductionAppKey = config.ProductionAppKey;
             this.ProductionAppSecret = config.ProductionAppSecret;
             this.ProductionLogLevel = config.ProductionLogLevel;
@@ -152,43 +153,48 @@ namespace AirshipSDK.Editor {
             this.Site = config.Site;
         }
 
-        public static UAConfig LoadConfig () {
+        public static AirshipConfig LoadConfig () {
             if (cachedInstance != null) {
-                return new UAConfig (cachedInstance);
+                return new AirshipConfig (cachedInstance);
+            }
+
+            if (!File.Exists (filePath) && File.Exists (legacyFilePath)) {
+                UnityEngine.Debug.Log ("AirshipConfig: migrating config from " + legacyFilePath + " to " + filePath);
+                File.Move (legacyFilePath, filePath);
             }
 
             bool migratedConfig = false;
             try {
                 if (File.Exists (filePath)) {
                     using (Stream fileStream = File.OpenRead (filePath)) {
-                        XmlSerializer serializer = new XmlSerializer (typeof (UAConfig));
-                        UAConfig config = (UAConfig) serializer.Deserialize (fileStream);
+                        XmlSerializer serializer = new XmlSerializer (typeof (AirshipConfig));
+                        AirshipConfig config = (AirshipConfig) serializer.Deserialize (fileStream);
                         migratedConfig = config.Migrate ();
                         config.Validate ();
                         cachedInstance = config;
                     }
                 }
             } catch (Exception e) {
-                UnityEngine.Debug.Log ("UAConfig: Failed to load config: " + e.Message);
+                UnityEngine.Debug.Log ("AirshipConfig: Failed to load config: " + e.Message);
                 File.Delete (filePath);
             }
 
             if (cachedInstance == null) {
-                cachedInstance = new UAConfig ();
+                cachedInstance = new AirshipConfig ();
             }
 
             if (migratedConfig) {
-                UnityEngine.Debug.Log ("UAConfig: saving config");
+                UnityEngine.Debug.Log ("AirshipConfig: saving config");
                 SaveConfig(cachedInstance);
             }
 
-            return new UAConfig (cachedInstance);
+            return new AirshipConfig (cachedInstance);
         }
 
-        public static void SaveConfig (UAConfig config) {
+        public static void SaveConfig (AirshipConfig config) {
             config.Validate ();
             using (Stream fileStream = File.Open (filePath, FileMode.Create)) {
-                XmlSerializer serializer = new XmlSerializer (typeof (UAConfig));
+                XmlSerializer serializer = new XmlSerializer (typeof (AirshipConfig));
                 serializer.Serialize (fileStream, config);
             }
 
@@ -243,28 +249,28 @@ namespace AirshipSDK.Editor {
 
         public bool Migrate () {
              if (Version == null) {
-                UnityEngine.Debug.Log ("UAConfig: migrating pre-versioned config to version " + PluginInfo.Version);
+                UnityEngine.Debug.Log ("AirshipConfig: migrating pre-versioned config to version " + PluginInfo.Version);
                 GenerateGoogleJsonConfig = true;
                 Version = PluginInfo.Version;
             } else if (Version != PluginInfo.Version) {
-                UnityEngine.Debug.Log ("UAConfig: migrating from version " + Version + " to version " + PluginInfo.Version);
+                UnityEngine.Debug.Log ("AirshipConfig: migrating from version " + Version + " to version " + PluginInfo.Version);
                 Version = PluginInfo.Version;
             } else {
-                UnityEngine.Debug.Log("UAConfig: no migration needed. Version already " + Version);
+                UnityEngine.Debug.Log("AirshipConfig: no migration needed. Version already " + Version);
                 return false;
             }
 
             // migrate to new log levels
             if (ProductionLogLevel == LogLevel.Warning) {
-                UnityEngine.Debug.Log ("UAConfig: migrating obsolete Production Log Level = Warning to Warn");
+                UnityEngine.Debug.Log ("AirshipConfig: migrating obsolete Production Log Level = Warning to Warn");
                 ProductionLogLevel = LogLevel.Warn;
             }
             if (DevelopmentLogLevel == LogLevel.Warning) {
-                UnityEngine.Debug.Log ("UAConfig: migrating obsolete Development Log Level = Warning to Warn");
+                UnityEngine.Debug.Log ("AirshipConfig: migrating obsolete Development Log Level = Warning to Warn");
                 DevelopmentLogLevel = LogLevel.Warn;
             }
 
-            UnityEngine.Debug.Log ("UAConfig: migrated to version " + Version);
+            UnityEngine.Debug.Log ("AirshipConfig: migrated to version " + Version);
 
             return true;
         }
@@ -344,12 +350,12 @@ namespace AirshipSDK.Editor {
         /// Generates an Androidlib for generated Airship resources.
         /// </summary>
         private void GenerateAndroidLib () {
-            string androidlib = "Assets/Plugins/Android/urbanairship-resources.androidlib";
+            string androidlib = "Assets/Plugins/Android/airship-resources.androidlib";
             if (!Directory.Exists (androidlib)) {
                 Directory.CreateDirectory (androidlib);
             }
 
-            string manifest = "Assets/Plugins/Android/urbanairship-resources.androidlib/AndroidManifest.xml";
+            string manifest = "Assets/Plugins/Android/airship-resources.androidlib/AndroidManifest.xml";
             if (File.Exists (manifest)) {
                 return;
             }
@@ -364,9 +370,9 @@ namespace AirshipSDK.Editor {
         }
 
         private void GenerateFirebaseConfig () {
-            string res = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/values";
+            string res = "Assets/Plugins/Android/airship-resources.androidlib/res/values";
             string json = "Assets/google-services.json";
-            string xml = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/values/values.xml";
+            string xml = "Assets/Plugins/Android/airship-resources.androidlib/res/values/values.xml";
 
             if (!GenerateGoogleJsonConfig) {
                 File.Delete (xml);
@@ -381,12 +387,12 @@ namespace AirshipSDK.Editor {
         }
 
         private void GenerateAndroidAirshipConfig () {
-            string res = "Assets/Plugins/Android/urbanairship-resources.androidlib/res";
+            string res = "Assets/Plugins/Android/airship-resources.androidlib/res";
             if (!Directory.Exists (res)) {
                 Directory.CreateDirectory (res);
             }
 
-            string xml = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/xml";
+            string xml = "Assets/Plugins/Android/airship-resources.androidlib/res/xml";
             if (!Directory.Exists (xml)) {
                 Directory.CreateDirectory (xml);
             }
@@ -444,7 +450,7 @@ namespace AirshipSDK.Editor {
         }
 
         private void CleanUpGeneratedConfigs () {
-            string androidConfig = "Assets/Plugins/Android/urbanairship-resources.androidlib/res/xml/airship_config.xml";
+            string androidConfig = "Assets/Plugins/Android/airship-resources.androidlib/res/xml/airship_config.xml";
             if (File.Exists (androidConfig)) {
                 File.Delete (androidConfig);
             }

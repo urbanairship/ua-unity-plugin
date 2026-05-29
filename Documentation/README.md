@@ -4,5 +4,5 @@ The Airship Unity Plugin allows a developer to integrate push notification servi
 
 ## Resources
 
-- [Unity Platform Guide](https://docs.urbanairship.com/platform/unity/)
+- [Unity Platform Guide](https://www.airship.com/docs/developer/sdk-integration/unity/installation/getting-started)
 - [Migration Guide](migration-guide.md)

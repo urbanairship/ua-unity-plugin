@@ -8,25 +8,25 @@ using UnityEditor;
 using UnityEngine;
 
 namespace AirshipSDK.Editor {
-    public class UAMenu {
-        [MenuItem ("Window/Urban Airship/Settings", false, 1)]
+    public class AirshipMenu {
+        [MenuItem ("Window/Airship/Settings", false, 1)]
         public static void Settings () {
-            UAConfigEditor window = (UAConfigEditor) EditorWindow.GetWindow (typeof (UAConfigEditor), true, "Urban Airship Config");
+            AirshipConfigEditor window = (AirshipConfigEditor) EditorWindow.GetWindow (typeof (AirshipConfigEditor), true, "Airship Config");
             window.minSize = new Vector2 (400, 400);
             window.Show ();
         }
 
-        [MenuItem ("Window/Urban Airship/Docs/API Docs")]
+        [MenuItem ("Window/Airship/Docs/API Docs")]
         public static void APIDocs () {
             Application.OpenURL (PluginInfo.APIDocsURL);
         }
 
-        [MenuItem ("Window/Urban Airship/Docs/Getting Started Guide")]
+        [MenuItem ("Window/Airship/Docs/Getting Started Guide")]
         public static void GettingStartedGuide () {
             Application.OpenURL (PluginInfo.GettingStartedGuideURL);
         }
 
-        [MenuItem ("Window/Urban Airship/About")]
+        [MenuItem ("Window/Airship/About")]
         public static void About () {
             EditorUtility.DisplayDialog (
                 "Airship",

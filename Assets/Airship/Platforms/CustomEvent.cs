@@ -32,7 +32,7 @@ namespace AirshipSDK {
         private List<Property> propertyList;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UrbanAirship.CustomEvent"/> class.
+        /// Initializes a new instance of the <see cref="CustomEvent"/> class.
         /// </summary>
         public CustomEvent () {
             this.propertyList = new List<Property> ();

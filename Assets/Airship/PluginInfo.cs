@@ -18,11 +18,11 @@ namespace AirshipSDK {
         /// <summary>
         /// The API documents URL.
         /// </summary>
-        public const string APIDocsURL = "http://docs.urbanairship.com/reference/libraries/unity/__PLUGIN_VERSION__/index.html";
+        public const string APIDocsURL = "https://www.airship.com/docs/developer/sdk-integration/unity/installation/getting-started";
 
         /// <summary>
         /// The getting started guide URL.
         /// </summary>
-        public const string GettingStartedGuideURL = "http://docs.urbanairship.com/platform/unity.html";
+        public const string GettingStartedGuideURL = "https://www.airship.com/docs/developer/sdk-integration/unity/installation/getting-started";
     }
 }
