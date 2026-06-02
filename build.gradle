@@ -71,6 +71,7 @@ task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
             include "Airship/PluginInfo.cs"
             filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
             filter { String line -> line.replaceAll(Pattern.quote("__AIRSHIP_FRAMEWORK_PROXY_VERSION__"), airshipProperties.airshipFrameworkProxyVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__KOTLIN_VERSION__"), airshipProperties.kotlinVersion) }
         }
 
         // Copy AirshipDependencies.xml and replace the version placeholders

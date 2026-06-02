@@ -16,6 +16,12 @@ namespace AirshipSDK {
         public const string AirshipFrameworkProxyVersion = "__AIRSHIP_FRAMEWORK_PROXY_VERSION__";
 
         /// <summary>
+        /// The Kotlin version required to read the metadata of the bundled
+        /// Airship SDK artifacts on Android.
+        /// </summary>
+        public const string RequiredKotlinVersion = "__KOTLIN_VERSION__";
+
+        /// <summary>
         /// The API documents URL.
         /// </summary>
         public const string APIDocsURL = "https://www.airship.com/docs/developer/sdk-integration/unity/installation/getting-started";
