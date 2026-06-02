@@ -6,10 +6,28 @@ using UnityEngine;
 
 namespace AirshipSDK {
 
+    public interface IAirshipLiveActivityManager
+    {
+        IEnumerator List(LiveActivityListRequest request, Action<LiveActivityInfo[]> onComplete, Action<Exception> onError = null);
+        IEnumerator ListAll(Action<LiveActivityInfo[]> onComplete, Action<Exception> onError = null);
+        IEnumerator Start(LiveActivityStartRequest request, Action<LiveActivityInfo> onComplete, Action<Exception> onError = null);
+        IEnumerator Update(LiveActivityUpdateRequest request, Action onComplete = null, Action<Exception> onError = null);
+        IEnumerator End(LiveActivityEndRequest request, Action onComplete = null, Action<Exception> onError = null);
+    }
+
+    internal class StubbedAirshipLiveActivityManager : IAirshipLiveActivityManager
+    {
+        public IEnumerator List(LiveActivityListRequest request, Action<LiveActivityInfo[]> onComplete, Action<Exception> onError = null) { yield break; }
+        public IEnumerator ListAll(Action<LiveActivityInfo[]> onComplete, Action<Exception> onError = null) { yield break; }
+        public IEnumerator Start(LiveActivityStartRequest request, Action<LiveActivityInfo> onComplete, Action<Exception> onError = null) { yield break; }
+        public IEnumerator Update(LiveActivityUpdateRequest request, Action onComplete = null, Action<Exception> onError = null) { yield break; }
+        public IEnumerator End(LiveActivityEndRequest request, Action onComplete = null, Action<Exception> onError = null) { yield break; }
+    }
+
     /// <summary>
     /// Airship Live Activity manager. iOS only.
     /// </summary>
-    public class AirshipLiveActivityManager
+    public class AirshipLiveActivityManager : IAirshipLiveActivityManager
     {
         private IAirshipPlugin plugin;
 

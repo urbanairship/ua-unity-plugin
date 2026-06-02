@@ -123,8 +123,8 @@ namespace AirshipSDK
         public AirshipLocale locale;
         public AirshipAction actions;
         public AirshipFeatureFlagManager featureFlagManager;
-        public AirshipLiveUpdateManager liveUpdateManager;
-        public AirshipLiveActivityManager liveActivityManager;
+        public IAirshipLiveUpdateManager liveUpdateManager;
+        public IAirshipLiveActivityManager liveActivityManager;
 
         private IAirshipPlugin plugin;
         internal GameObject gameObject;
@@ -194,8 +194,16 @@ namespace AirshipSDK
             locale = new AirshipLocale(plugin);
             actions = new AirshipAction(plugin);
             featureFlagManager = new AirshipFeatureFlagManager(plugin);
+#if UNITY_ANDROID
             liveUpdateManager = new AirshipLiveUpdateManager(plugin);
+#else
+            liveUpdateManager = new StubbedAirshipLiveUpdateManager();
+#endif
+#if UNITY_IOS
             liveActivityManager = new AirshipLiveActivityManager(plugin);
+#else
+            liveActivityManager = new StubbedAirshipLiveActivityManager();
+#endif
 
             gameObject = new GameObject("[AirshipListener]");
             gameObject.AddComponent<AirshipListener>();
@@ -223,8 +231,6 @@ namespace AirshipSDK
         {
             return plugin.Call<bool>("isFlying");
         }
-
-        // TODO don't forget live activity.
 
         internal class AirshipListener : MonoBehaviour
         {

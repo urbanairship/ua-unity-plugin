@@ -6,10 +6,30 @@ using UnityEngine;
 
 namespace AirshipSDK {
 
+    public interface IAirshipLiveUpdateManager
+    {
+        IEnumerator List(LiveUpdateListRequest request, Action<LiveUpdate[]> onComplete, Action<Exception> onError = null);
+        IEnumerator ListAll(Action<LiveUpdate[]> onComplete, Action<Exception> onError = null);
+        void Start(LiveUpdateStartRequest request);
+        void Update(LiveUpdateUpdateRequest request);
+        void End(LiveUpdateEndRequest request);
+        void ClearAll();
+    }
+
+    internal class StubbedAirshipLiveUpdateManager : IAirshipLiveUpdateManager
+    {
+        public IEnumerator List(LiveUpdateListRequest request, Action<LiveUpdate[]> onComplete, Action<Exception> onError = null) { yield break; }
+        public IEnumerator ListAll(Action<LiveUpdate[]> onComplete, Action<Exception> onError = null) { yield break; }
+        public void Start(LiveUpdateStartRequest request) {}
+        public void Update(LiveUpdateUpdateRequest request) {}
+        public void End(LiveUpdateEndRequest request) {}
+        public void ClearAll() {}
+    }
+
     /// <summary>
-    /// Airship Live Update manager.
+    /// Airship Live Update manager. Android only.
     /// </summary>
-    public class AirshipLiveUpdateManager
+    public class AirshipLiveUpdateManager : IAirshipLiveUpdateManager
     {
         private IAirshipPlugin plugin;
 
