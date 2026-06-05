@@ -35,9 +35,16 @@ namespace AirshipSDK.Editor {
             if (target == BuildTarget.iOS || target == BuildTarget.Android) {
                 AirshipConfig config = AirshipConfig.LoadConfig ();
 
+                // Process google-services.json independently of the app credentials.
+                // Controlled solely by the "Process google-service" setting.
+                // It works whether the app is configured via the editor or at runtime via TakeOff.
+                if (target == BuildTarget.Android) {
+                    config.ApplyFirebaseConfig ();
+                }
+
                 if (!config.IsConfigured) {
                     UnityEngine.Debug.Log ("Airship editor config is empty. " +
-                        "Skipping config file generation. Make sure to call Airship.Shared.TakeOff() at runtime.");
+                        "Skipping app credential config generation. Make sure to call Airship.Shared.TakeOff() at runtime.");
                     return;
                 }
 

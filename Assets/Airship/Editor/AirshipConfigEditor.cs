@@ -89,6 +89,7 @@ namespace AirshipSDK.Editor {
 
                     UnityEngine.Debug.Log ("Saving Airship config.");
 
+                    config.ApplyFirebaseConfig ();
                     config.Apply ();
                     AirshipConfig.SaveConfig (config);
 

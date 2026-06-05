@@ -215,7 +215,6 @@ namespace AirshipSDK.Editor {
 #if UNITY_ANDROID
                 GenerateAndroidLib();
                 GenerateAndroidAirshipConfig ();
-                GenerateFirebaseConfig ();
 #endif
                 return true;
             }
@@ -369,15 +368,32 @@ namespace AirshipSDK.Editor {
             }
         }
 
-        private void GenerateFirebaseConfig () {
+        /// <summary>
+        /// Converts google-services.json into Android string resources for FCM.
+        /// Controlled solely by the "Process google-service" setting and runs
+        /// independently of the Airship app credentials.
+        /// It works whether the app is configured through the editor or at runtime via TakeOff.
+        /// When the setting is disabled, any previously generated resource is removed.
+        /// </summary>
+        public void ApplyFirebaseConfig () {
             string res = "Assets/Plugins/Android/airship-resources.androidlib/res/values";
             string json = "Assets/google-services.json";
             string xml = "Assets/Plugins/Android/airship-resources.androidlib/res/values/values.xml";
 
             if (!GenerateGoogleJsonConfig) {
-                File.Delete (xml);
+                if (File.Exists (xml)) {
+                    File.Delete (xml);
+                }
                 return;
             }
+
+            if (!File.Exists (json)) {
+                UnityEngine.Debug.LogWarning ("AirshipConfig: 'Process google-service' is enabled but " +
+                    json + " was not found. Skipping Firebase (google-services) resource generation.");
+                return;
+            }
+
+            GenerateAndroidLib ();
 
             if (!Directory.Exists (res)) {
                 Directory.CreateDirectory (res);
