@@ -104,6 +104,27 @@ namespace AirshipSDK
                 return $"\"{EscapeJsonString(stringValue)}\"";
             }
 
+            // Handle dictionaries -> JSON objects (checked before IEnumerable,
+            // since IDictionary is also IEnumerable)
+            if (value is IDictionary dictionary)
+            {
+                var dictBuilder = new StringBuilder();
+                dictBuilder.Append("{");
+
+                bool firstEntry = true;
+                foreach (DictionaryEntry entry in dictionary)
+                {
+                    if (!firstEntry) dictBuilder.Append(",");
+                    firstEntry = false;
+
+                    dictBuilder.Append($"\"{EscapeJsonString(entry.Key.ToString())}\":");
+                    dictBuilder.Append(entry.Value == null ? "null" : SerializeValue(entry.Value));
+                }
+
+                dictBuilder.Append("}");
+                return dictBuilder.ToString();
+            }
+
             // Handle arrays (including nullable arrays)
             if (actualType.IsArray)
             {
@@ -151,10 +172,10 @@ namespace AirshipSDK
                 return value.ToString().ToLower();
             }
 
-            // Handle numbers (including nullable)
+            // Handle numbers (including nullable).
             if (actualType.IsPrimitive || actualType == typeof(decimal) || actualType == typeof(float) || valueType == typeof(double))
             {
-                return value.ToString();
+                return Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
             }
 
             // Handle nested objects/records - recursively serialize them

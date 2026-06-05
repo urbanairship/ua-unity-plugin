@@ -338,6 +338,54 @@ public class AirshipBehaviour : MonoBehaviour {
                 Debug.LogError("Error getting feature flag: " + error.Message);
             }
         ));
+
+        // Live Update (Android only)
+        Debug.Log("Start Live Update");
+        Airship.Shared.liveUpdateManager.Start(new LiveUpdateStartRequest() {
+            name = "Emoji-example",
+            type = "Example",
+            content = new Dictionary<string, object> {
+                ["status_update"] = "Ulrich test started!",
+                ["emoji"] = "🏆"
+            }
+        });
+
+        Debug.Log("List Live Updates");
+        StartCoroutine(Airship.Shared.liveUpdateManager.List(
+            new LiveUpdateListRequest() { type = "Example" },
+            onComplete: (liveUpdates) => {
+                Debug.Log("Live Updates count: " + liveUpdates.Length);
+                foreach (var lu in liveUpdates) {
+                    Debug.Log($"Live Update: name={lu.name}, type={lu.type}, content={lu.content}");
+                }
+            },
+            onError: (error) => {
+                Debug.LogError("Error listing live updates: " + error.Message);
+            }
+        ));
+
+        // Live Activity (iOS only)
+        Debug.Log("Start Live Activity");
+        StartCoroutine(Airship.Shared.liveActivityManager.Start(
+            new LiveActivityStartRequest() {
+                attributesType = "LiveActivityExampleAttributes",
+                content = new LiveActivityContent() {
+                    state = new Dictionary<string, object> {
+                        ["emoji"] = "🏆"
+                    },
+                    relevanceScore = 100
+                },
+                attributes = new Dictionary<string, object> {
+                    ["name"] = "Unity Test Ulrich"
+                }
+            },
+            onComplete: (activity) => {
+                Debug.Log($"Live Activity started: id={activity.id}, state={activity.state}");
+            },
+            onError: (error) => {
+                Debug.LogError("Error starting live activity: " + error.Message);
+            }
+        ));
     }
 
     void OnDestroy () {

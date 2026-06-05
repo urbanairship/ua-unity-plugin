@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AirshipSDK {
@@ -138,7 +139,7 @@ namespace AirshipSDK {
     [Serializable]
     public record LiveActivityContent
     {
-        public string state;
+        public Dictionary<string, object> state;
         public string staleDate;
         public double relevanceScore;
     }
@@ -154,7 +155,7 @@ namespace AirshipSDK {
     {
         public string attributesType;
         public LiveActivityContent content;
-        public string attributes;
+        public Dictionary<string, object> attributes;
     }
 
     [Serializable]

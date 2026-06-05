@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AirshipSDK {
@@ -133,7 +134,7 @@ namespace AirshipSDK {
     {
         public string name;
         public string type;
-        public string content;
+        public Dictionary<string, object> content;
         public string timestamp;
         public string dismissTimestamp;
     }
@@ -142,7 +143,7 @@ namespace AirshipSDK {
     public record LiveUpdateUpdateRequest
     {
         public string name;
-        public string content;
+        public Dictionary<string, object> content;
         public string timestamp;
         public string dismissTimestamp;
     }
@@ -151,7 +152,7 @@ namespace AirshipSDK {
     public record LiveUpdateEndRequest
     {
         public string name;
-        public string content;
+        public Dictionary<string, object> content;
         public string timestamp;
         public string dismissTimestamp;
     }
