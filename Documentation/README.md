@@ -1,6 +1,6 @@
 # Airship Unity Plugin
 
-The Airship Unity Plugin allows a developer to integrate push notification services with Unity apps targeting both Android and iOS. This plugin is designed to be cross-platform, and applications making use of it can leverage the same code on both platforms.
+The Airship Unity Plugin lets developers integrate Airship's full engagement suite into Unity apps targeting both Android and iOS, including push notifications, Message Center, Preference Center, In-App Experiences, feature flags, analytics, and Live Activities (iOS) / Live Updates (Android). This plugin is designed to be cross-platform, and applications making use of it can leverage the same code on both platforms.
 
 ## Resources
 
