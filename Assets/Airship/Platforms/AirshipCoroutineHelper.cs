@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -14,6 +15,9 @@ namespace AirshipSDK {
     /// then returns results to the main thread via callbacks.
     /// </summary>
     internal static class AirshipCoroutineHelper {
+
+        // Maximum time to wait for a background operation before surfacing a timeout.
+        private const float TimeoutSeconds = 60f;
         
         /// <summary>
         /// Runs a blocking operation on a background thread to avoid ANRs.
@@ -46,12 +50,18 @@ namespace AirshipSDK {
                 } catch (Exception e) {
                     exception = e;
                 } finally {
-                    completed = true;
+                    // Volatile write so the main-thread loop is guaranteed to observe completion.
+                    Volatile.Write(ref completed, true);
                 }
             });
             
             // Wait for completion without blocking the main thread
-            while (!completed) {
+            float startTime = Time.realtimeSinceStartup;
+            while (!Volatile.Read(ref completed)) {
+                if (Time.realtimeSinceStartup - startTime > TimeoutSeconds) {
+                    onError?.Invoke(new TimeoutException($"Airship async operation timed out after {TimeoutSeconds}s"));
+                    yield break;
+                }
                 yield return null;
             }
 
@@ -92,12 +102,18 @@ namespace AirshipSDK {
                 } catch (Exception e) {
                     exception = e;
                 } finally {
-                    completed = true;
+                    // Volatile write so the main-thread loop is guaranteed to observe completion.
+                    Volatile.Write(ref completed, true);
                 }
             });
             
             // Wait for completion without blocking the main thread
-            while (!completed) {
+            float startTime = Time.realtimeSinceStartup;
+            while (!Volatile.Read(ref completed)) {
+                if (Time.realtimeSinceStartup - startTime > TimeoutSeconds) {
+                    onError?.Invoke(new TimeoutException($"Airship async operation timed out after {TimeoutSeconds}s"));
+                    yield break;
+                }
                 yield return null;
             }
 

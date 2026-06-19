@@ -41,17 +41,19 @@ namespace AirshipSDK.Editor {
             map[ProjectId] = config.project_info.project_id;
             map[GoogleStorageBucket] = config.project_info.storage_bucket;
 
-            Client client = config.client.First ();
+            Client client = config.client?.FirstOrDefault ();
             if (client != null) {
-                map[GoogleAppId] = client.client_info.mobilesdk_app_id;
+                if (client.client_info != null) {
+                    map[GoogleAppId] = client.client_info.mobilesdk_app_id;
+                }
 
-                ApiKey apiKey = client.api_key.First ();
+                ApiKey apiKey = client.api_key?.FirstOrDefault ();
                 if (apiKey != null) {
                     map[GoogleApiKey] = apiKey.current_key;
                     map[GoogleCrashReportingApiKey] = apiKey.current_key;
                 }
 
-                OauthClient webClient = client.oauth_client.Where (c => c.client_type == WebClientType).First ();
+                OauthClient webClient = client.oauth_client?.FirstOrDefault (c => c.client_type == WebClientType);
                 if (webClient != null) {
                     map[DefaultWebClientId] = webClient.client_id;
                 }

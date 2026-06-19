@@ -80,7 +80,9 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
     }
 }
 
-private let asyncTimeout: TimeInterval = 60.0
+// Kept slightly below the C# AirshipCoroutineHelper timeout (60s) so this native
+// timeout fires first and surfaces a specific error, avoiding a race between layers.
+private let asyncTimeout: TimeInterval = 59.0
 
 private func runAsync<T>(_ block: @escaping () async throws -> T) throws -> T {
     let semaphore = DispatchSemaphore(value: 0)
@@ -232,7 +234,8 @@ class UnityPlugin: NSObject {
                     throw AirshipErrors.error("associateIdentifier call requires 1 to 2 strings parameters.")
                 }
                 try AirshipProxy.shared.analytics.associateIdentifier(
-                    identifier: args.count == 2 ? requireStringArg(args[1]) : nil,
+                    // An explicit null identifier clears the identifier.
+                    identifier: args.count == 2 ? (try? requireStringArg(args[1])) : nil,
                     key: requireStringArg(args[0])
                 )
                 return .handledSync(nil)
@@ -549,9 +552,23 @@ class UnityPlugin: NSObject {
                 return .handledAsync(nil)
 
             case "runAction":
+                // parse the value string into structured JSON when possible,
+                // falling back to the raw string value.
+                let actionName = try requireStringArg(args.first)
+                let rawActionValue: Any? = args.count > 1 ? args[1] : nil
+                let actionValue: AirshipJSON?
+                if let stringValue = rawActionValue as? String,
+                   let data = stringValue.data(using: .utf8),
+                   let parsed = try? JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed]) {
+                    actionValue = try? AirshipJSON.wrap(parsed)
+                } else if let rawActionValue {
+                    actionValue = try? AirshipJSON.wrap(rawActionValue)
+                } else {
+                    actionValue = nil
+                }
                 return .handledAsync(try await AirshipProxy.shared.action.runAction(
-                    try requireStringArg(args.first),
-                    value: try? AirshipJSON.wrap(try requireStringArg(args[1]))
+                    actionName,
+                    value: actionValue
                 ))
 
             case "flag":
@@ -644,15 +661,15 @@ class UnityPlugin: NSObject {
                         }
                     case .pushReceived:
                         if let pushPayloadRaw = json["pushPayload"],
-                           let pushPayload: ProxyPushPayload = try? AirshipJSON.wrap(pushPayloadRaw).decode(),
-                           let isForeground = json["isForeground"] as? Bool {
+                           let pushPayload: ProxyPushPayload = try? AirshipJSON.wrap(pushPayloadRaw).decode() {
+                            let isForeground = json["isForeground"] as? Bool ?? false
                             receivedNotification(pushPayload, isForeground: isForeground)
                         }
                     case .notificationResponseReceived:
                         if let pushPayloadRaw = json["pushPayload"],
-                           let pushPayload: ProxyPushPayload = try? AirshipJSON.wrap(pushPayloadRaw).decode(),
-                           let isForeground = json["isForeground"] as? Bool,
-                           let actionId = json["actionId"] as? String? {
+                           let pushPayload: ProxyPushPayload = try? AirshipJSON.wrap(pushPayloadRaw).decode() {
+                            let isForeground = json["isForeground"] as? Bool ?? false
+                            let actionId = json["actionId"] as? String
                             receivedNotificationResponse(pushPayload, isForeground: isForeground, actionId: actionId)
                         }
                     case .messageCenterUpdated:

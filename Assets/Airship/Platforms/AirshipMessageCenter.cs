@@ -53,11 +53,19 @@ namespace AirshipSDK
                 () => {
             var inboxMessages = new List<InboxMessage>();
             string inboxMessagesAsJson = plugin.Call<string>("getMessages");
+            if (String.IsNullOrEmpty(inboxMessagesAsJson))
+            {
+                return (IEnumerable<InboxMessage>)inboxMessages;
+            }
+
             InternalInboxMessage[] internalInboxMessages = JsonArray<InternalInboxMessage>.FromJson(inboxMessagesAsJson).values;
             // Unity's JsonUtility doesn't support embedded dictionaries - constructor will create the extras dictionary
-            foreach (InternalInboxMessage internalInboxMessage in internalInboxMessages)
+            if (internalInboxMessages != null)
             {
-                inboxMessages.Add(new InboxMessage(internalInboxMessage));
+                foreach (InternalInboxMessage internalInboxMessage in internalInboxMessages)
+                {
+                    inboxMessages.Add(new InboxMessage(internalInboxMessage));
+                }
             }
                     return (IEnumerable<InboxMessage>)inboxMessages;
                 },

@@ -77,7 +77,19 @@ namespace AirshipSDK.Editor {
             plist.ReadFromString (File.ReadAllText (plistPath));
 
             PlistElementDict rootDict = plist.root;
-            rootDict.CreateArray ("UIBackgroundModes").AddString ("remote-notification");
+
+            PlistElementArray backgroundModes;
+            if (rootDict.values.TryGetValue ("UIBackgroundModes", out PlistElement existingModes) && existingModes is PlistElementArray existingArray) {
+                backgroundModes = existingArray;
+            } else {
+                backgroundModes = rootDict.CreateArray ("UIBackgroundModes");
+            }
+
+            bool hasRemoteNotification = backgroundModes.values.Any (element => (element as PlistElementString)?.value == "remote-notification");
+            if (!hasRemoteNotification) {
+                backgroundModes.AddString ("remote-notification");
+            }
+
             rootDict.SetString ("AirshipUnityPluginVersion", PluginInfo.Version);
             File.WriteAllText (plistPath, plist.WriteToString ());
         }

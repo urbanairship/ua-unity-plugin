@@ -48,7 +48,7 @@ namespace AirshipSDK.Editor {
             bool refreshAssets = false;
 
             foreach (string dir in drawables) {
-                string name = Path.GetDirectoryName (dir);
+                string name = Path.GetFileName (dir);
                 Directory.Move (dir, Path.Combine ("Assets/Plugins/Android/airship-resources.androidlib/res", name));
                 refreshAssets = true;
             }

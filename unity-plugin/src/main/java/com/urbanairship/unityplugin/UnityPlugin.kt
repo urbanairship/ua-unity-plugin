@@ -533,7 +533,7 @@ class UnityPlugin {
         UALog.d { "UnityPlugin deepLink received: $deepLink" }
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnDeepLinkReceived", deepLink)
+            UnityPlayer.UnitySendMessage(listener, "OnDeepLinkReceived", deepLink ?: "")
             return true
         }
         return false
@@ -543,7 +543,7 @@ class UnityPlugin {
         UALog.d { "UnityPlugin channel created: $channelId" }
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnChannelCreated", channelId)
+            UnityPlayer.UnitySendMessage(listener, "OnChannelCreated", channelId ?: "")
         }
     }
 
@@ -587,7 +587,7 @@ class UnityPlugin {
         UALog.d { "UnityPlugin preference center display: $preferenceCenterId" }
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnPreferenceCenterDisplay", preferenceCenterId)
+            UnityPlayer.UnitySendMessage(listener, "OnPreferenceCenterDisplay", preferenceCenterId ?: "")
         }
     }
 
@@ -595,7 +595,7 @@ class UnityPlugin {
         UALog.d { "UnityPlugin push token received: $pushToken" }
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnPushTokenReceived", pushToken)
+            UnityPlayer.UnitySendMessage(listener, "OnPushTokenReceived", pushToken ?: "")
         }
     }
 
@@ -603,7 +603,7 @@ class UnityPlugin {
         UALog.d { "UnityPlugin notification status changed: ${status?.toString()}" }
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnNotificationStatusChanged", status?.toString())
+            UnityPlayer.UnitySendMessage(listener, "OnNotificationStatusChanged", status?.toString() ?: "")
         }
     }
 

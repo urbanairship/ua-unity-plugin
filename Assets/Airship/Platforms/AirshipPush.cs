@@ -129,9 +129,16 @@ namespace AirshipSDK
                     }
 
                     var pushMessages = new List<PushMessage>();
-                    foreach (string pushMessageAsJson in JsonArray<string>.FromJson(jsonPushMessages).values)
+                    PushMessage[] parsedMessages = JsonArray<PushMessage>.FromJson(jsonPushMessages).values;
+                    if (parsedMessages != null)
                     {
-                        pushMessages.Add(PushMessage.FromJson(pushMessageAsJson));
+                        foreach (PushMessage pushMessage in parsedMessages)
+                        {
+                            if (pushMessage != null)
+                            {
+                                pushMessages.Add(pushMessage);
+                            }
+                        }
                     }
 
                     return (IEnumerable<PushMessage>)pushMessages;
