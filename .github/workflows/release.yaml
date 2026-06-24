@@ -16,27 +16,31 @@ jobs:
           - Android # Build an Android .apk standalone app.
           
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Get Version
+      - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        run: |
+          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
 
       - name: Verify Version
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
-          VERSION=${{ steps.get_version.outputs.VERSION }}
           PLUGIN_VERSION=$(./gradlew -q getPluginVersion)
           if [[ $PLUGIN_VERSION = $VERSION ]]; then exit 0 ; else exit 1; fi
 
-      - name: Get Release Notes
+      - name: Get the release notes
         id: get_release_notes
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
-          VERSION=${{ steps.get_version.outputs.VERSION }}
-          NOTES="$(awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md)"
-          NOTES="${NOTES//'%'/'%25'}"
-          NOTES="${NOTES//$'\n'/'%0A'}"
-          NOTES="${NOTES//$'\r'/'%0D'}"
-          echo ::set-output name=NOTES::"$NOTES"
+          delimiter="$(openssl rand -hex 8)"
+          {
+            echo "NOTES<<${delimiter}"
+            awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md
+            echo ${delimiter}
+          } >> $GITHUB_OUTPUT
 
       - name: Build
         uses: game-ci/unity-builder@v4
@@ -69,39 +73,13 @@ jobs:
           asset_name: urbanairship-${{ steps.get_version.outputs.VERSION }}.unitypackage
           asset_content_type: application/octet-stream
 
-#      - name: Bintray Release
-#        env:
-#          BINTRAY_AUTH: ${{ secrets.BINTRAY_AUTH }}
-#        run: bash ./scripts/deploy_bintray.sh ${{ steps.get_version.outputs.VERSION }}
-
-  docs:
-    runs-on: ubuntu-latest
+  publish-docs:
     needs: plugin
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Get Version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
-      - name: Setup GCP
-        uses: google-github-actions/setup-gcloud@daadedc81d5f9d3c06d2c92f49202a3cc2b919ba # v0.2.1
-        with:
-          version: '351.0.0'
-          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-
-      - name: Build Docs
-        run: |
-          sudo apt-get install doxygen
-          ./gradlew docs:build
-
-      - name: Upload Docs
-        run: |
-          VERSION=${{ steps.get_version.outputs.VERSION }}
-          gsutil cp docs/build/$VERSION.tar.gz gs://ua-web-ci-prod-docs-transfer/libraries/unity/$VERSION.tar.gz
+    uses: ./.github/workflows/publish-docs.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    with:
+      version: ${{ github.ref_name }}
+    secrets: inherit
