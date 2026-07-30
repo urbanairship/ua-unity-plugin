@@ -42,25 +42,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get Version
+      - name: Get the version
         id: get_version
-        run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
+        run: |
+          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
 
       - name: Verify Version
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
-          VERSION=${{ steps.get_version.outputs.VERSION }}
           PLUGIN_VERSION=$(./gradlew -q getPluginVersion)
           if [[ $PLUGIN_VERSION = $VERSION ]]; then exit 0 ; else exit 1; fi
 
-      - name: Get Release Notes
+      - name: Get the release notes
         id: get_release_notes
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
-          VERSION=${{ steps.get_version.outputs.VERSION }}
-          NOTES="$(awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md)"
+          delimiter="$(openssl rand -hex 8)"
           {
-            echo "NOTES<<EOF"
-            echo "$NOTES"
-            echo "EOF"
+            echo "NOTES<<${delimiter}"
+            awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md
+            echo ${delimiter}
           } >> $GITHUB_OUTPUT
 
       - name: Download Build Artifact
@@ -77,41 +80,13 @@ jobs:
           body: ${{ steps.get_release_notes.outputs.NOTES }}
           files: ./build/urbanairship-${{ steps.get_version.outputs.VERSION }}.unitypackage
 
-#      - name: Bintray Release
-#        env:
-#          BINTRAY_AUTH: ${{ secrets.BINTRAY_AUTH }}
-#        run: bash ./scripts/deploy_bintray.sh ${{ steps.get_version.outputs.VERSION }}
-
-  docs:
-    runs-on: ubuntu-latest
+  publish-docs:
     needs: [release, plugin]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Get Version
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
-
-      - name: Authenticate to GCP
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Setup GCP
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '8'
-
-      - name: Build Docs
-        run: |
-          sudo apt-get install doxygen
-          ./gradlew docs:build
-
-      - name: Upload Docs
-        run: |
-          VERSION=${{ steps.get_version.outputs.VERSION }}
-          gsutil cp docs/build/$VERSION.tar.gz gs://ua-web-ci-prod-docs-transfer/libraries/unity/$VERSION.tar.gz
+    uses: ./.github/workflows/publish-docs.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    with:
+      version: ${{ github.ref_name }}
+    secrets: inherit
