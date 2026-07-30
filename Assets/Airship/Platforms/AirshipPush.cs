@@ -170,7 +170,7 @@ namespace AirshipSDK
     }
 
     public interface IAirshipPushIOS {
-        void SetForegroundPresentationOptions(ForegroundPresentationOption options);
+        void SetForegroundPresentationOptions(ForegroundPresentationOption[] options);
         void SetNotificationOptions(NotificationOption[] options);
         bool IsAutobadgeEnabled();
         void SetAutobadgeEnabled(bool enabled);
@@ -186,7 +186,7 @@ namespace AirshipSDK
     }
 
     internal class StubbedAirshipPushIOS : IAirshipPushIOS {
-        public void SetForegroundPresentationOptions(ForegroundPresentationOption options) {}
+        public void SetForegroundPresentationOptions(ForegroundPresentationOption[] options) {}
         public void SetNotificationOptions(NotificationOption[] options) {}
         public bool IsAutobadgeEnabled() { return false; }
         public void SetAutobadgeEnabled(bool enabled) {}
@@ -216,7 +216,7 @@ namespace AirshipSDK
         /// Sets the foreground presentation options.
         /// </summary>
         /// <param name="options">The foreground options.</param>
-        public void SetForegroundPresentationOptions(ForegroundPresentationOption options)
+        public void SetForegroundPresentationOptions(ForegroundPresentationOption[] options)
         {
             plugin.Call("setForegroundPresentationOptions", options);
         }

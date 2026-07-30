@@ -297,6 +297,13 @@ public class AirshipBehaviour : MonoBehaviour {
         Debug.Log("Foreground notifications enabled after true: " + Airship.Shared.push.android.IsForegroundNotificationsEnabled());
 
         // iOS Push methods
+        Airship.Shared.push.iOS.SetForegroundPresentationOptions(new ForegroundPresentationOption[] {
+            ForegroundPresentationOption.Sound,
+            ForegroundPresentationOption.Badge,
+            ForegroundPresentationOption.Banner,
+            ForegroundPresentationOption.List,
+        });
+
         Airship.Shared.push.iOS.SetBadgeNumber(1);
         Debug.Log("Badge number: " + Airship.Shared.push.iOS.GetBadgeNumber());
         Airship.Shared.push.iOS.SetBadgeNumber(0);
@@ -328,7 +335,7 @@ public class AirshipBehaviour : MonoBehaviour {
             }
         ));
 
-        StartCoroutine(Airship.Shared.featureFlagManager.Flag("ulrich_feature_flag",
+        StartCoroutine(Airship.Shared.featureFlagManager.Flag("feature_flag",
             onComplete: (flag) => {
                 Debug.Log("Feature flag: " + flag);
 
@@ -340,52 +347,52 @@ public class AirshipBehaviour : MonoBehaviour {
         ));
 
         // Live Update (Android only)
-        Debug.Log("Start Live Update");
-        Airship.Shared.liveUpdateManager.Start(new LiveUpdateStartRequest() {
-            name = "Emoji-example",
-            type = "Example",
-            content = new Dictionary<string, object> {
-                ["status_update"] = "Ulrich test started!",
-                ["emoji"] = "🏆"
-            }
-        });
+        // Debug.Log("Start Live Update");
+        // Airship.Shared.liveUpdateManager.Start(new LiveUpdateStartRequest() {
+        //     name = "Emoji-example",
+        //     type = "Example",
+        //     content = new Dictionary<string, object> {
+        //         ["status_update"] = "Unity test started!",
+        //         ["emoji"] = "🏆"
+        //     }
+        // });
 
-        Debug.Log("List Live Updates");
-        StartCoroutine(Airship.Shared.liveUpdateManager.List(
-            new LiveUpdateListRequest() { type = "Example" },
-            onComplete: (liveUpdates) => {
-                Debug.Log("Live Updates count: " + liveUpdates.Length);
-                foreach (var lu in liveUpdates) {
-                    Debug.Log($"Live Update: name={lu.name}, type={lu.type}, content={lu.content}");
-                }
-            },
-            onError: (error) => {
-                Debug.LogError("Error listing live updates: " + error.Message);
-            }
-        ));
+        // Debug.Log("List Live Updates");
+        // StartCoroutine(Airship.Shared.liveUpdateManager.List(
+        //     new LiveUpdateListRequest() { type = "Example" },
+        //     onComplete: (liveUpdates) => {
+        //         Debug.Log("Live Updates count: " + liveUpdates.Length);
+        //         foreach (var lu in liveUpdates) {
+        //             Debug.Log($"Live Update: name={lu.name}, type={lu.type}, content={lu.content}");
+        //         }
+        //     },
+        //     onError: (error) => {
+        //         Debug.LogError("Error listing live updates: " + error.Message);
+        //     }
+        // ));
 
         // Live Activity (iOS only)
-        Debug.Log("Start Live Activity");
-        StartCoroutine(Airship.Shared.liveActivityManager.Start(
-            new LiveActivityStartRequest() {
-                attributesType = "LiveActivityExampleAttributes",
-                content = new LiveActivityContent() {
-                    state = new Dictionary<string, object> {
-                        ["emoji"] = "🏆"
-                    },
-                    relevanceScore = 100
-                },
-                attributes = new Dictionary<string, object> {
-                    ["name"] = "Unity Test Ulrich"
-                }
-            },
-            onComplete: (activity) => {
-                Debug.Log($"Live Activity started: id={activity.id}, state={activity.state}");
-            },
-            onError: (error) => {
-                Debug.LogError("Error starting live activity: " + error.Message);
-            }
-        ));
+        // Debug.Log("Start Live Activity");
+        // StartCoroutine(Airship.Shared.liveActivityManager.Start(
+        //     new LiveActivityStartRequest() {
+        //         attributesType = "LiveActivityExampleAttributes",
+        //         content = new LiveActivityContent() {
+        //             state = new Dictionary<string, object> {
+        //                 ["emoji"] = "🏆"
+        //             },
+        //             relevanceScore = 100
+        //         },
+        //         attributes = new Dictionary<string, object> {
+        //             ["name"] = "Unity Test"
+        //         }
+        //     },
+        //     onComplete: (activity) => {
+        //         Debug.Log($"Live Activity started: id={activity.id}, state={activity.state}");
+        //     },
+        //     onError: (error) => {
+        //         Debug.LogError("Error starting live activity: " + error.Message);
+        //     }
+        // ));
     }
 
     void OnDestroy () {

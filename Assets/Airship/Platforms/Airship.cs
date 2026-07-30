@@ -366,18 +366,6 @@ namespace AirshipSDK
         }
     }
 
-    public static class Features
-    {
-        public const string FEATURE_NONE = "FEATURE_NONE";
-        public const string FEATURE_IN_APP_AUTOMATION = "FEATURE_IN_APP_AUTOMATION";
-        public const string FEATURE_MESSAGE_CENTER = "FEATURE_MESSAGE_CENTER";
-        public const string FEATURE_PUSH = "FEATURE_PUSH";
-        public const string FEATURE_ANALYTICS = "FEATURE_ANALYTICS";
-        public const string FEATURE_TAGS_AND_ATTRIBUTES = "FEATURE_TAGS_AND_ATTRIBUTES";
-        public const string FEATURE_CONTACTS = "FEATURE_CONTACTS";
-        public const string FEATURE_ALL = "FEATURE_ALL";
-    }
-
     /// <summary>
     /// Airship config environment
     /// </summary>
