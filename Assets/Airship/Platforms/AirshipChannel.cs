@@ -57,6 +57,9 @@ namespace AirshipSDK {
         public IEnumerable<string> GetTags()
         {
             string tagsAsJson = plugin.Call<string>("getTags");
+            if (string.IsNullOrEmpty(tagsAsJson)) {
+                return Enumerable.Empty<string>();
+            }
             JsonArray<string> jsonArray = JsonArray<string>.FromJson(tagsAsJson);
             return jsonArray.AsEnumerable();
         }

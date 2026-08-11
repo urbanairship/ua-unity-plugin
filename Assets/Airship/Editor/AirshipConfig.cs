@@ -399,7 +399,10 @@ namespace AirshipSDK.Editor {
                 Directory.CreateDirectory (res);
             }
 
-            GoogleJson.FromPath (json).WriteXml (xml);
+            GoogleJson googleJson = GoogleJson.FromPath (json);
+            if (googleJson != null) {
+                googleJson.WriteXml (xml);
+            }
         }
 
         private void GenerateAndroidAirshipConfig () {

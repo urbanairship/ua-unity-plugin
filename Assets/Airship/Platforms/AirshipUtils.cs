@@ -222,13 +222,20 @@ namespace AirshipSDK
 
         public static T Deserialize<T>(string json)
         {
-            if (string.IsNullOrEmpty(json) || json == "{}")
-            {
-                return default(T);
-            }
             Type type = typeof(T);
             Type underlyingType = Nullable.GetUnderlyingType(type);
             Type actualType = underlyingType ?? type;
+
+            if (string.IsNullOrEmpty(json) || json == "{}")
+            {
+                // Arrays are returned empty rather than null so callers can enumerate
+                // the result without a null check.
+                if (actualType.IsArray)
+                {
+                    return (T)(object)Array.CreateInstance(actualType.GetElementType(), 0);
+                }
+                return default(T);
+            }
             // Primitives
             if (actualType == typeof(bool))
                 return (T)(object)bool.Parse(json);
@@ -258,7 +265,7 @@ namespace AirshipSDK
             // string[] — top-level JSON array of strings like ["a","b"]
             if (actualType == typeof(string[]))
             {
-                return (T)(object)JsonArray<string>.FromJson(json).values;
+                return (T)(object)(JsonArray<string>.FromJson(json).values ?? new string[0]);
             }
             // Enum arrays — parse JSON array of strings into enum values
             if (actualType.IsArray && actualType.GetElementType().IsEnum)
@@ -282,7 +289,8 @@ namespace AirshipSDK
                 var method = jsonArrayType.GetMethod("FromJson", BindingFlags.Public | BindingFlags.Static);
                 var wrapper = method.Invoke(null, new object[] { json });
                 var valuesField = jsonArrayType.GetField("values");
-                return (T)valuesField.GetValue(wrapper);
+                object values = valuesField.GetValue(wrapper);
+                return (T)(values ?? Array.CreateInstance(elementType, 0));
             }
 
             // Serializable objects — unwrap nullable and use JsonUtility

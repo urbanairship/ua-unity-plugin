@@ -37,6 +37,10 @@ namespace AirshipSDK {
             yield return AirshipCoroutineHelper.RunAsync(
                 () => {
                         string flagJson = plugin.Call<string>("flag", name);
+                        if (string.IsNullOrEmpty(flagJson))
+                        {
+                            throw new Exception("Airship: empty response from flag");
+                        }
                         FeatureFlag flag = JsonUtility.FromJson<FeatureFlag>(flagJson);
                         return flag;
                     },

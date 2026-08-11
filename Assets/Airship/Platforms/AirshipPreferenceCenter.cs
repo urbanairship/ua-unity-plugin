@@ -45,7 +45,14 @@ namespace AirshipSDK
         public IEnumerator GetConfig(string preferenceCenterId, Action<PreferenceCenterConfig> onComplete, Action<Exception> onError = null)
         {
             yield return AirshipCoroutineHelper.RunAsync(
-                () => JsonUtility.FromJson<PreferenceCenterConfig>(plugin.Call<string>("getPreferenceCenterConfig", preferenceCenterId)),
+                () => {
+                    string configJson = plugin.Call<string>("getPreferenceCenterConfig", preferenceCenterId);
+                    if (string.IsNullOrEmpty(configJson))
+                    {
+                        throw new Exception("Airship: empty response from getPreferenceCenterConfig");
+                    }
+                    return JsonUtility.FromJson<PreferenceCenterConfig>(configJson);
+                },
                 onComplete,
                 onError
             );

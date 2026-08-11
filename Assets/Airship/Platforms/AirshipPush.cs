@@ -94,7 +94,14 @@ namespace AirshipSDK
         public IEnumerator GetNotificationStatus(Action<PushNotificationStatus> onComplete, Action<Exception> onError = null)
         {
             yield return AirshipCoroutineHelper.RunAsync(
-                () => JsonUtility.FromJson<PushNotificationStatus>(plugin.Call<string>("getNotificationStatus")),
+                () => {
+                    string statusJson = plugin.Call<string>("getNotificationStatus");
+                    if (String.IsNullOrEmpty(statusJson))
+                    {
+                        throw new Exception("Airship: empty response from getNotificationStatus");
+                    }
+                    return JsonUtility.FromJson<PushNotificationStatus>(statusJson);
+                },
                 onComplete,
                 onError
             );

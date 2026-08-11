@@ -13,8 +13,7 @@
 
   <!-- iOS - Swift Package -->
   <remoteSwiftPackage url="https://github.com/urbanairship/airship-mobile-framework-proxy.git"
-                      version="__AIRSHIP_FRAMEWORK_PROXY_VERSION__"
-                      upToNextMajor="true">
+                      version="__AIRSHIP_FRAMEWORK_PROXY_VERSION__">
     <swiftPackage name="AirshipFrameworkProxy"/>
   </remoteSwiftPackage>
 

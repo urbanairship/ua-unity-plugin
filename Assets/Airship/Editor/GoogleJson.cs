@@ -28,9 +28,18 @@ namespace AirshipSDK.Editor {
             this.config = config;
         }
 
+        /// <summary>
+        /// Reads a google-services.json file. Returns null when the file can't be used
+        /// to generate resources.
+        /// </summary>
         public static GoogleJson FromPath (string path) {
             string json = System.IO.File.ReadAllText (path);
             Config config = JsonUtility.FromJson<Config> (json);
+            if (config == null || config.project_info == null) {
+                UnityEngine.Debug.LogError ("AirshipConfig: " + path + " could not be parsed or is missing " +
+                    "'project_info'. Skipping Firebase (google-services) resource generation.");
+                return null;
+            }
             return new GoogleJson (config);
         }
 

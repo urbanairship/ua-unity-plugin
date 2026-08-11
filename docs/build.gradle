@@ -6,7 +6,8 @@ task build {
     doLast() {
         exec {
             executable "doxygen"
-            ["Doxyfile"]
+            args "Doxyfile"
+            environment "VERSION", airshipProperties.version
         }
 
         copy {

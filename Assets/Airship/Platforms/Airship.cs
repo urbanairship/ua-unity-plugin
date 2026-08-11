@@ -290,13 +290,14 @@ namespace AirshipSDK
             {
                 InboxUpdatedEventHandler handler = Airship.Shared.OnInboxUpdated;
 
-                MessageCounts messageCounts = JsonUtility.FromJson<MessageCounts>(counts);
-
                 if (handler != null)
                 {
-                    handler(messageCounts.unread, messageCounts.total);
+                    MessageCounts messageCounts = AirshipUtils.Deserialize<MessageCounts>(counts);
+                    if (messageCounts != null)
+                    {
+                        handler(messageCounts.unread, messageCounts.total);
+                    }
                 }
-
             }
 
             void OnShowInbox(string messageId)
@@ -356,7 +357,7 @@ namespace AirshipSDK
 
                 if (handler != null)
                 {
-                    PushNotificationStatus pushStatus = JsonUtility.FromJson<PushNotificationStatus>(status);
+                    PushNotificationStatus pushStatus = AirshipUtils.Deserialize<PushNotificationStatus>(status);
                     if (pushStatus != null)
                     {
                         handler(pushStatus);
