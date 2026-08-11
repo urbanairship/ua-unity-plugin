@@ -59,7 +59,7 @@ All features are accessed through `Airship.Shared`:
  - `analytics` - screen tracking, custom events, associated identifiers
  - `privacyManager` - enable/disable data collection features
  - `featureFlagManager` - feature flags
- - `locale` - Local overrides
+ - `locale` - locale overrides
  - `actions` - Actions
  - `liveActivityManager` (iOS)
  - `liveUpdateManager` (Android)
