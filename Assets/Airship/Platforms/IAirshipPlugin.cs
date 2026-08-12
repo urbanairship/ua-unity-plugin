@@ -23,7 +23,9 @@ namespace AirshipSDK {
     internal class StubbedAirshipPlugin : IAirshipPlugin {
         public GameObject Listener { set; private get; }
         public void Call (string method, params object[] args) {}
-        public T Call<T> (string method, params object[] args) { return default(T); }
+        // Goes through Deserialize so an unsupported platform sees the same empty
+        // response handling as a real one, rather than a null array.
+        public T Call<T> (string method, params object[] args) { return AirshipUtils.Deserialize<T>(null); }
     }
 
     #if UNITY_ANDROID
