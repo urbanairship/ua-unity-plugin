@@ -429,10 +429,19 @@ namespace AirshipSDK
         /// </summary>
         public bool isUserOptedIn;
 
+        // Both natives send this as a string ("granted" / "denied" / "not_determined").
+        // Unity's JsonUtility only maps enums from integers, so the raw string is captured
+        // here and parsed by the property below. Reading it as an enum field silently
+        // yielded PermissionStatus.Granted (value 0) for every status.
+        [SerializeField]
+        private string notificationPermissionStatus;
+
         /// <summary>
         /// The notification permission status.
         /// </summary>
-        public PermissionStatus notificationPermissionStatus;
+        public PermissionStatus NotificationPermissionStatus {
+            get { return AirshipUtils.ParseEnum(notificationPermissionStatus, PermissionStatus.NotDetermined); }
+        }
     }
 
     /// <summary>

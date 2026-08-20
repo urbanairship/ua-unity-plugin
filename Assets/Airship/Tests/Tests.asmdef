@@ -1,19 +1,25 @@
 {
     "name": "Unit Tests",
+    "rootNamespace": "",
     "references": [
-        "AirshipSDK"
+        "AirshipSDK",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
     ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
+    "includePlatforms": [
+        "Editor"
     ],
-    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
+        "nunit.framework.dll",
         "NSubstitute.dll"
     ],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": []
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

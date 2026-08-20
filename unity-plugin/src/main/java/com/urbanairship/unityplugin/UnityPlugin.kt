@@ -398,7 +398,8 @@ class UnityPlugin {
 
     fun getActiveNotifications(): String {
         UALog.d { "UnityPlugin getActiveNotifications method call" }
-        return JsonValue.wrapOpt(airshipProxyInstance.push.getActiveNotifications()).toString()
+        val active = JsonValue.wrapOpt(airshipProxyInstance.push.getActiveNotifications()).optList()
+        return JsonValue.wrapOpt(active.map { pushPayloadForUnity(it) }).toString()
     }
 
     fun clearNotifications() {
@@ -517,7 +518,7 @@ class UnityPlugin {
         UALog.d { "UnityPlugin push received: $message" }
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnPushReceived", message.toString())
+            UnityPlayer.UnitySendMessage(listener, "OnPushReceived", pushPayloadForUnity(message).toString())
         }
     }
 
@@ -525,7 +526,7 @@ class UnityPlugin {
         UALog.d { "UnityPlugin push opened: $message" }
 
         if (listener != null) {
-            UnityPlayer.UnitySendMessage(listener, "OnPushOpened", message.toString())
+            UnityPlayer.UnitySendMessage(listener, "OnPushOpened", pushPayloadForUnity(message).toString())
         }
     }
 
@@ -605,6 +606,44 @@ class UnityPlugin {
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnNotificationStatusChanged", status?.toString() ?: "")
         }
+    }
+
+    /**
+     * Converts a framework-proxy push payload into the shape Unity's JsonUtility can read.
+     *
+     * The proxy sends `extras` as a JSON object. JsonUtility has no dictionary support, so
+     * the object is split into two parallel arrays -- the same approach [getInboxMessagesAsJSON]
+     * already uses for message extras. Every other field (alert, title, subtitle,
+     * notificationId) passes through untouched.
+     */
+    private fun pushPayloadForUnity(payload: JsonValue?): JsonValue {
+        val payloadMap = payload?.optMap() ?: return JsonMap.EMPTY_MAP.toJsonValue()
+
+        val builder = JsonMap.newBuilder()
+        for (entry in payloadMap.entrySet()) {
+            if (entry.key != "extras") {
+                builder.put(entry.key, entry.value)
+            }
+        }
+
+        val extras = payloadMap.opt("extras").optMap()
+        if (extras.entrySet().isNotEmpty()) {
+            val extrasKeys: MutableList<String> = ArrayList()
+            val extrasValues: MutableList<String> = ArrayList()
+
+            for (entry in extras.entrySet()) {
+                extrasKeys.add(entry.key)
+                // Non-string values are passed through as their JSON text, which is what
+                // the PushMessage.Extras contract documents.
+                val value = entry.value
+                extrasValues.add(if (value.isString) value.optString() else value.toString())
+            }
+
+            builder.put("extrasKeys", JsonValue.wrapOpt(extrasKeys))
+            builder.put("extrasValues", JsonValue.wrapOpt(extrasValues))
+        }
+
+        return builder.build().toJsonValue()
     }
 
     fun getInboxMessagesAsJSON(messageList: List<MessageCenterMessage>): String {
