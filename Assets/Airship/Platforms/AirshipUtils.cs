@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
@@ -88,15 +89,8 @@ namespace AirshipSDK
             Type? underlyingType = Nullable.GetUnderlyingType(valueType);
             Type actualType = underlyingType ?? valueType;
 
-            // Handle nullable enums
-            if (underlyingType != null && underlyingType.IsEnum)
-            {
-                Enum enumValue = (Enum)value;
-                string stringValue = enumValue.ToStringValue();
-                return $"\"{EscapeJsonString(stringValue)}\"";
-            }
-
-            // Handle non-nullable enums
+            // Handles nullable enums too: boxing a Nullable<T> yields a T, so valueType is
+            // never Nullable<T> here and actualType is always the enum itself.
             if (actualType.IsEnum)
             {
                 Enum enumValue = (Enum)value;
@@ -272,6 +266,39 @@ namespace AirshipSDK
         internal static string ToJsonString(string str)
         {
             return str == null ? "null" : "\"" + EscapeJsonString(str) + "\"";
+        }
+
+        /// <summary>
+        /// Pairs the parallel key/value arrays the native layers send in place of a JSON
+        /// object, because Unity's JsonUtility has no dictionary support and silently leaves
+        /// a dictionary field empty.
+        ///
+        /// A shorter values array is tolerated rather than throwing: a truncated payload
+        /// should cost the trailing entries, not the whole object.
+        /// </summary>
+        /// <returns>
+        /// The paired values, or <c>null</c> when no keys were sent, which the models expose
+        /// as "carried none".
+        /// </returns>
+        internal static Dictionary<string, string> PairFlattenedObject(List<string> keys, List<string> values)
+        {
+            if (keys == null || keys.Count == 0)
+            {
+                return null;
+            }
+
+            var result = new Dictionary<string, string>();
+            int count = values == null ? 0 : Math.Min(keys.Count, values.Count);
+            for (int i = 0; i < count; i++)
+            {
+                string key = keys[i];
+                if (key != null)
+                {
+                    result[key] = values[i];
+                }
+            }
+
+            return result;
         }
 
         public static T Deserialize<T>(string json)

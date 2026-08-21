@@ -1,3 +1,47 @@
+# =======================================================================================
+# Heads up: this workflow has never completed a run. Before 10.0.0 it had no packaging step
+# at all -- 9.x assets were attached by hand -- and the step added in 10.0.0 could not
+# resolve a Unity editor on a hosted runner. The container setup below is derived from
+# game-ci's own sources (unity-builder's ImageTag, activate.sh, return_license.sh, and the
+# ubuntu editor Dockerfile) but has not been exercised end to end. If a tag run goes red,
+# start here.
+#
+#   "Unable to find image 'unityci/editor:ubuntu-<version>-android-3'"
+#       game-ci has not published that editor version. The tag format is
+#       <os>-<editor>-<target>-<rolling>, per unity-builder's ImageTag. List what exists
+#       with:
+#         curl -s 'https://hub.docker.com/v2/repositories/unityci/editor/tags?page_size=100&name=<version>'
+#       The `plugin` job's Android leg resolves the same tag by the same formula, so its
+#       logs are also a reference for what is actually pullable.
+#
+#   "Container is on <x> but the project is on <y>"
+#       The pinned container tag drifted from ProjectSettings/ProjectVersion.txt, almost
+#       always because the project's editor was upgraded. Update package.container.image.
+#
+#   Activation retries and fails
+#       Serial activation assumes a Pro/Plus seat. A Personal license cannot activate
+#       headless this way -- it needs the .ulf flow via a UNITY_LICENSE secret. game-ci's
+#       activate.sh has that branch; mirror it here.
+#
+#   Activation fails on later runs although nothing changed
+#       A leaked serial seat. The return step covers build failure and cancellation, but a
+#       hard-killed runner cannot return anything. Free the seat in the Unity dashboard.
+#
+#   Gradle cannot find a JDK or the Android SDK
+#       The image exports JAVA_HOME / ANDROID_HOME only through /usr/bin/unity-editor.d/*.sh,
+#       which the packaging step sources by hand. If game-ci relocates those fragments, set
+#       the variables explicitly instead.
+#
+#   Release published with no .unitypackage attached
+#       Should be impossible now -- upload uses if-no-files-found: error and the attach uses
+#       fail_on_unmatched_files: true. If it happens anyway, those two guards are the place
+#       to look, and the likely cause is another rename of the gradle output.
+#
+# To exercise all of this without publishing anything, push a prerelease tag such as
+# 10.0.0-rc1. It matches the trigger, so `plugin` and `package` both run, and the Verify
+# Version step then fails `release` on the version mismatch before anything ships.
+# =======================================================================================
+
 name: Release
 
 on:
@@ -14,7 +58,7 @@ jobs:
         targetPlatform:
           - iOS # Build an iOS player.
           - Android # Build an Android .apk standalone app.
-          
+
     steps:
       - uses: actions/checkout@v4
 
@@ -27,18 +71,107 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
 
+  # The exported .unitypackage is platform independent -- `build` packages Assets, not a
+  # player -- so it is built once here rather than in each `plugin` matrix leg. Two legs
+  # uploading an identical package under one artifact name is a 409 on upload-artifact@v4.
+  #
+  # This runs inside the game-ci editor image because build.gradle drives Unity directly
+  # (-importPackage / -exportPackage) and needs a real editor binary. A bare ubuntu runner
+  # has none, and getUnityExePath()'s fallback is a macOS Unity Hub path, so the step used
+  # to die with "Unable to find Unity executable".
+  package:
+    runs-on: ubuntu-latest
+    # Sequenced after `plugin` rather than run alongside it. Every Unity job holds a serial
+    # license seat for its duration, and the `plugin` matrix already holds two; running this
+    # in parallel would need a third simultaneous seat. It also avoids spending the
+    # packaging time when the players do not even build.
+    needs: [plugin]
+    container:
+      # Pinned deliberately, and the same image game-ci/unity-builder resolves for the
+      # Android leg above. Verified published on Docker Hub (pushed 2026-03-19, linux/amd64).
+      #
+      # The trailing -3 is game-ci's rolling image revision, not a Unity version: it is an
+      # alias over their 3.2.x image builds, so non-breaking image fixes arrive without an
+      # edit here. Only the editor segment needs maintenance, on a Unity upgrade -- and the
+      # next step fails the job if it drifts from ProjectVersion.txt.
+      image: unityci/editor:ubuntu-6000.2.8f1-android-3
+    env:
+      UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
+      UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
+      UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # The image records its own editor version at $UNITY_PATH/version, so this compares
+      # the real container against the real project rather than trusting the tag string.
+      - name: Verify the container matches the project editor
+        run: |
+          CONTAINER_VERSION=$(cat "$UNITY_PATH/version")
+          PROJECT_VERSION=$(awk '/^m_EditorVersion:/ {print $2}' ProjectSettings/ProjectVersion.txt)
+          echo "container: $CONTAINER_VERSION, project: $PROJECT_VERSION"
+          if [ "$CONTAINER_VERSION" != "$PROJECT_VERSION" ]; then
+            echo "::error ::Container is on $CONTAINER_VERSION but the project is on $PROJECT_VERSION. Update package.container.image."
+            exit 1
+          fi
+
+      # Mirrors game-ci's own activate.sh: serial activation needs a project path to run
+      # against, so it gets a throwaway one. Assumes a Pro/Plus serial -- a Personal
+      # license needs the .ulf flow instead. game-ci retries this with backoff because
+      # activation is flaky against Unity's licensing service; if it proves flaky here too,
+      # port that loop over rather than just re-running the job.
+      - name: Activate Unity license
+        run: |
+          mkdir -p /BlankProject/Assets
+          unity-editor \
+            -logFile /dev/stdout \
+            -quit \
+            -serial "$UNITY_SERIAL" \
+            -username "$UNITY_EMAIL" \
+            -password "$UNITY_PASSWORD" \
+            -projectPath /BlankProject
+
       - name: Build Unity Package
-        run: ./gradlew build
+        run: |
+          # The image exports JAVA_HOME / ANDROID_HOME / ANDROID_SDK_ROOT only through the
+          # unity-editor wrapper's env fragments, and gradle does not go through the
+          # wrapper. Source them here so unity-plugin:assembleRelease finds the SDK and JDK.
+          for fragment in /usr/bin/unity-editor.d/*.sh; do
+            [ -r "$fragment" ] && . "$fragment"
+          done
+
+          # getUnityExePath() checks UNITY_EXE before its macOS-only fallback. Point it at
+          # the wrapper rather than /opt/unity/Editor/Unity so the editor calls get xvfb.
+          export UNITY_EXE=/usr/bin/unity-editor
+
+          ./gradlew build
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: unity-build-package
-          path: ./build/urbanairship-*.unitypackage
+          path: ./build/airship-*.unitypackage
+          # Fail loudly rather than uploading nothing: a stale glob here previously left
+          # the release job to fail on a missing artifact instead.
+          if-no-files-found: error
+
+      # Serial seats are limited, so the license is returned even when the build failed or
+      # the run was cancelled -- always() covers both. A hard-killed runner still leaks the
+      # seat and needs a manual release in the Unity dashboard. A failure here is
+      # deliberately not swallowed: a silently leaked seat is worse than a red job.
+      - name: Return Unity license
+        if: always()
+        run: |
+          unity-editor \
+            -logFile /dev/stdout \
+            -quit \
+            -returnlicense \
+            -username "$UNITY_EMAIL" \
+            -password "$UNITY_PASSWORD" \
+            -projectPath /BlankProject
 
   release:
     runs-on: ubuntu-latest
-    needs: plugin
+    needs: [plugin, package]
     steps:
       - uses: actions/checkout@v4
 
@@ -78,7 +211,9 @@ jobs:
         with:
           name: ${{ steps.get_version.outputs.VERSION }}
           body: ${{ steps.get_release_notes.outputs.NOTES }}
-          files: ./build/urbanairship-${{ steps.get_version.outputs.VERSION }}.unitypackage
+          files: ./build/airship-${{ steps.get_version.outputs.VERSION }}.unitypackage
+          # Without this a name mismatch publishes a release with no plugin attached.
+          fail_on_unmatched_files: true
 
   publish-docs:
     needs: [release, plugin]

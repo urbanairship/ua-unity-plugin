@@ -162,36 +162,45 @@ namespace AirshipSDK
         public readonly string title;
         public readonly long sentDate;
         public readonly bool isRead;
+
+        /// <summary>
+        /// Always <c>false</c>: the framework proxy exposes no deleted flag. Deleted
+        /// messages are simply no longer returned by GetMessages.
+        /// </summary>
         public readonly bool isDeleted;
+
+        /// <summary>
+        /// URL of the message's list icon, or <c>null</c> if the message has none.
+        /// </summary>
+        public readonly string listIconUrl;
+
         public readonly Dictionary<string, string> extras;
 
-        internal InboxMessage(string id, string title, long sentDate, bool isRead, bool isDeleted, Dictionary<string, string> extras)
+        internal InboxMessage(string id, string title, long sentDate, bool isRead, bool isDeleted, string listIconUrl, Dictionary<string, string> extras)
         {
             this.id = id;
             this.title = title;
             this.sentDate = sentDate;
             this.isRead = isRead;
             this.isDeleted = isDeleted;
+            this.listIconUrl = listIconUrl;
             this.extras = extras;
         }
 
-        public InboxMessage(InternalInboxMessage internalInboxMessage)
+        internal InboxMessage(InternalInboxMessage internalInboxMessage)
         {
             sentDate = internalInboxMessage.sentDate;
             id = internalInboxMessage.id;
             title = internalInboxMessage.title;
             isRead = internalInboxMessage.isRead;
             isDeleted = internalInboxMessage.isDeleted;
+            listIconUrl = internalInboxMessage.listIconUrl;
 
-            if (internalInboxMessage.extrasKeys != null && internalInboxMessage.extrasKeys.Count > 0)
-            {
-                // Unity's JsonUtility doesn't support embedded dictionaries - create the extras dictionary manually
-                extras = new Dictionary<string, string>();
-                for (int index = 0; index < internalInboxMessage.extrasKeys.Count; index++)
-                {
-                    extras[internalInboxMessage.extrasKeys[index]] = internalInboxMessage.extrasValues[index];
-                }
-            }
+            // Unity's JsonUtility has no dictionary support, so the native layers send
+            // extras as parallel key/value arrays.
+            extras = AirshipUtils.PairFlattenedObject(
+                internalInboxMessage.extrasKeys,
+                internalInboxMessage.extrasValues);
         }
 
         public override bool Equals(object other)
@@ -223,6 +232,10 @@ namespace AirshipSDK
             {
                 return false;
             }
+            if (this.listIconUrl != that.listIconUrl)
+            {
+                return false;
+            }
             if ((this.extras == null ^ that.extras == null) ||
                 ((this.extras != that.extras) &&
                     (this.extras.Count != that.extras.Count || this.extras.Except(that.extras).Any())))
@@ -242,19 +255,24 @@ namespace AirshipSDK
                 hashCode = (hashCode * 397) ^ sentDate.GetHashCode();
                 hashCode = (hashCode * 397) ^ isRead.GetHashCode();
                 hashCode = (hashCode * 397) ^ isDeleted.GetHashCode();
+                hashCode = (hashCode * 397) ^ (listIconUrl != null ? listIconUrl.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (extras != null ? extras.GetHashCode() : 0);
                 return hashCode;
             }
         }
     }
     
+    /// <summary>
+    /// The on-the-wire shape of an inbox message. Internal: callers get InboxMessage.
+    /// </summary>
     [Serializable]
-    public class InternalInboxMessage {
+    internal class InternalInboxMessage {
         public string id;
         public string title;
         public long sentDate;
         public bool isRead;
         public bool isDeleted;
+        public string listIconUrl;
         public List<string> extrasKeys;
         public List<string> extrasValues;
     }

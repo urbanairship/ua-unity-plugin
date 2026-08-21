@@ -118,12 +118,21 @@ namespace AirshipSDK.Editor {
             }
         }
 
+        private const string CopyResourceBundlesPhaseName = "Copy Airship SPM Resource Bundles";
+
         private static void AddCopySPMResourceBundlesPhase (PBXProject proj) {
 #if UNITY_2019_3_OR_NEWER
             string mainTargetGuid = proj.GetUnityMainTargetGuid ();
 #else
             string mainTargetGuid = proj.TargetGuidByName (PBXProject.GetUnityTargetName ());
 #endif
+
+            // An Append build post-processes the Xcode project left by the previous build,
+            // so adding the phase unconditionally stacks up another identical copy step
+            // every time.
+            if (HasBuildPhase (proj, mainTargetGuid, CopyResourceBundlesPhaseName)) {
+                return;
+            }
 
             string shellScript =
                 "# Copy Airship SPM resource bundles into the app bundle so Bundle.module can find them.\n" +
@@ -147,10 +156,20 @@ namespace AirshipSDK.Editor {
 
             proj.AddShellScriptBuildPhase (
                 mainTargetGuid,
-                "Copy Airship SPM Resource Bundles",
+                CopyResourceBundlesPhaseName,
                 "/bin/sh",
                 shellScript
             );
+        }
+
+        private static bool HasBuildPhase (PBXProject proj, string targetGuid, string name) {
+            foreach (string phaseGuid in proj.GetAllBuildPhasesForTarget (targetGuid)) {
+                if (proj.GetBuildPhaseName (phaseGuid) == name) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void CopyModuleMap (string buildPath, PBXProject proj) {
