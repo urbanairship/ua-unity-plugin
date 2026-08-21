@@ -13,11 +13,11 @@ namespace AirshipSDK {
         [SerializeField]
         private string alert;
 
-        // The Airship send ID is no longer available: the framework proxy exposes no
-        // send-ID field, and on iOS ProxyPushPayload strips the "_" key from extras.
-        // Left unpopulated pending a decision to remove or redefine this property.
         [SerializeField]
-        private string identifier;
+        private string title;
+
+        [SerializeField]
+        private string notificationId;
 
         // Unity's JsonUtility has no dictionary support, so the native layers split the
         // proxy's `extras` object into two parallel arrays before sending it over. Same
@@ -38,11 +38,23 @@ namespace AirshipSDK {
         }
 
         /// <summary>
-        /// Gets the push identifier.
+        /// Gets the notification title.
         /// </summary>
-        /// <value>The identifier.</value>
-        public string Identifier {
-            get { return this.identifier; }
+        /// <value>The title, or <c>null</c> if the push carried none.</value>
+        public string Title {
+            get { return this.title; }
+        }
+
+        /// <summary>
+        /// Gets the identifier of the notification this push posted.
+        /// </summary>
+        /// <remarks>
+        /// This is the platform's notification identifier, not the Airship send ID. It is
+        /// <c>null</c> for a push that posted no notification, such as a silent push.
+        /// </remarks>
+        /// <value>The notification identifier.</value>
+        public string NotificationId {
+            get { return this.notificationId; }
         }
 
         /// <summary>
@@ -90,7 +102,12 @@ namespace AirshipSDK {
                 return null;
             }
 
-            if (pushMessage.Alert == null && pushMessage.Identifier == null && pushMessage.Extras == null) {
+            // Only bail when nothing at all came through, which means the payload was not a
+            // push. Checking the alert alone would drop a title-only or data-only push.
+            if (pushMessage.Alert == null
+                && pushMessage.Title == null
+                && pushMessage.NotificationId == null
+                && pushMessage.Extras == null) {
                 return null;
             }
             return pushMessage;

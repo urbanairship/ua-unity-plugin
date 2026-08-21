@@ -46,20 +46,27 @@ namespace AirshipSDK {
 
         /// Internal method to make a Java Array with an array of String values,
         /// to be used with the PrivacyManager methods.
+        /// The caller owns the returned object and is responsible for disposing it; every
+        /// other wrapper created here holds a JNI global reference and is released before
+        /// returning, rather than waiting on finalization.
         public AndroidJavaObject MakeJavaArray(string[] values) {
             if (values == null) {
                 return null;
             }
 
             // Create a Java String[] array using reflection
-            AndroidJavaClass arrayClass = new AndroidJavaClass("java.lang.reflect.Array");
-            AndroidJavaObject arrayObject = arrayClass.CallStatic<AndroidJavaObject>("newInstance", new AndroidJavaClass("java.lang.String"), values.Length);
+            using (AndroidJavaClass arrayClass = new AndroidJavaClass("java.lang.reflect.Array"))
+            using (AndroidJavaClass stringClass = new AndroidJavaClass("java.lang.String")) {
+                AndroidJavaObject arrayObject = arrayClass.CallStatic<AndroidJavaObject>("newInstance", stringClass, values.Length);
 
-            for (int i = 0; i < values.Length; i++) {
-                arrayClass.CallStatic("set", arrayObject, i, new AndroidJavaObject("java.lang.String", values[i]));
+                for (int i = 0; i < values.Length; i++) {
+                    using (AndroidJavaObject value = new AndroidJavaObject("java.lang.String", values[i])) {
+                        arrayClass.CallStatic("set", arrayObject, i, value);
+                    }
+                }
+
+                return arrayObject;
             }
-
-            return arrayObject;
         }
 
         public void Call (string method, params object[] args) {

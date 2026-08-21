@@ -50,7 +50,7 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
 
     do {
         // Sync path
-        let syncResult = try UnityPlugin.shared.handleCall(method: methodStr, args: args)
+        let syncResult = try onMainThread { try UnityPlugin.shared.handleCall(method: methodStr, args: args) }
         switch syncResult {
         case .handledSync(let value):
             result = value
@@ -78,6 +78,24 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
     } catch {
         return makeErrorResponse("Failed to serialize result for \(methodStr): \(error)")
     }
+}
+
+/// Runs a block on the main thread, hopping only if the caller is not already there.
+///
+/// Many cases in `handleCall` reach main-actor-isolated proxy APIs through
+/// `MainActor.assumeIsolated`, which is a precondition: it traps rather than throws when
+/// the caller is off the main thread. C# dispatches some calls from a worker thread
+/// (`AirshipCoroutineHelper`), so which methods are safe would otherwise depend on which
+/// ones happen to be routed that way today. Hopping here makes every case safe regardless.
+///
+/// There is no deadlock risk from the wait: the main thread only ever calls in directly,
+/// and while it is pumping in `runAsync` below it is running its run loop, which services
+/// the main queue.
+private func onMainThread<T>(_ block: () throws -> T) rethrows -> T {
+    if Thread.isMainThread {
+        return try block()
+    }
+    return try DispatchQueue.main.sync(execute: block)
 }
 
 // Kept slightly below the C# AirshipCoroutineHelper timeout (60s) so this native

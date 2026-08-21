@@ -41,6 +41,9 @@ migration guide to update
 - Renamed the `OnChannelUpdated` event to `OnChannelCreated`
 - Removed `GetDeepLink` and `GetIncomingPush` in favor of the `OnDeepLinkReceived`,
   `OnPushReceived`, and `OnPushOpened` events
+- Replaced `PushMessage.Identifier`, which carried the Airship send ID, with
+  `PushMessage.NotificationId`, and added `PushMessage.Title`
+- Removed `InboxMessage.isDeleted`
 
 ## Version 9.3.0 - March 14, 2024
 

@@ -164,25 +164,18 @@ namespace AirshipSDK
         public readonly bool isRead;
 
         /// <summary>
-        /// Always <c>false</c>: the framework proxy exposes no deleted flag. Deleted
-        /// messages are simply no longer returned by GetMessages.
-        /// </summary>
-        public readonly bool isDeleted;
-
-        /// <summary>
         /// URL of the message's list icon, or <c>null</c> if the message has none.
         /// </summary>
         public readonly string listIconUrl;
 
         public readonly Dictionary<string, string> extras;
 
-        internal InboxMessage(string id, string title, long sentDate, bool isRead, bool isDeleted, string listIconUrl, Dictionary<string, string> extras)
+        internal InboxMessage(string id, string title, long sentDate, bool isRead, string listIconUrl, Dictionary<string, string> extras)
         {
             this.id = id;
             this.title = title;
             this.sentDate = sentDate;
             this.isRead = isRead;
-            this.isDeleted = isDeleted;
             this.listIconUrl = listIconUrl;
             this.extras = extras;
         }
@@ -193,7 +186,6 @@ namespace AirshipSDK
             id = internalInboxMessage.id;
             title = internalInboxMessage.title;
             isRead = internalInboxMessage.isRead;
-            isDeleted = internalInboxMessage.isDeleted;
             listIconUrl = internalInboxMessage.listIconUrl;
 
             // Unity's JsonUtility has no dictionary support, so the native layers send
@@ -228,10 +220,6 @@ namespace AirshipSDK
             {
                 return false;
             }
-            if (this.isDeleted != that.isDeleted)
-            {
-                return false;
-            }
             if (this.listIconUrl != that.listIconUrl)
             {
                 return false;
@@ -254,7 +242,6 @@ namespace AirshipSDK
                 hashCode = (hashCode * 397) ^ (title != null ? title.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ sentDate.GetHashCode();
                 hashCode = (hashCode * 397) ^ isRead.GetHashCode();
-                hashCode = (hashCode * 397) ^ isDeleted.GetHashCode();
                 hashCode = (hashCode * 397) ^ (listIconUrl != null ? listIconUrl.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (extras != null ? extras.GetHashCode() : 0);
                 return hashCode;
@@ -271,7 +258,6 @@ namespace AirshipSDK
         public string title;
         public long sentDate;
         public bool isRead;
-        public bool isDeleted;
         public string listIconUrl;
         public List<string> extrasKeys;
         public List<string> extrasValues;

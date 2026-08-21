@@ -27,11 +27,7 @@ namespace AirshipSDK
         /// <param name="enabledFeatures">The features to set.</param>
         public void SetEnabledFeatures(string[] enabledFeatures)
         {
-            #if UNITY_ANDROID
-                plugin.Call("setEnabledFeatures", ((AirshipPluginAndroid)plugin).MakeJavaArray(enabledFeatures));
-            #else
-                plugin.Call("setEnabledFeatures", enabledFeatures);
-            #endif
+            CallWithFeatures("setEnabledFeatures", enabledFeatures);
         }
 
         /// <summary>
@@ -49,11 +45,7 @@ namespace AirshipSDK
         /// <param name="features">The features to enable.</param>
         public void EnableFeatures(string[] features)
         {
-            #if UNITY_ANDROID
-                plugin.Call("enableFeatures", ((AirshipPluginAndroid)plugin).MakeJavaArray(features));
-            #else
-                plugin.Call("enableFeatures", features);
-            #endif
+            CallWithFeatures("enableFeatures", features);
         }
 
         /// <summary>
@@ -62,11 +54,7 @@ namespace AirshipSDK
         /// <param name="features">The features to disable.</param>
         public void DisableFeatures(string[] features)
         {
-            #if UNITY_ANDROID
-                plugin.Call("disableFeatures", ((AirshipPluginAndroid)plugin).MakeJavaArray(features));
-            #else
-                plugin.Call("disableFeatures", features);
-            #endif
+            CallWithFeatures("disableFeatures", features);
         }
 
         /// <summary>
@@ -76,11 +64,38 @@ namespace AirshipSDK
         /// <value><c>true</c> if the features are enabled, otherwise <c>false</c></value>
         public bool IsFeaturesEnabled(string[] features)
         {
-            #if UNITY_ANDROID
-                return plugin.Call<bool>("isFeaturesEnabled", ((AirshipPluginAndroid)plugin).MakeJavaArray(features));
-            #else
-                return plugin.Call<bool>("isFeaturesEnabled", features);
-            #endif
+            return CallWithFeatures<bool>("isFeaturesEnabled", features);
+        }
+
+        private void CallWithFeatures(string method, string[] features)
+        {
+#if UNITY_ANDROID
+            // Editor builds are stubbed even when Android is the active build target, so
+            // the plugin is not always the Android one here.
+            if (plugin is AirshipPluginAndroid androidPlugin)
+            {
+                using (AndroidJavaObject javaFeatures = androidPlugin.MakeJavaArray(features))
+                {
+                    plugin.Call(method, javaFeatures);
+                }
+                return;
+            }
+#endif
+            plugin.Call(method, features);
+        }
+
+        private T CallWithFeatures<T>(string method, string[] features)
+        {
+#if UNITY_ANDROID
+            if (plugin is AirshipPluginAndroid androidPlugin)
+            {
+                using (AndroidJavaObject javaFeatures = androidPlugin.MakeJavaArray(features))
+                {
+                    return plugin.Call<T>(method, javaFeatures);
+                }
+            }
+#endif
+            return plugin.Call<T>(method, features);
         }
     }
 }
