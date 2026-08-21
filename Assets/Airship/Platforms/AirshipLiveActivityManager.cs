@@ -189,6 +189,22 @@ namespace AirshipSDK {
         }
     }
 
+    /// <summary>
+    /// Live Activity content to send when starting, updating or ending an activity.
+    ///
+    /// The outbound counterpart of <see cref="LiveActivityContentInfo"/>. This one takes a
+    /// dictionary directly, because outbound payloads go through
+    /// <see cref="AirshipUtils.Serialize"/>, which handles dictionaries. Only the inbound
+    /// path has to work around JsonUtility.
+    /// </summary>
+    [Serializable]
+    public record LiveActivityContent
+    {
+        public Dictionary<string, object> state;
+        public string staleDate;
+        public double relevanceScore;
+    }
+
     [Serializable]
     public record LiveActivityListRequest
     {
