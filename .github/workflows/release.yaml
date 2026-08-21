@@ -81,6 +81,11 @@ jobs:
   # to die with "Unable to find Unity executable".
   package:
     runs-on: ubuntu-latest
+    # Sequenced after `plugin` rather than run alongside it. Every Unity job holds a serial
+    # license seat for its duration, and the `plugin` matrix already holds two; running this
+    # in parallel would need a third simultaneous seat. It also avoids spending the
+    # packaging time when the players do not even build.
+    needs: [plugin]
     container:
       # Pinned deliberately, and the same image game-ci/unity-builder resolves for the
       # Android leg above. Verified published on Docker Hub (pushed 2026-03-19, linux/amd64).
