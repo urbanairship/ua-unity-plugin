@@ -34,3 +34,85 @@ jobs:
           UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
+
+  # Nothing in CI compiled the Android plugin module before -- no AAR is checked in, and the
+  # `ci` job's Unity build never invokes this gradle module -- so Kotlin changes reached
+  # review unverified.
+  #
+  # This runs in the game-ci editor image purely to obtain Unity's classes.jar, which
+  # unity-plugin compiles against (`compileOnly files('libs/unity-classes.jar')`). The jar is
+  # gitignored, and build.gradle's copyUnityClassesJar otherwise falls back to a macOS Unity
+  # Hub path, so on a bare Linux runner the Copy task silently no-ops and Kotlin compilation
+  # fails on a missing classpath entry.
+  #
+  # No Unity process is launched here, so unlike the `ci` and `tests` jobs this consumes no
+  # license seat.
+  android-library:
+    runs-on: ubuntu-latest
+    container:
+      # Pinned, and kept honest by the drift check below. Same image release.yaml uses.
+      image: unityci/editor:ubuntu-6000.2.8f1-android-3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The image records its own editor version, so this compares the real container
+      # against the real project rather than trusting the tag string.
+      - name: Verify the container matches the project editor
+        run: |
+          CONTAINER_VERSION=$(cat "$UNITY_PATH/version")
+          PROJECT_VERSION=$(awk '/^m_EditorVersion:/ {print $2}' ProjectSettings/ProjectVersion.txt)
+          echo "container: $CONTAINER_VERSION, project: $PROJECT_VERSION"
+          if [ "$CONTAINER_VERSION" != "$PROJECT_VERSION" ]; then
+            echo "::error ::Container is on $CONTAINER_VERSION but the project is on $PROJECT_VERSION. Update android-library.container.image."
+            exit 1
+          fi
+
+      - name: Compile the Android plugin
+        run: |
+          # The image exports JAVA_HOME / ANDROID_HOME / ANDROID_SDK_ROOT only through the
+          # unity-editor wrapper's env fragments, and gradle does not go through the wrapper.
+          for fragment in /usr/bin/unity-editor.d/*.sh; do
+            [ -r "$fragment" ] && . "$fragment"
+          done
+
+          # Located rather than hardcoded: the Variations/<backend>/Release/Classes layout
+          # has moved between editor versions.
+          JAR=$(find "$UNITY_PATH/Editor/Data/PlaybackEngines/AndroidPlayer" -name classes.jar | head -1)
+          if [ -z "$JAR" ]; then
+            echo "::error ::classes.jar not found under the AndroidPlayer playback engine"
+            exit 1
+          fi
+          echo "using $JAR"
+          export UNITY_CLASSES_JAR="$JAR"
+
+          ./gradlew :unity-plugin:assembleRelease
+
+  # The test assembly was already being compiled by the `ci` job, but nothing ever ran the
+  # tests, so they could not fail a PR.
+  #
+  # Sequenced after `ci` rather than run beside it: every Unity job holds a serial license
+  # seat for its duration and the `ci` matrix already holds two, so running this in parallel
+  # would need a third simultaneous seat.
+  tests:
+    runs-on: ubuntu-latest
+    needs: ci
+    permissions:
+      contents: read
+      checks: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # unityVersion defaults to auto, which reads ProjectSettings/ProjectVersion.txt, so
+      # there is no editor version to keep in sync here. EditMode because Tests.asmdef is
+      # Editor-only.
+      - name: Run EditMode tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
+        with:
+          testMode: EditMode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
