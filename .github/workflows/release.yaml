@@ -1,3 +1,44 @@
+# =======================================================================================
+# Heads up: this workflow has never completed a run. Before 10.0.0 it had no packaging step
+# at all -- 9.x assets were attached by hand -- and the step added in 10.0.0 could not
+# resolve a Unity editor on a hosted runner. The container setup below is derived from
+# game-ci's own sources (unity-builder's ImageTag, activate.sh, return_license.sh, and the
+# ubuntu editor Dockerfile) but has not been exercised end to end. If a tag run goes red,
+# start here.
+#
+#   "Unable to find image 'unityci/editor:ubuntu-<version>-android-3'"
+#       game-ci has not published that editor version. Check which image the `plugin` job's
+#       Android leg pulls in its own logs and use that, or drop the rolling suffix to -2.
+#       The tag format is <os>-<editor>-<target>-<rolling>, per unity-builder's ImageTag.
+#
+#   "Container is on <x> but the project is on <y>"
+#       The pinned container tag drifted from ProjectSettings/ProjectVersion.txt, almost
+#       always because the project's editor was upgraded. Update package.container.image.
+#
+#   Activation retries and fails
+#       Serial activation assumes a Pro/Plus seat. A Personal license cannot activate
+#       headless this way -- it needs the .ulf flow via a UNITY_LICENSE secret. game-ci's
+#       activate.sh has that branch; mirror it here.
+#
+#   Activation fails on later runs although nothing changed
+#       A leaked serial seat. The return step covers build failure and cancellation, but a
+#       hard-killed runner cannot return anything. Free the seat in the Unity dashboard.
+#
+#   Gradle cannot find a JDK or the Android SDK
+#       The image exports JAVA_HOME / ANDROID_HOME only through /usr/bin/unity-editor.d/*.sh,
+#       which the packaging step sources by hand. If game-ci relocates those fragments, set
+#       the variables explicitly instead.
+#
+#   Release published with no .unitypackage attached
+#       Should be impossible now -- upload uses if-no-files-found: error and the attach uses
+#       fail_on_unmatched_files: true. If it happens anyway, those two guards are the place
+#       to look, and the likely cause is another rename of the gradle output.
+#
+# To exercise all of this without publishing anything, push a prerelease tag such as
+# 10.0.0-rc1. It matches the trigger, so `plugin` and `package` both run, and the Verify
+# Version step then fails `release` on the version mismatch before anything ships.
+# =======================================================================================
+
 name: Release
 
 on:
@@ -6,31 +47,6 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
-  # Resolves the editor version from ProjectSettings/ProjectVersion.txt -- the same file
-  # game-ci/unity-builder reads -- so the packaging container always runs the exact editor
-  # the players are built with, and bumping Unity does not silently leave CI behind.
-  editor:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.resolve.outputs.version }}
-      image: ${{ steps.resolve.outputs.image }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Resolve editor image
-        id: resolve
-        run: |
-          VERSION=$(awk '/^m_EditorVersion:/ {print $2}' ProjectSettings/ProjectVersion.txt)
-          if [ -z "$VERSION" ]; then
-            echo "::error ::Could not read m_EditorVersion from ProjectSettings/ProjectVersion.txt"
-            exit 1
-          fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          # game-ci tag format is <os>-<editor>-<target>-<rolling>; 3 is unity-builder's
-          # default rolling version. The android variant is the one that carries the JDK
-          # and Android SDK that unity-plugin:assembleRelease needs.
-          echo "image=unityci/editor:ubuntu-$VERSION-android-3" >> $GITHUB_OUTPUT
-
   plugin:
     runs-on: ubuntu-latest
     strategy:
@@ -62,9 +78,12 @@ jobs:
   # to die with "Unable to find Unity executable".
   package:
     runs-on: ubuntu-latest
-    needs: [editor]
     container:
-      image: ${{ needs.editor.outputs.image }}
+      # Pinned deliberately. This is the same image game-ci/unity-builder resolves for the
+      # Android leg above, so the `plugin` job's logs are the reference for what is
+      # actually published. Bumping the project's editor means bumping this tag -- the
+      # first step below fails the job if the two drift apart.
+      image: unityci/editor:ubuntu-6000.2.8f1-android-3
     env:
       UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
       UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
@@ -72,8 +91,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The image records its own editor version at $UNITY_PATH/version, so this compares
+      # the real container against the real project rather than trusting the tag string.
+      - name: Verify the container matches the project editor
+        run: |
+          CONTAINER_VERSION=$(cat "$UNITY_PATH/version")
+          PROJECT_VERSION=$(awk '/^m_EditorVersion:/ {print $2}' ProjectSettings/ProjectVersion.txt)
+          echo "container: $CONTAINER_VERSION, project: $PROJECT_VERSION"
+          if [ "$CONTAINER_VERSION" != "$PROJECT_VERSION" ]; then
+            echo "::error ::Container is on $CONTAINER_VERSION but the project is on $PROJECT_VERSION. Update package.container.image."
+            exit 1
+          fi
+
       # Mirrors game-ci's own activate.sh: serial activation needs a project path to run
-      # against, so it gets a throwaway one.
+      # against, so it gets a throwaway one. Assumes a Pro/Plus serial -- a Personal
+      # license needs the .ulf flow instead. game-ci retries this with backoff because
+      # activation is flaky against Unity's licensing service; if it proves flaky here too,
+      # port that loop over rather than just re-running the job.
       - name: Activate Unity license
         run: |
           mkdir -p /BlankProject/Assets
@@ -109,9 +143,10 @@ jobs:
           # the release job to fail on a missing artifact instead.
           if-no-files-found: error
 
-      # Serial seats are limited, so the license is returned even when the build failed.
-      # A failure here is deliberately not swallowed -- a silently leaked seat is worse
-      # than a red job.
+      # Serial seats are limited, so the license is returned even when the build failed or
+      # the run was cancelled -- always() covers both. A hard-killed runner still leaks the
+      # seat and needs a manual release in the Unity dashboard. A failure here is
+      # deliberately not swallowed: a silently leaked seat is worse than a red job.
       - name: Return Unity license
         if: always()
         run: |
@@ -170,7 +205,7 @@ jobs:
           fail_on_unmatched_files: true
 
   publish-docs:
-    needs: [release]
+    needs: [release, plugin]
     uses: ./.github/workflows/publish-docs.yml
     permissions:
       contents: read
