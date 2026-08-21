@@ -6,6 +6,31 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
+  # Resolves the editor version from ProjectSettings/ProjectVersion.txt -- the same file
+  # game-ci/unity-builder reads -- so the packaging container always runs the exact editor
+  # the players are built with, and bumping Unity does not silently leave CI behind.
+  editor:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+      image: ${{ steps.resolve.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve editor image
+        id: resolve
+        run: |
+          VERSION=$(awk '/^m_EditorVersion:/ {print $2}' ProjectSettings/ProjectVersion.txt)
+          if [ -z "$VERSION" ]; then
+            echo "::error ::Could not read m_EditorVersion from ProjectSettings/ProjectVersion.txt"
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # game-ci tag format is <os>-<editor>-<target>-<rolling>; 3 is unity-builder's
+          # default rolling version. The android variant is the one that carries the JDK
+          # and Android SDK that unity-plugin:assembleRelease needs.
+          echo "image=unityci/editor:ubuntu-$VERSION-android-3" >> $GITHUB_OUTPUT
+
   plugin:
     runs-on: ubuntu-latest
     strategy:
@@ -27,23 +52,53 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
 
+  # The exported .unitypackage is platform independent -- `build` packages Assets, not a
+  # player -- so it is built once here rather than in each `plugin` matrix leg. Two legs
+  # uploading an identical package under one artifact name is a 409 on upload-artifact@v4.
+  #
+  # This runs inside the game-ci editor image because build.gradle drives Unity directly
+  # (-importPackage / -exportPackage) and needs a real editor binary. A bare ubuntu runner
+  # has none, and getUnityExePath()'s fallback is a macOS Unity Hub path, so the step used
+  # to die with "Unable to find Unity executable".
   package:
     runs-on: ubuntu-latest
+    needs: [editor]
+    container:
+      image: ${{ needs.editor.outputs.image }}
+    env:
+      UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
+      UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
+      UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
     steps:
       - uses: actions/checkout@v4
 
-      # The exported .unitypackage is platform independent -- `build` packages Assets, not
-      # a player -- so it is built once here instead of in each `plugin` matrix leg. Two
-      # legs each uploading an identical package under one artifact name is a 409 Conflict
-      # on upload-artifact@v4.
-      #
-      # NOTE: this step needs a Unity executable on the runner. build.gradle's
-      # getUnityExePath() reads $UNITY_EXE and otherwise falls back to a macOS Unity Hub
-      # path, so on ubuntu-latest it throws "Unable to find Unity executable". Either point
-      # UNITY_EXE at an editor available to this runner or move the step into a Unity
-      # container/self-hosted macOS runner.
+      # Mirrors game-ci's own activate.sh: serial activation needs a project path to run
+      # against, so it gets a throwaway one.
+      - name: Activate Unity license
+        run: |
+          mkdir -p /BlankProject/Assets
+          unity-editor \
+            -logFile /dev/stdout \
+            -quit \
+            -serial "$UNITY_SERIAL" \
+            -username "$UNITY_EMAIL" \
+            -password "$UNITY_PASSWORD" \
+            -projectPath /BlankProject
+
       - name: Build Unity Package
-        run: ./gradlew build
+        run: |
+          # The image exports JAVA_HOME / ANDROID_HOME / ANDROID_SDK_ROOT only through the
+          # unity-editor wrapper's env fragments, and gradle does not go through the
+          # wrapper. Source them here so unity-plugin:assembleRelease finds the SDK and JDK.
+          for fragment in /usr/bin/unity-editor.d/*.sh; do
+            [ -r "$fragment" ] && . "$fragment"
+          done
+
+          # getUnityExePath() checks UNITY_EXE before its macOS-only fallback. Point it at
+          # the wrapper rather than /opt/unity/Editor/Unity so the editor calls get xvfb.
+          export UNITY_EXE=/usr/bin/unity-editor
+
+          ./gradlew build
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -53,6 +108,20 @@ jobs:
           # Fail loudly rather than uploading nothing: a stale glob here previously left
           # the release job to fail on a missing artifact instead.
           if-no-files-found: error
+
+      # Serial seats are limited, so the license is returned even when the build failed.
+      # A failure here is deliberately not swallowed -- a silently leaked seat is worse
+      # than a red job.
+      - name: Return Unity license
+        if: always()
+        run: |
+          unity-editor \
+            -logFile /dev/stdout \
+            -quit \
+            -returnlicense \
+            -username "$UNITY_EMAIL" \
+            -password "$UNITY_PASSWORD" \
+            -projectPath /BlankProject
 
   release:
     runs-on: ubuntu-latest
