@@ -35,23 +35,58 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
 
-  # The unity-plugin module is a plain Android library: no Unity, and so no Unity license
-  # seat. Nothing in CI compiled it before -- no AAR is checked in, and the `ci` job's Unity
-  # build never invokes this gradle module -- so Kotlin changes reached review unverified.
+  # Nothing in CI compiled the Android plugin module before -- no AAR is checked in, and the
+  # `ci` job's Unity build never invokes this gradle module -- so Kotlin changes reached
+  # review unverified.
+  #
+  # This runs in the game-ci editor image purely to obtain Unity's classes.jar, which
+  # unity-plugin compiles against (`compileOnly files('libs/unity-classes.jar')`). The jar is
+  # gitignored, and build.gradle's copyUnityClassesJar otherwise falls back to a macOS Unity
+  # Hub path, so on a bare Linux runner the Copy task silently no-ops and Kotlin compilation
+  # fails on a missing classpath entry.
+  #
+  # No Unity process is launched here, so unlike the `ci` and `tests` jobs this consumes no
+  # license seat.
   android-library:
     runs-on: ubuntu-latest
+    container:
+      # Pinned, and kept honest by the drift check below. Same image release.yaml uses.
+      image: unityci/editor:ubuntu-6000.2.8f1-android-3
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      # The image records its own editor version, so this compares the real container
+      # against the real project rather than trusting the tag string.
+      - name: Verify the container matches the project editor
+        run: |
+          CONTAINER_VERSION=$(cat "$UNITY_PATH/version")
+          PROJECT_VERSION=$(awk '/^m_EditorVersion:/ {print $2}' ProjectSettings/ProjectVersion.txt)
+          echo "container: $CONTAINER_VERSION, project: $PROJECT_VERSION"
+          if [ "$CONTAINER_VERSION" != "$PROJECT_VERSION" ]; then
+            echo "::error ::Container is on $CONTAINER_VERSION but the project is on $PROJECT_VERSION. Update android-library.container.image."
+            exit 1
+          fi
 
       - name: Compile the Android plugin
-        run: ./gradlew :unity-plugin:assembleRelease
+        run: |
+          # The image exports JAVA_HOME / ANDROID_HOME / ANDROID_SDK_ROOT only through the
+          # unity-editor wrapper's env fragments, and gradle does not go through the wrapper.
+          for fragment in /usr/bin/unity-editor.d/*.sh; do
+            [ -r "$fragment" ] && . "$fragment"
+          done
+
+          # Located rather than hardcoded: the Variations/<backend>/Release/Classes layout
+          # has moved between editor versions.
+          JAR=$(find "$UNITY_PATH/Editor/Data/PlaybackEngines/AndroidPlayer" -name classes.jar | head -1)
+          if [ -z "$JAR" ]; then
+            echo "::error ::classes.jar not found under the AndroidPlayer playback engine"
+            exit 1
+          fi
+          echo "using $JAR"
+          export UNITY_CLASSES_JAR="$JAR"
+
+          ./gradlew :unity-plugin:assembleRelease
 
   # The test assembly was already being compiled by the `ci` job, but nothing ever ran the
   # tests, so they could not fail a PR.
