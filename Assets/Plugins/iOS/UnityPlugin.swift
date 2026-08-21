@@ -188,12 +188,8 @@ class UnityPlugin: NSObject {
                 return .handledSync(nil)
 
             case "editChannelSubscriptionLists":
-                let parsed = try requireJsonStringArg(args.first)
-                guard let dict = parsed as? [String: Any], let values = dict["values"] else {
-                    throw AirshipErrors.error("Missing 'values' key in JSON wrapper")
-                }
                 try AirshipProxy.shared.channel.editSubscriptionLists(
-                    json: values
+                    operations: try requireJsonStringArgWithValues(args.first)
                 )
                 return .handledSync(nil)
 

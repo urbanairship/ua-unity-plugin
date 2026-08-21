@@ -89,15 +89,8 @@ namespace AirshipSDK
             Type? underlyingType = Nullable.GetUnderlyingType(valueType);
             Type actualType = underlyingType ?? valueType;
 
-            // Handle nullable enums
-            if (underlyingType != null && underlyingType.IsEnum)
-            {
-                Enum enumValue = (Enum)value;
-                string stringValue = enumValue.ToStringValue();
-                return $"\"{EscapeJsonString(stringValue)}\"";
-            }
-
-            // Handle non-nullable enums
+            // Handles nullable enums too: boxing a Nullable<T> yields a T, so valueType is
+            // never Nullable<T> here and actualType is always the enum itself.
             if (actualType.IsEnum)
             {
                 Enum enumValue = (Enum)value;

@@ -214,6 +214,13 @@ Airship.Shared.OnChannelCreated += handler;
 The plugin also adds new events in 10.0.0: `OnPreferenceCenterDisplay`,
 `OnPushTokenReceived`, `OnNotificationStatusChanged`, and `OnAuthorizedSettingsChanged`.
 
+`OnAuthorizedSettingsChanged` is **iOS only**. Authorized notification settings are an iOS
+concept (`UNAuthorizationOptions`) with no Android equivalent, so the event never fires
+there. It is exposed as a platform-generic event for source compatibility -- subscribe to it
+unconditionally, but do not rely on it for Android behaviour. Use
+`OnNotificationStatusChanged`, which fires on both platforms, for cross-platform
+notification state.
+
 ## Editor settings and config files
 
 The editor menu moved from `Window -> Urban Airship -> Settings` to

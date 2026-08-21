@@ -5,31 +5,37 @@ using System.Reflection;
 
 #nullable enable annotations
 
-public class AirshipEnumStringValueAttribute : Attribute
+// Namespaced deliberately: `EnumExtensions` is a common name, and as a global-namespace
+// static class carrying a `this Enum` extension it collided with identically named helpers
+// in customer projects -- turning a plugin upgrade into a compile error in their code.
+namespace AirshipSDK
 {
-    public string StringValue { get; }
-
-    public AirshipEnumStringValueAttribute(string stringValue)
+    public class AirshipEnumStringValueAttribute : Attribute
     {
-        StringValue = stringValue;
-    }
-}
+        public string StringValue { get; }
 
-public static class EnumExtensions
-{
-    public static string ToStringValue(this Enum value)
-    {
-        // Get the FieldInfo for the enum member.
-        FieldInfo? fieldInfo = value.GetType().GetField(value.ToString());
-        if (fieldInfo == null)
+        public AirshipEnumStringValueAttribute(string stringValue)
         {
-            return value.ToString(); // Fallback to default name
+            StringValue = stringValue;
         }
+    }
 
-        // Check if the custom attribute exists.
-        AirshipEnumStringValueAttribute? attribute = fieldInfo.GetCustomAttribute<AirshipEnumStringValueAttribute>();
+    public static class EnumExtensions
+    {
+        public static string ToStringValue(this Enum value)
+        {
+            // Get the FieldInfo for the enum member.
+            FieldInfo? fieldInfo = value.GetType().GetField(value.ToString());
+            if (fieldInfo == null)
+            {
+                return value.ToString(); // Fallback to default name
+            }
 
-        // Return the string value from the attribute, or the default name if none exists.
-        return attribute?.StringValue ?? value.ToString();
+            // Check if the custom attribute exists.
+            AirshipEnumStringValueAttribute? attribute = fieldInfo.GetCustomAttribute<AirshipEnumStringValueAttribute>();
+
+            // Return the string value from the attribute, or the default name if none exists.
+            return attribute?.StringValue ?? value.ToString();
+        }
     }
 }

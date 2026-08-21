@@ -304,10 +304,16 @@ public class AirshipBehaviour : MonoBehaviour {
             ForegroundPresentationOption.List,
         });
 
-        Airship.Shared.push.iOS.SetBadgeNumber(1);
-        Debug.Log("Badge number: " + Airship.Shared.push.iOS.GetBadgeNumber());
-        Airship.Shared.push.iOS.SetBadgeNumber(0);
-        Debug.Log("Badge number: " + Airship.Shared.push.iOS.GetBadgeNumber());
+        // SetBadgeNumber is a coroutine, so it has to be started -- calling it plainly
+        // builds the enumerator and never runs it -- and the badge has only been applied
+        // by the time onComplete fires.
+        StartCoroutine(Airship.Shared.push.iOS.SetBadgeNumber(1, onComplete: () => {
+            Debug.Log("Badge number: " + Airship.Shared.push.iOS.GetBadgeNumber());
+
+            StartCoroutine(Airship.Shared.push.iOS.SetBadgeNumber(0, onComplete: () => {
+                Debug.Log("Badge number: " + Airship.Shared.push.iOS.GetBadgeNumber());
+            }));
+        }));
         
         Airship.Shared.push.iOS.SetQuietTimeEnabled(true);
         Debug.Log("Quiet time enabled: " + Airship.Shared.push.iOS.IsQuietTimeEnabled());
@@ -363,7 +369,7 @@ public class AirshipBehaviour : MonoBehaviour {
         //     onComplete: (liveUpdates) => {
         //         Debug.Log("Live Updates count: " + liveUpdates.Length);
         //         foreach (var lu in liveUpdates) {
-        //             Debug.Log($"Live Update: name={lu.name}, type={lu.type}, content={lu.content}");
+        //             Debug.Log($"Live Update: name={lu.name}, type={lu.type}, content={lu.Content}");
         //         }
         //     },
         //     onError: (error) => {

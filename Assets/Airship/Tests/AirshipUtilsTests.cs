@@ -1,5 +1,6 @@
 /* Copyright Airship and Contributors */
 
+using System.Collections.Generic;
 using NUnit.Framework;
 using AirshipSDK;
 
@@ -117,6 +118,43 @@ namespace AirshipSDK.Tests {
             });
 
             Assert.AreEqual ("{\"site\":\"eu\",\"inProduction\":true}", json);
+        }
+
+        // --- PairFlattenedObject: the stand-in for JsonUtility's missing dictionaries ---
+
+        [Test]
+        public void PairsKeysWithValues () {
+            var paired = AirshipUtils.PairFlattenedObject (
+                new List<string> { "a", "b" },
+                new List<string> { "1", "2" });
+
+            Assert.AreEqual (2, paired.Count);
+            Assert.AreEqual ("1", paired["a"]);
+            Assert.AreEqual ("2", paired["b"]);
+        }
+
+        [Test]
+        public void PairingReturnsNullWhenNoKeysWereSent () {
+            Assert.IsNull (AirshipUtils.PairFlattenedObject (null, null));
+            Assert.IsNull (AirshipUtils.PairFlattenedObject (new List<string> (), null));
+        }
+
+        /// A truncated payload should cost the trailing entries, not throw.
+        [Test]
+        public void PairingToleratesAShorterValuesList () {
+            var paired = AirshipUtils.PairFlattenedObject (
+                new List<string> { "a", "b" },
+                new List<string> { "1" });
+
+            Assert.AreEqual (1, paired.Count);
+            Assert.AreEqual ("1", paired["a"]);
+        }
+
+        [Test]
+        public void PairingToleratesMissingValues () {
+            var paired = AirshipUtils.PairFlattenedObject (new List<string> { "a" }, null);
+
+            Assert.AreEqual (0, paired.Count);
         }
     }
 }

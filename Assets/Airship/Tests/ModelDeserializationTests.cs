@@ -156,5 +156,70 @@ namespace AirshipSDK.Tests {
             Assert.AreEqual (PreferenceCenterSectionType.Unknown, config.sections[0].Type);
             Assert.AreEqual ("brand_new_section", config.sections[0].RawType);
         }
+
+        // --- Inbox list icon ---
+
+        [Test]
+        public void InboxMessageCarriesTheListIconUrl () {
+            InboxMessage message = new InboxMessage (new InternalInboxMessage {
+                id = "m1",
+                listIconUrl = "https://example.com/icon.png"
+            });
+
+            Assert.AreEqual ("https://example.com/icon.png", message.listIconUrl);
+        }
+
+        // --- Live Update: `content` is an arbitrary object on the wire ---
+
+        [Test]
+        public void LiveUpdateContentComesFromTheParallelArrays () {
+            LiveUpdate[] updates = AirshipUtils.Deserialize<LiveUpdate[]> (
+                "[{\"name\":\"game\",\"type\":\"Example\"," +
+                "\"lastContentUpdateTimestamp\":\"2026-08-21T10:00:00Z\"," +
+                "\"contentKeys\":[\"emoji\",\"score\"]," +
+                "\"contentValues\":[\"trophy\",\"3\"]}]");
+
+            Assert.AreEqual (1, updates.Length);
+            Assert.AreEqual ("game", updates[0].name);
+            Assert.AreEqual ("2026-08-21T10:00:00Z", updates[0].lastContentUpdateTimestamp);
+            Assert.IsNotNull (updates[0].Content);
+            Assert.AreEqual ("trophy", updates[0].Content["emoji"]);
+            Assert.AreEqual ("3", updates[0].Content["score"]);
+        }
+
+        [Test]
+        public void LiveUpdateWithoutContentHasNullContent () {
+            LiveUpdate[] updates = AirshipUtils.Deserialize<LiveUpdate[]> (
+                "[{\"name\":\"game\",\"type\":\"Example\"}]");
+
+            Assert.IsNull (updates[0].Content);
+        }
+
+        // --- Live Activity: `attributes` and `content.state` are arbitrary objects ---
+
+        [Test]
+        public void LiveActivityAttributesAndStateComeFromTheParallelArrays () {
+            LiveActivityInfo activity = AirshipUtils.Deserialize<LiveActivityInfo> (
+                "{\"id\":\"a1\",\"attributesType\":\"Example\",\"state\":\"active\"," +
+                "\"attributesKeys\":[\"name\"],\"attributesValues\":[\"Unity Test\"]," +
+                "\"content\":{\"relevanceScore\":100," +
+                "\"stateKeys\":[\"emoji\"],\"stateValues\":[\"trophy\"]}}");
+
+            Assert.AreEqual ("a1", activity.id);
+            Assert.AreEqual ("active", activity.state);
+            Assert.AreEqual ("Unity Test", activity.Attributes["name"]);
+            Assert.AreEqual (100d, activity.content.relevanceScore);
+            Assert.AreEqual ("trophy", activity.content.State["emoji"]);
+        }
+
+        /// A non-string value arrives as its JSON text, matching the extras convention.
+        [Test]
+        public void LiveActivityNonStringStateValuesArriveAsJsonText () {
+            LiveActivityInfo activity = AirshipUtils.Deserialize<LiveActivityInfo> (
+                "{\"id\":\"a1\",\"content\":{\"stateKeys\":[\"nested\"]," +
+                "\"stateValues\":[\"{\\\"k\\\":1}\"]}}");
+
+            Assert.AreEqual ("{\"k\":1}", activity.content.State["nested"]);
+        }
     }
 }
