@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace AirshipSDK {
@@ -148,15 +147,7 @@ namespace AirshipSDK {
         /// </summary>
         public void Apply () {
             if (onApply != null) {
-                // JsonArray<AttributeMutation> jsonArray = new JsonArray<AttributeMutation> ();
-                // jsonArray.values = operations.ToArray ();
-                // string json = jsonArray.ToJson ();
-                // // Remove empty type fields from JSON (Unity's JsonUtility serializes null strings as empty strings)
-                // json = Regex.Replace(json, @",\s*""type""\s*:\s*""""", "");
-                // json = Regex.Replace(json, @"""type""\s*:\s*""""\s*,", "");
-                // onApply (json);
-
-                var sb = new System.Text.StringBuilder();
+                var sb = new StringBuilder();
                 sb.Append("[");
                 for (int i = 0; i < operations.Count; i++) {
                     if (i > 0) sb.Append(",");
@@ -210,19 +201,24 @@ namespace AirshipSDK {
             }
 
             public string ToJson() {
-                var sb = new System.Text.StringBuilder();
+                // Keys and values are caller-supplied, so they must be escaped. A raw quote
+                // or backslash would otherwise produce malformed JSON, and the native parsers
+                // reject the whole batch rather than just the offending operation.
+                var sb = new StringBuilder();
                 sb.Append("{");
-                sb.Append($"\"action\":\"{action}\",\"key\":\"{key}\"");
+                sb.Append("\"action\":").Append(AirshipUtils.ToJsonString(action));
+                sb.Append(",\"key\":").Append(AirshipUtils.ToJsonString(key));
                 if (value != null) {
+                    // Number and date values must reach the proxy as JSON numbers.
                     bool isNumericType = type == "number" || type == "date";
                     if (isNumericType) {
-                        sb.Append($",\"value\":{value}");
+                        sb.Append(",\"value\":").Append(value);
                     } else {
-                        sb.Append($",\"value\":\"{value}\"");
+                        sb.Append(",\"value\":").Append(AirshipUtils.ToJsonString(value));
                     }
                 }
                 if (type != null) {
-                    sb.Append($",\"type\":\"{type}\"");
+                    sb.Append(",\"type\":").Append(AirshipUtils.ToJsonString(type));
                 }
                 sb.Append("}");
                 return sb.ToString();

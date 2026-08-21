@@ -511,7 +511,8 @@ class UnityPlugin: NSObject {
                 return .handledAsync(try await AirshipProxy.shared.messageCenter.unreadCount)
 
             case "getMessages":
-                return .handledAsync(try await AirshipProxy.shared.messageCenter.messages)
+                let messages = try await AirshipProxy.shared.messageCenter.messages
+                return .handledAsync(messages.map { flattenExtrasForUnity($0) })
 
             case "markMessageRead":
                 try await AirshipProxy.shared.messageCenter.markMessageRead(
@@ -543,7 +544,8 @@ class UnityPlugin: NSObject {
                 return .handledAsync(try await AirshipProxy.shared.push.notificationStatus)
 
             case "getActiveNotifications":
-                return .handledAsync(try await AirshipProxy.shared.push.getActiveNotifications())
+                let activeNotifications = try await AirshipProxy.shared.push.getActiveNotifications()
+                return .handledAsync(activeNotifications.map { flattenExtrasForUnity($0) })
 
             case "setBadgeNumber":
                 try await AirshipProxy.shared.push.setBadgeNumber(
@@ -713,7 +715,7 @@ class UnityPlugin: NSObject {
         AirshipLogger.debug("UnityPlugin receivedNotification \(pushPayload)")
         
         do {
-            let jsonPush = try AirshipJSON.wrap(pushPayload).toString()
+            let jsonPush = try AirshipJSON.wrap(flattenExtrasForUnity(pushPayload)).toString()
             
             if let listener = self.listener {
                 callUnitySendMessage(objectName: listener,
@@ -730,7 +732,7 @@ class UnityPlugin: NSObject {
         AirshipLogger.debug("UnityPlugin receivedNotificationResponse \(pushPayload)")
         
         do {
-            let jsonPush = try AirshipJSON.wrap(pushPayload).toString()
+            let jsonPush = try AirshipJSON.wrap(flattenExtrasForUnity(pushPayload)).toString()
             
             if let listener = self.listener {
                 callUnitySendMessage(objectName: listener,
@@ -848,6 +850,42 @@ class UnityPlugin: NSObject {
         }
     }
     
+    /// Rewrites a proxy payload so Unity's JsonUtility can read it: the `extras` object is
+    /// split into `extrasKeys` / `extrasValues` parallel arrays, because JsonUtility has no
+    /// dictionary support. Mirrors `pushPayloadForUnity` and `getInboxMessagesAsJSON` on
+    /// Android. All other fields pass through untouched.
+    private func flattenExtrasForUnity(_ value: Any) -> Any {
+        guard var dict = (try? AirshipJSON.wrap(value))?.unWrap() as? [String: Any] else {
+            return value
+        }
+
+        let extras = dict.removeValue(forKey: "extras") as? [String: Any]
+        guard let extras, !extras.isEmpty else {
+            return dict
+        }
+
+        var extrasKeys: [String] = []
+        var extrasValues: [String] = []
+        // Sorted for a deterministic pairing between the two arrays.
+        for key in extras.keys.sorted() {
+            extrasKeys.append(key)
+            extrasValues.append(extraValueText(extras[key]))
+        }
+
+        dict["extrasKeys"] = extrasKeys
+        dict["extrasValues"] = extrasValues
+        return dict
+    }
+
+    /// Strings pass through; anything else becomes its JSON text, which is what the
+    /// PushMessage.Extras and InboxMessage.extras contracts document.
+    private func extraValueText(_ value: Any?) -> String {
+        guard let value, !(value is NSNull) else { return "" }
+        if let string = value as? String { return string }
+        if let json = try? AirshipJSON.wrap(value), let text = try? json.toString() { return text }
+        return String(describing: value)
+    }
+
     private func requireAnyArg(_ arg: Any? = nil) throws -> Any {
         guard let value: Any = arg else {
             throw AirshipErrors.error("Argument must not be null")
@@ -920,7 +958,10 @@ class UnityPlugin: NSObject {
     }
 
     private func optionalCodableArg<T: Decodable>(_ arg: Any? = nil) throws -> T?  {
-        guard let value: Any = arg else {
+        // JSONSerialization maps an explicit JSON null to NSNull, which is not `nil`.
+        // Without the NSNull check a `null` argument -- e.g. EnableUserNotifications(null)
+        // -- fails to decode instead of being treated as absent.
+        guard let value: Any = arg, !(value is NSNull) else {
             return nil
         }
         return try AirshipJSON.wrap(value).decode()

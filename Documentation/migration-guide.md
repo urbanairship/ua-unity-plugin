@@ -6,7 +6,7 @@ Swift (iOS) and Kotlin (Android), and the C# API was reorganized into feature mo
 ## Raised requirements
 
 - Unity 6
-- iOS: Xcode 16+, minimum deployment target iOS 15+
+- iOS: Xcode 16+, minimum deployment target iOS 16+
 - Android: minSdkVersion 23, compileSdk/targetSdk 36, Kotlin 2.2.20
 
 ## Namespace and entry point
@@ -104,12 +104,29 @@ UAirship.Shared.DisplayMessageCenter();
 UAirship.Shared.DisplayInboxMessage(messageId);
 UAirship.Shared.RefreshInbox();
 IEnumerable<InboxMessage> messages = UAirship.Shared.InboxMessages();
+UAirship.Shared.MarkInboxMessageRead(messageId);
+UAirship.Shared.DeleteInboxMessage(messageId);
+int unread = UAirship.Shared.MessageCenterUnreadCount;
 // replacement
 Airship.Shared.messageCenter.Display(null);
 Airship.Shared.messageCenter.Display(messageId);
 StartCoroutine(Airship.Shared.messageCenter.RefreshInbox());
 StartCoroutine(Airship.Shared.messageCenter.GetMessages(onComplete: (messages) => { }));
+Airship.Shared.messageCenter.MarkMessageRead(messageId);
+Airship.Shared.messageCenter.DeleteMessage(messageId);
+StartCoroutine(Airship.Shared.messageCenter.GetUnReadCount(onComplete: (unread) => { }));
 ```
+
+`MessageCenterCount` (the total message count) has no direct replacement. Derive it from
+`GetMessages`, or read it from the `OnInboxUpdated` event, which reports both counts:
+
+```cs
+Airship.Shared.OnInboxUpdated += (unreadCount, totalCount) => { };
+```
+
+`InboxMessage.isDeleted` is always `false`. The framework proxy does not expose a deleted
+flag, so the plugin can no longer populate it. Filter deleted messages by refreshing the
+inbox instead — deleted messages are no longer returned by `GetMessages`.
 
 ```cs
 // Preference Center
@@ -118,6 +135,31 @@ UAirship.Shared.OpenPreferenceCenter(preferenceCenterId);
 // replacement
 Airship.Shared.preferenceCenter.Display(preferenceCenterId);
 ```
+
+`GetConfig` returns a `PreferenceCenterConfig` whose members mirror the Airship preference
+center form JSON. Sections and items are single concrete types discriminated by a `Type`
+enum rather than a class hierarchy, because Unity's `JsonUtility` cannot instantiate
+abstract types:
+
+```cs
+StartCoroutine(Airship.Shared.preferenceCenter.GetConfig("my-pc", onComplete: (config) => {
+    foreach (var section in config.sections) {
+        if (section.Type != PreferenceCenterSectionType.Section) {
+            continue;
+        }
+        foreach (var item in section.items) {
+            switch (item.Type) {
+                case PreferenceCenterItemType.ChannelSubscription:
+                    Debug.Log(item.display.name + " -> " + item.SubscriptionId);
+                    break;
+            }
+        }
+    }
+}));
+```
+
+Display strings are `display.name` and `display.description`. An alert button's `actions`
+object is not surfaced.
 
 ```cs
 // Privacy Manager
@@ -134,6 +176,20 @@ Airship.Shared.privacyManager.DisableFeatures(features);
 Airship.Shared.privacyManager.IsFeaturesEnabled(features);
 Airship.Shared.privacyManager.GetEnabledFeatures();
 ```
+
+The accepted feature names changed, and the `Features` constants class was removed. Pass
+the lowercase names the framework proxy expects. An unrecognized name is not an error --
+it resolves to no features at all, silently disabling data collection:
+
+```cs
+// removed
+UAirship.Shared.SetEnabledFeatures(new string[] { Features.FEATURE_PUSH });
+// replacement
+Airship.Shared.privacyManager.SetEnabledFeatures(new string[] { "push" });
+```
+
+Valid names: `all`, `none`, `push`, `analytics`, `message_center`, `in_app_automation`,
+`tags_and_attributes`, `contacts`, `feature_flags`.
 
 The following members were removed without a direct replacement:
 

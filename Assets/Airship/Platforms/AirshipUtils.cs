@@ -187,7 +187,7 @@ namespace AirshipSDK
         /// Parses a string value into an enum by matching [AirshipEnumStringValue] attributes.
         /// Falls back to Enum.Parse if no attribute match is found.
         /// </summary>
-        private static object ParseEnumFromStringValue(Type enumType, string stringValue)
+        internal static object ParseEnumFromStringValue(Type enumType, string stringValue)
         {
             foreach (FieldInfo field in enumType.GetFields(BindingFlags.Public | BindingFlags.Static))
             {
@@ -201,23 +201,77 @@ namespace AirshipSDK
         }
 
         /// <summary>
-        /// Escapes special characters in JSON strings.
+        /// Parses a string value into an enum by matching [AirshipEnumStringValue] attributes,
+        /// returning <paramref name="fallback"/> when the value is missing or unrecognized.
+        ///
+        /// Unity's JsonUtility only maps enums from integers, so string-valued enums that
+        /// arrive inside a [Serializable] payload have to be parsed through here instead.
+        /// </summary>
+        internal static T ParseEnum<T>(string stringValue, T fallback) where T : struct, Enum
+        {
+            if (string.IsNullOrEmpty(stringValue))
+            {
+                return fallback;
+            }
+
+            try
+            {
+                return (T)ParseEnumFromStringValue(typeof(T), stringValue);
+            }
+            catch (Exception)
+            {
+                Debug.LogWarning("Airship: unrecognized " + typeof(T).Name + " value '" + stringValue + "'");
+                return fallback;
+            }
+        }
+
+        /// <summary>
+        /// Escapes a string for embedding in JSON. Handles the required escapes plus the
+        /// C0 control range, which a plain Replace chain misses and which would otherwise
+        /// produce a payload the native JSON parsers reject.
         /// </summary>
         /// <param name="str">The string to escape.</param>
         /// <returns>The escaped string.</returns>
-        private static string EscapeJsonString(string str)
+        internal static string EscapeJsonString(string str)
         {
             if (string.IsNullOrEmpty(str))
             {
                 return str;
             }
 
-            return str
-                .Replace("\\", "\\\\")
-                .Replace("\"", "\\\"")
-                .Replace("\n", "\\n")
-                .Replace("\r", "\\r")
-                .Replace("\t", "\\t");
+            var builder = new StringBuilder(str.Length + 8);
+            foreach (char c in str)
+            {
+                switch (c)
+                {
+                    case '\\': builder.Append("\\\\"); break;
+                    case '"': builder.Append("\\\""); break;
+                    case '\n': builder.Append("\\n"); break;
+                    case '\r': builder.Append("\\r"); break;
+                    case '\t': builder.Append("\\t"); break;
+                    case '\b': builder.Append("\\b"); break;
+                    case '\f': builder.Append("\\f"); break;
+                    default:
+                        if (c < ' ')
+                        {
+                            builder.Append("\\u").Append(((int)c).ToString("x4", System.Globalization.CultureInfo.InvariantCulture));
+                        }
+                        else
+                        {
+                            builder.Append(c);
+                        }
+                        break;
+                }
+            }
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Wraps a string as a quoted, escaped JSON string literal.
+        /// </summary>
+        internal static string ToJsonString(string str)
+        {
+            return str == null ? "null" : "\"" + EscapeJsonString(str) + "\"";
         }
 
         public static T Deserialize<T>(string json)

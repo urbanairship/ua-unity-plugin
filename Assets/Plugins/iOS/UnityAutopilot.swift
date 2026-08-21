@@ -14,7 +14,7 @@ final class UnityAutopilot: NSObject, AirshipProxyDelegate {
 
     static let shared = UnityAutopilot()
 
-    private static let pluginVersionKey = "UAUnityPluginVersion"
+    private static let pluginVersionKey = "AirshipUnityPluginVersion"
 
     func onLoad() {
         AirshipProxy.shared.delegate = self

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace AirshipSDK {
@@ -22,12 +23,6 @@ namespace AirshipSDK {
         private string interactionType;
         [SerializeField]
         private string interactionId;
-
-#pragma warning disable
-        // Used for JSON encoding/decoding.
-        [SerializeField]
-        private Property[] properties;
-#pragma warning restore
 
         private List<Property> propertyList;
 
@@ -98,6 +93,9 @@ namespace AirshipSDK {
         /// <param name="name">The property name.</param>
         /// <param name="value">The property value.</param>
         public void AddProperty (string name, double value) {
+            if (double.IsNaN (value) || double.IsInfinity (value)) {
+                throw new FormatException ("Infinity or NaN: " + value);
+            }
             this.propertyList.Add (new Property ("d", name, value));
         }
 
@@ -120,8 +118,45 @@ namespace AirshipSDK {
         }
 
         internal string ToJson () {
-            this.properties = this.propertyList.ToArray ();
-            return JsonUtility.ToJson (this);
+            // Built by hand rather than with JsonUtility: the framework proxy reads
+            // `eventValue` only when it is a JSON number and `properties` only when it is a
+            // JSON object, and JsonUtility can produce neither (it emits the value as a
+            // string and has no dictionary support).
+            var sb = new StringBuilder ();
+            sb.Append ("{");
+            sb.Append ("\"eventName\":").Append (AirshipUtils.ToJsonString (eventName));
+
+            if (!string.IsNullOrEmpty (eventValue)) {
+                // Always a round-trippable invariant number: the only way to set this is
+                // the decimal EventValue property.
+                sb.Append (",\"eventValue\":").Append (eventValue);
+            }
+            if (!string.IsNullOrEmpty (transactionId)) {
+                sb.Append (",\"transactionId\":").Append (AirshipUtils.ToJsonString (transactionId));
+            }
+            if (!string.IsNullOrEmpty (interactionType)) {
+                sb.Append (",\"interactionType\":").Append (AirshipUtils.ToJsonString (interactionType));
+            }
+            if (!string.IsNullOrEmpty (interactionId)) {
+                sb.Append (",\"interactionId\":").Append (AirshipUtils.ToJsonString (interactionId));
+            }
+
+            if (propertyList != null && propertyList.Count > 0) {
+                sb.Append (",\"properties\":{");
+                for (int i = 0; i < propertyList.Count; i++) {
+                    if (i > 0) {
+                        sb.Append (",");
+                    }
+                    Property property = propertyList[i];
+                    sb.Append (AirshipUtils.ToJsonString (property.name));
+                    sb.Append (":");
+                    sb.Append (property.ValueToJson ());
+                }
+                sb.Append ("}");
+            }
+
+            sb.Append ("}");
+            return sb.ToString ();
         }
 
         [Serializable]
@@ -146,6 +181,33 @@ namespace AirshipSDK {
                 } else if (type == "sa") {
                     ICollection<string> collection = (ICollection<string>) value;
                     this.stringArrayValue = collection.ToArray ();
+                }
+            }
+
+            /// Renders this property as its JSON value for the proxy's properties map.
+            public string ValueToJson () {
+                switch (type) {
+                    case "s":
+                        return AirshipUtils.ToJsonString (stringValue);
+                    case "d":
+                        return doubleValue.ToString ("R", CultureInfo.InvariantCulture);
+                    case "b":
+                        return boolValue ? "true" : "false";
+                    case "sa":
+                        var sb = new StringBuilder ();
+                        sb.Append ("[");
+                        if (stringArrayValue != null) {
+                            for (int i = 0; i < stringArrayValue.Length; i++) {
+                                if (i > 0) {
+                                    sb.Append (",");
+                                }
+                                sb.Append (AirshipUtils.ToJsonString (stringArrayValue[i]));
+                            }
+                        }
+                        sb.Append ("]");
+                        return sb.ToString ();
+                    default:
+                        return "null";
                 }
             }
         }

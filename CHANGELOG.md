@@ -21,7 +21,7 @@ migration guide to update
 ### Changes
 - Updated Android SDK to 20.10.0
 - Updated iOS SDK to 20.11.0
-- Requires Unity 6, Xcode 16+, iOS 15+, and Android 23+
+- Requires Unity 6, Xcode 16+, iOS 16+, and Android 23+
 - Requires compileSdk/targetSdk 36 and Kotlin 2.2.20 for Android builds
 - Rewrote the native layers in Swift on iOS and Kotlin on Android
 - iOS now uses Swift Package Manager
