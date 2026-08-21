@@ -7,9 +7,12 @@
 # start here.
 #
 #   "Unable to find image 'unityci/editor:ubuntu-<version>-android-3'"
-#       game-ci has not published that editor version. Check which image the `plugin` job's
-#       Android leg pulls in its own logs and use that, or drop the rolling suffix to -2.
-#       The tag format is <os>-<editor>-<target>-<rolling>, per unity-builder's ImageTag.
+#       game-ci has not published that editor version. The tag format is
+#       <os>-<editor>-<target>-<rolling>, per unity-builder's ImageTag. List what exists
+#       with:
+#         curl -s 'https://hub.docker.com/v2/repositories/unityci/editor/tags?page_size=100&name=<version>'
+#       The `plugin` job's Android leg resolves the same tag by the same formula, so its
+#       logs are also a reference for what is actually pullable.
 #
 #   "Container is on <x> but the project is on <y>"
 #       The pinned container tag drifted from ProjectSettings/ProjectVersion.txt, almost
@@ -79,10 +82,13 @@ jobs:
   package:
     runs-on: ubuntu-latest
     container:
-      # Pinned deliberately. This is the same image game-ci/unity-builder resolves for the
-      # Android leg above, so the `plugin` job's logs are the reference for what is
-      # actually published. Bumping the project's editor means bumping this tag -- the
-      # first step below fails the job if the two drift apart.
+      # Pinned deliberately, and the same image game-ci/unity-builder resolves for the
+      # Android leg above. Verified published on Docker Hub (pushed 2026-03-19, linux/amd64).
+      #
+      # The trailing -3 is game-ci's rolling image revision, not a Unity version: it is an
+      # alias over their 3.2.x image builds, so non-breaking image fixes arrive without an
+      # edit here. Only the editor segment needs maintenance, on a Unity upgrade -- and the
+      # next step fails the job if it drifts from ProjectVersion.txt.
       image: unityci/editor:ubuntu-6000.2.8f1-android-3
     env:
       UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
