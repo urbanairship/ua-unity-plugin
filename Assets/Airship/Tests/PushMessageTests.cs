@@ -1,6 +1,9 @@
 /* Copyright Airship and Contributors */
 
+using System.Text.RegularExpressions;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
 using AirshipSDK;
 
 namespace AirshipSDK.Tests {
@@ -90,6 +93,11 @@ namespace AirshipSDK.Tests {
 
         [Test]
         public void MalformedPayloadReturnsNullInsteadOfThrowing () {
+            // FromJson logs the parse failure before returning null, and Unity fails any
+            // test that emits an unexpected error log. Matched loosely because the rest of
+            // the message is JsonUtility's own wording.
+            LogAssert.Expect (LogType.Error, new Regex ("unable to parse push message"));
+
             Assert.IsNull (PushMessage.FromJson ("not json at all"));
         }
     }
