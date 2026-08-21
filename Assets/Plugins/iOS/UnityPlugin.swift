@@ -601,7 +601,7 @@ class UnityPlugin: NSObject {
                 if #available(iOS 16.1, *) {
                     let request: LiveActivityRequest.List = try requireCodableArg(args.first)
                     let activities = try await LiveActivityManager.shared.list(request)
-                    return .handledAsync(try activities.map { try AirshipJSON.wrap($0).unWrap() })
+                    return .handledAsync(try activities.map { flattenLiveActivityForUnity(try AirshipJSON.wrap($0).unWrap()) })
                 } else {
                     throw AirshipErrors.error("Live Activities require iOS 16.1+")
                 }
@@ -609,7 +609,7 @@ class UnityPlugin: NSObject {
             case "liveActivityListAll":
                 if #available(iOS 16.1, *) {
                     let activities = try await LiveActivityManager.shared.listAll()
-                    return .handledAsync(try activities.map { try AirshipJSON.wrap($0).unWrap() })
+                    return .handledAsync(try activities.map { flattenLiveActivityForUnity(try AirshipJSON.wrap($0).unWrap()) })
                 } else {
                     throw AirshipErrors.error("Live Activities require iOS 16.1+")
                 }
@@ -618,7 +618,7 @@ class UnityPlugin: NSObject {
                 if #available(iOS 16.1, *) {
                     let request: LiveActivityRequest.Start = try requireCodableArg(args.first)
                     let activity = try await LiveActivityManager.shared.start(request)
-                    return .handledAsync(try AirshipJSON.wrap(activity).unWrap())
+                    return .handledAsync(flattenLiveActivityForUnity(try AirshipJSON.wrap(activity).unWrap()))
                 } else {
                     throw AirshipErrors.error("Live Activities require iOS 16.1+")
                 }
@@ -855,26 +855,56 @@ class UnityPlugin: NSObject {
     /// dictionary support. Mirrors `pushPayloadForUnity` and `getInboxMessagesAsJSON` on
     /// Android. All other fields pass through untouched.
     private func flattenExtrasForUnity(_ value: Any) -> Any {
+        guard let dict = (try? AirshipJSON.wrap(value))?.unWrap() as? [String: Any] else {
+            return value
+        }
+
+        return flattenObjectMember(dict, key: "extras")
+    }
+
+    /// Rewrites a proxy LiveActivityInfo so Unity's JsonUtility can read it.
+    ///
+    /// `attributes` and `content.state` are both `AirshipJSON` on the proxy side -- arbitrary
+    /// caller-defined objects. JsonUtility can map neither to any field type and silently
+    /// leaves them empty, so each is split into parallel key/value arrays the same way push
+    /// extras are. Every other field (id, attributesType, state, staleDate, relevanceScore)
+    /// passes through untouched.
+    private func flattenLiveActivityForUnity(_ value: Any) -> Any {
         guard var dict = (try? AirshipJSON.wrap(value))?.unWrap() as? [String: Any] else {
             return value
         }
 
-        let extras = dict.removeValue(forKey: "extras") as? [String: Any]
-        guard let extras, !extras.isEmpty else {
-            return dict
+        dict = flattenObjectMember(dict, key: "attributes")
+
+        if let content = dict["content"] as? [String: Any] {
+            dict["content"] = flattenObjectMember(content, key: "state")
         }
 
-        var extrasKeys: [String] = []
-        var extrasValues: [String] = []
-        // Sorted for a deterministic pairing between the two arrays.
-        for key in extras.keys.sorted() {
-            extrasKeys.append(key)
-            extrasValues.append(extraValueText(extras[key]))
-        }
-
-        dict["extrasKeys"] = extrasKeys
-        dict["extrasValues"] = extrasValues
         return dict
+    }
+
+    /// Replaces `key`'s object value with `<key>Keys` / `<key>Values` parallel arrays,
+    /// because Unity's JsonUtility has no dictionary support. An absent or empty object just
+    /// drops the original key, which the C# side reads as "carried none".
+    private func flattenObjectMember(_ dict: [String: Any], key: String) -> [String: Any] {
+        var result = dict
+
+        let object = result.removeValue(forKey: key) as? [String: Any]
+        guard let object, !object.isEmpty else {
+            return result
+        }
+
+        var keys: [String] = []
+        var values: [String] = []
+        // Sorted for a deterministic pairing between the two arrays.
+        for objectKey in object.keys.sorted() {
+            keys.append(objectKey)
+            values.append(extraValueText(object[objectKey]))
+        }
+
+        result["\(key)Keys"] = keys
+        result["\(key)Values"] = values
+        return result
     }
 
     /// Strings pass through; anything else becomes its JSON text, which is what the

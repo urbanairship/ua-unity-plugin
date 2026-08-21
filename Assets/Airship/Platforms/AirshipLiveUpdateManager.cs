@@ -117,10 +117,33 @@ namespace AirshipSDK {
     {
         public string name;
         public string type;
-        public string content;
+
+        // The proxy sends `content` as an arbitrary caller-defined JSON object. Unity's
+        // JsonUtility has no dictionary support, so the native layer splits it into two
+        // parallel arrays before sending it over. Same approach as PushMessage extras.
+        [SerializeField]
+        private List<string> contentKeys;
+        [SerializeField]
+        private List<string> contentValues;
+
+        /// <summary>ISO-8601 timestamp of the last content update.</summary>
         public string lastContentUpdateTimestamp;
+
+        /// <summary>ISO-8601 timestamp of the last state change.</summary>
         public string lastStateChangeTimestamp;
+
+        /// <summary>ISO-8601 dismissal timestamp, or <c>null</c> if none is set.</summary>
         public string dismissTimestamp;
+
+        /// <summary>
+        /// Gets the live update content.
+        /// </summary>
+        /// <remarks>Non-string values are encoded as JSON strings.</remarks>
+        /// <value>The content, or <c>null</c> if the update carried none.</value>
+        public Dictionary<string, string> Content
+        {
+            get { return AirshipUtils.PairFlattenedObject(contentKeys, contentValues); }
+        }
     }
 
     [Serializable]
@@ -129,6 +152,11 @@ namespace AirshipSDK {
         public string type;
     }
 
+    // Outbound requests spell the dismissal timestamp `dismissalTimestamp`: that is the key
+    // LiveUpdateRequest.fromJson reads on the proxy side. Inbound LiveUpdate keeps
+    // `dismissTimestamp`, which is what LiveUpdateProxy emits. The asymmetry is the proxy's,
+    // not a typo -- matching it is what makes the value survive the round trip.
+
     [Serializable]
     public record LiveUpdateStartRequest
     {
@@ -136,7 +164,7 @@ namespace AirshipSDK {
         public string type;
         public Dictionary<string, object> content;
         public string timestamp;
-        public string dismissTimestamp;
+        public string dismissalTimestamp;
     }
 
     [Serializable]
@@ -145,7 +173,7 @@ namespace AirshipSDK {
         public string name;
         public Dictionary<string, object> content;
         public string timestamp;
-        public string dismissTimestamp;
+        public string dismissalTimestamp;
     }
 
     [Serializable]
@@ -154,6 +182,6 @@ namespace AirshipSDK {
         public string name;
         public Dictionary<string, object> content;
         public string timestamp;
-        public string dismissTimestamp;
+        public string dismissalTimestamp;
     }
 }

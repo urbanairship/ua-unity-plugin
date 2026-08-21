@@ -14,7 +14,7 @@ jobs:
         targetPlatform:
           - iOS # Build an iOS player.
           - Android # Build an Android .apk standalone app.
-          
+
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +27,21 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
 
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The exported .unitypackage is platform independent -- `build` packages Assets, not
+      # a player -- so it is built once here instead of in each `plugin` matrix leg. Two
+      # legs each uploading an identical package under one artifact name is a 409 Conflict
+      # on upload-artifact@v4.
+      #
+      # NOTE: this step needs a Unity executable on the runner. build.gradle's
+      # getUnityExePath() reads $UNITY_EXE and otherwise falls back to a macOS Unity Hub
+      # path, so on ubuntu-latest it throws "Unable to find Unity executable". Either point
+      # UNITY_EXE at an editor available to this runner or move the step into a Unity
+      # container/self-hosted macOS runner.
       - name: Build Unity Package
         run: ./gradlew build
 
@@ -34,11 +49,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: unity-build-package
-          path: ./build/urbanairship-*.unitypackage
+          path: ./build/airship-*.unitypackage
+          # Fail loudly rather than uploading nothing: a stale glob here previously left
+          # the release job to fail on a missing artifact instead.
+          if-no-files-found: error
 
   release:
     runs-on: ubuntu-latest
-    needs: plugin
+    needs: [plugin, package]
     steps:
       - uses: actions/checkout@v4
 
@@ -78,10 +96,12 @@ jobs:
         with:
           name: ${{ steps.get_version.outputs.VERSION }}
           body: ${{ steps.get_release_notes.outputs.NOTES }}
-          files: ./build/urbanairship-${{ steps.get_version.outputs.VERSION }}.unitypackage
+          files: ./build/airship-${{ steps.get_version.outputs.VERSION }}.unitypackage
+          # Without this a name mismatch publishes a release with no plugin attached.
+          fail_on_unmatched_files: true
 
   publish-docs:
-    needs: [release, plugin]
+    needs: [release]
     uses: ./.github/workflows/publish-docs.yml
     permissions:
       contents: read

@@ -44,30 +44,43 @@ class UnityPlugin {
     }
 
     private fun notifyPendingEvents() {
-        EventType.entries.forEach { eventType ->
-            EventEmitter.shared().processPending(listOf(eventType)) { event ->
-                when (event.type) {
-                    EventType.CHANNEL_CREATED -> onChannelCreated(event.body.optionalField<String>("channelId"))
-                    EventType.DEEP_LINK_RECEIVED -> onDeepLinkReceived(event.body.optionalField<String>("deepLink"))
-                    EventType.DISPLAY_MESSAGE_CENTER -> onShowInbox(event.body.optionalField<String>("messageId"))
-                    EventType.DISPLAY_PREFERENCE_CENTER -> onPreferenceCenterDisplay(event.body.optionalField<String>("preferenceCenterId"))
-                    EventType.MESSAGE_CENTER_UPDATED -> onInboxUpdated(event.body.optionalField<Int>("messageUnreadCount"), event.body.optionalField<Int>("messageCount"))
-                    EventType.PUSH_TOKEN_RECEIVED -> onPushTokenReceived(event.body.optionalField<String>("pushToken"))
-                    EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED -> onPushOpened(event.body.optionalField<JsonValue>("pushPayload"))
-                    EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED -> onPushOpened(event.body.optionalField<JsonValue>("pushPayload"))
-                    EventType.FOREGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
-                    EventType.BACKGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
-                    EventType.NOTIFICATION_STATUS_CHANGED -> onNotificationStatusChanged(event.body.optionalField<JsonValue>("status"))
-                    else -> {}
-                }
-                true
+        // Nothing can be delivered before Unity registers its listener object, and the
+        // emitter starts draining as soon as this singleton is constructed -- earlier than
+        // Airship.cs's Init(). Bailing out here leaves those events pending so setListener
+        // replays them, instead of consuming and dropping the first channel-created or
+        // push-token event of a cold start.
+        if (listener == null) {
+            UALog.d { "UnityPlugin listener not registered yet; leaving events pending" }
+            return
+        }
+
+        // One pass over every type: processPending is already batched, and calling it once
+        // per EventType re-walked the pending queue for each of them.
+        EventEmitter.shared().processPending(EventType.entries.toList()) { event ->
+            when (event.type) {
+                EventType.CHANNEL_CREATED -> onChannelCreated(event.body.optionalField<String>("channelId"))
+                EventType.DEEP_LINK_RECEIVED -> onDeepLinkReceived(event.body.optionalField<String>("deepLink"))
+                EventType.DISPLAY_MESSAGE_CENTER -> onShowInbox(event.body.optionalField<String>("messageId"))
+                EventType.DISPLAY_PREFERENCE_CENTER -> onPreferenceCenterDisplay(event.body.optionalField<String>("preferenceCenterId"))
+                EventType.MESSAGE_CENTER_UPDATED -> onInboxUpdated(event.body.optionalField<Int>("messageUnreadCount"), event.body.optionalField<Int>("messageCount"))
+                EventType.PUSH_TOKEN_RECEIVED -> onPushTokenReceived(event.body.optionalField<String>("pushToken"))
+                EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED -> onPushOpened(event.body.optionalField<JsonValue>("pushPayload"))
+                EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED -> onPushOpened(event.body.optionalField<JsonValue>("pushPayload"))
+                EventType.FOREGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
+                EventType.BACKGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
+                EventType.NOTIFICATION_STATUS_CHANGED -> onNotificationStatusChanged(event.body.optionalField<JsonValue>("status"))
+                else -> {}
             }
+            true
         }
     }
 
     fun setListener(listener: String) {
         UALog.d { "UnityPlugin setListener method call with: $listener" }
         this.listener = listener
+
+        // Replay anything the emitter produced before Unity was ready to receive it.
+        notifyPendingEvents()
     }
 
     // Airship
@@ -203,7 +216,10 @@ class UnityPlugin {
         airshipProxyInstance.analytics.associateIdentifier(key, identifier)
     }
 
-    fun trackScreen(screenName: String) {
+    // Nullable: AirshipAnalytics.TrackScreen documents passing null to stop tracking, and
+    // the iOS bridge already forwards nil. A non-null parameter here made that documented
+    // call site throw on Kotlin's generated null check instead.
+    fun trackScreen(screenName: String?) {
         UALog.d { "UnityPlugin trackScreen method call with: $screenName" }
         airshipProxyInstance.analytics.trackScreen(screenName)
     }
@@ -479,7 +495,7 @@ class UnityPlugin {
         return runBlocking(Dispatchers.IO) {
             val request = LiveUpdateRequest.List.fromJson(JsonValue.parseString(payload))
             val result = airshipProxyInstance.liveUpdateManager.list(request)
-            JsonValue.wrapOpt(result).toString()
+            liveUpdatesForUnity(result)
         }
     }
 
@@ -487,8 +503,51 @@ class UnityPlugin {
         UALog.d { "UnityPlugin liveUpdateListAll method call" }
         return runBlocking(Dispatchers.IO) {
             val result = airshipProxyInstance.liveUpdateManager.listAll()
-            JsonValue.wrapOpt(result).toString()
+            liveUpdatesForUnity(result)
         }
+    }
+
+    /**
+     * Rewrites proxy live updates into the shape Unity's JsonUtility can read.
+     *
+     * `content` is a JsonMap of arbitrary caller-defined values. JsonUtility has no
+     * dictionary support and silently leaves such a field empty, so the object is split into
+     * `contentKeys` / `contentValues` parallel arrays -- the same approach
+     * [pushPayloadForUnity] and [getInboxMessagesAsJSON] take. Every other field (name, type
+     * and the three ISO-8601 timestamps) passes through untouched.
+     */
+    private fun liveUpdatesForUnity(updates: List<Any>): String {
+        val converted = JsonValue.wrapOpt(updates).optList().map { update ->
+            val map = update.optMap()
+            val builder = JsonMap.newBuilder()
+
+            for (entry in map.entrySet()) {
+                if (entry.key != "content") {
+                    builder.put(entry.key, entry.value)
+                }
+            }
+
+            val content = map.opt("content").optMap()
+            if (content.entrySet().isNotEmpty()) {
+                val contentKeys: MutableList<String> = ArrayList()
+                val contentValues: MutableList<String> = ArrayList()
+
+                for (entry in content.entrySet()) {
+                    contentKeys.add(entry.key)
+                    val value = entry.value
+                    // Strings pass through; anything else becomes its JSON text, matching
+                    // the PushMessage.Extras and InboxMessage.extras contracts.
+                    contentValues.add(if (value.isString) value.optString() else value.toString())
+                }
+
+                builder.put("contentKeys", JsonValue.wrapOpt(contentKeys))
+                builder.put("contentValues", JsonValue.wrapOpt(contentValues))
+            }
+
+            builder.build().toJsonValue()
+        }
+
+        return JsonValue.wrapOpt(converted).toString()
     }
 
     fun liveUpdateStart(payload: String) {
