@@ -114,21 +114,15 @@ namespace AirshipSDK.Tests {
             }
         }
 
-        /// An operation that throws is the dispatcher's own business: it logs and keeps the
-        /// worker, because losing a thread from a four-thread pool is worse than the error.
-        [Test]
-        public void AThrowingOperationDoesNotKillTheWorker () {
-            UnityEngine.TestTools.LogAssert.Expect (UnityEngine.LogType.Exception,
-                new System.Text.RegularExpressions.Regex ("deliberate"));
-
-            AirshipNativeDispatcher.Post (() => throw new InvalidOperationException ("deliberate"));
-
-            using (ManualResetEventSlim ran = new ManualResetEventSlim (false)) {
-                AirshipNativeDispatcher.Post (() => ran.Set ());
-
-                Assert.IsTrue (ran.Wait (WaitMilliseconds),
-                    "no worker picked up the next operation after one threw");
-            }
-        }
+        // Not covered: that a worker survives an operation which throws.
+        //
+        // The dispatcher handles it by logging through Debug.LogException and keeping the
+        // thread, since losing one of four workers is worse than the error. Asserting on that
+        // is not possible through this surface: the log is emitted on the worker thread, so it
+        // lands outside the window LogAssert scopes to a test, and the framework then fails
+        // both the test that expected it and whichever test was running when it arrived.
+        // Nothing orders the log against a follow-up operation either, because the two can be
+        // picked up by different workers. A test that fails its neighbours is worse than a
+        // gap, so this is left to the code comment in Work().
     }
 }
