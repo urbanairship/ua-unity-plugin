@@ -16,8 +16,16 @@ namespace AirshipSDK {
     /// </summary>
     internal static class AirshipCoroutineHelper {
 
-        // Maximum time to wait for a background operation before surfacing a timeout.
+        // Maximum time an operation may spend running before surfacing a timeout. The clock
+        // starts when a worker picks the operation up, not when it is queued: queue time is
+        // budgeted separately below, so a call waiting behind others does not spend the
+        // budget meant for its own execution and report a timeout for work that never ran.
         private const float TimeoutSeconds = 60f;
+
+        // Maximum time an operation may sit in the dispatcher queue before a worker takes it.
+        // Every queued operation is itself bounded by TimeoutSeconds, so reaching this means
+        // the pool is saturated or wedged rather than merely busy.
+        private const float QueueTimeoutSeconds = 60f;
 
         /// <summary>
         /// Runs a blocking operation on a worker thread to avoid ANRs.
@@ -31,9 +39,11 @@ namespace AirshipSDK {
             T result = default(T);
             Exception exception = null;
             bool completed = false;
+            bool started = false;
 
             try {
                 AirshipNativeDispatcher.Post(() => {
+                    Volatile.Write(ref started, true);
                     try {
                         result = operation();
                     } catch (Exception e) {
@@ -48,10 +58,21 @@ namespace AirshipSDK {
                 Volatile.Write(ref completed, true);
             }
 
-            // Wait for completion without blocking the main thread
-            float startTime = Time.realtimeSinceStartup;
+            // Wait for completion without blocking the main thread. Two phases: first for a
+            // worker to pick the operation up, then for the operation itself to finish.
+            float queuedAt = Time.realtimeSinceStartup;
+            while (!Volatile.Read(ref started) && !Volatile.Read(ref completed)) {
+                if (Time.realtimeSinceStartup - queuedAt > QueueTimeoutSeconds) {
+                    onError?.Invoke(new TimeoutException(
+                        $"Airship async operation waited {QueueTimeoutSeconds}s for a worker and never started"));
+                    yield break;
+                }
+                yield return null;
+            }
+
+            float startedAt = Time.realtimeSinceStartup;
             while (!Volatile.Read(ref completed)) {
-                if (Time.realtimeSinceStartup - startTime > TimeoutSeconds) {
+                if (Time.realtimeSinceStartup - startedAt > TimeoutSeconds) {
                     onError?.Invoke(new TimeoutException($"Airship async operation timed out after {TimeoutSeconds}s"));
                     yield break;
                 }
@@ -76,9 +97,11 @@ namespace AirshipSDK {
         public static IEnumerator RunAsync(Action operation, Action onComplete = null, Action<Exception> onError = null) {
             Exception exception = null;
             bool completed = false;
+            bool started = false;
 
             try {
                 AirshipNativeDispatcher.Post(() => {
+                    Volatile.Write(ref started, true);
                     try {
                         operation();
                     } catch (Exception e) {
@@ -93,10 +116,21 @@ namespace AirshipSDK {
                 Volatile.Write(ref completed, true);
             }
 
-            // Wait for completion without blocking the main thread
-            float startTime = Time.realtimeSinceStartup;
+            // Wait for completion without blocking the main thread. Two phases: first for a
+            // worker to pick the operation up, then for the operation itself to finish.
+            float queuedAt = Time.realtimeSinceStartup;
+            while (!Volatile.Read(ref started) && !Volatile.Read(ref completed)) {
+                if (Time.realtimeSinceStartup - queuedAt > QueueTimeoutSeconds) {
+                    onError?.Invoke(new TimeoutException(
+                        $"Airship async operation waited {QueueTimeoutSeconds}s for a worker and never started"));
+                    yield break;
+                }
+                yield return null;
+            }
+
+            float startedAt = Time.realtimeSinceStartup;
             while (!Volatile.Read(ref completed)) {
-                if (Time.realtimeSinceStartup - startTime > TimeoutSeconds) {
+                if (Time.realtimeSinceStartup - startedAt > TimeoutSeconds) {
                     onError?.Invoke(new TimeoutException($"Airship async operation timed out after {TimeoutSeconds}s"));
                     yield break;
                 }
@@ -150,11 +184,17 @@ namespace AirshipSDK {
                     throw new InvalidOperationException("Airship: the native dispatcher has shut down");
                 }
 
-                // Spawning on "no idle worker" can race and start one more thread than
-                // strictly needed, or queue behind a worker that was about to go idle.
-                // Either outcome is harmless, and the alternative is holding the lock
-                // across the handoff.
-                if (Volatile.Read(ref idleWorkers) == 0 && workerCount < MaxWorkers) {
+                // Compared against the backlog rather than tested for zero. idleWorkers
+                // counts workers parked in Take(), so it does not account for work already
+                // queued and unclaimed: two Post calls in a row -- the normal case, since
+                // StartCoroutine runs the iterator up to its first yield -- would both see
+                // the same idle worker and neither would spawn, leaving the second operation
+                // queued behind the first even with the pool under its cap.
+                //
+                // This can still race the other way and start one thread more than strictly
+                // needed, which is harmless, and the alternative is holding the lock across
+                // the handoff.
+                if (queue.Count >= Volatile.Read(ref idleWorkers) && workerCount < MaxWorkers) {
                     workerCount++;
                     new Thread(Work) {
                         Name = "Airship Native Worker " + workerCount,

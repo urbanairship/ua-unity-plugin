@@ -45,10 +45,21 @@ namespace AirshipSDK {
         /// <summary>
         /// Gets or sets the event value.
         /// </summary>
-        /// <value>The event value.</value>
+        /// <remarks>
+        /// Reads as 0 on an event that was never given a value. The getter used to parse the
+        /// backing field unconditionally, which threw on such an event. An unset value and a
+        /// value of 0 are indistinguishable here; <c>ToJson</c> tells them apart from the
+        /// backing field and omits the key entirely when nothing was set.
+        /// </remarks>
+        /// <value>The event value, or 0 if the event carries none.</value>
         public decimal EventValue {
-            get { return Decimal.Parse(eventValue, CultureInfo.InvariantCulture); }
-            set { eventValue = value.ToString(CultureInfo.InvariantCulture); }
+            get {
+                if (string.IsNullOrEmpty (eventValue)) {
+                    return 0m;
+                }
+                return Decimal.Parse (eventValue, CultureInfo.InvariantCulture);
+            }
+            set { eventValue = value.ToString (CultureInfo.InvariantCulture); }
         }
 
         /// <summary>

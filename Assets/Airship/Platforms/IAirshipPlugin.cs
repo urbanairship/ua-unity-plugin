@@ -95,7 +95,15 @@ namespace AirshipSDK {
             if (arg == null) return null;
             Type type = arg.GetType();
             if (type.IsPrimitive || arg is string || arg is decimal || arg is AndroidJavaObject) return arg;
-            return AirshipUtils.Serialize(arg);
+            // SerializeValue, not Serialize: Serialize only ever emits an object, so an
+            // array, list or dictionary argument would reflect over the collection type
+            // itself and send something like {"Length":1}. Both agree for a plain object,
+            // which is the only shape any current caller passes.
+            //
+            // No Android method takes an enum argument today, so how one should cross is
+            // unspecified: this sends the quoted JSON string the iOS bridge sends, which may
+            // or may not be what a Kotlin String parameter would want.
+            return AirshipUtils.SerializeValue(arg);
         }
 
         public GameObject Listener {

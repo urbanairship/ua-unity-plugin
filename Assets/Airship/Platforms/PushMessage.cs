@@ -51,6 +51,10 @@ namespace AirshipSDK {
         /// <remarks>
         /// This is the platform's notification identifier, not the Airship send ID. It is
         /// <c>null</c> for a push that posted no notification, such as a silent push.
+        /// On iOS it is also <c>null</c> throughout <c>OnPushReceived</c> even when a
+        /// notification was posted, because the framework proxy builds that event's payload
+        /// without one; it is populated for <c>OnPushOpened</c> and for the active
+        /// notification list. On Android it is populated wherever a notification was posted.
         /// </remarks>
         /// <value>The notification identifier.</value>
         public string NotificationId {

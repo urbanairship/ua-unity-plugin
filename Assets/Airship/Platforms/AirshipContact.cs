@@ -39,6 +39,14 @@ namespace AirshipSDK {
         }
 
         /// <summary>
+        /// Notifies Airship of a remote login, prompting it to refresh the contact's data.
+        /// </summary>
+        public void NotifyRemoteLogin()
+        {
+            plugin.Call("notifyRemoteLogin");
+        }
+
+        /// <summary>
         /// Gets the named user Id asynchronously using a coroutine.
         /// This method does not block Unity's main thread.
         /// </summary>

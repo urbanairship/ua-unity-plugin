@@ -160,6 +160,12 @@ class UnityPlugin: NSObject {
         switch method {
             case "setListener":
                 listener = try requireStringArg(args.first)
+
+                // Replay whatever the emitter produced before Unity was ready to receive it.
+                // handleCall runs on the main thread, so the hop is already done.
+                MainActor.assumeIsolated {
+                    notifyPendingEvents()
+                }
                 return .handledSync(nil)
 
             // Airship
@@ -662,6 +668,17 @@ class UnityPlugin: NSObject {
 
     @MainActor
     private func notifyPendingEvents() {
+        // Nothing can be delivered before Unity registers its listener object, and the
+        // emitter starts draining as soon as this singleton is constructed. Without this
+        // guard processPendingEvents would take the events and each handler would then drop
+        // them at its own `if let listener`, losing the first channel-created, push-token or
+        // cold-start notification-response of a launch. Bailing out leaves them pending so
+        // setListener replays them. Mirrors the Android side.
+        guard listener != nil else {
+            AirshipLogger.debug("UnityPlugin listener not registered yet; leaving events pending")
+            return
+        }
+
         for eventType in AirshipProxyEventType.allCases {
             AirshipProxyEventEmitter.shared.processPendingEvents(type: eventType) { event in
                 if let data = try? JSONEncoder().encode(event.body),

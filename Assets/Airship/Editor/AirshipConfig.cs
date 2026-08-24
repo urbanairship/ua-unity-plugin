@@ -107,12 +107,24 @@ namespace AirshipSDK.Editor {
         }
 
         public bool IsValid {
+            get { return ValidationError == null; }
+        }
+
+        /// <summary>
+        /// The reason the config is not valid, or <c>null</c> when it is.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="Validate"/> names the specific field that is missing. Reducing that to
+        /// a bare bool left callers with nothing to tell the developer beyond "not
+        /// configured", which is the same message whichever field is wrong.
+        /// </remarks>
+        public string ValidationError {
             get {
                 try {
                     Validate ();
-                    return true;
-                } catch (Exception) {
-                    return false;
+                    return null;
+                } catch (Exception e) {
+                    return e.Message;
                 }
             }
         }

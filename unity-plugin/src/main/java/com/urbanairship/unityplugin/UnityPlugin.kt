@@ -22,8 +22,18 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.json.JSONArray
 import org.json.JSONObject
+
+/**
+ * Hard bound on a single blocking proxy call.
+ *
+ * Kept just under the 60s the C# side allows, so this fires first and the caller gets a
+ * timeout naming the native call rather than a generic one. Matches the 59s the iOS bridge
+ * already uses.
+ */
+private const val NATIVE_CALL_TIMEOUT_MS = 59_000L
 
 
 class UnityPlugin {
@@ -42,6 +52,24 @@ class UnityPlugin {
             }
         }
     }
+
+    /**
+     * Runs a suspending proxy call to completion on the calling thread, with a timeout.
+     *
+     * The timeout is not cosmetic. The calling thread belongs to the C# side's own
+     * dispatcher pool, which owns four threads for the whole process, and a proxy call that
+     * never completes parks one of them for good -- four of those and every async API is
+     * permanently unable to run. The C# timeout cannot help, because it releases the
+     * coroutine that is waiting rather than the thread doing the work.
+     *
+     * A cancelled call that ignores cancellation keeps running on [Dispatchers.IO], which is
+     * the right place for it: that pool grows, and the plugin's own threads are freed either
+     * way.
+     */
+    private fun <T> runBlockingWithTimeout(block: suspend CoroutineScope.() -> T): T =
+        runBlocking(Dispatchers.IO) {
+            withTimeout(NATIVE_CALL_TIMEOUT_MS) { block() }
+        }
 
     private fun notifyPendingEvents() {
         // Nothing can be delivered before Unity registers its listener object, and the
@@ -104,7 +132,7 @@ class UnityPlugin {
 
     fun waitForChannelId(): String {
         UALog.d { "UnityPlugin waitForChannelId method call" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             airshipProxyInstance.channel.waitForChannelId()
         }
     }
@@ -136,7 +164,7 @@ class UnityPlugin {
 
     fun getChannelSubscriptionLists(): String {
         UALog.d { "UnityPlugin getChannelSubscriptionLists method call" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             val jsonArray = JSONArray()
             for (tag in airshipProxyInstance.channel.getSubscriptionLists()) {
                 jsonArray.put(tag)
@@ -184,7 +212,7 @@ class UnityPlugin {
 
     fun getContactSubscriptionLists(): String {
         UALog.d { "UnityPlugin getContactSubscriptionLists method call" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             val resultArray = JSONArray()
             airshipProxyInstance.contact.getSubscriptionLists().forEach { subscription ->
                 val scopesArray = JSONArray()
@@ -277,14 +305,14 @@ class UnityPlugin {
 
     fun getUnreadCount(): Int {
         UALog.d { "UnityPlugin getUnreadCount method call" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             airshipProxyInstance.messageCenter.getUnreadMessagesCount()
         }
     }
 
     fun getMessages(): String {
         UALog.d { "UnityPlugin getMessages method call" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             getInboxMessagesAsJSON(airshipProxyInstance.messageCenter.getMessages())
         }
     }
@@ -301,7 +329,7 @@ class UnityPlugin {
 
     fun refreshMessages() {
         UALog.d { "UnityPlugin refreshMessages method call" }
-        runBlocking(Dispatchers.IO) {
+        runBlockingWithTimeout {
             airshipProxyInstance.messageCenter.refreshInbox()
         }
     }
@@ -340,7 +368,7 @@ class UnityPlugin {
 
     fun getPreferenceCenterConfig(preferenceCenterId: String): String {
         UALog.d { "UnityPlugin getPreferenceCenterConfig method call with: $preferenceCenterId" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             val config = airshipProxyInstance.preferenceCenter.getPreferenceCenterConfig(preferenceCenterId)
                 ?: throw IllegalArgumentException("Preference center config not found for ID: $preferenceCenterId")
             config.toString()
@@ -393,7 +421,7 @@ class UnityPlugin {
 
     fun enableUserNotifications(fallback: String?): Boolean {
         UALog.d { "UnityPlugin enableUserNotifications method call with: $fallback" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             airshipProxyInstance.push.enableUserPushNotifications(
                 EnableUserNotificationsArgs.fromJson(JsonValue.parseString(fallback))
             )
@@ -402,7 +430,7 @@ class UnityPlugin {
 
     fun getNotificationStatus(): String {
         UALog.d { "UnityPlugin getNotificationStatus method call" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             airshipProxyInstance.push.getNotificationStatus().toJsonValue().toString()
         }
     }
@@ -451,7 +479,7 @@ class UnityPlugin {
 
     fun runAction(name: String, value: String?): String {
         UALog.d { "UnityPlugin runAction method call with: $name, $value" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             val actionResult = airshipProxyInstance.actions.runAction(name, JsonValue.parseString(value))
             JsonValue.wrapOpt(actionResult).toString()
         }
@@ -459,7 +487,7 @@ class UnityPlugin {
 
     fun flag(name: String): String {
         UALog.d { "UnityPlugin flag method call with: $name" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             val flagProxy = airshipProxyInstance.featureFlagManager.flag(name)
             val flagJson = flagProxy.toJsonValue().optMap()
 
@@ -492,7 +520,7 @@ class UnityPlugin {
 
     fun liveUpdateList(payload: String): String {
         UALog.d { "UnityPlugin liveUpdateList method call with: $payload" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             val request = LiveUpdateRequest.List.fromJson(JsonValue.parseString(payload))
             val result = airshipProxyInstance.liveUpdateManager.list(request)
             liveUpdatesForUnity(result)
@@ -501,7 +529,7 @@ class UnityPlugin {
 
     fun liveUpdateListAll(): String {
         UALog.d { "UnityPlugin liveUpdateListAll method call" }
-        return runBlocking(Dispatchers.IO) {
+        return runBlockingWithTimeout {
             val result = airshipProxyInstance.liveUpdateManager.listAll()
             liveUpdatesForUnity(result)
         }
