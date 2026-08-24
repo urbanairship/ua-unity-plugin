@@ -48,9 +48,18 @@ namespace AirshipSDK.Editor {
                     return;
                 }
 
-                if (!config.IsValid) {
-                    EditorUtility.DisplayDialog ("Airship", "Airship not configured. Set the app credentials in Window -> Airship -> Settings", "OK");
-                    return;
+                string validationError = config.ValidationError;
+                if (validationError != null) {
+                    // Credentials were entered but are incomplete, so this is a mistake rather
+                    // than a deliberate runtime-TakeOff setup. Returning here shipped a player
+                    // with no Airship config at all, and in batchmode the dialog is a no-op,
+                    // so CI produced that player silently.
+                    string message = validationError +
+                        " Set the app credentials in Window -> Airship -> Settings, or clear them " +
+                        "and call Airship.Shared.TakeOff() at runtime.";
+
+                    EditorUtility.DisplayDialog ("Airship", message, "OK");
+                    throw new BuildFailedException ("Airship: " + message);
                 }
 
                 config.Apply ();

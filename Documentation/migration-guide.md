@@ -124,9 +124,9 @@ StartCoroutine(Airship.Shared.messageCenter.GetUnReadCount(onComplete: (unread) 
 Airship.Shared.OnInboxUpdated += (unreadCount, totalCount) => { };
 ```
 
-`InboxMessage.isDeleted` is always `false`. The framework proxy does not expose a deleted
-flag, so the plugin can no longer populate it. Filter deleted messages by refreshing the
-inbox instead — deleted messages are no longer returned by `GetMessages`.
+`InboxMessage.isDeleted` was removed. The framework proxy exposes no deleted flag, and
+deleted messages are no longer returned by `GetMessages` at all, so refreshing the inbox
+replaces any use of it.
 
 ```cs
 // Preference Center
@@ -201,6 +201,12 @@ UAirship.Shared.GetIncomingPush(clear);
 // removed - IsFeaturesEnabled now checks that all the given features are enabled
 UAirship.Shared.IsAnyFeatureEnabled(features);
 ```
+
+`PushMessage.Identifier` was removed. It used to be the Airship send ID, which the
+framework proxy does not expose -- on iOS it strips the `_` key from the push extras. The
+closest replacement is `PushMessage.NotificationId`, but note it is a different value: the
+platform's identifier for the notification that was posted, and `null` for a push that
+posted none. `PushMessage.Title` is new and carries the notification title.
 
 ## Renamed events
 

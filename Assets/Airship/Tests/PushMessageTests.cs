@@ -43,6 +43,33 @@ namespace AirshipSDK.Tests {
         }
 
         [Test]
+        public void ParsesTitleAndNotificationId () {
+            PushMessage message = PushMessage.FromJson (
+                "{\"alert\":\"Hello\",\"title\":\"Greetings\",\"notificationId\":\"tag:7\"}");
+
+            Assert.AreEqual ("Greetings", message.Title);
+            Assert.AreEqual ("tag:7", message.NotificationId);
+        }
+
+        /// A notification can carry a title with no body. It used to be dropped, because
+        /// the guard only looked at the alert and at a send ID nothing ever populated.
+        [Test]
+        public void TitleOnlyPushIsNotDropped () {
+            PushMessage message = PushMessage.FromJson ("{\"title\":\"Greetings\"}");
+
+            Assert.IsNotNull (message, "a title-only push must not be dropped");
+            Assert.IsNull (message.Alert);
+            Assert.AreEqual ("Greetings", message.Title);
+        }
+
+        /// A push that posted a notification always carries its id, even when Airship sent
+        /// no extras and the alert came through empty.
+        [Test]
+        public void NotificationIdAloneIsNotDropped () {
+            Assert.IsNotNull (PushMessage.FromJson ("{\"notificationId\":\"tag:7\"}"));
+        }
+
+        [Test]
         public void ExtrasAreNullWhenThePushCarriedNone () {
             PushMessage message = PushMessage.FromJson ("{\"alert\":\"Hello\"}");
 

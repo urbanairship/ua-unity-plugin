@@ -321,9 +321,9 @@ namespace AirshipSDK
             if (actualType == typeof(bool))
                 return (T)(object)bool.Parse(json);
             if (actualType == typeof(int))
-                return (T)(object)int.Parse(json);
+                return (T)(object)int.Parse(json, System.Globalization.CultureInfo.InvariantCulture);
             if (actualType == typeof(long))
-                return (T)(object)long.Parse(json);
+                return (T)(object)long.Parse(json, System.Globalization.CultureInfo.InvariantCulture);
             if (actualType == typeof(float))
                 return (T)(object)float.Parse(json, System.Globalization.CultureInfo.InvariantCulture);
             if (actualType == typeof(double))

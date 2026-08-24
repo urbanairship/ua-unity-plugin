@@ -136,7 +136,10 @@ namespace AirshipSDK.Editor {
 
             string shellScript =
                 "# Copy Airship SPM resource bundles into the app bundle so Bundle.module can find them.\n" +
-                "DEST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app\"\n" +
+                // TARGET_BUILD_DIR/WRAPPER_NAME rather than PRODUCT_NAME.app: the two
+                // diverge as soon as the product is renamed, and the bundles would then be
+                // copied somewhere Bundle.module never looks.
+                "DEST=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n" +
                 "FOUND=0\n" +
                 "# Check the build products directory (standard SPM static library location)\n" +
                 "for BUNDLE in \"${BUILT_PRODUCTS_DIR}\"/Airship_*.bundle; do\n" +
@@ -175,6 +178,14 @@ namespace AirshipSDK.Editor {
         private static void CopyModuleMap (string buildPath, PBXProject proj) {
             string sourceDir = Path.Combine(Application.dataPath, "Plugins/iOS");
             string destinationDir = Path.Combine(buildPath, "Libraries/Plugins/iOS");
+
+            // Without this the Swift plugin does not compile, but throwing from a post
+            // process leaves only a FileNotFoundException stack. Say what is missing.
+            if (!File.Exists (Path.Combine (sourceDir, "module.modulemap"))) {
+                UnityEngine.Debug.LogError ("Airship: module.modulemap is missing from " +
+                    sourceDir + ", so the Swift plugin will not compile. Reimport the Airship plugin.");
+                return;
+            }
 
             if (!Directory.Exists (destinationDir)) {
                 Directory.CreateDirectory (destinationDir);

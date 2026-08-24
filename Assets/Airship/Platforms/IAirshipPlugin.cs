@@ -46,20 +46,27 @@ namespace AirshipSDK {
 
         /// Internal method to make a Java Array with an array of String values,
         /// to be used with the PrivacyManager methods.
+        /// The caller owns the returned object and is responsible for disposing it; every
+        /// other wrapper created here holds a JNI global reference and is released before
+        /// returning, rather than waiting on finalization.
         public AndroidJavaObject MakeJavaArray(string[] values) {
             if (values == null) {
                 return null;
             }
 
             // Create a Java String[] array using reflection
-            AndroidJavaClass arrayClass = new AndroidJavaClass("java.lang.reflect.Array");
-            AndroidJavaObject arrayObject = arrayClass.CallStatic<AndroidJavaObject>("newInstance", new AndroidJavaClass("java.lang.String"), values.Length);
+            using (AndroidJavaClass arrayClass = new AndroidJavaClass("java.lang.reflect.Array"))
+            using (AndroidJavaClass stringClass = new AndroidJavaClass("java.lang.String")) {
+                AndroidJavaObject arrayObject = arrayClass.CallStatic<AndroidJavaObject>("newInstance", stringClass, values.Length);
 
-            for (int i = 0; i < values.Length; i++) {
-                arrayClass.CallStatic("set", arrayObject, i, new AndroidJavaObject("java.lang.String", values[i]));
+                for (int i = 0; i < values.Length; i++) {
+                    using (AndroidJavaObject value = new AndroidJavaObject("java.lang.String", values[i])) {
+                        arrayClass.CallStatic("set", arrayObject, i, value);
+                    }
+                }
+
+                return arrayObject;
             }
-
-            return arrayObject;
         }
 
         public void Call (string method, params object[] args) {
@@ -88,7 +95,15 @@ namespace AirshipSDK {
             if (arg == null) return null;
             Type type = arg.GetType();
             if (type.IsPrimitive || arg is string || arg is decimal || arg is AndroidJavaObject) return arg;
-            return AirshipUtils.Serialize(arg);
+            // SerializeValue, not Serialize: Serialize only ever emits an object, so an
+            // array, list or dictionary argument would reflect over the collection type
+            // itself and send something like {"Length":1}. Both agree for a plain object,
+            // which is the only shape any current caller passes.
+            //
+            // No Android method takes an enum argument today, so how one should cross is
+            // unspecified: this sends the quoted JSON string the iOS bridge sends, which may
+            // or may not be what a Kotlin String parameter would want.
+            return AirshipUtils.SerializeValue(arg);
         }
 
         public GameObject Listener {

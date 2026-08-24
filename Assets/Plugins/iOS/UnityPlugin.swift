@@ -50,7 +50,7 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
 
     do {
         // Sync path
-        let syncResult = try UnityPlugin.shared.handleCall(method: methodStr, args: args)
+        let syncResult = try onMainThread { try UnityPlugin.shared.handleCall(method: methodStr, args: args) }
         switch syncResult {
         case .handledSync(let value):
             result = value
@@ -78,6 +78,24 @@ public func UnityPlugin_call(_ method: UnsafePointer<CChar>, argsJson: UnsafePoi
     } catch {
         return makeErrorResponse("Failed to serialize result for \(methodStr): \(error)")
     }
+}
+
+/// Runs a block on the main thread, hopping only if the caller is not already there.
+///
+/// Many cases in `handleCall` reach main-actor-isolated proxy APIs through
+/// `MainActor.assumeIsolated`, which is a precondition: it traps rather than throws when
+/// the caller is off the main thread. C# dispatches some calls from a worker thread
+/// (`AirshipCoroutineHelper`), so which methods are safe would otherwise depend on which
+/// ones happen to be routed that way today. Hopping here makes every case safe regardless.
+///
+/// There is no deadlock risk from the wait: the main thread only ever calls in directly,
+/// and while it is pumping in `runAsync` below it is running its run loop, which services
+/// the main queue.
+private func onMainThread<T>(_ block: () throws -> T) rethrows -> T {
+    if Thread.isMainThread {
+        return try block()
+    }
+    return try DispatchQueue.main.sync(execute: block)
 }
 
 // Kept slightly below the C# AirshipCoroutineHelper timeout (60s) so this native
@@ -142,6 +160,12 @@ class UnityPlugin: NSObject {
         switch method {
             case "setListener":
                 listener = try requireStringArg(args.first)
+
+                // Replay whatever the emitter produced before Unity was ready to receive it.
+                // handleCall runs on the main thread, so the hop is already done.
+                MainActor.assumeIsolated {
+                    notifyPendingEvents()
+                }
                 return .handledSync(nil)
 
             // Airship
@@ -644,6 +668,17 @@ class UnityPlugin: NSObject {
 
     @MainActor
     private func notifyPendingEvents() {
+        // Nothing can be delivered before Unity registers its listener object, and the
+        // emitter starts draining as soon as this singleton is constructed. Without this
+        // guard processPendingEvents would take the events and each handler would then drop
+        // them at its own `if let listener`, losing the first channel-created, push-token or
+        // cold-start notification-response of a launch. Bailing out leaves them pending so
+        // setListener replays them. Mirrors the Android side.
+        guard listener != nil else {
+            AirshipLogger.debug("UnityPlugin listener not registered yet; leaving events pending")
+            return
+        }
+
         for eventType in AirshipProxyEventType.allCases {
             AirshipProxyEventEmitter.shared.processPendingEvents(type: eventType) { event in
                 if let data = try? JSONEncoder().encode(event.body),
