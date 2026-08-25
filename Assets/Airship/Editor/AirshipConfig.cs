@@ -36,61 +36,61 @@ namespace AirshipSDK.Editor {
         private static readonly string legacyFilePath = "ProjectSettings/UrbanAirship.xml";
         private static AirshipConfig cachedInstance;
 
-        [SerializeField]
+        [field: SerializeField]
         public string ProductionAppKey { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public string ProductionAppSecret { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public LogLevel ProductionLogLevel { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public string DevelopmentAppKey { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public string DevelopmentAppSecret { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public LogLevel DevelopmentLogLevel { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public bool GenerateGoogleJsonConfig { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public bool NotificationPresentationOptionAlert { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public bool NotificationPresentationOptionBadge { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public bool NotificationPresentationOptionSound { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public bool InProduction { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public String UrlAllowList { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public String UrlAllowListScopeOpenURL { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public String UrlAllowListScopeJavaScriptInterface { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public String EnabledFeatures { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public String AndroidNotificationIcon { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public String AndroidNotificationAccentColor { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public String Version { get; set; }
 
-        [SerializeField]
+        [field: SerializeField]
         public CloudSite Site { get; set; }
 
         /// <summary>

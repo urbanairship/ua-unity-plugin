@@ -114,7 +114,8 @@ namespace AirshipSDK {
             // tick values, so a Local value -- which is what DateTime.Now returns -- would
             // otherwise land off by the caller's UTC offset.
             System.DateTime epochStart = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
-            string valueInMillisecondsSinceEpoch = (value.ToUniversalTime() - epochStart).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
+            long millisecondsSinceEpoch = (long) (value.ToUniversalTime() - epochStart).TotalMilliseconds;
+            string valueInMillisecondsSinceEpoch = millisecondsSinceEpoch.ToString(CultureInfo.InvariantCulture);
 
             operations.Add(new AttributeMutation(AttributeAction.Set, key, valueInMillisecondsSinceEpoch, AttributeType.Date));
             return this;

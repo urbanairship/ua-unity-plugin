@@ -185,8 +185,12 @@ public class AirshipBehaviour : MonoBehaviour {
             }
         ));
 
-        // Locale
-        Airship.Shared.locale.SetLocaleOverride("en_US");
+#if UNITY_ANDROID
+        string localeOverride = "en-US";
+#else
+        string localeOverride = "en_US";
+#endif
+        Airship.Shared.locale.SetLocaleOverride(localeOverride);
         Debug.Log("Locale: " + Airship.Shared.locale.GetLocale());
         Airship.Shared.locale.ClearLocaleOverride();
         Debug.Log("Locale: " + Airship.Shared.locale.GetLocale());

@@ -165,9 +165,9 @@ namespace AirshipSDK
 
         /// <summary>
         /// Clears a specific notification.
-        /// 
+        ///
         /// On Android, you can use this method to clear notifications outside of Airship.
-        /// The identifier is in the format of <tag>:<id>.
+        /// The identifier is in the format of <id>:<tag>.
         /// </summary>
         /// <param name="identifier">The identifier.</param>
         public void ClearNotification(string identifier)
