@@ -65,9 +65,9 @@ jobs:
       - name: Build
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_USERNAME }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
 
@@ -96,9 +96,9 @@ jobs:
       # next step fails the job if it drifts from ProjectVersion.txt.
       image: unityci/editor:ubuntu-6000.2.8f1-android-3
     env:
-      UNITY_EMAIL: ${{ secrets.ULRICH_UNITY_EMAIL }}
-      UNITY_PASSWORD: ${{ secrets.ULRICH_UNITY_PASSWORD }}
-      UNITY_SERIAL: ${{ secrets.ULRICH_UNITY_SERIAL }}
+      UNITY_EMAIL: ${{ secrets.UNITY_USERNAME }}
+      UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
     steps:
       - uses: actions/checkout@v4
 
