@@ -7,7 +7,7 @@ Swift (iOS) and Kotlin (Android), and the C# API was reorganized into feature mo
 
 - Unity 6
 - iOS: Xcode 16+, minimum deployment target iOS 16+
-- Android: minSdkVersion 23, compileSdk/targetSdk 36, Kotlin 2.2.20
+- Android: minSdkVersion 23, compileSdk/targetSdk 36, Kotlin 2.2.20+
 
 ## Namespace and entry point
 
@@ -107,6 +107,7 @@ IEnumerable<InboxMessage> messages = UAirship.Shared.InboxMessages();
 UAirship.Shared.MarkInboxMessageRead(messageId);
 UAirship.Shared.DeleteInboxMessage(messageId);
 int unread = UAirship.Shared.MessageCenterUnreadCount;
+UAirship.Shared.SetAutoLaunchDefaultMessageCenter(enabled);
 // replacement
 Airship.Shared.messageCenter.Display(null);
 Airship.Shared.messageCenter.Display(messageId);
@@ -115,6 +116,7 @@ StartCoroutine(Airship.Shared.messageCenter.GetMessages(onComplete: (messages) =
 Airship.Shared.messageCenter.MarkMessageRead(messageId);
 Airship.Shared.messageCenter.DeleteMessage(messageId);
 StartCoroutine(Airship.Shared.messageCenter.GetUnReadCount(onComplete: (unread) => { }));
+Airship.Shared.messageCenter.SetAutoLaunchDefaultMessageCenter(enabled);
 ```
 
 `MessageCenterCount` (the total message count) has no direct replacement. Derive it from
@@ -191,6 +193,11 @@ Airship.Shared.privacyManager.SetEnabledFeatures(new string[] { "push" });
 Valid names: `all`, `none`, `push`, `analytics`, `message_center`, `in_app_automation`,
 `tags_and_attributes`, `contacts`, `feature_flags`.
 
+`Features.FEATURE_CHAT` and `Features.FEATURE_LOCATION` have no replacement -- both
+features were removed from the underlying SDKs. Drop them from any feature set rather than
+translating them: because an unrecognized name resolves to no features rather than raising,
+passing one through leaves data collection silently disabled.
+
 The following members were removed without a direct replacement:
 
 ```cs
@@ -206,7 +213,14 @@ UAirship.Shared.IsAnyFeatureEnabled(features);
 framework proxy does not expose -- on iOS it strips the `_` key from the push extras. The
 closest replacement is `PushMessage.NotificationId`, but note it is a different value: the
 platform's identifier for the notification that was posted, and `null` for a push that
-posted none. `PushMessage.Title` is new and carries the notification title.
+posted none.
+
+On iOS, `NotificationId` is also `null` throughout `OnPushReceived` even when a notification
+was posted. It is populated for `OnPushOpened` and for `GetActiveNotifications`. Code that read `Identifier`
+from a push-received handler therefore has no iOS replacement; key off the push `Extras`
+instead. On Android it is populated wherever a notification was posted.
+
+`PushMessage.Title` is new and carries the notification title.
 
 ## Renamed events
 

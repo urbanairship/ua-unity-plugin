@@ -8,10 +8,11 @@ cross-platform C# API. Apps can share the same integration code across both plat
  - iOS: Xcode 16+
  - iOS: Minimum deployment target iOS 16+
  - Android: minSdkVersion 23, compileSdk/targetSdk 36
- - Android: Kotlin 2.2.20
+ - Android: Kotlin 2.2.20+
 
 ### Resources
  - [Getting started guide](https://www.airship.com/docs/developer/sdk-integration/unity/installation/getting-started)
+ - [API reference](https://urbanairship.github.io/ua-unity-plugin/)
  - [Migration Guide](Documentation/migration-guide.md)
 
 ### Third Party Packages
@@ -52,7 +53,9 @@ All features are accessed through `Airship.Shared`:
 
  - `channel` - channel ID, tags, tag groups, attributes, subscription lists
  - `contact` - named user, tags, attributes, subscription lists
- - `push` - notification opt-in, push token, notification status
+ - `push` - notification opt-in, push token, notification status, plus `push.iOS` (badge,
+   quiet time, foreground presentation and authorization options) and `push.android`
+   (notification channels, foreground notifications)
  - `messageCenter` - Message Center
  - `preferenceCenter` - Preference Center
  - `inApp` - In-App Automation / Experiences

@@ -24,7 +24,7 @@ namespace AirshipSDK {
         /// <summary>
         /// The API documents URL.
         /// </summary>
-        public const string APIDocsURL = "https://www.airship.com/docs/developer/sdk-integration/unity/installation/getting-started";
+        public const string APIDocsURL = "https://urbanairship.github.io/ua-unity-plugin/";
 
         /// <summary>
         /// The getting started guide URL.
