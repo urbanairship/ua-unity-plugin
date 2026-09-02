@@ -143,6 +143,20 @@ jobs:
           # the wrapper rather than /opt/unity/Editor/Unity so the editor calls get xvfb.
           export UNITY_EXE=/usr/bin/unity-editor
 
+          # unity-plugin compiles against Unity's classes.jar. copyUnityClassesJar
+          # otherwise falls back to a macOS Unity Hub path, and a Copy task with a
+          # nonexistent source is a silent no-op, so the failure surfaces much later as a
+          # jetifier error on the missing classpath entry. Located rather than hardcoded:
+          # the Variations/<backend>/Release/Classes layout has moved between editor
+          # versions.
+          JAR=$(find "$UNITY_PATH/Editor/Data/PlaybackEngines/AndroidPlayer" -name classes.jar | head -1)
+          if [ -z "$JAR" ]; then
+            echo "::error ::classes.jar not found under the AndroidPlayer playback engine"
+            exit 1
+          fi
+          echo "using $JAR"
+          export UNITY_CLASSES_JAR="$JAR"
+
           ./gradlew build
 
       - name: Upload Build Artifact
