@@ -1,55 +1,47 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
 
-    ext {
-        // Gradle plugins
-        gradlePluginVersion = '7.1.2'
-    }
-
-    dependencies {
-        classpath "com.android.tools.build:gradle:$gradlePluginVersion"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
-        classpath 'com.android.tools.lint:lint-kotlin:26.2.1'
-    }
-}
-
-repositories {
-    google()
-    mavenCentral()
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.android'
 }
 
 group = 'com.urbanairship.unitysupport'
 version = airshipProperties.version
-description = "Urban Airship Android Unity Plugin"
+description = "Airship Android Unity Plugin"
 
-apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
 
 android {
     lintOptions {
         abortOnError false
     }
 
-    compileSdkVersion airshipProperties.androidCompileSdkVersion.toInteger()
+    namespace 'com.urbanairship.unityplugin'
+
+    compileSdk airshipProperties.androidCompileSdkVersion.toInteger()
 
     defaultConfig {
-        minSdkVersion airshipProperties.androidMinSdkVersion.toInteger()
-        targetSdkVersion airshipProperties.androidTargetSdkVersion.toInteger()
+        minSdk airshipProperties.androidMinSdkVersion.toInteger()
+        targetSdk airshipProperties.androidTargetSdkVersion.toInteger()
 
         buildConfigField "String", "PLUGIN_VERSION", "\"${airshipProperties.version}\""
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
+
 
 dependencies {
     compileOnly files('libs/unity-classes.jar')
-    implementation "androidx.annotation:annotation:$airshipProperties.androidxAnnotationVersion"
-    implementation "com.urbanairship.android:urbanairship-fcm:${airshipProperties.androidAirshipVersion}"
-    implementation "com.urbanairship.android:urbanairship-message-center:${airshipProperties.androidAirshipVersion}"
-    implementation "com.urbanairship.android:urbanairship-automation:${airshipProperties.androidAirshipVersion}"
-    implementation "com.urbanairship.android:urbanairship-preference-center:${airshipProperties.androidAirshipVersion}"
+    implementation "com.urbanairship.android:airship-framework-proxy:${airshipProperties.airshipFrameworkProxyVersion}"
 }
 
 task copyUnityClassesJar(type: Copy) {

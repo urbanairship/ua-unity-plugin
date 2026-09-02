@@ -1,0 +1,7 @@
+module AirshipUnityCBridge {
+    // This makes the contents of the header file available to Swift.
+    header "UnityPlugin.h"
+
+    // This makes the C functions available for linking.
+    export *
+}

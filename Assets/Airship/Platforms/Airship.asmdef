@@ -1,0 +1,11 @@
+{
+    "name": "AirshipSDK",
+    "references": [],
+    "includePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dependencies>
+
+  <!-- Android -->
+  <androidPackages>
+    <repositories>
+      <repository>https://repo.maven.apache.org/maven2</repository>
+    </repositories>
+
+    <androidPackage spec="com.urbanairship.android:airship-framework-proxy:__AIRSHIP_FRAMEWORK_PROXY_VERSION__"/>
+  </androidPackages>
+
+
+  <!-- iOS - Swift Package -->
+  <remoteSwiftPackage url="https://github.com/urbanairship/airship-mobile-framework-proxy.git"
+                      version="__AIRSHIP_FRAMEWORK_PROXY_VERSION__">
+    <swiftPackage name="AirshipFrameworkProxy"/>
+  </remoteSwiftPackage>
+
+</dependencies>

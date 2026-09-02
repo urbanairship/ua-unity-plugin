@@ -1,5 +1,17 @@
 import java.util.regex.Pattern
 
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+plugins {
+   id 'com.android.library' version '8.10.0' apply false
+   id 'org.jetbrains.kotlin.android' version '2.2.20' apply false
+}
+
 allprojects {
   ext {
       airshipProperties = new Properties()
@@ -9,19 +21,6 @@ allprojects {
 
 configurations {
     plugin
-}
-
-repositories {
-    google()
-    ivy {
-        url 'https://github.com'
-        patternLayout {
-            artifact '[organisation]/[module]/archive/[revision].[ext]'
-        }
-        metadataSources {
-            artifact()
-        }
-    }
 }
 
 dependencies {
@@ -53,37 +52,35 @@ task preparePlugin(dependsOn: 'unity-plugin:assembleRelease') {
             include "*/*.unitypackage"
         }
 
-        // Copy the Assets, exclude PluginInfo.cs and UADependencies.xml so we can copy and replace the version placeholder
+        // Copy the Assets, exclude PluginInfo.cs and AirshipDependencies.xml so we can copy and replace the version placeholder
         copy {
             from file("Assets")
             into file("$buildDir/unity-plugin/Assets/")
-            exclude "UrbanAirship/PluginInfo.cs"
-            exclude "UrbanAirship/Editor/UADependencies.xml"
+            exclude "Airship/PluginInfo.cs"
+            exclude "Airship/Editor/AirshipDependencies.xml"
             // exclude unit tests
-            exclude "UrbanAirship/Tests"
-            exclude "UrbanAirship/Platforms/AssemblyInfo.cs"
-            exclude "UrbanAirship/Platforms/UrbanAirship.asmdef"
+            exclude "Airship/Tests"
+            exclude "Airship/Platforms/AssemblyInfo.cs"
+            exclude "Airship/Platforms/Airship.asmdef"
         }
 
         // Copy PluginInfo.cs and replace the version placeholders
         copy {
             from file("Assets")
             into file("$buildDir/unity-plugin/Assets/")
-            include "UrbanAirship/PluginInfo.cs"
+            include "Airship/PluginInfo.cs"
             filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
-            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion) }
-            filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__AIRSHIP_FRAMEWORK_PROXY_VERSION__"), airshipProperties.airshipFrameworkProxyVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__KOTLIN_VERSION__"), airshipProperties.kotlinVersion) }
         }
 
-        // Copy UADependencies.xml and replace the version placeholders
+        // Copy AirshipDependencies.xml and replace the version placeholders
         copy {
             from file("Assets")
             into file("$buildDir/unity-plugin/Assets/")
-            include "UrbanAirship/Editor/UADependencies.xml"
+            include "Airship/Editor/AirshipDependencies.xml"
             filter { String line -> line.replaceAll(Pattern.quote("__PLUGIN_VERSION__"), airshipProperties.version) }
-            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_AIRSHIP_VERSION__"), airshipProperties.androidAirshipVersion) }
-            filter { String line -> line.replaceAll(Pattern.quote("__ANDROID_ANNOTATIONS_VERSION__"), airshipProperties.androidxAnnotationVersion) }
-            filter { String line -> line.replaceAll(Pattern.quote("__IOS_AIRSHIP_VERSION__"), airshipProperties.iosAirshipVersion) }
+            filter { String line -> line.replaceAll(Pattern.quote("__AIRSHIP_FRAMEWORK_PROXY_VERSION__"), airshipProperties.airshipFrameworkProxyVersion) }
         }
     }
 }
@@ -124,12 +121,12 @@ task build(dependsOn: 'preparePlugin') {
                 "-exportPackage",
                     "Assets/PlayServicesResolver",
                     "Assets/ExternalDependencyManager",
-                    "Assets/UrbanAirship",
+                    "Assets/Airship",
                     "Assets/Plugins/iOS",
-                    "Assets/Plugins/Android/urbanairship-resources.androidlib",
+                    "Assets/Plugins/Android/airship-resources.androidlib",
                     "Assets/Plugins/Android",
                     "Assets/Scripts",
-                file("build/urbanairship-${airshipProperties.version}.unitypackage").absolutePath,
+                file("build/airship-${airshipProperties.version}.unitypackage").absolutePath,
                 "-quit"
               ]
 

@@ -1,0 +1,22 @@
+<!-- Copyright Airship and Contributors -->
+<linker>
+  <!--
+    The runtime assembly is preserved whole because very little of it is reachable by
+    static analysis:
+
+      * AirshipUtils.Serialize and Deserialize reflect over the public fields and
+        properties of every config and model type.
+      * Deserialize builds JsonArray<T> through MakeGenericType and invokes FromJson by
+        name, so those instantiations only exist at runtime.
+      * EnumExtensions.ToStringValue and ParseEnumFromStringValue read enum fields and
+        their [AirshipEnumStringValue] attributes reflectively.
+      * The ten Airship.AirshipListener callbacks are invoked by name from the native
+        layers through UnitySendMessage, never from managed code.
+
+    Managed stripping above Minimal removes these, and every resulting failure is silent:
+    a config payload missing fields, an ExecutionEngineException on a generic array, or
+    events that simply stop arriving. Preserving the assembly is cheap, since it is small,
+    and the alternative is a member list that goes stale with every new model.
+  -->
+  <assembly fullname="AirshipSDK" preserve="all"/>
+</linker>

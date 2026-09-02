@@ -1,5 +1,50 @@
 # Unity Plugin ChangeLog
 
+## Version 10.0.0 - September 02 2026
+
+Major release that exposes significantly more of the underlying SDK functionality to Unity.
+This release has several breaking changes due to the new modular APIs. Apps should use the
+migration guide to update
+[Migration Guide](https://github.com/urbanairship/ua-unity-plugin/blob/main/Documentation/migration-guide.md).
+
+### Behavior Changes
+- Airship now initializes automatically through autopilot on both platforms.
+- The editor settings moved from `Window -> Urban Airship -> Settings` to
+  `Window -> Airship -> Settings`, and the config file was renamed from
+  `ProjectSettings/UrbanAirship.xml` to `ProjectSettings/Airship.xml`. Existing configs are
+  migrated automatically on first load.
+- The plugin now generates the Android Firebase resources from `google-services.json` at
+  build time.
+- Operations that block in the native SDK are now coroutines invoked with `StartCoroutine`,
+  delivering results through an `onComplete` callback
+
+### Changes
+- Updated Android SDK to 20.10.0
+- Updated iOS SDK to 20.11.0
+- Requires Unity 6, Xcode 16+, iOS 16+, and Android 23+
+- Requires compileSdk/targetSdk 36 and Kotlin 2.2.20 for Android builds
+- Rewrote the native layers in Swift on iOS and Kotlin on Android
+- iOS now uses Swift Package Manager
+- Updated the External Dependency Manager to 1.2.187
+- Renamed the `UrbanAirship` namespace to `AirshipSDK`
+- Replaces `UAirship.Shared` with `Airship.Shared` as the root instance
+- Grouped functional apis under new components under the Airship instance:
+  `Airship.Shared.channel`, `Airship.Shared.push`, `Airship.Shared.messageCenter`, etc...
+- Added new Unity `TakeOff` method with full config support
+- Added feature flag support
+- Added preference center component
+- Added subscription list support on channel and contact
+- Added new APIs to manage iOS Live Activities and Android Live Updates
+- Added actions component to manually run any actions from the action's framework
+- Added methods to override locale used by Airship messaging
+- Added new listeners for notification status, push token, and iOS authorized settings
+- Renamed the `OnChannelUpdated` event to `OnChannelCreated`
+- Removed `GetDeepLink` and `GetIncomingPush` in favor of the `OnDeepLinkReceived`,
+  `OnPushReceived`, and `OnPushOpened` events
+- Replaced `PushMessage.Identifier`, which carried the Airship send ID, with
+  `PushMessage.NotificationId`, and added `PushMessage.Title`
+- Removed `InboxMessage.isDeleted`
+
 ## Version 9.3.0 - March 14, 2024
 
 Minor release that updates Airship Android SDK to 16.11.2 and iOS SDK to 16.12.6 and adds support for Xcode 15.
