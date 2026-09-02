@@ -1,6 +1,6 @@
 # Unity Plugin ChangeLog
 
-## Version 10.0.0 - August 19 2026
+## Version 10.0.0 - September 02 2026
 
 Major release that exposes significantly more of the underlying SDK functionality to Unity.
 This release has several breaking changes due to the new modular APIs. Apps should use the
