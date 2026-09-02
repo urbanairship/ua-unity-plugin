@@ -45,8 +45,19 @@ dependencies {
 }
 
 task copyUnityClassesJar(type: Copy) {
-  from file(getUnityClassesPath()).getParent()
-  include file(getUnityClassesPath()).getName()
+  def unityClassesJar = file(getUnityClassesPath())
+
+  // A Copy task whose source does not exist is NO-SOURCE, not a failure, and the missing
+  // jar then surfaces as a jetifier error on releaseCompileClasspath instead.
+  doFirst {
+    if (!unityClassesJar.exists()) {
+      throw new GradleException(
+        "Unity's classes.jar not found at ${unityClassesJar}. Set UNITY_CLASSES_JAR to its location.")
+    }
+  }
+
+  from unityClassesJar.getParent()
+  include unityClassesJar.getName()
   rename ("classes.jar", "unity-classes.jar")
   into 'libs'
 }

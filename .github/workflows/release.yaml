@@ -157,7 +157,12 @@ jobs:
           echo "using $JAR"
           export UNITY_CLASSES_JAR="$JAR"
 
-          ./gradlew build
+          # Qualified deliberately. An unqualified `build` matches that task name in every
+          # project, which pulls in :docs:build -- it shells out to doxygen, which this
+          # image does not carry and which publish-docs.yml installs and runs on its own.
+          # The root task is all the packaging needs: it reaches
+          # :unity-plugin:assembleRelease through preparePlugin.
+          ./gradlew :build
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
