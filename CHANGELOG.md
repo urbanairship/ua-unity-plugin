@@ -1,5 +1,15 @@
 # Unity Plugin ChangeLog
 
+## Version 10.1.0 - September 23 2026
+
+Minor release that updates Airship Android SDK to 21.0.2 and iOS SDK to 21.0.2.
+
+### Changes
+- Updated Android SDK to 21.0.2
+- Updated iOS SDK to 21.0.2
+- Raised the minimum Android SDK version to 26
+- Requires Xcode 27+ to build
+
 ## Version 10.0.0 - September 02 2026
 
 Major release that exposes significantly more of the underlying SDK functionality to Unity.
