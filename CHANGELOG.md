@@ -4,8 +4,7 @@
 
 Major release that exposes significantly more of the underlying SDK functionality to Unity.
 This release has several breaking changes due to the new modular APIs. Apps should use the
-migration guide to update
-[Migration Guide](https://github.com/urbanairship/ua-unity-plugin/blob/main/Documentation/migration-guide.md).
+[Migration Guide](https://github.com/urbanairship/ua-unity-plugin/blob/main/Documentation/migration-guide.md) to update.
 
 ### Behavior Changes
 - Airship now initializes automatically through autopilot on both platforms.
