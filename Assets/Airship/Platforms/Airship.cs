@@ -112,6 +112,16 @@ namespace AirshipSDK
         /// </summary>
         public event NotificationStatusChangedEventHandler OnNotificationStatusChanged;
 
+        /// <summary>
+        /// Feature flag status changed event handler.
+        /// </summary>
+        public delegate void FeatureFlagStatusChangedEventHandler(FeatureFlagStatus status);
+
+        /// <summary>
+        /// Occurs when the feature flag result cache's status changes.
+        /// </summary>
+        public event FeatureFlagStatusChangedEventHandler OnFeatureFlagStatusChanged;
+
         public AirshipChannel channel;
         public AirshipContact contact;
         public AirshipAnalytics analytics;
@@ -230,6 +240,23 @@ namespace AirshipSDK
         public bool IsFlying()
         {
             return plugin.Call<bool>("isFlying");
+        }
+
+        /// <summary>
+        /// Returns the deep link that launched the app from a notification tap asynchronously
+        /// using a coroutine, or null if the app was not launched by a notification carrying a
+        /// deep link. This method does not block Unity's main thread.
+        /// </summary>
+        /// <param name="onComplete">Callback invoked with the deep link when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator GetLaunchDeepLink(Action<string> onComplete, Action<Exception> onError = null)
+        {
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => plugin.Call<string>("getLaunchDeepLink"),
+                onComplete,
+                onError
+            );
         }
 
         internal class AirshipListener : MonoBehaviour
@@ -362,6 +389,16 @@ namespace AirshipSDK
                     {
                         handler(pushStatus);
                     }
+                }
+            }
+
+            void OnFeatureFlagStatusChanged(string status)
+            {
+                FeatureFlagStatusChangedEventHandler handler = Airship.Shared.OnFeatureFlagStatusChanged;
+
+                if (handler != null)
+                {
+                    handler(AirshipUtils.Deserialize<FeatureFlagStatus>(status));
                 }
             }
         }

@@ -57,6 +57,57 @@ namespace AirshipSDK {
         {
             plugin.Call("trackInteraction", flag.ToJson());
         }
+
+        /// <summary>
+        /// Retrieve the feature flag result cache's status asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
+        /// </summary>
+        /// <param name="onComplete">Callback invoked with the status when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator Status(Action<FeatureFlagStatus> onComplete, Action<Exception> onError = null)
+        {
+            yield return AirshipCoroutineHelper.RunAsync(
+                () => AirshipUtils.Deserialize<FeatureFlagStatus>(plugin.Call<string>("featureFlagStatus")),
+                onComplete,
+                onError
+            );
+        }
+
+        /// <summary>
+        /// Waits for the feature flag result cache to refresh asynchronously using a coroutine.
+        /// This method does not block Unity's main thread.
+        /// </summary>
+        /// <param name="maxTimeMillis">Optional maximum time to wait, in milliseconds. Waits indefinitely if null.</param>
+        /// <param name="onComplete">Callback invoked when the operation completes.</param>
+        /// <param name="onError">Optional callback invoked if an error occurs.</param>
+        /// <returns>A coroutine that can be started with StartCoroutine.</returns>
+        public IEnumerator WaitRefresh(long? maxTimeMillis, Action onComplete, Action<Exception> onError = null)
+        {
+            yield return AirshipCoroutineHelper.RunAsync(
+                // -1 means wait indefinitely: a boxed long? sent across the Android bridge
+                // resolves to a primitive-long call signature, so null itself can't cross.
+                () => plugin.Call("waitFeatureFlagRefresh", maxTimeMillis ?? -1L),
+                onComplete,
+                onError
+            );
+        }
+    }
+
+    /// <summary>
+    /// Feature flag result cache status.
+    /// </summary>
+    [Serializable]
+    public enum FeatureFlagStatus
+    {
+        [AirshipEnumStringValue("up_to_date")]
+        UpToDate,
+
+        [AirshipEnumStringValue("stale")]
+        Stale,
+
+        [AirshipEnumStringValue("out_of_date")]
+        OutOfDate
     }
 
     [Serializable]

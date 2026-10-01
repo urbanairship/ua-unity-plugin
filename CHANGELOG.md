@@ -1,14 +1,21 @@
 # Unity Plugin ChangeLog
 
-## Version 10.1.0 - September 23 2026
+## Version 11.0.0 - October 01 2026
 
-Minor release that updates Airship Android SDK to 21.0.2 and iOS SDK to 21.0.2.
+Major release that updates to Airship Android SDK 21.0.2 and iOS SDK 21.0.2 via framework
+proxy 16.0.1. The proxy update raises the minimum Android SDK version and the required
+Xcode version, which is why apps should treat this as a breaking change.
 
 ### Changes
 - Updated Android SDK to 21.0.2
 - Updated iOS SDK to 21.0.2
 - Raised the minimum Android SDK version to 26
 - Requires Xcode 27+ to build
+- Added `Airship.Shared.GetLaunchDeepLink` to read the deep link that launched the app from
+  a notification tap
+- Added `Airship.Shared.featureFlagManager.Status` and `WaitRefresh` to read and wait on the
+  feature flag result cache's status
+- Added the `OnFeatureFlagStatusChanged` event
 
 ## Version 10.0.0 - September 02 2026
 
