@@ -78,7 +78,7 @@ namespace AirshipSDK {
         /// Waits for the feature flag result cache to refresh asynchronously using a coroutine.
         /// This method does not block Unity's main thread.
         /// </summary>
-        /// <param name="maxTimeMillis">Optional maximum time to wait, in milliseconds. Waits indefinitely if null.</param>
+        /// <param name="maxTimeMillis">Optional maximum time to wait, in milliseconds. Native calls time out after about 59 seconds, so null or a longer value ends in a timeout error.</param>
         /// <param name="onComplete">Callback invoked when the operation completes.</param>
         /// <param name="onError">Optional callback invoked if an error occurs.</param>
         /// <returns>A coroutine that can be started with StartCoroutine.</returns>
