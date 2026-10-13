@@ -97,6 +97,7 @@ class UnityPlugin {
                 EventType.FOREGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
                 EventType.BACKGROUND_PUSH_RECEIVED -> onPushReceived(event.body.optionalField<JsonValue>("pushPayload"))
                 EventType.NOTIFICATION_STATUS_CHANGED -> onNotificationStatusChanged(event.body.optionalField<JsonValue>("status"))
+                EventType.FEATURE_FLAG_STATUS_CHANGED -> onFeatureFlagStatusChanged(event.body.optionalField<String>("status"))
                 else -> {}
             }
             true
@@ -516,6 +517,30 @@ class UnityPlugin {
         airshipProxyInstance.featureFlagManager.trackInteraction(FeatureFlagProxy(JsonValue.parseString(flag)))
     }
 
+    fun featureFlagStatus(): String {
+        UALog.d { "UnityPlugin featureFlagStatus method call" }
+        return airshipProxyInstance.featureFlagManager.status
+    }
+
+    // A boxed Long? parameter here would cross Unity's Android bridge as a primitive-long
+    // call signature, which a nullable Kotlin Long can never match -- so "no max time" is a
+    // sentinel rather than null.
+    fun waitFeatureFlagRefresh(maxTimeMillis: Long) {
+        UALog.d { "UnityPlugin waitFeatureFlagRefresh method call with: $maxTimeMillis" }
+        runBlockingWithTimeout {
+            airshipProxyInstance.featureFlagManager.waitRefresh(if (maxTimeMillis < 0) null else maxTimeMillis)
+        }
+    }
+
+    // Launch deep link
+
+    fun getLaunchDeepLink(): String? {
+        UALog.d { "UnityPlugin getLaunchDeepLink method call" }
+        return runBlockingWithTimeout {
+            airshipProxyInstance.getLaunchDeepLink()
+        }
+    }
+
     // Live Update (Android only)
 
     fun liveUpdateList(payload: String): String {
@@ -692,6 +717,14 @@ class UnityPlugin {
 
         if (listener != null) {
             UnityPlayer.UnitySendMessage(listener, "OnNotificationStatusChanged", status?.toString() ?: "")
+        }
+    }
+
+    fun onFeatureFlagStatusChanged(status: String?) {
+        UALog.d { "UnityPlugin feature flag status changed: $status" }
+
+        if (listener != null) {
+            UnityPlayer.UnitySendMessage(listener, "OnFeatureFlagStatusChanged", status ?: "")
         }
     }
 

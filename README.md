@@ -5,9 +5,9 @@ cross-platform C# API. Apps can share the same integration code across both plat
 
 ### Requirements
  - Unity 6+
- - iOS: Xcode 16+
+ - iOS: Xcode 27+
  - iOS: Minimum deployment target iOS 16+
- - Android: minSdkVersion 23, compileSdk/targetSdk 36
+ - Android: minSdkVersion 26, compileSdk/targetSdk 36
  - Android: Kotlin 2.2.20+
 
 ### Resources

@@ -492,7 +492,7 @@ class UnityPlugin: NSObject {
                     flag: try AirshipJSON.wrap(requireJsonStringArg(args.first)).decode()
                 )
                 return .handledSync(nil)
-            
+
             default:
                 return .notHandled
         }
@@ -616,6 +616,22 @@ class UnityPlugin: NSObject {
             
                 return .handledAsync(result)
 
+            case "featureFlagStatus":
+                return .handledAsync(try await AirshipProxy.shared.featureFlagManager.status.rawValue)
+
+            case "waitFeatureFlagRefresh":
+                // -1 means wait indefinitely: matches the sentinel the Android bridge needs,
+                // so both platforms share one wire contract instead of null meaning different
+                // things per platform.
+                let maxTimeMillis = try requireDoubleArg(args.first)
+                try await AirshipProxy.shared.featureFlagManager.waitRefresh(
+                    maxTime: maxTimeMillis < 0 ? nil : maxTimeMillis / 1000.0
+                )
+                return .handledAsync(nil)
+
+            case "getLaunchDeepLink":
+                return .handledAsync(await AirshipProxy.shared.getLaunchDeepLink())
+
             // Live Activity (iOS only)
             case "liveActivityList":
                 if #available(iOS 16.1, *) {
@@ -730,6 +746,10 @@ class UnityPlugin: NSObject {
                         if let statusRaw = json["status"],
                            let status: NotificationStatus = try? AirshipJSON.wrap(statusRaw).decode() {
                             notificationStatusChanged(status)
+                        }
+                    case .featureFlagStatusChanged:
+                        if let status = json["status"] as? String {
+                            featureFlagStatusChanged(status)
                         }
                     case .pendingEmbeddedUpdated, .liveActivitiesUpdated, .overridePresentationOptions:
                         break
@@ -881,6 +901,17 @@ class UnityPlugin: NSObject {
         }
     }
     
+    public func featureFlagStatusChanged(_ status: String) {
+        AirshipLogger.debug("UnityPlugin featureFlagStatusChanged \(status)")
+
+        if let listener = self.listener {
+            callUnitySendMessage(objectName: listener,
+                                 methodName: "OnFeatureFlagStatusChanged",
+                                 message: status
+            )
+        }
+    }
+
     /// Rewrites a proxy payload so Unity's JsonUtility can read it: the `extras` object is
     /// split into `extrasKeys` / `extrasValues` parallel arrays, because JsonUtility has no
     /// dictionary support. Mirrors `pushPayloadForUnity` and `getInboxMessagesAsJSON` on
