@@ -2,9 +2,9 @@
 
 ## Version 11.0.0 - October 01 2026
 
-Major release that updates to Airship Android SDK 21.0.2 and iOS SDK 21.0.2 via framework
-proxy 16.0.1. The proxy update raises the minimum Android SDK version and the required
-Xcode version, which is why apps should treat this as a breaking change.
+Major release that updates to Airship Android SDK 21.0.2 and iOS SDK 21.0.2. This release
+raises the minimum Android SDK version and the required Xcode version, so apps should treat
+this as a breaking change.
 
 ### Changes
 - Updated Android SDK to 21.0.2
